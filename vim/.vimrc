@@ -20,6 +20,7 @@ Plugin 'scrooloose/nerdtree'
 Plugin 'gmarik/Vundle.vim'   " let Vundle manage Vundle, required
 Plugin 'nvie/vim-flake8'
 Plugin 'kien/ctrlp.vim'  " search file inside vim
+Plugin 'Chiel92/vim-autoformat'
 
 " Plugin 'Lokaltog/powerline', {'rtp': 'powerline/bindings/vim/'} " a status bar
 
@@ -128,15 +129,12 @@ au BufNewFile,BufRead *.js, *.html, *.css
 
 let g:ycm_autoclose_preview_window_after_completion=1
 map <leader>g  :YcmCompleter GoToDefinitionElseDeclaration<CR>
-let g:ycm_python_binary_path='/usr/bin/python'
+let g:ycm_python_binary_path='/usr/bin/python3'
 let g:ycm_server_python_interpreter='/usr/bin/python'
 let g:ycm_global_ycm_extra_conf='~/.vim/.ycm_extra_conf.py'
 
-" --------------------------------------------------
 " key mappings
-" --------------------------------------------------
-
-" I don't want it.
+nnoremap <leader>jd :YcmCompleter GoTo<CR>'
 
 " --------------------------------------------------
 " reference
