@@ -136,6 +136,14 @@ let g:ycm_global_ycm_extra_conf='~/.vim/.ycm_extra_conf.py'
 " key mappings
 nnoremap <leader>jd :YcmCompleter GoTo<CR>'
 
+
+" --------------------------------------------------
+" other plugin config
+" --------------------------------------------------
+
+" For vim-autoformatter
+let g:formatter_yapf_style = 'pep8'
+
 " --------------------------------------------------
 " reference
 " --------------------------------------------------
