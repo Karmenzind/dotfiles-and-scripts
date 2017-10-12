@@ -33,7 +33,7 @@ filetype plugin indent on
 " Basic
 " --------------------------------------------------
 
-"colorscheme = molokai
+"colorscheme molokai
 
 set nocompatible              
 
