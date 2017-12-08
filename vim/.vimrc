@@ -33,7 +33,9 @@ filetype plugin indent on
 " Basic
 " --------------------------------------------------
 
-colorscheme molokai
+syntax on
+
+"colorscheme = molokai
 
 set nocompatible              
 
@@ -106,7 +108,6 @@ let g:NERDTreeIgnore=['\.pyc$', '\~$']
 " --------------------------------------------------
 
 let python_highlight_all=1
-syntax on
 
 " PEP8 intent
 au BufNewFile,BufRead *.py
