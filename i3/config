@@ -181,18 +181,20 @@ bindsym --release Print exec scrot 'SCREENSHOT_TEMP.png' -e 'mv $f ~/Pictures &&
 bindsym --release Shift+Print exec scrot -s 'SCREENSHOT_TEMP.png' -e 'mv $f ~/Pictures && xclip -selection clipboard -t image/png -i ~/Pictures/SCREENSHOT_TEMP.png' # Area selection
 
 # lock
-bindsym $mod+Ctrl+l exec --no-startup-id i3lock -t -i '/home/k/Pictures/f.png' 
+bindsym $mod+Ctrl+l exec --no-startup-id i3lock -t -i "${HOME}/Pictures/LOCKSCREEN.png"
 
-# background
-exec --no-startup-id feh --bg-scale /home/k/Pictures/BACKGROUND.jpg
+exec --no-startup-id feh --bg-max "${HOME}/Pictures/BACKGROUND.jpg"
+
 exec --no-startup-id fcitx
-exec --no-startup-id compton -cCGfF -b -i 0.75
 
-# log the output
-exec i3 -V >> /tmp/i3log-$(date +'%F-%k-%M-%S') 2>&1
+exec --no-startup-id compton -cCGfF -b -i 0.75
 
 client.focused #0088CC #0088CC #ffffff #dddddd
 client.focused_inactive #333333 #333333 #888888 #292d2e
 client.unfocused #333333 #333333 #888888 #292d2e
 client.urgent #2f343a #900000 #ffffff #900000
+
+# log the output
+exec i3 -V >> /tmp/i3log-$(date +'%F-%k-%M-%S') 2>&1
+
 
