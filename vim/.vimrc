@@ -1,6 +1,11 @@
 " Last update:  Tue Oct 10 15:13:27 CST 2017
 " Github: https://github.com/Karmenzind/MyConfig
 
+set nocompatible
+
+" file type detection
+filetype off 
+
 " --------------------------------------------------
 "  Plugins Manage
 " --------------------------------------------------
@@ -13,16 +18,18 @@ call vundle#begin()
 " call vundle#begin('~/some/path/here')
 
 " Add all your plugins here (note older versions of Vundle used Bundle instead of Plugin)
+Plugin 'VundleVim/Vundle.vim'
 Plugin 'tmhedberg/SimpylFold'
-Plugin 'Valloric/YouCompleteMe'
+" Plugin 'Valloric/YouCompleteMe'
 Plugin 'vim-scripts/indentpython.vim'
 Plugin 'scrooloose/nerdtree'
-Plugin 'gmarik/Vundle.vim'   " let Vundle manage Vundle, required
 Plugin 'nvie/vim-flake8'
 Plugin 'kien/ctrlp.vim'  " search file inside vim
 Plugin 'Chiel92/vim-autoformat'
-
-" Plugin 'Lokaltog/powerline', {'rtp': 'powerline/bindings/vim/'} " a status bar
+Plugin 'vim-airline/vim-airline'
+Plugin 'vim-airline/vim-airline-themes'
+Plugin 'morhetz/gruvbox'
+" Plugin 'Lokaltog/powerline', {'rtp': 'powerline/bindings/vim/'}  a status bar
 
 " All of your Plugins must be added before the following line
 call vundle#end()            
@@ -35,15 +42,14 @@ filetype plugin indent on
 
 syntax on
 
-"colorscheme = molokai
-
-set nocompatible              
+colorscheme Tomorrow-Night-Eighties
 
 set encoding=utf-8
 
 set nu
 
 set cursorline
+highlight CursorLine guibg=darkgray ctermbg=black
 
 set history=1000
 
@@ -96,8 +102,6 @@ endif
 set splitbelow
 set splitright
 
-" file type detection
-filetype off                 
 
 " hide pyc in NERDTREE
 let g:NERDTreeIgnore=['\.pyc$', '\~$']
@@ -142,6 +146,9 @@ nnoremap <leader>jd :YcmCompleter GoTo<CR>'
 " --------------------------------------------------
 " other plugin config
 " --------------------------------------------------
+
+" For vim-airline
+let g:airline_theme="minimalist"
 
 " For vim-autoformatter
 let g:formatter_yapf_style = 'pep8'
