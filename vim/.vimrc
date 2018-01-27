@@ -29,6 +29,7 @@ Plugin 'Chiel92/vim-autoformat'
 Plugin 'vim-airline/vim-airline'
 Plugin 'vim-airline/vim-airline-themes'
 Plugin 'morhetz/gruvbox'
+Plugin 'davidhalter/jedi-vim'
 " Plugin 'Lokaltog/powerline', {'rtp': 'powerline/bindings/vim/'}  a status bar
 
 " All of your Plugins must be added before the following line
@@ -42,7 +43,9 @@ filetype plugin indent on
 
 syntax on
 
-colorscheme Tomorrow-Night-Eighties
+" colorscheme Tomorrow-Night-Eighties
+" colorscheme Tomorrow-Night-Bright
+colorscheme molokai
 
 set encoding=utf-8
 
@@ -72,6 +75,9 @@ set statusline=%F%m%r%h%w\ (%{&ff}){%Y}\ [%l,%v][%p%%]
 " Spaces are better than a tab character
 set expandtab
 set smarttab
+set tabstop=4 
+set softtabstop=4 
+set shiftwidth=4
 
 " set showmatch
 
@@ -102,13 +108,8 @@ endif
 set splitbelow
 set splitright
 
-
-" hide pyc in NERDTREE
-let g:NERDTreeIgnore=['\.pyc$', '\~$']
-
-
 " --------------------------------------------------
-" for python
+" for Python
 " --------------------------------------------------
 
 let python_highlight_all=1
@@ -128,9 +129,18 @@ au BufNewFile,BufRead *.js, *.html, *.css
     \ set softtabstop=2 |
     \ set shiftwidth=2
 
+"python with virtualenv support
+py << EOF
+import os
+import sys
+if 'VIRTUAL_ENV' in os.environ:
+    project_base_dir = os.environ['VIRTUAL_ENV']
+    activate_this = os.path.join(project_base_dir, 'bin/activate_this.py')
+    execfile(activate_this, dict(__file__=activate_this))
+EOF
 
 " --------------------------------------------------
-" ycm config
+" for ycm
 " --------------------------------------------------
 
 let g:ycm_autoclose_preview_window_after_completion=1
@@ -142,6 +152,41 @@ let g:ycm_global_ycm_extra_conf='~/.vim/.ycm_extra_conf.py'
 " key mappings
 nnoremap <leader>jd :YcmCompleter GoTo<CR>'
 
+" --------------------------------------------------
+" for NERDTree
+" --------------------------------------------------
+
+" How can I map a specific key or shortcut to open NERDTree?
+map <C-n> :NERDTreeToggle<CR>
+
+" How can I change default arrows?
+" let g:NERDTreeDirArrowExpandable = '▸'
+" let g:NERDTreeDirArrowCollapsible = '▾'
+
+" How can I open a NERDTree automatically when vim starts up?
+" autocmd vimenter * NERDTree
+
+" How can I open a NERDTree automatically when vim starts up if no files were specified?
+" autocmd StdinReadPre * let s:std_in=1
+" autocmd VimEnter * if argc() == 0 && !exists("s:std_in") | NERDTree | endif
+
+" How can I open NERDTree automatically when vim starts up on opening a directory?
+autocmd StdinReadPre * let s:std_in=1
+autocmd VimEnter * if argc() == 1 && isdirectory(argv()[0]) && !exists("s:std_in") | exe 'NERDTree' argv()[0] | wincmd p | ene | endif
+
+" How can I close vim if the only window left open is a NERDTree?
+autocmd bufenter * if (winnr("$") == 1 && exists("b:NERDTree") && b:NERDTree.isTabTree()) | q | endif
+
+" hide specific files in NERDTREE
+let g:NERDTreeIgnore=['\.pyc$', '\~$']
+
+" --------------------------------------------------
+" for jedi-vim
+" --------------------------------------------------
+
+" use VIM-splits
+let g:jedi#use_splits_not_buffers = "right"
+let g:jedi#completions_command = "<leader><Space>"
 
 " --------------------------------------------------
 " other plugin config

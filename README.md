@@ -7,3 +7,4 @@ several config files
 -   [fcitx](./fcitx)
 -   [compton](./compton)
 -   [i3](./i3)
+-   [tmux](./tmux)
