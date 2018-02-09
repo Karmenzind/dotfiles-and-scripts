@@ -20,7 +20,7 @@ call vundle#begin()
 " Add all your plugins here (note older versions of Vundle used Bundle instead of Plugin)
 Plugin 'VundleVim/Vundle.vim'
 Plugin 'tmhedberg/SimpylFold'
-" Plugin 'Valloric/YouCompleteMe'
+Plugin 'Valloric/YouCompleteMe'
 Plugin 'vim-scripts/indentpython.vim'
 Plugin 'scrooloose/nerdtree'
 Plugin 'nvie/vim-flake8'
@@ -29,7 +29,10 @@ Plugin 'Chiel92/vim-autoformat'
 Plugin 'vim-airline/vim-airline'
 Plugin 'vim-airline/vim-airline-themes'
 Plugin 'morhetz/gruvbox'
-Plugin 'davidhalter/jedi-vim'
+Plugin 'plytophogy/vim-virtualenv'
+
+" Plugin 'davidhalter/jedi-vim'
+" Plugin 'vim-scripts/fcitx.vim' " keep and restore fcitx state when leaving/re-entering insert mode
 " Plugin 'Lokaltog/powerline', {'rtp': 'powerline/bindings/vim/'}  a status bar
 
 " All of your Plugins must be added before the following line
@@ -45,14 +48,21 @@ syntax on
 
 " colorscheme Tomorrow-Night-Eighties
 " colorscheme Tomorrow-Night-Bright
-colorscheme molokai
+
+" colorscheme molokai
+" let g:solarized_termcolors=256
+" let g:solarized_termtrans=1
+colorscheme solarized
+
+set background=dark
+
+set cursorline
+" highlight CursorLine guibg=darkgray ctermbg=black
 
 set encoding=utf-8
 
 set nu
 
-set cursorline
-highlight CursorLine guibg=darkgray ctermbg=black
 
 set history=1000
 
@@ -109,10 +119,8 @@ set splitbelow
 set splitright
 
 " --------------------------------------------------
-" for Python
+" format for specific file type
 " --------------------------------------------------
-
-let python_highlight_all=1
 
 " PEP8 intent
 au BufNewFile,BufRead *.py
@@ -129,6 +137,12 @@ au BufNewFile,BufRead *.js, *.html, *.css
     \ set softtabstop=2 |
     \ set shiftwidth=2
 
+" --------------------------------------------------
+" for Python
+" --------------------------------------------------
+
+let python_highlight_all=1
+
 "python with virtualenv support
 py << EOF
 import os
@@ -144,13 +158,15 @@ EOF
 " --------------------------------------------------
 
 let g:ycm_autoclose_preview_window_after_completion=1
-map <leader>g  :YcmCompleter GoToDefinitionElseDeclaration<CR>
-let g:ycm_python_binary_path='/usr/bin/python3'
-let g:ycm_server_python_interpreter='/usr/bin/python'
+let g:ycm_python_binary_path='python'
 let g:ycm_global_ycm_extra_conf='~/.vim/.ycm_extra_conf.py'
+
+" for ycmd server, not completion
+let g:ycm_server_python_interpreter='/usr/bin/python2'
 
 " key mappings
 nnoremap <leader>jd :YcmCompleter GoTo<CR>'
+map <leader>g  :YcmCompleter GoToDefinitionElseDeclaration<CR>
 
 " --------------------------------------------------
 " for NERDTree
@@ -181,14 +197,6 @@ autocmd bufenter * if (winnr("$") == 1 && exists("b:NERDTree") && b:NERDTree.isT
 let g:NERDTreeIgnore=['\.pyc$', '\~$']
 
 " --------------------------------------------------
-" for jedi-vim
-" --------------------------------------------------
-
-" use VIM-splits
-let g:jedi#use_splits_not_buffers = "right"
-let g:jedi#completions_command = "<leader><Space>"
-
-" --------------------------------------------------
 " other plugin config
 " --------------------------------------------------
 
@@ -198,9 +206,17 @@ let g:airline_theme="minimalist"
 " For vim-autoformatter
 let g:formatter_yapf_style = 'pep8'
 
+" For vim-virtualenv
+let g:virtualenv_directory = '~/Envs'
+
+" for jedi-vim
+" let g:jedi#use_splits_not_buffers = "right"
+" let g:jedi#completions_command = "<leader><Space>"
+
 " --------------------------------------------------
 " reference
 " --------------------------------------------------
 
 " https://stackoverflow.com/questions/164847/what-is-in-your-vimrc
 " https://segmentfault.com/a/1190000003962806
+

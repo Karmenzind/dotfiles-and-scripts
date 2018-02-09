@@ -246,8 +246,10 @@ bindsym --release Print exec scrot 'SCREENSHOT_TEMP.png' -e 'mv $f ~/Pictures &&
 # OSX-like area selection screenshots
 bindsym --release Shift+Print exec scrot -s 'SCREENSHOT_TEMP.png' -e 'mv $f ~/Pictures && xclip -selection clipboard -t image/png -i ~/Pictures/SCREENSHOT_TEMP.png' # Area selection
 
+# exec --no-startup-id volumeicon
 exec --no-startup-id fcitx
-exec --no-startup-id compton -cCGfF -b -i 0.75
+exec --no-startup-id compton -b
+# exec --no-startup-id compton -cCGf -b -i 0.75
 
 client.focused #0088CC #0088CC #ffffff #dddddd
 client.focused_inactive #333333 #333333 #888888 #292d2e
