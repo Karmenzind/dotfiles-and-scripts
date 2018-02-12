@@ -1,0 +1,31 @@
+#! /bin/bash
+# activate python virtual environment
+
+[ $0 != 'bash' ] && echo 'Use source other than bash.' && exit -1
+
+PYVE_DIR='/home/k/Envs/'
+PYVES=(`ls $PYVE_DIR | sort`)
+PYVES_REPR=`ls $PYVE_DIR | sort | grep -n '' | sed 's/:/  /'`
+
+echo "Pick one virtual environment to activate
+
+$PYVES_REPR
+"
+
+read -p "Input number: " IDX_OF_PYVE
+
+if [ $IDX_OF_PYVE -lt 1 ] || [ $IDX_OF_PYVE -gt ${#PYVES[@]} ]
+then
+    echo "Error: invalid index"
+    exit -1 
+else
+    CHOOSED_IDX_OF_PYVE=$((IDX_OF_PYVE-1))
+    PYVE_NAME=${PYVES[${CHOOSED_IDX_OF_PYVE}]}
+
+    [ -n $VIRTUAL_ENV ] && deactivate
+    echo ""
+    echo "Activating $PYVE_NAME..."
+    source "${PYVE_DIR}${PYVE_NAME}/bin/activate"
+    echo "DONE :)"
+fi
+

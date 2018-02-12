@@ -1,4 +1,4 @@
-" Last update:  Tue Oct 10 15:13:27 CST 2017
+" Last update:  2018-02-12
 " Github: https://github.com/Karmenzind/MyConfig
 
 set nocompatible
@@ -30,10 +30,16 @@ Plugin 'vim-airline/vim-airline'
 Plugin 'vim-airline/vim-airline-themes'
 Plugin 'morhetz/gruvbox'
 Plugin 'plytophogy/vim-virtualenv'
+Plugin 'wsdjeg/FlyGrep.vim'
+Plugin 'Yggdroot/LeaderF'
 
+" /Alternative/
+" Plugin 'SirVer/ultisnips' " ultimate solution for snippets
 " Plugin 'davidhalter/jedi-vim'
 " Plugin 'vim-scripts/fcitx.vim' " keep and restore fcitx state when leaving/re-entering insert mode
 " Plugin 'Lokaltog/powerline', {'rtp': 'powerline/bindings/vim/'}  a status bar
+" Plugin 'rkulla/pydiction' " Python Tab-completion 
+" Plugin 'ctrlpvim/ctrlp.vim'
 
 " All of your Plugins must be added before the following line
 call vundle#end()            
@@ -165,8 +171,10 @@ let g:ycm_global_ycm_extra_conf='~/.vim/.ycm_extra_conf.py'
 let g:ycm_server_python_interpreter='/usr/bin/python2'
 
 " key mappings
-nnoremap <leader>jd :YcmCompleter GoTo<CR>'
-map <leader>g  :YcmCompleter GoToDefinitionElseDeclaration<CR>
+nnoremap <leader>gt :YcmCompleter GoTo<CR>'
+map <leader>dd  :YcmCompleter GoToDefinitionElseDeclaration<CR>
+map <leader>rf  :YcmCompleter GoToReferences<CR>
+map <leader>doc  :YcmCompleter GetDoc<CR>
 
 " --------------------------------------------------
 " for NERDTree
@@ -194,7 +202,13 @@ autocmd VimEnter * if argc() == 1 && isdirectory(argv()[0]) && !exists("s:std_in
 autocmd bufenter * if (winnr("$") == 1 && exists("b:NERDTree") && b:NERDTree.isTabTree()) | q | endif
 
 " hide specific files in NERDTREE
-let g:NERDTreeIgnore=['\.pyc$', '\~$']
+let g:NERDTreeIgnore=['\.pyc$', 
+            \'\~$',
+            \'__pycache__[[dir]]']
+
+let NERDTreeNaturalSort=1 
+let NERDTreeShowLineNumbers=1
+" let NERDTreeMinimalUI=1
 
 " --------------------------------------------------
 " other plugin config
@@ -212,6 +226,25 @@ let g:virtualenv_directory = '~/Envs'
 " for jedi-vim
 " let g:jedi#use_splits_not_buffers = "right"
 " let g:jedi#completions_command = "<leader><Space>"
+
+" for LeaderF
+" let g:Lf_ShortcurF = '<leader>n'
+nnoremap <leader>f :LeaderfFile<cr>
+highlight Lf_hl_match gui=bold guifg=Blue cterm=bold ctermfg=21
+highlight Lf_hl_matchRefine  gui=bold guifg=Magenta cterm=bold ctermfg=201
+let g:Lf_WindowPosition = 'bottom'
+let g:Lf_DefaultMode = 'FullPath'
+let g:Lf_StlColorscheme = 'powerline'
+let g:Lf_WildIgnore = {
+    \ 'dir': ['.svn','.git','.hg', '.idea', '__pycache__'],
+    \ 'file': ['*.sw?','~$*','*.bak','*.exe','*.o','*.so','*.py[co]']
+    \}
+let g:Lf_MruFileExclude = ['*.so']
+" let g:Lf_PreviewCode = 0
+
+" for FlyGrep
+" nnoremap <leader>f :FlyGrep<cr>
+nnoremap <leader>s :FlyGrep<cr>
 
 " --------------------------------------------------
 " reference
