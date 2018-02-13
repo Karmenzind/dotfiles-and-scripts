@@ -1,4 +1,4 @@
-" Last update:  2018-02-12
+" Last update:  Tue Oct 10 15:13:27 CST 2017
 " Github: https://github.com/Karmenzind/MyConfig
 
 set nocompatible
@@ -19,27 +19,31 @@ call vundle#begin()
 
 " Add all your plugins here (note older versions of Vundle used Bundle instead of Plugin)
 Plugin 'VundleVim/Vundle.vim'
-Plugin 'tmhedberg/SimpylFold'
-Plugin 'Valloric/YouCompleteMe'
-Plugin 'vim-scripts/indentpython.vim'
-Plugin 'scrooloose/nerdtree'
 Plugin 'nvie/vim-flake8'
-Plugin 'kien/ctrlp.vim'  " search file inside vim
-Plugin 'Chiel92/vim-autoformat'
 Plugin 'vim-airline/vim-airline'
 Plugin 'vim-airline/vim-airline-themes'
 Plugin 'morhetz/gruvbox'
-Plugin 'plytophogy/vim-virtualenv'
+
+Plugin 'scrooloose/nerdtree'
+
+Plugin 'Chiel92/vim-autoformat'
+
+Plugin 'Valloric/YouCompleteMe'
 Plugin 'wsdjeg/FlyGrep.vim'
 Plugin 'Yggdroot/LeaderF'
 
+Plugin 'SirVer/ultisnips' " ultimate solution for snippets
+Plugin 'tmhedberg/SimpylFold' " code folding for Python
+Plugin 'vim-scripts/indentpython.vim'
+Plugin 'plytophogy/vim-virtualenv'
+
 " /Alternative/
-" Plugin 'SirVer/ultisnips' " ultimate solution for snippets
 " Plugin 'davidhalter/jedi-vim'
 " Plugin 'vim-scripts/fcitx.vim' " keep and restore fcitx state when leaving/re-entering insert mode
 " Plugin 'Lokaltog/powerline', {'rtp': 'powerline/bindings/vim/'}  a status bar
 " Plugin 'rkulla/pydiction' " Python Tab-completion 
 " Plugin 'ctrlpvim/ctrlp.vim'
+" Plugin 'kien/ctrlp.vim'  " search file inside vim
 
 " All of your Plugins must be added before the following line
 call vundle#end()            
@@ -98,7 +102,8 @@ set shiftwidth=4
 " set showmatch
 
 " Enable folding
-set foldmethod=indent
+" set foldmethod=indent
+set foldmethod=manual
 set foldlevel=99
 let g:SimpylFold_docstring_preview=1
 
@@ -163,12 +168,13 @@ EOF
 " for ycm
 " --------------------------------------------------
 
-let g:ycm_autoclose_preview_window_after_completion=1
-let g:ycm_python_binary_path='python'
-let g:ycm_global_ycm_extra_conf='~/.vim/.ycm_extra_conf.py'
+let g:ycm_autoclose_preview_window_after_completion = 1
+let g:ycm_python_binary_path = 'python'
+let g:ycm_global_ycm_extra_conf = '~/.vim/.ycm_extra_conf.py'
 
 " for ycmd server, not completion
-let g:ycm_server_python_interpreter='/usr/bin/python2'
+let g:ycm_server_python_interpreter = '/usr/bin/python2'
+" let g:ycm_goto_buffer_command = 'horizontal-split'
 
 " key mappings
 nnoremap <leader>gt :YcmCompleter GoTo<CR>'
@@ -195,7 +201,7 @@ map <C-n> :NERDTreeToggle<CR>
 " autocmd VimEnter * if argc() == 0 && !exists("s:std_in") | NERDTree | endif
 
 " How can I open NERDTree automatically when vim starts up on opening a directory?
-autocmd StdinReadPre * let s:std_in=1
+autocmd StdinReadPre * let s:std_in = 1
 autocmd VimEnter * if argc() == 1 && isdirectory(argv()[0]) && !exists("s:std_in") | exe 'NERDTree' argv()[0] | wincmd p | ene | endif
 
 " How can I close vim if the only window left open is a NERDTree?
@@ -243,7 +249,6 @@ let g:Lf_MruFileExclude = ['*.so']
 " let g:Lf_PreviewCode = 0
 
 " for FlyGrep
-" nnoremap <leader>f :FlyGrep<cr>
 nnoremap <leader>s :FlyGrep<cr>
 
 " --------------------------------------------------

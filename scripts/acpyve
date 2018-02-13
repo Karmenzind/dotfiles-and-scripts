@@ -3,29 +3,41 @@
 
 [ $0 != 'bash' ] && echo 'Use source other than bash.' && exit -1
 
-PYVE_DIR='/home/k/Envs/'
-PYVES=(`ls $PYVE_DIR | sort`)
-PYVES_REPR=`ls $PYVE_DIR | sort | grep -n '' | sed 's/:/  /'`
+[ -n "$PY_VIRTUAL_ENV_DIR" ] || PY_VIRTUAL_ENV_DIR="$HOME/Envs"
 
-echo "Pick one virtual environment to activate
+function start_it {
+    PYVES=(`ls $PY_VIRTUAL_ENV_DIR | sort`)
+    PYVES_REPR=`ls $PY_VIRTUAL_ENV_DIR | sort | grep -n '' | sed 's/:/  /'`
+    echo "Pick one virtual environment to activate:"
+    echo -e "\n$PYVES_REPR\n"
+    read -p "Input number: " IDX_OF_PYVE
+    if [ $IDX_OF_PYVE -lt 1 ] || [ $IDX_OF_PYVE -gt ${#PYVES[@]} ]
+    then
+        echo "Error: invalid index"
+    else
+        activate_ve ${PYVES[$((IDX_OF_PYVE-1))]}
+    fi
+}
 
-$PYVES_REPR
-"
+function activate_ve {
+    PYVE_NAME="$1"
+    [ -n "$VIRTUAL_ENV" ] && deactivate
+    echo -e "\nActivating $PYVE_NAME..."
+    cd $PY_VIRTUAL_ENV_DIR
+    source "./${PYVE_NAME}/bin/activate"
+    cd -
+    echo -e "\nDONE :)\n"
+}
 
-read -p "Input number: " IDX_OF_PYVE
 
-if [ $IDX_OF_PYVE -lt 1 ] || [ $IDX_OF_PYVE -gt ${#PYVES[@]} ]
+if [ -d $PY_VIRTUAL_ENV_DIR ];
 then
-    echo "Error: invalid index"
-    exit -1 
+    start_it
 else
-    CHOOSED_IDX_OF_PYVE=$((IDX_OF_PYVE-1))
-    PYVE_NAME=${PYVES[${CHOOSED_IDX_OF_PYVE}]}
-
-    [ -n $VIRTUAL_ENV ] && deactivate
-    echo ""
-    echo "Activating $PYVE_NAME..."
-    source "${PYVE_DIR}${PYVE_NAME}/bin/activate"
-    echo "DONE :)"
+    echo "Current PY_VIRTUAL_ENV_DIR: '$PY_VIRTUAL_ENV_DIR'"
+    echo "Please give a proper value"
 fi
+
+unset -v PYVES PYVES_PEPR IDX_OF_PYVE PYVE_NAME
+unset -f start_it activate_ve
 
