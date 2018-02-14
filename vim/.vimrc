@@ -19,21 +19,20 @@ call vundle#begin()
 
 " Add all your plugins here (note older versions of Vundle used Bundle instead of Plugin)
 Plugin 'VundleVim/Vundle.vim'
-Plugin 'nvie/vim-flake8'
 Plugin 'vim-airline/vim-airline'
 Plugin 'vim-airline/vim-airline-themes'
 Plugin 'morhetz/gruvbox'
 
-Plugin 'scrooloose/nerdtree'
-
+Plugin 'Valloric/YouCompleteMe'
+Plugin 'SirVer/ultisnips' " ultimate solution for snippets
 Plugin 'Chiel92/vim-autoformat'
 
-Plugin 'Valloric/YouCompleteMe'
+Plugin 'scrooloose/nerdtree'
 Plugin 'wsdjeg/FlyGrep.vim'
 Plugin 'Yggdroot/LeaderF'
 
-Plugin 'SirVer/ultisnips' " ultimate solution for snippets
 Plugin 'tmhedberg/SimpylFold' " code folding for Python
+Plugin 'nvie/vim-flake8' " Python syntax  (flake8 required)
 Plugin 'vim-scripts/indentpython.vim'
 Plugin 'plytophogy/vim-virtualenv'
 
