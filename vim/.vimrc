@@ -36,22 +36,23 @@ Plugin 'nvie/vim-flake8' " Python syntax  (flake8 required)
 Plugin 'vim-scripts/indentpython.vim'
 Plugin 'plytophogy/vim-virtualenv'
 
-" /Alternative/
+" /* Alternative */
 " Plugin 'davidhalter/jedi-vim'
 " Plugin 'vim-scripts/fcitx.vim' " keep and restore fcitx state when leaving/re-entering insert mode
 " Plugin 'Lokaltog/powerline', {'rtp': 'powerline/bindings/vim/'}  a status bar
 " Plugin 'rkulla/pydiction' " Python Tab-completion 
 " Plugin 'ctrlpvim/ctrlp.vim'
 " Plugin 'kien/ctrlp.vim'  " search file inside vim
+" https://github.com/python-mode/python-mode
 
 " All of your Plugins must be added before the following line
 call vundle#end()            
-filetype plugin indent on    
-
 
 " --------------------------------------------------
 " Basic
 " --------------------------------------------------
+
+filetype plugin indent on    
 
 syntax on
 
@@ -137,10 +138,13 @@ au BufNewFile,BufRead *.py
     \ set tabstop=4 |
     \ set softtabstop=4 |
     \ set shiftwidth=4 |
-    \ set textwidth=79 |
     \ set expandtab |
     \ set autoindent |
-    \ set fileformat=unix
+    \ set fileformat=unix |
+    \ set nowrap | 
+    \ set sidescroll=5 
+    " \ set listchars+=precedes:<,extends:>
+    " \ set textwidth=79 |
 
 au BufNewFile,BufRead *.js, *.html, *.css
     \ set tabstop=2 |
@@ -208,8 +212,8 @@ autocmd bufenter * if (winnr("$") == 1 && exists("b:NERDTree") && b:NERDTree.isT
 
 " hide specific files in NERDTREE
 let g:NERDTreeIgnore=['\.pyc$', 
-            \'\~$',
-            \'__pycache__[[dir]]']
+    \'\~$',
+    \'__pycache__[[dir]]']
 
 let NERDTreeNaturalSort=1 
 let NERDTreeShowLineNumbers=1
@@ -242,9 +246,10 @@ let g:Lf_DefaultMode = 'FullPath'
 let g:Lf_StlColorscheme = 'powerline'
 let g:Lf_WildIgnore = {
     \ 'dir': ['.svn','.git','.hg', '.idea', '__pycache__'],
-    \ 'file': ['*.sw?','~$*','*.bak','*.exe','*.o','*.so','*.py[co]']
+    \ 'file': ['*.sw?','~$*','*.exe','*.o','*.so','*.py[co]']
     \}
 let g:Lf_MruFileExclude = ['*.so']
+let g:Lf_UseVersionControlTool = 0 " use version control tool to index the files
 " let g:Lf_PreviewCode = 0
 
 " for FlyGrep
