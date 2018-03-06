@@ -6,9 +6,9 @@ set nocompatible
 " file type detection
 filetype off 
 
-" --------------------------------------------------
+" -----------------------------------------------------------------------------
 "  Plugins Manage
-" --------------------------------------------------
+" -----------------------------------------------------------------------------
 
 " set the runtime path to include Vundle and initialize
 set rtp+=~/.vim/bundle/Vundle.vim
@@ -32,11 +32,20 @@ Plugin 'wsdjeg/FlyGrep.vim'
 Plugin 'Yggdroot/LeaderF'
 
 Plugin 'tmhedberg/SimpylFold' " code folding for Python
-Plugin 'nvie/vim-flake8' " Python syntax  (flake8 required)
+Plugin 'nvie/vim-flake8' " Python syntax checker (flake8 required) [press F7 to run]
 Plugin 'vim-scripts/indentpython.vim'
-Plugin 'plytophogy/vim-virtualenv'
+Plugin 'plytophogy/vim-virtualenv' " Python v e
+
+Plugin 'terryma/vim-smooth-scroll' 
+Plugin 'junegunn/goyo.vim'
+Plugin 'junegunn/vim-slash'
+Plugin 'mhinz/vim-startify'
+Plugin 'chxuan/change-colorscheme'
+Plugin 'majutsushi/tagbar'
 
 " /* Alternative */
+" Plugin 'junegunn/limelight.vim'
+" Plugin 'junegunn/rainbow_parentheses.vim'
 " Plugin 'davidhalter/jedi-vim'
 " Plugin 'vim-scripts/fcitx.vim' " keep and restore fcitx state when leaving/re-entering insert mode
 " Plugin 'Lokaltog/powerline', {'rtp': 'powerline/bindings/vim/'}  a status bar
@@ -44,13 +53,16 @@ Plugin 'plytophogy/vim-virtualenv'
 " Plugin 'ctrlpvim/ctrlp.vim'
 " Plugin 'kien/ctrlp.vim'  " search file inside vim
 " https://github.com/python-mode/python-mode
+" Plugin 'mhinz/vim-signify' 
+" Plugin 'airblade/vim-gitgutter'
+
 
 " All of your Plugins must be added before the following line
 call vundle#end()            
 
-" --------------------------------------------------
+" -----------------------------------------------------------------------------
 " Basic
-" --------------------------------------------------
+" -----------------------------------------------------------------------------
 
 filetype plugin indent on    
 
@@ -65,14 +77,13 @@ syntax on
 colorscheme solarized
 
 set background=dark
-
+ 
 set cursorline
 " highlight CursorLine guibg=darkgray ctermbg=black
 
 set encoding=utf-8
 
 set nu
-
 
 set history=1000
 
@@ -88,9 +99,9 @@ set laststatus=2
 "Status line gnarliness
 set statusline=%F%m%r%h%w\ (%{&ff}){%Y}\ [%l,%v][%p%%]
 
-" --------------------------------------------------
+" -----------------------------------------------------------------------------
 "  coding
-" --------------------------------------------------
+" -----------------------------------------------------------------------------
 
 " Spaces are better than a tab character
 set expandtab
@@ -117,9 +128,9 @@ if version >= 700
    set nospell
 endif
 
-" --------------------------------------------------
+" -----------------------------------------------------------------------------
 "  File
-" --------------------------------------------------
+" -----------------------------------------------------------------------------
 
 " backup
 "set backup
@@ -129,9 +140,9 @@ endif
 set splitbelow
 set splitright
 
-" --------------------------------------------------
+" -----------------------------------------------------------------------------
 " format for specific file type
-" --------------------------------------------------
+" -----------------------------------------------------------------------------
 
 " PEP8 intent
 au BufNewFile,BufRead *.py
@@ -151,9 +162,9 @@ au BufNewFile,BufRead *.js, *.html, *.css
     \ set softtabstop=2 |
     \ set shiftwidth=2
 
-" --------------------------------------------------
+" -----------------------------------------------------------------------------
 " for Python
-" --------------------------------------------------
+" -----------------------------------------------------------------------------
 
 let python_highlight_all=1
 
@@ -167,9 +178,10 @@ if 'VIRTUAL_ENV' in os.environ:
     execfile(activate_this, dict(__file__=activate_this))
 EOF
 
-" --------------------------------------------------
+" "
+" -----------------------------------------------------------------------------
 " for ycm
-" --------------------------------------------------
+" -----------------------------------------------------------------------------
 
 let g:ycm_autoclose_preview_window_after_completion = 1
 let g:ycm_python_binary_path = 'python'
@@ -185,25 +197,25 @@ map <leader>dd  :YcmCompleter GoToDefinitionElseDeclaration<CR>
 map <leader>rf  :YcmCompleter GoToReferences<CR>
 map <leader>doc  :YcmCompleter GetDoc<CR>
 
-" --------------------------------------------------
+" -----------------------------------------------------------------------------
 " for NERDTree
-" --------------------------------------------------
+" -----------------------------------------------------------------------------
 
 " How can I map a specific key or shortcut to open NERDTree?
 map <C-n> :NERDTreeToggle<CR>
 
-" How can I change default arrows?
+" change default arrows?
 " let g:NERDTreeDirArrowExpandable = '▸'
 " let g:NERDTreeDirArrowCollapsible = '▾'
 
-" How can I open a NERDTree automatically when vim starts up?
+" NERDTree automatically when vim starts up
 " autocmd vimenter * NERDTree
 
-" How can I open a NERDTree automatically when vim starts up if no files were specified?
+" open a NERDTree automatically when vim starts up if no files were specified
 " autocmd StdinReadPre * let s:std_in=1
 " autocmd VimEnter * if argc() == 0 && !exists("s:std_in") | NERDTree | endif
 
-" How can I open NERDTree automatically when vim starts up on opening a directory?
+" NERDTree automatically when vim starts up on opening a directory
 autocmd StdinReadPre * let s:std_in = 1
 autocmd VimEnter * if argc() == 1 && isdirectory(argv()[0]) && !exists("s:std_in") | exe 'NERDTree' argv()[0] | wincmd p | ene | endif
 
@@ -217,11 +229,12 @@ let g:NERDTreeIgnore=['\.pyc$',
 
 let NERDTreeNaturalSort=1 
 let NERDTreeShowLineNumbers=1
+let NERDTreeShowHidden=1
 " let NERDTreeMinimalUI=1
 
-" --------------------------------------------------
+" -----------------------------------------------------------------------------
 " other plugin config
-" --------------------------------------------------
+" -----------------------------------------------------------------------------
 
 " For vim-airline
 let g:airline_theme="minimalist"
@@ -255,10 +268,42 @@ let g:Lf_UseVersionControlTool = 0 " use version control tool to index the files
 " for FlyGrep
 nnoremap <leader>s :FlyGrep<cr>
 
-" --------------------------------------------------
-" reference
-" --------------------------------------------------
+" for Flake8
+" to use colors defined in the colorscheme
+highlight link Flake8_Error      Error
+highlight link Flake8_Warning    WarningMsg
+highlight link Flake8_Complexity WarningMsg
+highlight link Flake8_Naming     WarningMsg
+highlight link Flake8_PyFlake    WarningMsg
+" to run the Flake8 check every time you write
+autocmd BufWritePost *.py call Flake8()
+
+" for vim-slash 
+noremap <plug>(slash-after) zz
+
+" for 'junegunn/rainbow_parentheses.vim'
+noremap <silent> <c-u> :call smooth_scroll#up(&scroll, 0, 2)<CR>
+noremap <silent> <c-d> :call smooth_scroll#down(&scroll, 0, 2)<CR>
+noremap <silent> <c-b> :call smooth_scroll#up(&scroll*2, 0, 4)<CR>
+noremap <silent> <c-f> :call smooth_scroll#down(&scroll*2, 0, 4)<CR>
+
+" for tagbar
+noremap <leader>t :TagbarOpenAutoClose<CR>
+" let g:tagbar_ctags_bin='/usr/bin/ctags'    " Proper Ctags locations
+" let g:tagbar_width=26                      " Default is 40, seems too wide
+" noremap <Leader>y :TagbarToggle<CR>        " Display panel with (,y)
+let g:tagbar_autofocus = 1
+
+" for change-colorscheme
+" nnoremap <leader>nc :NextColorScheme<cr>
+" map <F10> :NextColorScheme<CR>
+" imap <F10> <ESC> :NextColorScheme<CR>
+" map <F9> :PreviousColorScheme<CR>
+" imap <F9> <ESC> :PreviousColorScheme<CR>
+
+" -----------------------------------------------------------------------------
+" /* reference */
+" -----------------------------------------------------------------------------
 
 " https://stackoverflow.com/questions/164847/what-is-in-your-vimrc
 " https://segmentfault.com/a/1190000003962806
-
