@@ -1,4 +1,6 @@
 #!/usr/bin/env bash
+# 用于管理Docker服务
+# 隐去部分本地内容
 
 RUN_ENV=''    
 
@@ -52,20 +54,19 @@ ${bold}SYNOPSIS${origin}
             help(-h/--help)     查看帮助          
     
         ${bold}project${origin}:
-            项目名称，用于获取配置，例如KlicenApp
+            项目名称，用于获取配置，例如{project}
                                             
 ${bold}OPTIONS${origin}
         --image              
-            Docker完整镜像名称，例如:
-            dh.klicen.com/klicenapp:xxxx
+            Docker完整镜像名称 {registry/image:tag}
 
 ${bold}EXAMPLES${origin}
         查看帮助            
             ${0} --help
         指定镜像重启项目    
-            ${0} restart KlicenApp --image dh.klicen.com/klicenapp:123456
+            ${0} restart {project} --image {registry/image:tag}
         查看运行状态        
-            ${0} status KlicenApp 
+            ${0} status {project} 
 
 "
 }
@@ -129,14 +130,7 @@ function status {
 
 # 获取配置服务器地址
 function get_configure_server_url {
-    case $RUN_ENV in
-        test15)         env_tag='dev'       ;;
-        test16)         env_tag='test'      ;;
-        test_online)    env_tag='ot'        ;; 
-        online)         env_tag='prod'      ;;
-        *)              help; exit -1       ;;
-    esac
-    echo "http://configure.${env_tag}.klicen.com/config/?project_name=${PROJECT_NAME}"
+    ...
 }
 
 # 根据名称获取配置
