@@ -23,7 +23,7 @@ Plugin 'vim-airline/vim-airline'
 Plugin 'vim-airline/vim-airline-themes'
 Plugin 'morhetz/gruvbox'
 
-Plugin 'Valloric/YouCompleteMe'
+" Plugin 'Valloric/YouCompleteMe'
 Plugin 'SirVer/ultisnips' " ultimate solution for snippets
 Plugin 'Chiel92/vim-autoformat'
 
@@ -40,10 +40,10 @@ Plugin 'terryma/vim-smooth-scroll'
 Plugin 'junegunn/goyo.vim'
 Plugin 'junegunn/vim-slash'
 Plugin 'mhinz/vim-startify'
-Plugin 'chxuan/change-colorscheme'
 Plugin 'majutsushi/tagbar'
 
 " /* Alternative */
+" Plugin 'chxuan/change-colorscheme'
 " Plugin 'junegunn/limelight.vim'
 " Plugin 'junegunn/rainbow_parentheses.vim'
 " Plugin 'davidhalter/jedi-vim'
@@ -293,6 +293,7 @@ noremap <leader>t :TagbarOpenAutoClose<CR>
 " let g:tagbar_width=26                      " Default is 40, seems too wide
 " noremap <Leader>y :TagbarToggle<CR>        " Display panel with (,y)
 let g:tagbar_autofocus = 1
+let g:tagbar_show_linenumbers = 1
 
 " for change-colorscheme
 " nnoremap <leader>nc :NextColorScheme<cr>
