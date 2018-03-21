@@ -14,11 +14,16 @@ interval='--------------------------------------------'
 
 mkdir -p $history_dir
 
+try_exec() {
+    which $1 > /dev/null 2>&1
+    (( $? == 0 )) && $@
+}
+
 stop() {
     if ((!is_running)); then
         echo -e 'No need to stop.'
     else
-        echo -e  "\nStopping..."
+        echo -e  '\nStopping...'
         ps -aux | grep aria2c | grep -v 'grep' | awk '{ print $2 }' | xargs -n 1 kill -9 --verbose
         psinfo
     fi
@@ -31,8 +36,10 @@ start() {
         if [[ -e $log_path ]]; then
             mv -v $log_path "${history_dir}/until_`date +%s`.log"
         fi
-        echo -e  "\nStarting..."
-        aria2c --rpc-listen-all --enable-rpc -D $@
+        echo -e  '\nStarting...'
+        params="--rpc-listen-all --enable-rpc $@"
+        echo '[PARAMETERS]' $params
+        aria2c $params
         psinfo
     fi
 }
@@ -43,13 +50,12 @@ log() {
 }
 
 update() {
-    echo -e "TODO.."
+    echo -e "TODO..."
 }
 
 
 clear
-which figlet > /dev/null
-(( $? == 0 )) && figlet aria2
+try_exec figlet aria2
 
 psinfo() {
     msg=`ps -aux | grep aria2c | grep -v 'grep'`
@@ -73,8 +79,7 @@ case $1 in
     *)          echo 'No action'            ;;
 esac
 
-which $browser > /dev/null
-(( $? == 0 )) && $browser 'http://aria2c.com/'
+try_exec $browser 'http://aria2c.com/'
 
 echo -e $interval
 echo -e  '\nDONE :)'
