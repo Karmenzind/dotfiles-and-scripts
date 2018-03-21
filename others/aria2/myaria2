@@ -1,0 +1,80 @@
+#!/usr/bin/env bash
+# Github: https://github.com/Karmenzind/MyConfig/tree/master/others/aria2
+# a script to manage aria2
+
+# custom variables
+download_dir=${HOME}/Downloads/aria2
+history_dir=$download_dir/logs
+log_path=${download_dir}/_log
+web_url='http://aria2c.com/'
+browser=chromium
+
+is_running=0
+interval='--------------------------------------------'
+
+mkdir -p $history_dir
+
+stop() {
+    if ((!is_running)); then
+        echo -e 'No need to stop.'
+    else
+        echo -e  "\nStopping..."
+        ps -aux | grep aria2c | grep -v 'grep' | awk '{ print $2 }' | xargs -n 1 kill -9 --verbose
+        psinfo
+    fi
+}
+
+start() {
+    if (( is_running )); then
+        echo -e 'No need to start.'
+    else
+        if [[ -e $log_path ]]; then
+            mv -v $log_path "${history_dir}/until_`date +%s`.log"
+        fi
+        echo -e  "\nStarting..."
+        aria2c --rpc-listen-all --enable-rpc -D $@
+        psinfo
+    fi
+}
+
+log() {
+    echo -e  '\nLOG:'
+    tail $log_path $1
+}
+
+update() {
+    echo -e "TODO.."
+}
+
+
+clear
+which figlet > /dev/null
+(( $? == 0 )) && figlet aria2
+
+psinfo() {
+    msg=`ps -aux | grep aria2c | grep -v 'grep'`
+    if [[ -n "$msg" ]]; then
+        is_running=1
+        echo -e  '\nPS:\n' $msg
+    else
+        is_running=0
+    fi
+    echo -e  '\nCurrent status:' `((is_running)) && echo -e 'RUNNING' || echo -e 'STOPPED'`
+}
+psinfo
+
+case $1 in
+    start)      shift; start $@             ;;
+    stop)       stop                        ;;
+    restart)    stop; shift; start $@       ;;
+    status)     log                         ;;
+    update)     update                      ;;
+    log)        log -f                      ;;
+    *)          echo 'No action'            ;;
+esac
+
+which $browser > /dev/null
+(( $? == 0 )) && $browser 'http://aria2c.com/'
+
+echo -e $interval
+echo -e  '\nDONE :)'
