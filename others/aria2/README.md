@@ -1,4 +1,6 @@
-下载工具
+#### 下载工具aria2
+
+----- 
 
 管理脚本myaria2
 
@@ -14,10 +16,13 @@
 配置项见脚本注释
 欢迎反馈
 
+----- 
 
 TODO:
 -   脚本：自动同步trackerlist并写入配置、重启
 -   脚本：定时唤醒硬盘同步文件
+
+----- 
 
 *reference*:
 -   [trackerslist](https://github.com/ngosang/trackerslist)
