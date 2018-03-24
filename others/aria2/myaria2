@@ -178,7 +178,7 @@ case $1 in
     status)     psinfo; log                         ;;
     update)     psinfo; update force                ;;
     log)        psinfo; log -f                      ;;
-    *)          help                        ;;
+    *)          help                                ;;
 esac
 
 if (( open_browser )); then
