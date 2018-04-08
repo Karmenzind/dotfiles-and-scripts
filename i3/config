@@ -262,7 +262,10 @@ exec --no-startup-id feh --bg-max /home/k/Pictures/BACKGROUND.jpg
 # lock
 # bindsym $mod+Ctrl+l exec --no-startup-id i3lock -t -i '/home/k/Pictures/LOCKSCREEN.png' 
 # random
-bindsym $mod+Ctrl+l exec --no-startup-id i3lock -t -i "`[ -d '/home/k/Pictures/LOCKSCREENS' ] && (find /home/k/Pictures/LOCKSCREENS/ -type f | sort -R | head -1) || echo /home/k/Pictures/LOCKSCREEN.png`"
+set $lock_screen_png /home/k/Pictures/LOCKSCREEN.png
+# bindsym $mod+Ctrl+l exec --no-startup-id i3lock -t -i $lock_screen_png
+# set $lock_screen_dir /home/k/Pictures/LOCKSCREENS
+bindsym $mod+Ctrl+l exec --no-startup-id i3lock -t -i `[ -d ${lock_screen_dir} ] && (find ${lock_screen_dir} -type f | sort -R | head -1) || echo ${lock_screen_png}`
 
 # focus follows mouse
 focus_follows_mouse no
