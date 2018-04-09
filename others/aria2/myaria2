@@ -25,7 +25,7 @@ config_dir=${HOME}/.config/aria2 # trackerlist
 # \ if you don't need functions as follows
 
 # open a web manage page while running this script
-open_browser=1
+open_browser=0
 web_url='http://aria2c.com/'
 # shoud be found by `which`
 browser=chromium
@@ -119,8 +119,12 @@ internal_update_condition() {
         return 0
     else
         last_modify=`stat $save_trackerlist_path | grep -i Modify`
-        last_modify_stamp=`echo ${last_modify#*:} | date +%s`
-        time_dist=$(( $last_modify_stamp - `date +%s` )) 
+        last_modify_stamp=`date +%s -d "${last_modify#*:}"`
+        now_ts=`date +%s`
+        # echo $last_modify
+        # echo $last_modify_stamp $now_ts
+        time_dist=$(( $now_ts - $last_modify_stamp )) 
+        echo "It's been $time_dist sec since last update."
         interval_second=$(( $update_interval_hours * 3600 ))
         if (( $time_dist < $interval_second )); then
             echo -e "Last updated at $last_modify.\nNo need to update."
@@ -178,7 +182,7 @@ case $1 in
     status)     psinfo; log                         ;;
     update)     psinfo; update force                ;;
     log)        psinfo; log -f                      ;;
-    *)          help                                ;;
+    *)          help                        ;;
 esac
 
 if (( open_browser )); then
