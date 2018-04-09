@@ -23,7 +23,7 @@
     #   %I  iconname (without its path)
     #   %p  progress value if set ([  0%] to [100%]) or nothing
     # Markup is allowed
-    format = "<b>%a</b>\n%s\n%b"
+    format = "[%a] %s\n%b"
 
     # alignment of message text.
     # Possible values are "left", "center" and "right"
@@ -35,8 +35,8 @@
     # Set to 0 to disable
     bounce_freq = 0
 
-    # font = Monospace 8
-    font = Terminus (TTF) 12 
+    font = Monospace 10
+    # font = Terminus (TTF) 12
 
     # Sort messages by urgency
     sort = yes
@@ -71,7 +71,7 @@
     # right side of the screen.  Y is measured from the top and down respectevly.
     # The width can be negative. In this case the actual width is the
     # screen width minus the width defined in within the geometry option.
-    geometry = "300x10-30-20"
+    geometry = "0-30-20"
 
     # The transparency of the window. range: [0; 100]
     # This option will only work if a compositing windowmanager is present (e.g. xcompmgr, compiz, etc..)
