@@ -1,0 +1,14 @@
+#! /usr/bin/env bash
+
+# make sure running interactively
+[[ $- != *i* ]] && echo "use source" && exit -1
+
+try_or_install () {
+    echo "Looking for $1 in PATH ..."
+    which $1 
+    if (( ! $? == 0 )); then
+        echo "Installing $1 with pacman ..."
+        sudo pacman -S $1 
+    fi
+}
+

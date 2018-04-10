@@ -1,0 +1,8 @@
+fcitx输入法
+
+
+- global at `/usr/share/fcitx/data/punc.mb.zh_CN`
+- local at `~/.config/fcitx/data/punc.mb.zh_CN`
+
+
+参考 https://github.com/alswl/fcitx-config

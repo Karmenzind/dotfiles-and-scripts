@@ -1,7 +1,7 @@
 # MyConfig
 
 各种配置文件和脚本<br>
-config files and scripts for my system
+dotfiles and scripts for my system
 
 **config**:
 
@@ -10,6 +10,7 @@ config files and scripts for my system
 -   [i3wm](./i3) i3 window manager
 -   [fcitx](./fcitx)
 -   [compton](./compton)
+-   [dunst](./dunst)
 
 **others**:
 
