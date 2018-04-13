@@ -1,5 +1,7 @@
 #! /usr/bin/env bash
 
+# delete the app you don't need
+
 _basic=(
     axel
     curl
@@ -34,8 +36,9 @@ _cli=(
     rabbitmq
     ranger
     screenfetch
-    unrar
     shadowsocks
+    tig
+    unrar
     youtube-dl
 )
 _desktop=(
