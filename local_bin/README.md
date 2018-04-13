@@ -6,7 +6,7 @@
 
 Usage:
 在脚本或环境变量中设置虚拟环境存放目录，然后
-```
+```bash
 k 16:04:00 > ~ $ . acpyve
 Pick one virtual environment to activate:
 
