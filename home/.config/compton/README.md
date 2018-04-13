@@ -1,1 +1,0 @@
-# $HOME/.config/compton.conf

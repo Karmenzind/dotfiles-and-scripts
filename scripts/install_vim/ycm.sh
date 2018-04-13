@@ -31,6 +31,8 @@ cmake --build . --target ycm_core --config Release
 # --------------------------------------------
 
 # for go
+# echo -n 'Need GoLang?(y/n)'
+# read ans
 go_dir=${plug_dir}/third_party/ycmd/third_party/gocode
 cd $go_dir
 go build

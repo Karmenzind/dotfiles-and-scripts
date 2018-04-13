@@ -1,27 +1,11 @@
 
-alias ls='ls --color=auto'
 PS1="
 \u \t \033[31;1m>\033[0m \w
 \$ "
 
-# # -----------------------------------------------------------------------------
-# # Python
-# # -----------------------------------------------------------------------------
-# 
-# export PYENV_ROOT="$HOME/.pyenv"
-# export PATH="$PYENV_ROOT/bin:$PATH"
-# eval "$(pyenv init -)"
-# # eval "$(pyenv virtualenv-init -)"
-
-# -----------------------------------------------------------------------------
-# common aliases
-# -----------------------------------------------------------------------------
-
-alias ll='ls -al'
-
-# -----------------------------------------------------------------------------
-# color output 
-# -----------------------------------------------------------------------------
+# [color output]
+alias ls='ls --color=auto'
+alias ll='ls -al --color=auto'
 
 alias diff='diff --color=auto'
 
@@ -37,6 +21,7 @@ export LESS_TERMCAP_se=$'\E[0m'        # reset reverse video
 export LESS_TERMCAP_us=$'\E[1;32m'     # begin underline
 export LESS_TERMCAP_ue=$'\E[0m'        # reset underline
 
+# [colorful man]
 man() {
     LESS_TERMCAP_md=$'\e[01;31m' \
     LESS_TERMCAP_me=$'\e[0m' \
@@ -54,11 +39,20 @@ man() {
 # export ftp_proxy=''
 # export socks_proxy=''
 
+# [tmux]
 # make tmux support 256color
 # export TERM="screen-256color"
 [ -z "$TMUX" ] && export TERM="xterm-256color"
 
+# [zsh]
 # source /home/k/.local/oh-my-git/prompt.sh
 
+# [yaourt]
 # better yaourt colors
 export YAOURT_COLORS="nb=1:pkg=1:ver=1;32:lver=1;45:installed=1;42:grp=1;34:od=1;41;5:votes=1;44:dsc=0:other=1;35"
+
+# [pyenv]
+# export PYENV_ROOT="$HOME/.pyenv"
+# export PATH="$PYENV_ROOT/bin:$PATH"
+# eval "$(pyenv init -)"
+# # eval "$(pyenv virtualenv-init -)"
