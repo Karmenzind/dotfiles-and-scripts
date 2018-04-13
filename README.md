@@ -70,11 +70,12 @@ Vim比较特殊，所以单独提出来
 
 ### Screenshot
 
+
 i3 desktop:
 
-[desktop.jpg](! ./pics/desktop.jpg)
+![desktop.jpg](./pics/desktop.jpg)
 
 vim:
 
-[vim_common.png](! ./pics/vim_common.png)
-[vim_goyo.png](! ./pics/vim_goyo.png)
+![vim_common.png](./pics/vim_common.png)
+![vim_goyo.png](./pics/vim_goyo.png)
