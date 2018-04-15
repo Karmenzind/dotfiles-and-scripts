@@ -5,23 +5,26 @@
 # for further info: 
 # https://github.com/Valloric/YouCompleteMe#full-installation-guide
 
-# go npm cmake 
+# required: go npm cmake libclang-dev(el)
+# You need to mannual set the path to libclang.so
+libclang_so_path=/usr/lib/libclang.so
 
 plug_dir=${HOME}/.vim/bundle/YouCompleteMe
 build_dir=${HOME}/ycm_build
 
+[[ -d $plug_dir ]] && rm -rf $plug_dir
 mkdir -p $build_dir $plug_dir
 
-git clone https://github.com/Valloric/YouCompleteMe.git $plug_dir
-
-cd $plug_dir && git submodule update --init --recursive 
+cd $plug_dir 
+git clone https://github.com/Valloric/YouCompleteMe.git 
+git submodule update --init --recursive 
 
 # --------------------------------------------
 # compile ycm_core library
 # --------------------------------------------
 
 cd $build_dir && rm -v -rf *
-cmake -G "Unix Makefiles" -DEXTERNAL_LIBCLANT_PATH=/usr/lib/libclang.so . ~/.vim/bundle/YouCompleteMe/third_party/ycmd/cpp 
+cmake -G "Unix Makefiles" -DEXTERNAL_LIBCLANT_PATH=$libclang_so_path . ~/.vim/bundle/YouCompleteMe/third_party/ycmd/cpp 
 
 # Now that configuration files have been generated, compile the libraries using this command:
 cmake --build . --target ycm_core --config Release
