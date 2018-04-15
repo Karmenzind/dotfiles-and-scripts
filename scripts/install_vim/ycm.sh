@@ -24,7 +24,7 @@ git submodule update --init --recursive
 # --------------------------------------------
 
 cd $build_dir && rm -v -rf *
-cmake -G "Unix Makefiles" -DEXTERNAL_LIBCLANT_PATH=$libclang_so_path . ~/.vim/bundle/YouCompleteMe/third_party/ycmd/cpp 
+cmake -G "Unix Makefiles" -DEXTERNAL_LIBCLANG_PATH=$libclang_so_path . ~/.vim/bundle/YouCompleteMe/third_party/ycmd/cpp 
 
 # Now that configuration files have been generated, compile the libraries using this command:
 cmake --build . --target ycm_core --config Release
