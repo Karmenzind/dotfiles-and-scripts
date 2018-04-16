@@ -35,7 +35,7 @@ dotfiles and scripts for my ArchLinux
 
 ### 安装使用
 
-#### ArchLinux的不完整安装脚本
+#### [未完成] ArchLinux的不完整安装脚本
 
 **尚未完成**
 
@@ -55,9 +55,8 @@ Leave it if you are not extremely familiar with the installation of ArchLinux or
 
 - [install_apps.sh](./scripts/install_apps.sh)
 
-#### 载入我的配置 
+#### [未完成] 载入我的配置 
 
-**尚未完成**
 
 #### Vim安装
 
