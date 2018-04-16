@@ -30,9 +30,9 @@ font pango:monospace 8
 floating_modifier $mod
 
 # start a terminal
-# bindsym $mod+Return exec i3-sensible-terminal
+bindsym $mod+Return exec i3-sensible-terminal
 # bindsym $mod+Return exec tilix
-bindsym $mod+Return exec xfce4-terminal
+# bindsym $mod+Return exec xfce4-terminal
 
 # kill focused window
 bindsym $mod+Shift+q kill
@@ -196,42 +196,39 @@ hide_edge_borders none
 # is used in the bar {} block below.
 font xft:Noto Sans 10
 
-# Use Mouse+$mod to drag floating windows
-floating_modifier $mod
-
 # workspace back and forth (with/without active container)
 workspace_auto_back_and_forth yes
 bindsym $mod+b workspace back_and_forth
 bindsym $mod+Shift+b move container to workspace back_and_forth; workspace back_and_forth
 
 # Open specific applications in floating mode
-for_window [title="alsamixer"] floating enable border pixel 1
-for_window [class="Calamares"] floating enable border normal
-for_window [class="Clipgrab"] floating enable
-for_window [title="File Transfer*"] floating enable
-for_window [class="Galculator"] floating enable border pixel 1
-for_window [class="GParted"] floating enable border normal
-for_window [title="i3_help"] floating enable sticky enable border normal
-for_window [class="Lightdm-gtk-greeter-settings"] floating enable
-for_window [class="Lxappearance"] floating enable sticky enable border normal
+# for_window [title="alsamixer"] floating enable border pixel 1
+# for_window [class="Calamares"] floating enable border normal
+# for_window [class="Clipgrab"] floating enable
+# for_window [title="File Transfer*"] floating enable
+# for_window [class="Galculator"] floating enable border pixel 1
+# for_window [class="GParted"] floating enable border normal
+# for_window [title="i3_help"] floating enable sticky enable border normal
+# for_window [class="Lightdm-gtk-greeter-settings"] floating enable
+# for_window [class="Lxappearance"] floating enable sticky enable border normal
 # for_window [class="Manjaro-hello"] floating enable
 # for_window [class="Manjaro Settings Manager"] floating enable border normal
-for_window [title="MuseScore: Play Panel"] floating enable
-for_window [class="Nitrogen"] floating enable sticky enable border normal
-for_window [class="Oblogout"] fullscreen enable
-for_window [class="octopi"] floating enable
-for_window [title="About Pale Moon"] floating enable
-for_window [class="Pamac-manager"] floating enable
-for_window [class="Pavucontrol"] floating enable
-for_window [class="qt5ct"] floating enable sticky enable border normal
-for_window [class="Qtconfig-qt4"] floating enable sticky enable border normal
-for_window [class="Simple-scan"] floating enable border normal
-for_window [class="(?i)System-config-printer.py"] floating enable border normal
-for_window [class="Skype"] floating enable border normal
-for_window [class="Thus"] floating enable border normal
-for_window [class="Timeset-gui"] floating enable border normal
+# for_window [title="MuseScore: Play Panel"] floating enable
+# for_window [class="Nitrogen"] floating enable sticky enable border normal
+# for_window [class="Oblogout"] fullscreen enable
+# for_window [class="octopi"] floating enable
+# for_window [title="About Pale Moon"] floating enable
+# for_window [class="Pamac-manager"] floating enable
+# for_window [class="Pavucontrol"] floating enable
+# for_window [class="qt5ct"] floating enable sticky enable border normal
+# for_window [class="Qtconfig-qt4"] floating enable sticky enable border normal
+# for_window [class="Simple-scan"] floating enable border normal
+# for_window [class="(?i)System-config-printer.py"] floating enable border normal
+# for_window [class="Skype"] floating enable border normal
+# for_window [class="Thus"] floating enable border normal
+# for_window [class="Timeset-gui"] floating enable border normal
 # for_window [class="(?i)virtualbox"] floating enable border normal
-for_window [class="Xfburn"] floating enable
+# for_window [class="Xfburn"] floating enable
 
 # --------------------------------------------------------------------------------------
 # custom
@@ -246,10 +243,10 @@ bindsym --release Print exec scrot 'SCREENSHOT_TEMP.png' -e 'mv $f ~/Pictures &&
 # OSX-like area selection screenshots
 bindsym --release Shift+Print exec scrot -s 'SCREENSHOT_TEMP.png' -e 'mv $f ~/Pictures && xclip -selection clipboard -t image/png -i ~/Pictures/SCREENSHOT_TEMP.png' # Area selection
 
-# exec --no-startup-id volumeicon
+exec --no-startup-id volumeicon
 exec --no-startup-id fcitx
 exec --no-startup-id compton -b
-# exec --no-startup-id compton -cCGf -b -i 0.75
+exec_always dunst
 
 client.focused #0088CC #0088CC #ffffff #dddddd
 client.focused_inactive #333333 #333333 #888888 #292d2e
@@ -259,13 +256,21 @@ client.urgent #2f343a #900000 #ffffff #900000
 # background
 exec --no-startup-id feh --bg-max /home/k/Pictures/BACKGROUND.jpg
 
-# lock
-# bindsym $mod+Ctrl+l exec --no-startup-id i3lock -t -i '/home/k/Pictures/LOCKSCREEN.png' 
-# random
+# [screen lock]
+# lock with a pic
 set $lock_screen_png /home/k/Pictures/LOCKSCREEN.png
 # bindsym $mod+Ctrl+l exec --no-startup-id i3lock -t -i $lock_screen_png
-# set $lock_screen_dir /home/k/Pictures/LOCKSCREENS
-bindsym $mod+Ctrl+l exec --no-startup-id i3lock -t -i `[ -d ${lock_screen_dir} ] && (find ${lock_screen_dir} -type f | sort -R | head -1) || echo ${lock_screen_png}`
+# lock with random pic of specific dir
+set $lock_screen_dir /home/k/Pictures/LOCKSCREENS
+bindsym $mod+Ctrl+l exec --no-startup-id i3lock -t -i `[ -d $lock_screen_dir ] && (find $lock_screen_dir -type f | sort -R | head -1) || echo $lock_screen_png`
+# lock with random pic from internet
+# random picture source: https://www.zhihu.com/question/21168322
+# ...todo
 
 # focus follows mouse
 focus_follows_mouse no
+
+bindsym $mod+p exec "/bin/bash /tmp/toggle_test.sh"
+# bindsym $mod+p exec "notify-send asdf "
+
+
