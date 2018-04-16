@@ -5,7 +5,9 @@
 # for further info: 
 # https://github.com/Valloric/YouCompleteMe#full-installation-guide
 
-# required: cmake libclang>=3.9
+# required: cmake 
+#           clang>=3.9 and corresponding lib/devel
+#           python and corresponding lib/devel
 
 # You need to mannual set the path to libclang.so
 libclang_so_path=/usr/lib/libclang.so
@@ -27,7 +29,7 @@ git submodule update --init --recursive
 # compile ycm_core library
 # --------------------------------------------
 
-cd $build_dir && rm -v -rf *
+cd $build_dir && rm -rf *
 cmake -G "Unix Makefiles" -DEXTERNAL_LIBCLANG_PATH=${libclang_so_path} . ${plug_dir}/third_party/ycmd/cpp 
 
 # Now that configuration files have been generated, compile the libraries using this command:
@@ -35,6 +37,7 @@ cmake --build . --target ycm_core --config Release
 
 # --------------------------------------------
 # set up support for languages
+# comment out what you need after installing requirements
 # --------------------------------------------
 
 # go_dir=${plug_dir}/third_party/ycmd/third_party/gocode
