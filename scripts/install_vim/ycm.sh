@@ -17,6 +17,13 @@ build_dir=${HOME}/ycm_build
  
 # --------------------------------------------
 
+if [[ -z "`vim --version | grep '+python'`" ]]; then
+    echo "YCM can only install on Vim with python2 or python3 support." 
+    exit -1
+fi
+
+# --------------------------------------------
+
 [[ -d $plug_dir ]] && rm -rf $plug_dir
 mkdir -p $build_dir $plug_dir
 
