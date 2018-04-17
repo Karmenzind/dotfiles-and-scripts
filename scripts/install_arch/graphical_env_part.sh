@@ -67,7 +67,7 @@ prepare () {
         multilib_enabled=0
         echo "Do you want to let pacman use the multilib repo?(Y/n)"
         check_input Yyn
-        [[ *$ans* = 'Yy' ]] && enable_multilib && multilib_enabled=1
+        [[ 'Yy' = *$ans* ]] && enable_multilib && multilib_enabled=1
     else
         multilib_enabled=1
     fi
@@ -100,7 +100,8 @@ install_driver () {
     lspci | grep -e VGA -e 3D
     echo 'Install recommended drivers? (Y/n)'
     check_input YyNn
-    if [[ *$ans* = "Yy" ]]; then
+    echo $ans
+    if [[ "Yy" = *$ans* ]]; then
         echo "Choose the brand of your GPU:"
         display_array ${brands[*]}
         check_input '012'
@@ -110,8 +111,8 @@ install_driver () {
         postfixes=(intel ati nouveau)
         echo xf86-video-${postfixes[${ans}]}
 
-        # do_install mesa xf86-video-${postfixes[${ans}]}
-        # (( $multilib_enabled == 1 )) && do_install lib32-mesa 
+        do_install mesa xf86-video-${postfixes[${ans}]}
+        (( $multilib_enabled == 1 )) && do_install lib32-mesa 
     else
         echo -e 'See https://wiki.archlinux.org/index.php/General_recommendations#Graphical_user_interface\n and help yourself.'
     fi
@@ -135,7 +136,7 @@ install_driver () {
 # --------------------------------------------
 
 install_gnome () {
-    do_install gnome gnome-extra
+    do_install gnome gnome-extra gdm
     dm_name=gdm
 }
 
