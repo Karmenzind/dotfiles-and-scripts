@@ -35,16 +35,15 @@ dotfiles and scripts for my ArchLinux
 
 ### 安装使用
 
-#### **[未完成]** ArchLinux的不完整安装脚本
+#### ArchLinux的不完整安装脚本
 
 如果你对**ArchLinux安装过程**和**Bash语法**非常熟悉，欢迎使用我的脚本<br>
 Leave it if you are not extremely familiar with the installation of ArchLinux or Bash itself.<br>
 按照安装过程顺序排列
 
-- [live_cd_part](./scripts/install_arch/live_cd_part.sh) LiveCD部分
-- [chrooted_part](./scripts/install_arch/chrooted_part.sh) chroot之后，取出LiveCD之前
+- **[未完成]** [live_cd_part](./scripts/install_arch/live_cd_part.sh) LiveCD部分
+- **[未完成]** [chrooted_part](./scripts/install_arch/chrooted_part.sh) chroot之后，取出LiveCD之前
 - [graphical_env_part](./scripts/install_arch/graphical_env_part.sh) 安装桌面环境，此处为i3wm
-- [common_tools_part](./scripts/install_arch/common_tools_part.sh) 安装常用软件
 
 #### 必需/常用软件安装
 
