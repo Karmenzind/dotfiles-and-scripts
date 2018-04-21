@@ -1,0 +1,3 @@
+rofi.combi-modi:    drun,window,ssh,run
+rofi.modi:          combi
+rofi.theme: /usr/share/rofi/themes/purple.rasi

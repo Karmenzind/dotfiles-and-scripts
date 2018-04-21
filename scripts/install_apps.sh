@@ -12,8 +12,28 @@ _basic=(
     vim
     wget
 )
+
+# basic Chinese fonts
 _fonts=(
+    adobe-source-code-pro-fonts
+    adobe-source-han-sans-cn-fonts
+    adobe-source-han-serif-cn-fonts
+    opendesktop-fonts 
+    otf-fira-mono
+    ttf-anonymous-pro
+    ttf-arphic-ukai
+    ttf-arphic-uming 
+    ttf-fira-mono
+    ttf-freefont
+    ttf-gentium
+    ttf-hack
+    ttf-hannom
+    ttf-inconsolata
+    ttf-linux-libertine
+    wqy-bitmapfont
+    wqy-zenhei
 )
+
 _cli=(
     #conky
     arandr
@@ -76,6 +96,7 @@ _aur=(
 #}
 
 [[ "$1" == '-y' ]] && tag='--noconfirm'
+
 sudo pacman -Syu -v --needed $tag ${_basic[*]} ${_fonts[*]} ${_cli[*]} ${_desktop[*]}
 yaourt -S -v --needed $tag ${_aur[*]}
 yaourt -Sc

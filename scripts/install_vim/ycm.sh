@@ -14,6 +14,10 @@ libclang_so_path=/usr/lib/libclang.so
 
 plug_dir=${HOME}/.vim/bundle/YouCompleteMe
 build_dir=${HOME}/ycm_build
+
+ycm_git_url=https://github.com/Valloric/YouCompleteMe.git 
+# if low speed coz Great F**king Wall
+# ycm_git_url=https://gitee.com/mirrors/youcompleteme.git
  
 # --------------------------------------------
 
@@ -30,6 +34,7 @@ mkdir -p $build_dir $plug_dir
 cd $plug_dir 
 
 git clone https://github.com/Valloric/YouCompleteMe.git 
+
 git submodule update --init --recursive 
 
 # --------------------------------------------

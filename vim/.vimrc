@@ -1,28 +1,34 @@
-" Github: https://github.com/Karmenzind/MyConfig
+" Github: https://github.com/Karmenzind/dotfiles-and-scripts
 
 set nocompatible
+set encoding=utf-8
 
 " file type detection
 filetype off 
 
 " -----------------------------------------------------------------------------
-"  Plugins Manager
+"  Plugins Manage
 " -----------------------------------------------------------------------------
 
 " set the runtime path to include Vundle and initialize
 set rtp+=~/.vim/bundle/Vundle.vim
 call vundle#begin()
 
+" alternatively, pass a path where Vundle should install plugins
+" call vundle#begin('~/some/path/here')
+
+" Add all your plugins here (note older versions of Vundle used Bundle instead of Plugin)
 Plugin 'VundleVim/Vundle.vim'
 Plugin 'vim-airline/vim-airline'
 Plugin 'vim-airline/vim-airline-themes'
 Plugin 'morhetz/gruvbox'
 
-" Plugin 'Valloric/YouCompleteMe'
+Plugin 'Valloric/YouCompleteMe'
 Plugin 'SirVer/ultisnips' " ultimate solution for snippets
 Plugin 'Chiel92/vim-autoformat'
 
 Plugin 'scrooloose/nerdtree'
+Plugin 'Xuyuanp/nerdtree-git-plugin'
 Plugin 'wsdjeg/FlyGrep.vim'
 Plugin 'Yggdroot/LeaderF'
 
@@ -36,6 +42,12 @@ Plugin 'junegunn/goyo.vim'
 Plugin 'junegunn/vim-slash'
 Plugin 'mhinz/vim-startify'
 Plugin 'majutsushi/tagbar'
+Plugin 'iamcco/mathjax-support-for-mkdp'
+Plugin 'iamcco/markdown-preview.vim'
+
+" load after other plugins 
+Plugin 'ryanoasis/vim-devicons'
+Plugin 'tiagofumo/vim-nerdtree-syntax-highlight'
 
 " /* Alternative */
 " Plugin 'chxuan/change-colorscheme'
@@ -76,7 +88,6 @@ set background=dark
 set cursorline
 " highlight CursorLine guibg=darkgray ctermbg=black
 
-set encoding=utf-8
 
 set nu
 
@@ -163,15 +174,15 @@ au BufNewFile,BufRead *.js, *.html, *.css
 
 let python_highlight_all=1
 
-" " virtualenv support
-" py << EOF
-" import os
-" import sys
-" if 'VIRTUAL_ENV' in os.environ:
-"     project_base_dir = os.environ['VIRTUAL_ENV']
-"     activate_this = os.path.join(project_base_dir, 'bin/activate_this.py')
-"     execfile(activate_this, dict(__file__=activate_this))
-" EOF
+"python with virtualenv support
+py << EOF
+import os
+import sys
+if 'VIRTUAL_ENV' in os.environ:
+    project_base_dir = os.environ['VIRTUAL_ENV']
+    activate_this = os.path.join(project_base_dir, 'bin/activate_this.py')
+    execfile(activate_this, dict(__file__=activate_this))
+EOF
 
 " -----------------------------------------------------------------------------
 " for ycm
@@ -230,8 +241,37 @@ let NERDTreeShowHidden=1
 " other plugin config
 " -----------------------------------------------------------------------------
 
+" For Markdown-preview
+" path to the chrome or the command to open chrome(or other modern browsers)
+" if set, g:mkdp_browserfunc would be ignored
+let g:mkdp_path_to_chrome = "/usr/bin/chromium"
+" callback vim function to open browser, the only param is the url to open
+let g:mkdp_browserfunc = 'MKDP_browserfunc_default'
+" set to 1, the vim will open the preview window once enter the markdown
+" buffer
+let g:mkdp_auto_start = 0
+" set to 1, the vim will auto open preview window when you edit the
+" markdown file
+let g:mkdp_auto_open = 0
+" set to 1, the vim will auto close current preview window when change
+" from markdown buffer to another buffer
+let g:mkdp_auto_close = 1
+" set to 1, the vim will just refresh markdown when save the buffer or
+" leave from insert mode, default 0 is auto refresh markdown as you edit or
+" move the cursor
+let g:mkdp_refresh_slow = 0
+" set to 1, the MarkdownPreview command can be use for all files,
+" by default it just can be use in markdown file
+let g:mkdp_command_for_global = 0
+" nmap <silent> <F8> <Plug>MarkdownPreview        " for normal mode
+" imap <silent> <F8> <Plug>MarkdownPreview        " for insert mode
+" nmap <silent> <F9> <Plug>StopMarkdownPreview    " for normal mode
+" imap <silent> <F9> <Plug>StopMarkdownPreview    " for insert mode
+
 " For vim-airline
 let g:airline_theme="minimalist"
+let g:airline_powerline_fonts = 1
+
 
 " For vim-autoformatter
 let g:formatter_yapf_style = 'pep8'
@@ -295,6 +335,18 @@ let g:tagbar_show_linenumbers = 1
 " imap <F10> <ESC> :NextColorScheme<CR>
 " map <F9> :PreviousColorScheme<CR>
 " imap <F9> <ESC> :PreviousColorScheme<CR>
+
+" for devicons
+let g:WebDevIconsUnicodeDecorateFolderNodes = 1
+let g:DevIconsEnableFoldersOpenClose = 1
+let g:WebDevIconsOS = 'ArchLinux'
+
+let entry_format = "'   ['. index .']'. repeat(' ', (3 - strlen(index)))"
+if exists('*WebDevIconsGetFileTypeSymbol')  " support for vim-devicons
+    let entry_format .= ". WebDevIconsGetFileTypeSymbol(entry_path) .' '.  entry_path"
+else 
+    let entry_format .= '. entry_path'
+endif
 
 " -----------------------------------------------------------------------------
 " /* reference */

@@ -62,6 +62,12 @@ Vim比较特殊，所以单独提出来
 - [complete installation](./scripts/install_vim/main.sh) 按照我的Vim配置完整安装
 - [compile and install YouCompleteMe](./scripts/install_vim/ycm.sh) YouCompleteMe插件编译安装
 
+----- 
+
+### TODO
+
+- `update.sh` from host to repo... vise versa
+
 -----
 
 ### Screenshot
@@ -75,3 +81,4 @@ vim:
 
 ![vim_common.png](./pics/vim_common.png)
 ![vim_goyo.png](./pics/vim_goyo.png)
+
