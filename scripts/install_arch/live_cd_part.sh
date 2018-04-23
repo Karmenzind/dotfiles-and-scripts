@@ -1,6 +1,8 @@
 #! /usr/bin/env bash
 # refer https://wiki.archlinux.org/index.php/Installation_guide
 
+cut_off='--------------------------------------------'
+
 declare -A parts
 
 # Verify the boot mode
@@ -23,10 +25,13 @@ get_target_disk () {
     fdisk -l
     echo $cut_off
     echo "Input the number of the disk (e.g. sda) which you want to install ArchLinux on"
-    lsblk -adn -o NAME,SIZE | grep -n ''
-    read "Input: " disk_num 
-    target_disk=/dev/$(lsblk  -adn -o NAME | grep -n '' | sed -n "/${disk_num}:/s/${disk_num}://")
+    lsblk -adno NAME,SIZE | grep -n ''
+    read -p "Input: " disk_num 
+    target_disk=/dev/$(lsblk  -adno NAME | grep -n '' | sed -n "/${disk_num}:/s/${disk_num}://")
     disk_size=`lsblk -adno SIZE $target_disk | sed 's/G//'`
+    echo "Your ArchLinux will be installed on $target_disk "
+    echo "Available size: $disk_size"
+    echo $cut_off
 }
 
 get_target_disk
@@ -81,14 +86,14 @@ auto_partition () {
         parts[root]=${target_disk}2
     fi
 
-    for i in (1 2 3 4); do
+    for i in '1 2 3 4'; do
         $part_pref align-check optimal $i > /dev/null
     done
 }
 
 manual_partition () {
     fdisk $target_disk
-    for p in (boot swap root home); do
+    for p in 'boot swap root home'; do
         echo "What't the number of your $p partition?"
         echo "(if /dev/sda2 then input 2)"
         echo "Type ENTER if you didn't create a $p part"
