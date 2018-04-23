@@ -25,7 +25,7 @@ put_cutoff () {
     _line='\n--------------------------------------------\n'
     echo -e $_line
     if [[ -n "$1" ]]; then
-        echo $1
+        echo -e $1
         echo -e $_line
     fi
 }
@@ -41,9 +41,7 @@ get_target_disk () {
     read -p "Input: " disk_num 
     target_disk=/dev/$(lsblk  -dno NAME | grep -n '' | sed -n "/${disk_num}:/s/${disk_num}://p")
     disk_size=`lsblk -adno SIZE $target_disk | sed 's/G//'`
-    echo "Your ArchLinux will be installed on $target_disk "
-    echo "Available size: $disk_size GiB"
-    put_cutoff
+    put_cutoff "ArchLinux will be installed on $target_disk \nAvailable size: $disk_size GiB"
 }
 
 get_target_disk
@@ -72,6 +70,7 @@ auto_partition () {
 
     part_pref="parted $target_disk"
 
+    $part_pref mklabel gpt
     # boot
     $part_pref mkpart ESP fat32 1MiB 551MiB 
     $part_pref set 1 esp on                 
@@ -80,9 +79,10 @@ auto_partition () {
     root_start=551MiB
 
     if (($use_size>=60)); then
-        #mkfs.ext4 $target_disk
         mem_size=`lsmem | grep -i "online memory" | sed 's/.* //g'`
+        echo "Size of your mem: $mem_size"
         swap_size=`echo $mem_size | sed 's/G//'`
+        echo "Your swap part will be allocated $swap_size GiB"
 
         # root
         $part_pref mkpart primary ext4 $root_start 30.5GiB   
@@ -101,7 +101,7 @@ auto_partition () {
     fi
 
     for i in '1 2 3 4'; do
-        $part_pref align-check optimal $i > /dev/null
+        $part_pref align-check optimal $i
     done
 }
 
@@ -150,6 +150,7 @@ recommended table:
 "
 
 read -p "Input: " ans
+[[ -z "$ans" ]] && ans=Y
 case $ans in 
     Y|y)    auto_partition           ;;
     N|n)    manual_partition         ;;
