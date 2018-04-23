@@ -55,12 +55,16 @@ auto_partition () {
     is_valid=no
     while [[ $is_valid = 'no' ]]; do
         read -p "Input a number: " use_size
-        [[ -z "$use_size" ]] && use_size=$disk_size && end_point='100%'
+        [[ -z "$use_size" ]] && use_size=$disk_size 
         if [[ -z `echo $use_size | grep -i '[^0-9]'` ]] \
             && (($use_size<=$disk_size)) \
             && (($use_size>5)); then
             is_valid=yes
-            end_point=${use_size}GiB
+            if (($use_size=$disk_size)); then
+                end_point='100%'
+            else
+                end_point=${use_size}GiB
+            fi
         else
             echo "Invalid size: ${use_size}G"
         fi
@@ -100,9 +104,6 @@ auto_partition () {
         parts[root]=${target_disk}2
     fi
 
-    for i in '1 2 3 4'; do
-        $part_pref align-check optimal $i
-    done
 }
 
 manual_partition () {
@@ -130,6 +131,10 @@ format_and_mount () {
     part_exists root && mkfs.ext4 ${parts[root]} && mount ${parts[root]} /mnt
     part_exists home && mkfs.ext4 ${parts[home]} && mkdir /mnt/home && mount ${parts[home]} /mnt/home
     part_exists swap && mkswap ${parts[swap]} && swapon ${parts[swap]} 
+
+    for i in '1 2 3 4'; do
+        $part_pref align-check optimal $i
+    done
 }
 
 # Partition
