@@ -122,7 +122,7 @@ manual_partition () {
 
 part_exists() {
     echo "Check $1 ..."
-    [[ ! -n "echo${parts[$1]}" ]] && return 1
+    [[ ! -n "${parts[$1]}" ]] && return 1
 }
 
 format_and_mount () {
@@ -173,23 +173,23 @@ format_and_mount
 # select mirrors
 put_cutoff 'Modifying mirrorlist ...'
 mirror_file=/etc/pacman.d/mirrorlist
-mv ${mirror_file} ${mirror_file}_bak
-cat - ${mirror_file}_bak >${mirror_file} << EOF
-## China
-Server = http://mirror.lzu.edu.cn/archlinux/$repo/os/$arch
-## China
-Server = http://mirrors.tuna.tsinghua.edu.cn/archlinux/$repo/os/$arch
-## China
-Server = http://mirrors.ustc.edu.cn/archlinux/$repo/os/$arch
-## China
-Server = http://mirrors.neusoft.edu.cn/archlinux/$repo/os/$arch
-## China
-Server = http://mirrors.xjtu.edu.cn/archlinux/$repo/os/$arch
-## China
-Server = http://mirrors.163.com/archlinux/$repo/os/$arch
-## China
-Server = http://mirrors.zju.edu.cn/archlinux/$repo/os/$arch
-EOF
+# mv ${mirror_file} ${mirror_file}_bak
+# cat - ${mirror_file}_bak >${mirror_file} << EOF
+# ## China
+# Server = http://mirror.lzu.edu.cn/archlinux/$repo/os/$arch
+# ## China
+# Server = http://mirrors.tuna.tsinghua.edu.cn/archlinux/$repo/os/$arch
+# ## China
+# Server = http://mirrors.ustc.edu.cn/archlinux/$repo/os/$arch
+# ## China
+# Server = http://mirrors.neusoft.edu.cn/archlinux/$repo/os/$arch
+# ## China
+# Server = http://mirrors.xjtu.edu.cn/archlinux/$repo/os/$arch
+# ## China
+# Server = http://mirrors.163.com/archlinux/$repo/os/$arch
+# ## China
+# Server = http://mirrors.zju.edu.cn/archlinux/$repo/os/$arch
+# EOF
 
 # --------------------------------------------
 # Install the base packages
