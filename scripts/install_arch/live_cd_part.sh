@@ -60,7 +60,7 @@ auto_partition () {
             && (($use_size<=$disk_size)) \
             && (($use_size>5)); then
             is_valid=yes
-            if (($use_size=$disk_size)); then
+            if (($use_size==$disk_size)); then
                 end_point='100%'
             else
                 end_point=${use_size}GiB
