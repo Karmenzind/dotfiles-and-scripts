@@ -122,14 +122,14 @@ manual_partition () {
 
 part_exists() {
     echo "Check $1 ..."
-    [[ ! -n "${parts[$1]}" ]] && return 1
+    [[ -z "${parts[$1]}" ]] && echo "Part $1 invalid." && return 1
 }
 
 format_and_mount () {
     echo "Formatting and mount tables ..."
-    part_exists boot && mkfs.fat -F32 ${parts[boot]} && mkdir /mnt/boot && mount ${parts[boot]} /mnt/boot
-    part_exists root && mkfs.ext4 ${parts[root]} && mount ${parts[root]} /mnt
-    part_exists home && mkfs.ext4 ${parts[home]} && mkdir /mnt/home && mount ${parts[home]} /mnt/home
+    part_exists boot && mkfs.fat -F32 ${parts[boot]} && mkdir /mnt/boot && mount ${parts[boot]} /mnt/boot -v
+    part_exists root && mkfs.ext4 ${parts[root]} && mount ${parts[root]} /mnt -v
+    part_exists home && mkfs.ext4 ${parts[home]} && mkdir /mnt/home && mount ${parts[home]} /mnt/home -v
     part_exists swap && mkswap ${parts[swap]} && swapon ${parts[swap]} 
 
     fdisk -l $target_disk
