@@ -1,8 +1,6 @@
 #! /usr/bin/env bash
 # refer https://wiki.archlinux.org/index.php/Installation_guide
 
-cut_off='--------------------------------------------'
-
 declare -A parts
 
 # Verify the boot mode
@@ -21,17 +19,31 @@ timedatectl set-ntp true
 timedatectl status
 
 # --------------------------------------------
+
+# $1 prompt
+put_cutoff () {
+    _line='\n--------------------------------------------\n'
+    echo -e $_line
+    if [[ -n "$1" ]]; then
+        echo $1
+        echo -e $_line
+    fi
+}
+    
+
 get_target_disk () {
+    put_cutoff
+    echo "Your disk information:"
     fdisk -l
-    echo $cut_off
-    echo "Input the number of the disk (e.g. sda) which you want to install ArchLinux on"
-    lsblk -adno NAME,SIZE | grep -n ''
+    put_cutoff
+    echo "Input the number of the disk (e.g. sda) on which you want to install ArchLinux"
+    lsblk -dno NAME,SIZE | grep -n ''
     read -p "Input: " disk_num 
-    target_disk=/dev/$(lsblk  -adno NAME | grep -n '' | sed -n "/${disk_num}:/s/${disk_num}://")
+    target_disk=/dev/$(lsblk  -dno NAME | grep -n '' | sed -n "/${disk_num}:/s/${disk_num}://p")
     disk_size=`lsblk -adno SIZE $target_disk | sed 's/G//'`
     echo "Your ArchLinux will be installed on $target_disk "
-    echo "Available size: $disk_size"
-    echo $cut_off
+    echo "Available size: $disk_size GiB"
+    put_cutoff
 }
 
 get_target_disk
@@ -55,6 +67,8 @@ auto_partition () {
             echo "Invalid size: ${use_size}G"
         fi
     done
+
+    put_cutoff 'Start partitioning ...'
 
     part_pref="parted $target_disk"
 
@@ -119,8 +133,6 @@ format_and_mount () {
 }
 
 # Partition
-
-fdisk -l
 echo "Do you want to use recommended partition table as follows (Y) 
 or do the partition by yourself? (N)
 recommended table:
@@ -145,6 +157,8 @@ case $ans in
             exit 1                   ;;
 esac
 
+put_cutoff 'Partition finished.'
+
 # --------------------------------------------
 # TODO
 # select mirrors
@@ -152,20 +166,20 @@ mirror_file=/etc/pacman.d/mirrorlist
 
 # --------------------------------------------
 # Install the base packages
-pacstrap /mnt base base_devel
+put_cutoff 'Install the base packages ...'
+pacstrap /mnt base base_devel git vim
 
 # --------------------------------------------
 # Configure the system
 genfstab -U /mnt >> /mnt/etc/fstab
-
 cat /mnt/etc/fstab
 
 # echo -e "Check the information above, and edit /mnt/etc/fstab in case of errors."
 # echo -e "After you've done it, do:"
 # echo -e "\tarch-chroot /mnt"
 # echo -e "And then follow my construction in README.md"
-echo "Enter /dotfiles-and-scripts after arch-chroot
+put_cutoff "Enter /dotfiles-and-scripts after arch-chroot
 and type 'bash install.sh' to continue."
 
-cp -r $repo_dir /mnt/$repo_dir
+# cp -r $repo_dir /mnt/$repo_dir
 arch-chroot /mnt
