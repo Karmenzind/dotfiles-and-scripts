@@ -66,7 +66,7 @@ Vim比较特殊，所以单独提出来
 
 ### TODO
 
-- `update.sh` from host to repo... vise versa
+- `do_synch.sh` from host to repo... vise versa
 
 -----
 

@@ -1,0 +1,63 @@
+#! /usr/bin/env bash
+
+# make sure running interactively
+#[[ $- != *i* ]] && echo "use source" && exit -1
+
+cut_off='--------------------------------------------'
+
+do_install () {
+    sudo pacman -S --needed --noconfirm $*
+}
+
+display_array () {
+    tmp_array=($@)
+    length=${#tmp_array[@]}
+    for (( i=0; i<$length; i++ )); do
+        echo "$i    ${tmp_array[$i]}"
+    done
+    echo
+}
+
+check_input () {
+    _range=$1
+    is_valid=no
+    _default=${_range:0:1}
+    while [[ $is_valid = 'no' ]]; do
+        read -p "Input: " ans
+        [[ -z "$ans" ]] && ans=$_default
+        ans=`echo $ans | tr '[A-Z]' '[a-z]'`
+        if [[ "$_range" = *$ans* ]]; then
+            is_valid=yes
+        else
+            echo "Valid answer: $_range (default=$_default):"
+        fi
+    done
+}
+
+# -----------------------------------------------------------------------------
+# basic
+# -----------------------------------------------------------------------------
+
+enable_multilib() {
+    sudo cat >>/etc/pacman.conf << EOF
+[multilib]
+Include = /etc/pacman.d/mirrorlist
+EOF
+}
+
+prepare () {
+    sudo pacman -Sy 
+    pacman_conf=/etc/pacman.conf
+    if [[ -z "grep '^\[multilib\]' $pacman_conf" ]]; then
+        multilib_enabled=0
+        echo "Do you want to let pacman use the multilib repo?(Y/n)"
+        check_input Yyn
+        [[ 'Yy' = *$ans* ]] && enable_multilib && multilib_enabled=1
+    else
+        multilib_enabled=1
+    fi
+
+    (( $multilib_enabled == 0 )) && enable_multilib
+    echo "Support multilib: $multilib_enabled"
+}
+
