@@ -167,12 +167,14 @@ esac
 
 put_cutoff 'Partition finished.'
 
+format_and_mount
+
 # --------------------------------------------
 # select mirrors
 put_cutoff 'Modifying mirrorlist ...'
 mirror_file=/etc/pacman.d/mirrorlist
 mv ${mirror_file} ${mirror_file}_bak
-cat >$mirror_file << EOF
+cat - ${mirror_file}_bak >${mirror_file} << EOF
 ## China
 Server = http://mirror.lzu.edu.cn/archlinux/$repo/os/$arch
 ## China
@@ -188,8 +190,6 @@ Server = http://mirrors.163.com/archlinux/$repo/os/$arch
 ## China
 Server = http://mirrors.zju.edu.cn/archlinux/$repo/os/$arch
 EOF
-
-cat $mirror_file
 
 # --------------------------------------------
 # Install the base packages
