@@ -128,14 +128,17 @@ recommended table:
     550MiB      ESP         for BOOT
     remainder   ext4        for ROOT
     (you can create a swapfile by yourself after installation)
+
+(Default: Y)
 "
 
-check_input yn
-if [[ $ans = 'y' ]]; then
-    auto_partition
-else
-    manual_partition
-fi
+read -p "Input: " ans
+case $ans in 
+    Y|y)    auto_partition           ;;
+    N|n)    manual_partition         ;;
+    *)      echo "Invalid Choice"
+            exit 1                   ;;
+esac
 
 # --------------------------------------------
 # TODO
