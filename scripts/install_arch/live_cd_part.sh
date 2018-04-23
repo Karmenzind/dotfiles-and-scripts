@@ -171,7 +171,7 @@ put_cutoff 'Partition finished.'
 # select mirrors
 put_cutoff 'Modifying mirrorlist ...'
 mirror_file=/etc/pacman.d/mirrorlist
-mv ${mirror_file}{,_bak}
+mv ${mirror_file} ${mirror_file}_bak
 cat >$mirror_file << EOF
 ## China
 Server = http://mirror.lzu.edu.cn/archlinux/$repo/os/$arch
