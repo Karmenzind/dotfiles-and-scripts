@@ -132,6 +132,8 @@ format_and_mount () {
     part_exists home && mkfs.ext4 ${parts[home]} && mkdir /mnt/home && mount ${parts[home]} /mnt/home
     part_exists swap && mkswap ${parts[swap]} && swapon ${parts[swap]} 
 
+    fdisk -l $target_disk
+
     for i in '1 2 3 4'; do
         $part_pref align-check optimal $i
     done
@@ -166,9 +168,28 @@ esac
 put_cutoff 'Partition finished.'
 
 # --------------------------------------------
-# TODO
 # select mirrors
+put_cutoff 'Modifying mirrorlist ...'
 mirror_file=/etc/pacman.d/mirrorlist
+mv ${mirrorlist}{,_bak}
+cat >$mirrorlist << EOF
+## China
+Server = http://mirror.lzu.edu.cn/archlinux/$repo/os/$arch
+## China
+Server = http://mirrors.tuna.tsinghua.edu.cn/archlinux/$repo/os/$arch
+## China
+Server = http://mirrors.ustc.edu.cn/archlinux/$repo/os/$arch
+## China
+Server = http://mirrors.neusoft.edu.cn/archlinux/$repo/os/$arch
+## China
+Server = http://mirrors.xjtu.edu.cn/archlinux/$repo/os/$arch
+## China
+Server = http://mirrors.163.com/archlinux/$repo/os/$arch
+## China
+Server = http://mirrors.zju.edu.cn/archlinux/$repo/os/$arch
+EOF
+
+cat $mirrorlist
 
 # --------------------------------------------
 # Install the base packages
@@ -177,6 +198,7 @@ pacstrap /mnt base base_devel git vim
 
 # --------------------------------------------
 # Configure the system
+put_cutoff 'Generate fstab ...'
 genfstab -U /mnt >> /mnt/etc/fstab
 cat /mnt/etc/fstab
 
