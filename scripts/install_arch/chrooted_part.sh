@@ -1,5 +1,7 @@
 #! /usr/bin/env bash
 
+source ../../utils/commonrc
+
 do_install vim dialog wpa_supplicant ntfs-3g dhcpcd 
 
 # --------------------------------------------

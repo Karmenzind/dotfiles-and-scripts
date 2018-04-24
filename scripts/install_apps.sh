@@ -1,6 +1,7 @@
 #! /usr/bin/env bash
 
 # delete the app you don't need
+source ../utils/commonrc
 
 _basic=(
     axel
@@ -98,5 +99,6 @@ _aur=(
 [[ "$1" == '-y' ]] && tag='--noconfirm'
 
 sudo pacman -Syu -v --needed $tag ${_basic[*]} ${_fonts[*]} ${_cli[*]} ${_desktop[*]}
-yaourt -S -v --needed $tag ${_aur[*]}
-yaourt -Sc
+pacman -Sc $tag
+# yaourt -S -v --needed $tag ${_aur[*]}
+# yaourt -Sc

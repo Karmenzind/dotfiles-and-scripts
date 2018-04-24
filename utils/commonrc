@@ -1,8 +1,5 @@
 #! /usr/bin/env bash
 
-# make sure running interactively
-#[[ $- != *i* ]] && echo "use source" && exit -1
-
 cut_off='--------------------------------------------'
 
 do_install () {
