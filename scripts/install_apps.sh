@@ -1,7 +1,6 @@
 #! /usr/bin/env bash
 
 # delete the app you don't need
-source ../utils/commonrc
 
 _basic=(
     axel
@@ -85,16 +84,6 @@ _aur=(
     teamviewer
     wps-office
 )
-
-# $1 install cmd
-# $2 apps
-#install_apps () {
-#    cmd=$1    
-#    while [[ -n "$2" ]]; do
-#        $cmd $2      
-#        shift
-#    done
-#}
 
 [[ "$1" == '-y' ]] && tag='--noconfirm'
 

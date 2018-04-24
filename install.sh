@@ -1,7 +1,9 @@
 #! /usr/bin/env bash
 
 repo_dir=$PWD
-scripts_dir=./scripts
+source ./scripts/utils/commonrc
+# scripts_dir=./scripts
+# cd $scripts_dir
 
 echo "What do you want to do?"
 cat << EOF

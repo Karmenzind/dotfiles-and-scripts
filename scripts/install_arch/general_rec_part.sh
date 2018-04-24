@@ -1,8 +1,6 @@
 #! /usr/bin/env bash
 # create sudo user
 
-source ../../utils/commonrc
-
 new_sudo_user () {
     echo "Input your new user name:"
     read username
