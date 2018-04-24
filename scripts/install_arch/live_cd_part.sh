@@ -127,16 +127,30 @@ part_exists() {
 
 format_and_mount () {
     echo "Formatting and mount tables ..."
-    part_exists boot && mkfs.fat -F32 ${parts[boot]} && mkdir /mnt/boot && mount ${parts[boot]} /mnt/boot -v
-    part_exists root && mkfs.ext4 ${parts[root]} && mount ${parts[root]} /mnt -v
-    part_exists home && mkfs.ext4 ${parts[home]} && mkdir /mnt/home && mount ${parts[home]} /mnt/home -v
-    part_exists swap && mkswap ${parts[swap]} && swapon ${parts[swap]} 
+    # boot
+    if [[ -n "${parts[boot]}" ]]; then
+        mkfs.fat -F32 ${parts[boot]} --verbose
+        mkdir -p /mnt/boot --verbose
+        mount ${parts[boot]} /mnt/boot --verbose
+    fi
+    # root
+    if [[ -n "${parts[root]}" ]]; then
+        mkfs.ext4 ${parts[root]}  --verbose
+        mount ${parts[root]} /mnt --verbose
+    fi
+    # swap
+    if [[ -n "${parts[swap]}" ]]; then
+        mkswap ${parts[swap]} 
+        swapon ${parts[swap]} --verbose
+    fi
+    # home
+    if [[ -n "${parts[home]}" ]]; then
+        mkfs.ext4 ${parts[home]} --verbose
+        mkdir -p /mnt/home --verbose
+        mount ${parts[home]} /mnt/home --verbose
+    fi
 
     fdisk -l $target_disk
-
-    for i in '1 2 3 4'; do
-        $part_pref align-check optimal $i
-    done
 }
 
 # Partition
@@ -170,29 +184,53 @@ put_cutoff 'Partition finished.'
 format_and_mount
 
 # --------------------------------------------
-# select mirrors
+# make ranked mirrors
 put_cutoff 'Modifying mirrorlist ...'
-mirror_file=/etc/pacman.d/mirrorlist
-# mv ${mirror_file} ${mirror_file}_bak
-# cat - ${mirror_file}_bak >${mirror_file} << EOF
-# ## China
-# Server = http://mirror.lzu.edu.cn/archlinux/$repo/os/$arch
-# ## China
-# Server = http://mirrors.tuna.tsinghua.edu.cn/archlinux/$repo/os/$arch
-# ## China
-# Server = http://mirrors.ustc.edu.cn/archlinux/$repo/os/$arch
-# ## China
-# Server = http://mirrors.neusoft.edu.cn/archlinux/$repo/os/$arch
-# ## China
-# Server = http://mirrors.xjtu.edu.cn/archlinux/$repo/os/$arch
-# ## China
-# Server = http://mirrors.163.com/archlinux/$repo/os/$arch
-# ## China
-# Server = http://mirrors.zju.edu.cn/archlinux/$repo/os/$arch
-# EOF
+
+ranked_servers=(
+    'http://mirrors.163.com/archlinux/$repo/os/$arch'
+    'http://mirrors.ustc.edu.cn/archlinux/$repo/os/$arch'
+    'http://mirrors.tuna.tsinghua.edu.cn/archlinux/$repo/os/$arch'
+    'http://mirror.lzu.edu.cn/archlinux/$repo/os/$arch'
+    'http://mirrors.neusoft.edu.cn/archlinux/$repo/os/$arch'
+    'http://archlinux.cs.nctu.edu.tw/$repo/os/$arch'
+    'http://arch.softver.org.mk/archlinux/$repo/os/$arch'
+    'http://mirrors.kernel.org/archlinux/$repo/os/$arch'
+    'http://mirror.0x.sg/archlinux/$repo/os/$arch'
+    'http://archlinux.mirrors.uk2.net/$repo/os/$arch'
+    'http://www.mirrorservice.org/sites/ftp.archlinux.org/$repo/os/$arch'
+    'http://mirrors.manchester.m247.com/arch-linux/$repo/os/$arch'
+    'http://il.us.mirror.archlinux-br.org/$repo/os/$arch'
+    'http://fooo.biz/archlinux/$repo/os/$arch'
+    'http://mirror.rackspace.com/archlinux/$repo/os/$arch'
+)
+
+rearrange_mirrorlist () {
+    mfile=/etc/pacman.d/mirrorlist
+    cp ${mfile} ${mfile}_bak
+    # header
+    sed '/^$/q' ${mfile} > ${mfile}_new
+    sed -i -n '/^$/,$p' ${mfile}
+    # core
+    for url in ${ranked_servers[*]}; do
+        line=`grep -in "$url" $mfile | head -n 1 | awk -F: '{print $1}'`
+        if [[ -n $line ]] && (($line>1)); then
+            line_before=$(($line-1))
+            sed -n "${line_before},${line}p" ${mfile} >> ${mfile}_new
+            sed -i "${line_before},${line}d" ${mfile}
+        fi
+    done
+    # tailer
+    cat ${mfile} >> ${mfile}_new
+    # override
+    mv ${mfile}_new ${mfile}
+}
+
+rearrange_mirrorlist
 
 # --------------------------------------------
 # Install the base packages
+pacman -Sy
 put_cutoff 'Install the base packages ...'
 pacstrap /mnt base base_devel git vim
 
@@ -201,6 +239,10 @@ pacstrap /mnt base base_devel git vim
 put_cutoff 'Generate fstab ...'
 genfstab -U /mnt >> /mnt/etc/fstab
 cat /mnt/etc/fstab
+
+for i in '1 2 3 4'; do
+    $part_pref align-check optimal $i
+done
 
 # echo -e "Check the information above, and edit /mnt/etc/fstab in case of errors."
 # echo -e "After you've done it, do:"
