@@ -18,7 +18,7 @@ check_input 1234
 
 arch_choice () {
     case $ans in 
-        1) source ./scripts/install_arch/live_cd_part.sh
+        1) source ./scripts/install_arch/livecd_part.sh
             ;;
         2) source ./scripts/install_arch/chrooted_part.sh
             ;;

@@ -126,18 +126,18 @@ part_exists() {
     [[ -z "${parts[$1]}" ]] && echo "Part $1 invalid." && return 1
 }
 
-format_and_mount () {
-    echo "Formatting and mount tables ..."
+format_parts () {
+    # root
+    # root must be mounted at first
+    if [[ -n "${parts[root]}" ]]; then
+        mkfs.ext4 ${parts[root]}  -v
+        mount ${parts[root]} /mnt --verbose
+    fi
     # boot
     if [[ -n "${parts[boot]}" ]]; then
-        mkfs.fat -F32 ${parts[boot]} --verbose
+        mkfs.fat -F32 ${parts[boot]} -v
         mkdir -p /mnt/boot --verbose
         mount ${parts[boot]} /mnt/boot --verbose
-    fi
-    # root
-    if [[ -n "${parts[root]}" ]]; then
-        mkfs.ext4 ${parts[root]}  --verbose
-        mount ${parts[root]} /mnt --verbose
     fi
     # swap
     if [[ -n "${parts[swap]}" ]]; then
@@ -146,12 +146,13 @@ format_and_mount () {
     fi
     # home
     if [[ -n "${parts[home]}" ]]; then
-        mkfs.ext4 ${parts[home]} --verbose
+        mkfs.ext4 ${parts[home]} -v
         mkdir -p /mnt/home --verbose
         mount ${parts[home]} /mnt/home --verbose
     fi
 
     fdisk -l $target_disk
+    lsblk $target_disk
 }
 
 # Partition
@@ -180,9 +181,9 @@ case $ans in
             exit 1                   ;;
 esac
 
-put_cutoff 'Partition finished.'
-
-format_and_mount
+put_cutoff "Formatting and mount tables ..."
+format_parts
+mount_parts
 
 # --------------------------------------------
 # make ranked mirrors
@@ -233,7 +234,7 @@ rearrange_mirrorlist
 # Install the base packages
 pacman -Sy
 put_cutoff 'Install the base packages ...'
-pacstrap /mnt base base_devel git vim
+pacstrap /mnt base base-devel git vim
 
 # --------------------------------------------
 # Configure the system
@@ -249,8 +250,14 @@ done
 # echo -e "After you've done it, do:"
 # echo -e "\tarch-chroot /mnt"
 # echo -e "And then follow my construction in README.md"
-put_cutoff "Enter /dotfiles-and-scripts after arch-chroot
-and type 'bash install.sh' to continue."
+put_cutoff "
+After arch-chroot, execute:
+    git clone https://github.com/Karmenzind/dotfiles-and-scripts ~/dotfiles-and-scripts --depth 1
+    cd ~/dotfiles-and-scripts
+    bash install.sh
+to continue installation
+
+Executing arch-chroot ..."
 
 # cp -r $repo_dir /mnt/$repo_dir
 arch-chroot /mnt

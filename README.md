@@ -5,7 +5,7 @@ dotfiles and scripts for my ArchLinux
 
 ----- 
 
-### 配置和脚本介绍
+### 介绍
 
 自己使用的vim、i3wm等软件的配置<br>
 和一些自己写的工具脚本<br>
@@ -33,7 +33,7 @@ dotfiles and scripts for my ArchLinux
 
 -----
 
-### 安装使用
+### 安装脚本
 
 #### ArchLinux的不完整安装脚本
 
@@ -41,9 +41,11 @@ dotfiles and scripts for my ArchLinux
 Leave it if you are not extremely familiar with the installation of ArchLinux or Bash itself.<br>
 按照安装过程顺序排列
 
-- **[未完成]** [live_cd_part](./scripts/install_arch/live_cd_part.sh) LiveCD部分
+- [livecd_part](./scripts/install_arch/livecd_part.sh) LiveCD部分
 - **[未完成]** [chrooted_part](./scripts/install_arch/chrooted_part.sh) chroot之后，取出LiveCD之前
-- [graphical_env_part](./scripts/install_arch/graphical_env_part.sh) 安装桌面环境，此处为i3wm
+- [general_recommended_part](./scripts/install_arch/graphical_env_part.sh) 一些基础设置
+- [graphical_env_part](./scripts/install_arch/graphical_env_part.sh) 安装图形环境，目前支持GNOME kde Xfce4 i3wm
+
 
 #### 必需/常用软件安装
 
@@ -51,8 +53,6 @@ Leave it if you are not extremely familiar with the installation of ArchLinux or
 加入`-y`参数可以免确认安装
 
 - [install_apps.sh](./scripts/install_apps.sh)
-
-#### **[未完成]** 载入我的配置 
 
 
 #### Vim安装
