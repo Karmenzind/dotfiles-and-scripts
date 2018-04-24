@@ -104,6 +104,7 @@ auto_partition () {
         parts[root]=${target_disk}2
     fi
 
+    $part_pref print
 }
 
 manual_partition () {
@@ -240,7 +241,7 @@ put_cutoff 'Generate fstab ...'
 genfstab -U /mnt >> /mnt/etc/fstab
 cat /mnt/etc/fstab
 
-for i in '1 2 3 4'; do
+for i in `seq ${#parts[*]}`; do
     $part_pref align-check optimal $i
 done
 
