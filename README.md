@@ -197,7 +197,7 @@ i3 desktop:
 
 Vim:
 
-![vim_common.png](./pics/vim_common.png)
+![vim.png](./pics/vim.png)
 ![vim_goyo.png](./pics/vim_goyo.png)
 
 ## TODO
