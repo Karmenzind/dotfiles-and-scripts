@@ -193,7 +193,7 @@ Reference:
 
 i3 desktop:
 
-![desktop.jpg](./pics/desktop.jpg)
+![desktop.png](./pics/desktop.png)
 
 Vim:
 
