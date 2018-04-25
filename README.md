@@ -33,7 +33,7 @@
 此repo中的安装脚本可由[install.sh](./install.sh)来统一执行，然后根据菜单提示进行操作
 ```bash
 git clone https://github.com/Karmenzind/dotfiles-and-scripts {target_dir}
-cd {target_dir}  # 必须
+cd {target_dir} 
 ./install.sh  
 ```
 

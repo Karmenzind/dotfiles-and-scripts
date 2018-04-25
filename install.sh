@@ -1,19 +1,9 @@
 #! /usr/bin/env bash
 
+cd `dirname $0`
 repo_dir=$PWD
-source ./scripts/utils/commonrc
-# scripts_dir=./scripts
-# cd $scripts_dir
 
-echo "What do you want to do?"
-cat << EOF
-1   install ArchLinux
-2   install recommended apps
-3   install Vim
-4   install Vim Plugin: YouCompleteMe
-EOF
-display_array ${choices[*]}
-check_input 1234
+source ./scripts/utils/commonrc
 
 arch_choice () {
     case $ans in 
@@ -28,6 +18,16 @@ arch_choice () {
         *) echo "No action." ;;
     esac
 }
+
+echo "What do you want to do?"
+cat << EOF
+1   install ArchLinux
+2   install recommended apps
+3   install Vim
+4   install Vim Plugin: YouCompleteMe
+EOF
+display_array ${choices[*]}
+check_input 1234
 
 case $ans in
     1)  echo "What part are you in?"
