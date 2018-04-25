@@ -65,7 +65,7 @@ cd {target_dir}  # 必须
 **文件结构：**
 - [livecd_part](./scripts/install_arch/livecd_part.sh) LiveCD部分：分区、安装base package等
 - [chrooted_part](./scripts/install_arch/chrooted_part.sh) 进入chroot环境之后的部分，直到重启
-- [general_recommendations_part](./scripts/install_arch/general_recommendations_part.sh) 安装完成后的一些基础设置
+- [general_recommendations_part](./scripts/install_arch/general_recommendations_part.sh) 安装完成后的一些基础设置，目前内容较少，后续根据需要增加
 - [graphical_env_part](./scripts/install_arch/graphical_env_part.sh) 安装图形环境，目前支持GNOME kde Xfce4 i3wm
 
 > 命名对应了ArchWiki中的安装配置过程
@@ -109,6 +109,12 @@ recommended table:
     进入arch-chroot后，按照[Usage](#usage)clone整个项目，执行`chrooted part`。
 3. `chrooted part`执行结束后，重启，取出存储介质，从系统盘进入Arch。
 4. 至此Arch系统已经安装完成，后续步骤为系统常用配置，对应了ArchWiki中的[General Recommendations部分](https://wiki.archlinux.org/index.php/General_recommendations)，其中图形环境部分单独分成一步。参考[Usage](#usage)分别执行`general recommendations part`、`graphical environment part`。如果需要批量安装其他软件，则查看下一节。
+
+> 如果是在虚拟机中通过UEFI方式安装Arch，需要在ESP分区根目录创建文件`startup.nsh`，写入grub的efi文件地址（注意`\`方向），如下：
+```
+\EFI\grub\grubx64.efi 
+```
+
 
 ### 软件批量安装
 

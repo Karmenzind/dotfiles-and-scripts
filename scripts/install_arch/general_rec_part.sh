@@ -2,12 +2,13 @@
 # create sudo user
 
 new_sudo_user () {
+    do_install sudo
+
     echo "Input your new user name:"
     read username
-    echo "user add -m -G wheel $username"
+    useradd -m -G wheel $username
     passwd $username
 
-    do_install sudo
     sed -i '/%wheel ALL=(ALL) ALL/s/# \+//g' /etc/sudoers
 }
 
