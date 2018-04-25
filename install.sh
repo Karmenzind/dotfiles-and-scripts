@@ -7,14 +7,10 @@ source ./scripts/utils/commonrc
 
 arch_choice () {
     case $ans in 
-        1) ./scripts/install_arch/livecd_part.sh
-            ;;
-        2) ./scripts/install_arch/chrooted_part.sh
-            ;;
-        3) ./scripts/install_arch/general_rec_part.sh
-            ;;
-        4) ./scripts/install_arch/graphical_env_part.sh
-            ;;
+        1) source ./scripts/install_arch/livecd_part.sh ;;
+        2) source ./scripts/install_arch/chrooted_part.sh ;;
+        3) source ./scripts/install_arch/general_rec_part.sh ;;
+        4) source ./scripts/install_arch/graphical_env_part.sh ;;
         *) echo "No action." ;;
     esac
 }
@@ -41,12 +37,9 @@ EOF
         check_input 1234
         arch_choice
         ;;
-    2)  ./scripts/install_apps.sh
-        ;;
-    3)  ./scripts/install_vim/main.sh
-        ;;
-    4)  ./scripts/install_vim/ycm.sh
-        ;;
+    2) source ./scripts/install_apps.sh ;;
+    3) source ./scripts/install_vim/main.sh ;;
+    4) source ./scripts/install_vim/ycm.sh ;;
     *) echo "No action." ;;
 esac
 

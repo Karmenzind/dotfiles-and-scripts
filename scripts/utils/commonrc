@@ -2,6 +2,18 @@
 
 cut_off='--------------------------------------------'
 
+# $1 prompt
+put_cutoff () {
+    _line="\n${cut_off}\n"
+    echo -e $_line
+    if [[ -n "$1" ]]; then
+        echo -e $1
+        echo -e $_line
+    fi
+}
+    
+
+
 do_install () {
     sudo pacman -S --needed --noconfirm $*
 }

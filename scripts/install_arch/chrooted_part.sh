@@ -1,6 +1,7 @@
 #! /usr/bin/env bash
 
 do_install vim dialog wpa_supplicant ntfs-3g dhcpcd 
+put_cutoff
 
 # --------------------------------------------
 # time and locale
@@ -16,6 +17,7 @@ time_and_locale () {
 }
 
 time_and_locale
+put_cutoff 
 
 # --------------------------------------------
 # Hostname
@@ -29,26 +31,27 @@ set_hostname () {
 }
 
 set_hostname
+put_cutoff
 
 # --------------------------------------------
-# network conf
+# network 
 do_install iw wpa_supplicant
-# TODO
+put_cutoff
 
 # --------------------------------------------
 # Initramfs
-# FIXME
 # mkinitcpio -p linux
 
 # --------------------------------------------
 # root pw
 echo "Set the root password"
 passwd
+put_cutoff
 
 # --------------------------------------------
 
 set_boot_loader () {
-    [[ -n `lscpu | grep -i 'model.*intel'` ]] && do_install intel_ucode
+    [[ -n `lscpu | grep -i 'model.*intel'` ]] && do_install intel-ucode
     do_install os-prober grub efibootmgr
     grub-install --target=x86_64-efi --efi-directory=/boot --bootloader-id=grub
 
@@ -58,10 +61,13 @@ set_boot_loader () {
     grub-mkconfig -o /boot/grub/grub.cfg
 }
 
+put_cutoff "Boot Loader"
+set_boot_loader
+
 sync
 
-echo "Now you can exit the chroot environment by typing 'exit'
+put_cutoff "Now you can exit the chroot environment by typing 'exit'
 and restart your machine by typing 'reboot'.
-Remember to **remove the installation media**
+Remember to remove the installation media
 and then login into the new system with the root account."
 

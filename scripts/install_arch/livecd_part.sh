@@ -20,17 +20,6 @@ timedatectl status
 
 # --------------------------------------------
 
-# $1 prompt
-put_cutoff () {
-    _line='\n--------------------------------------------\n'
-    echo -e $_line
-    if [[ -n "$1" ]]; then
-        echo -e $1
-        echo -e $_line
-    fi
-}
-    
-
 get_target_disk () {
     put_cutoff
     echo "Your disk information:"
@@ -51,7 +40,8 @@ get_target_disk
 # --------------------------------------------
 
 auto_partition () {
-    echo "How much size (G) do you want to use? (default=$disk_size)"
+    echo "How much size (G) do you want to use
+for the whole Arch system? (default=$disk_size)"
     is_valid=no
     while [[ $is_valid = 'no' ]]; do
         read -p "Input a number: " use_size
@@ -109,12 +99,14 @@ auto_partition () {
 
 manual_partition () {
     fdisk $target_disk
-    for p in 'boot swap root home'; do
+    fdisk -l $target_disk
+    for p in boot root swap home; do
+        put_cutoff
         echo "What't the number of your $p partition?"
         echo "(if /dev/sda2 then input 2)"
         echo "Type ENTER if you didn't create a $p part"
         read -p "Input: " num
-        if [[ -n "$part" ]]; then
+        if [[ -n "$p" ]]; then
             parts[$p]="${target_disk}$num"
             echo "${parts[$p]} is your $p partition"
         fi
@@ -250,14 +242,22 @@ done
 # echo -e "After you've done it, do:"
 # echo -e "\tarch-chroot /mnt"
 # echo -e "And then follow my construction in README.md"
-put_cutoff "
-After arch-chroot, execute:
-    git clone https://github.com/Karmenzind/dotfiles-and-scripts ~/dotfiles-and-scripts --depth 1
-    cd ~/dotfiles-and-scripts
-    bash install.sh
-to continue installation
+if [[ -n $repo_dir ]]; then
+    cp -r $repo_dir /mnt/dotfiles-and-scripts -v
+    put_cutoff "After arch-chroot, execute:
+    cd /dotfiles-and-scripts
+    ./install.sh
+to continue installation"
+else
+    put_cutoff "After arch-chroot, execute:
+    git clone https://github.com/Karmenzind/dotfiles-and-scripts /dotfiles-and-scripts --depth 1
+    cd /dotfiles-and-scripts
+    ./install.sh
+to continue installation"
+fi
 
-Executing arch-chroot ..."
+echo "Executing arch-chroot ..."
 
 # cp -r $repo_dir /mnt/$repo_dir
 arch-chroot /mnt
+
