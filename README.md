@@ -30,13 +30,13 @@
 
 ## Usage
 
-此repo中的安装脚本可由[install.sh](./install.sh)来统一执行
+此repo中的安装脚本可由[install.sh](./install.sh)来统一执行，然后根据菜单提示进行操作
 ```bash
 git clone https://github.com/Karmenzind/dotfiles-and-scripts {target_dir}
 cd {target_dir}  # 必须
 ./install.sh  
 ```
-根据菜单提示进行操作即可
+
 
 ## 配置文件部分
 
@@ -99,16 +99,16 @@ recommended table:
 
 **安装步骤：**
 1. 确定阅读完上述内容。经安装介质启动进入LiveCD环境，参考ArchWiki手动配置好网络。
-2. **在LiveCD环境中执行liveCD part**。
-    方案一，拷贝整个项目到LiveCD。执行`pacman -Sy git`尝试安装Git，然后进行clone。如果无法安装Git，建议找一台可以ssh登陆的机器（我用了树莓派）用scp传输项目，或者通过挂载其他存储介质来拷贝项目。成功拷贝项目后，参考[Usage](#usage)运行install.sh，依次选择`install ArchLinux`、`livecd part`，依照提示执行。结束后已经处于arch-chroot环境，此时进入`/dotfiles-and-scripts`目录，通过`./install.sh`脚本继续执行`chrooted part`。
+2. **在LiveCD环境中执行liveCD part**。<br>
+    方案一，拷贝整个项目到LiveCD。执行`pacman -Sy git`尝试安装Git，然后进行clone。如果无法安装Git，建议找一台可以ssh登陆的机器（我用了树莓派）用scp传输项目，或者通过挂载其他存储介质来拷贝项目。成功拷贝项目后，参考[Usage](#usage)运行install.sh，依次选择`install ArchLinux`、`livecd part`，依照提示执行。结束后已经处于arch-chroot环境，此时进入`/dotfiles-and-scripts`目录，通过`./install.sh`脚本继续执行`chrooted part`。<br>
     方案二，获取livecd_part.sh文件。手动输入:smiling_imp:如下命令：
     ```bash
-    wget https://raw.githubusercontent.com/Karmenzind/dotfiles-and-scripts/recon/scripts/install_arch/livecd_part.sh -O ./livecd_part.sh
+    wget https://raw.githubusercontent.com/Karmenzind/dotfiles-and-scripts/master/scripts/install_arch/livecd_part.sh
     ./livecd_part.sh
     ```
     进入arch-chroot后，按照[Usage](#usage)clone整个项目，执行`chrooted part`。
 3. `chrooted part`执行结束后，重启，取出存储介质，从系统盘进入Arch。
-4. 至此Arch系统已经安装完成，后续步骤为系统常用配置，对应了ArchWiki中的[这一部分](https://wiki.archlinux.org/index.php/General_recommendations)，其中图形环境部分单独分成一步。参考[Usage](#usage)分别执行`general recommendations part`、`graphical environment part`。如果需要批量安装其他软件，则查看下一节。
+4. 至此Arch系统已经安装完成，后续步骤为系统常用配置，对应了ArchWiki中的[General Recommendations部分](https://wiki.archlinux.org/index.php/General_recommendations)，其中图形环境部分单独分成一步。参考[Usage](#usage)分别执行`general recommendations part`、`graphical environment part`。如果需要批量安装其他软件，则查看下一节。
 
 ### 软件批量安装
 
