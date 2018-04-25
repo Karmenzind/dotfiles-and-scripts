@@ -1,6 +1,6 @@
 # dotfiles and scripts 
 
-## Table of Content
+## Contents
 
 * [Intro](#intro)
 * [Usage](#usage)
@@ -111,7 +111,7 @@ recommended table:
 4. 至此Arch系统已经安装完成，后续步骤为系统常用配置，对应了ArchWiki中的[General Recommendations部分](https://wiki.archlinux.org/index.php/General_recommendations)，其中图形环境部分单独分成一步。参考[Usage](#usage)分别执行`general recommendations part`、`graphical environment part`。如果需要批量安装其他软件，则查看下一节。
 
 
-> 如果是在虚拟机中通过UEFI方式安装Arch，需要在ESP分区根目录创建文件`startup.nsh`，写入grub的efi文件地址（注意`\`方向），如下`\EFI\grub\grubx64.efi`
+> 如果是在虚拟机中通过UEFI方式安装Arch，需要在ESP分区根目录创建文件`startup.nsh`写入grub的efi文件地址（注意`\`方向），如`\EFI\grub\grubx64.efi`
 
 ### 软件批量安装
 
