@@ -2,6 +2,10 @@
 
 # delete the app you don't need
 
+# --------------------------------------------
+# apps
+# --------------------------------------------
+
 _basic=(
     axel
     curl
@@ -9,7 +13,7 @@ _basic=(
     git
     tar
     tmux
-    vim
+    #vim # replace with gvim in graphical env
     wget
 )
 
@@ -35,9 +39,9 @@ _fonts=(
 )
 
 _cli=(
-    #conky
     arandr
     aria2
+    conky
     compton
     cronie
     docker
@@ -52,15 +56,18 @@ _cli=(
     python2
     python2-pip
     python3
-    python3-pip
+    python-pip
     rabbitmq
-    ranger
     screenfetch
+    scrot
     shadowsocks
     tig
     unrar
+    xclip
+    xsel
     youtube-dl
 )
+
 _desktop=(
     xfce4-terminal
     chromium
@@ -85,9 +92,33 @@ _aur=(
     wps-office
 )
 
+# --------------------------------------------
+# Plugins
+# --------------------------------------------
+
+install_ranger_and_plugins () {
+    # ranger and basic config
+    sudo pacman -S --need ranger
+    ranger --copy-config=all
+
+    # devicons
+    clonedir=/tmp/ranger_devicons
+    [[ -d $clonedir ]] && rm -rf $clonedir
+    git clone https://github.com/alexanderjeurissen/ranger_devicons $clonedir
+    cd $clonedir
+    make install
+    cd -
+    rm -rf $clonedir
+}
+
+# --------------------------------------------
+
 [[ "$1" == '-y' ]] && tag='--noconfirm'
 
-sudo pacman -Syu -v --needed $tag ${_basic[*]} ${_fonts[*]} ${_cli[*]} ${_desktop[*]}
-pacman -Sc $tag
+sudo pacman -S --needed $tag ${_basic[*]} ${_fonts[*]} ${_cli[*]} ${_desktop[*]}
+sudo pacman -Sc $tag
 # yaourt -S -v --needed $tag ${_aur[*]}
 # yaourt -Sc
+
+install_ranger_and_plugins
+
