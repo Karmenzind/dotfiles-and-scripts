@@ -79,6 +79,13 @@ _desktop=(
     thunar-volman
     thunderbird
     volumeicon
+    lxappearance
+)
+
+_themes=(
+    xcursor-simpleandsoft
+    ark-icon-theme
+    papirus-icon-theme
 )
 
 _aur=(
@@ -90,7 +97,15 @@ _aur=(
     electronic-wechat
     teamviewer
     wps-office
+    bmenu
 )
+
+_aur_themes=(
+    vertex-themes
+    paper-gtk-theme-git
+    paper-icon-theme-git
+)
+
 
 # --------------------------------------------
 # Plugins
@@ -115,9 +130,9 @@ install_ranger_and_plugins () {
 
 [[ "$1" == '-y' ]] && tag='--noconfirm'
 
-sudo pacman -S --needed $tag ${_basic[*]} ${_fonts[*]} ${_cli[*]} ${_desktop[*]}
+sudo pacman -S --needed $tag ${_basic[*]} ${_fonts[*]} ${_cli[*]} ${_desktop[*]} ${_themes[*]}
 sudo pacman -Sc $tag
-# yaourt -S -v --needed $tag ${_aur[*]}
+# yaourt -S -v --needed $tag ${_aur[*]} ${_aur_themes[*]}
 # yaourt -Sc
 
 install_ranger_and_plugins

@@ -160,34 +160,28 @@ bindsym $mod+r mode "resize"
 # finds out, if available)
 
 bar {
-    #status_command $HOME/.config/conky/build-i3bar
+  #status_command $HOME/.config/conky/build-i3bar
     status_command conky -c $HOME/.config/conky/conky.conf
-    #position down
-    
-    colors {
-        # background #333333
-        # statusline #FFFFFF
-        # #eparator  #3399FF
-        # # 工作区颜色         边框    背景    文字
-        # focused_workspace  #111111 #111111 #FFFFFF
-        # active_workspace   #FFFFFF #FFFFFF #FFFFFF
-        # inactive_workspace #333333 #333333 #FFFFFF
-        # urgent_workspace   #990000 #990000 #FFFFFF
-        # binding_mode       #990000 #990000 #FFFFFF
-     background #222222
-     #background #000000
-     statusline #dddddd
-     focused_workspace #0088CC #0088CC #ffffff
-     active_workspace #333333 #333333 #ffffff
-     inactive_workspace #333333 #333333 #888888
-     urgent_workspace #2f343a #900000 #ffffff
-    }
-   #font -misc-fixed-medium-r-normal--13-120-75-75-C-70-iso10646-1
-   #font pango:MV Boli Regular 10
-   #font pango:Cantarell Bold 10
-   font pango:Monaco Bold 9
-   #font pango:Noto Sans Mono Bold 10
-   #font pango:Segoe UI Fett 10
+    #position bottom
+    #font -misc-fixed-medium-r-normal--13-120-75-75-C-70-iso10646-1
+    #font pango:MV Boli Regular 10
+    #font pango:Cantarell Regular 9
+    #font pango:Monaco Nerd Font 9
+    #font pango:Noto Sans Mono Regular 10
+    #font pango:Segoe UI Fett 9
+    #font pango:Adobe Courier Regular 9
+    #font pango:AvantGarde LT Medium Regular 10
+    font pango:Hermit medium 9
+    #font pango:WenQuanYi WenQuanYi Bitmap Song 10
+  colors {
+    separator #586e75
+    background #002b36
+    statusline #aea79f
+    focused_workspace #586e75 #586e75 #ffffff
+    active_workspace #073642 #073642 #ffffff
+    inactive_workspace #002b36 #002b36 #aea79f
+    urgent_workspace #77216f #77216f #ffffff
+  }
 }
 
 
@@ -200,16 +194,7 @@ bar {
 #   font -misc-fixed-medium-r-normal--13-120-75-75-C-70-iso10646-1
 #   #font pango:DejaVu Sans Mono, Icons 10
 #   separator_symbol "| "
-#   colors {
-#     separator #666666
-#     background #222222
-#     #background #000000
-#     statusline #dddddd
-#     focused_workspace #0088CC #0088CC #ffffff
-#     active_workspace #333333 #333333 #ffffff
-#     inactive_workspace #333333 #333333 #888888
-#     urgent_workspace #2f343a #900000 #ffffff
-#   }
+#
 # }
 
 # --------------------------------------------------------------------------------------
@@ -277,32 +262,14 @@ gaps outer -4
 smart_gaps on
 smart_borders on
 
-
-# arrange monitors
-exec_always xrandr --output HDMI3 --off --output HDMI2 --off --output HDMI1 --mode 1920x1080 --pos 1920x0 --rotate normal --output VIRTUAL1 --off --output DP1 --primary --mode 1920x1080 --pos 0x0 --rotate normal
-
 # clipboard
 # Multi-screen screenshots with scrot
 bindsym --release Print exec scrot 'SCREENSHOT_TEMP.png' -e 'mv $f ~/Pictures && xclip -selection clipboard -t image/png -i ~/Pictures/SCREENSHOT_TEMP.png' # All screens
 # OSX-like area selection screenshots
 bindsym --release Shift+Print exec scrot -s 'SCREENSHOT_TEMP.png' -e 'mv $f ~/Pictures && xclip -selection clipboard -t image/png -i ~/Pictures/SCREENSHOT_TEMP.png' # Area selection
 
-exec_always dunst
-exec --no-startup-id compton -b
-exec --no-startup-id volumeicon
-exec --no-startup-id fcitx
-
-exec --no-startup-id i3-sensible-terminal
-
-client.focused #0088CC #0088CC #ffffff #dddddd
-client.focused_inactive #333333 #333333 #888888 #292d2e
-client.unfocused #333333 #333333 #888888 #292d2e
-client.urgent #2f343a #900000 #ffffff #900000
-
-# background
-exec --no-startup-id feh --bg-max /home/k/Pictures/BACKGROUND.jpg
-
 # [screen lock]
+exec_always --no-startup-id xautolock -time 20 -locker i3lock -t -i $lock_screen_png &
 # lock with a pic
 set $lock_screen_png /home/k/Pictures/LOCKSCREEN.png
 # bindsym $mod+Ctrl+l exec --no-startup-id i3lock -t -i $lock_screen_png
@@ -316,7 +283,28 @@ bindsym $mod+Ctrl+l exec --no-startup-id i3lock -t -i `[ -d $lock_screen_dir ] &
 # focus follows mouse
 focus_follows_mouse no
 
-bindsym $mod+p exec "/bin/bash /tmp/toggle_test.sh"
+# bindsym $mod+p exec "/bin/bash /tmp/toggle_test.sh"
 # bindsym $mod+p exec "notify-send asdf "
+bindsym $mod+Shift+m bar mode toggle
 
+# arrange monitors
+exec_always xrandr --output HDMI3 --off --output HDMI2 --off --output HDMI1 --mode 1920x1080 --pos 1920x0 --rotate normal --output VIRTUAL1 --off --output DP1 --primary --mode 1920x1080 --pos 0x0 --rotate normal
 
+exec_always dunst &
+exec_always --no-startup-id compton -b &
+exec --no-startup-id fcitx &
+exec --no-startup-id pamac-tray &
+exec --no-startup-id volumeicon &
+
+exec --no-startup-id i3-sensible-terminal &
+exec --no-startup-id i3-sensible-terminal -x vim &
+
+exec --no-startup-id /usr/lib/polkit-gnome/polkit-gnome-authentication-agent-1 & eval $(gnome-keyring-daemon -s --components=pkcs11,secrets,ssh,gpg) &
+
+# background
+exec_always --no-startup-id killall feh; feh --bg-max `ls /home/k/Pictures/BACKGROUND.*` &
+
+client.focused #586e75 #586e75 #fdf6e3 #268bd2
+client.focused_inactive #073642 #073642 #93a1a1 #002b36
+client.unfocused #002b36 #002b36 #586e75 #002b36
+client.urgent #dc322f #dc322f #fdf6e3 #dc322f

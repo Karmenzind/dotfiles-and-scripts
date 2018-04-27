@@ -2,6 +2,7 @@
 
 set nocompatible
 set encoding=utf-8
+set guifont=Monaco\ Nerd\ Font\ 12
 
 " file type detection
 filetype off 

@@ -193,6 +193,7 @@ Reference:
 
 i3 desktop:
 
+![float.png](./pics/float.png)
 ![desktop.png](./pics/desktop.png)
 
 Vim:
