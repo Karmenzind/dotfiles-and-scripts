@@ -38,7 +38,8 @@ cd {target_dir}
 ./install.sh  
 ```
 
-:exclamation: 此repo中的安装脚本，除了下文单独列举的（如Arch安装第一步）之外，都不要单独直接执行，否则可能出错
+**注意**:exclamation:
+除了下文单独列举的（如Arch安装第一步）一些功能之外，其他脚本都建议从install.sh统一执行，否则可能出错
 
 
 ## 配置文件部分
