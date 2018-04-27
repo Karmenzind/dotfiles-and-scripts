@@ -30,12 +30,15 @@
 
 ## Usage
 
-此repo中的安装脚本可由[install.sh](./install.sh)来统一执行，然后根据菜单提示进行操作
+
+在repo根目录，执行[install.sh](./install.sh)，选择所需的功能，根据提示进行操作即可
 ```bash
 git clone https://github.com/Karmenzind/dotfiles-and-scripts {target_dir}
 cd {target_dir} 
 ./install.sh  
 ```
+
+:exclamation: 此repo中的安装脚本，除了下文单独列举的（如Arch安装第一步）之外，都不要单独直接执行，否则可能出错
 
 
 ## 配置文件部分
