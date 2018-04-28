@@ -1,6 +1,9 @@
 " Github: https://github.com/Karmenzind/dotfiles-and-scripts
 
 set nocompatible
+set noerrorbells
+set noeb
+set report=0
 set encoding=utf-8
 set guifont=Monaco\ Nerd\ Font\ 12
 
@@ -10,63 +13,65 @@ filetype off
 " -----------------------------------------------------------------------------
 "  Plugins Manage
 " -----------------------------------------------------------------------------
+if empty(glob('~/.vim/autoload/plug.vim'))
+  silent !curl -fLo ~/.vim/autoload/plug.vim --create-dirs
+    \ https://raw.githubusercontent.com/junegunn/vim-plug/master/plug.vim
+  autocmd VimEnter * PlugInstall --sync | source $MYVIMRC
+endif
 
 " set the runtime path to include Vundle and initialize
-set rtp+=~/.vim/bundle/Vundle.vim
-call vundle#begin()
+call plug#begin()
 
-" alternatively, pass a path where Vundle should install plugins
-" call vundle#begin('~/some/path/here')
+Plug 'junegunn/vim-plug'
 
-" Add all your plugins here (note older versions of Vundle used Bundle instead of Plugin)
-Plugin 'VundleVim/Vundle.vim'
-Plugin 'vim-airline/vim-airline'
-Plugin 'vim-airline/vim-airline-themes'
-Plugin 'morhetz/gruvbox'
+Plug 'vim-airline/vim-airline'
+Plug 'vim-airline/vim-airline-themes'
+Plug 'morhetz/gruvbox'
 
-Plugin 'Valloric/YouCompleteMe'
-Plugin 'SirVer/ultisnips' " ultimate solution for snippets
-Plugin 'Chiel92/vim-autoformat'
+Plug 'junegunn/vim-easy-align'
+Plug 'Valloric/YouCompleteMe', { 'do': './install.py' }
+Plug 'SirVer/ultisnips' " ultimate solution for snippets
+Plug 'Chiel92/vim-autoformat'
 
-Plugin 'scrooloose/nerdtree'
-Plugin 'Xuyuanp/nerdtree-git-plugin'
-Plugin 'wsdjeg/FlyGrep.vim'
-Plugin 'Yggdroot/LeaderF'
+Plug 'scrooloose/nerdtree', { 'on':  'NERDTreeToggle' }
+Plug 'Xuyuanp/nerdtree-git-plugin'
+Plug 'wsdjeg/FlyGrep.vim'
+Plug 'Yggdroot/LeaderF'
 
-Plugin 'tmhedberg/SimpylFold' " code folding for Python
-Plugin 'nvie/vim-flake8' " Python syntax checker (flake8 required) [press F7 to run]
-Plugin 'vim-scripts/indentpython.vim'
-Plugin 'plytophogy/vim-virtualenv' " Python v e
+Plug 'tmhedberg/SimpylFold' " code folding for Python
+Plug 'nvie/vim-flake8' " Python syntax checker (flake8 required) [press F7 to run]
+Plug 'vim-scripts/indentpython.vim'
+Plug 'plytophogy/vim-virtualenv' " Python v e
 
-Plugin 'terryma/vim-smooth-scroll' 
-Plugin 'junegunn/goyo.vim'
-Plugin 'junegunn/vim-slash'
-Plugin 'mhinz/vim-startify'
-Plugin 'majutsushi/tagbar'
-Plugin 'iamcco/mathjax-support-for-mkdp'
-Plugin 'iamcco/markdown-preview.vim'
+Plug 'terryma/vim-smooth-scroll' 
+Plug 'junegunn/goyo.vim'
+Plug 'junegunn/vim-slash'
+Plug 'mhinz/vim-startify'
+Plug 'majutsushi/tagbar'
+Plug 'iamcco/mathjax-support-for-mkdp'
+Plug 'iamcco/markdown-preview.vim'
 
 " load after other plugins 
-Plugin 'ryanoasis/vim-devicons'
-Plugin 'tiagofumo/vim-nerdtree-syntax-highlight'
+Plug 'ryanoasis/vim-devicons'
+Plug 'tiagofumo/vim-nerdtree-syntax-highlight'
+Plug 'junegunn/fzf'
 
 " /* Alternative */
-" Plugin 'chxuan/change-colorscheme'
-" Plugin 'junegunn/limelight.vim'
-" Plugin 'junegunn/rainbow_parentheses.vim'
-" Plugin 'davidhalter/jedi-vim'
-" Plugin 'vim-scripts/fcitx.vim' " keep and restore fcitx state when leaving/re-entering insert mode
-" Plugin 'Lokaltog/powerline', {'rtp': 'powerline/bindings/vim/'}  a status bar
-" Plugin 'rkulla/pydiction' " Python Tab-completion 
-" Plugin 'ctrlpvim/ctrlp.vim'
-" Plugin 'kien/ctrlp.vim'  " search file inside vim
+" Plug 'chxuan/change-colorscheme'
+" Plug 'junegunn/limelight.vim'
+" Plug 'junegunn/rainbow_parentheses.vim'
+" Plug 'davidhalter/jedi-vim'
+" Plug 'vim-scripts/fcitx.vim' " keep and restore fcitx state when leaving/re-entering insert mode
+" Plug 'Lokaltog/powerline', {'rtp': 'powerline/bindings/vim/'}  a status bar
+" Plug 'rkulla/pydiction' " Python Tab-completion 
+" Plug 'ctrlpvim/ctrlp.vim'
 " https://github.com/python-mode/python-mode
-" Plugin 'mhinz/vim-signify' 
-" Plugin 'airblade/vim-gitgutter'
+" Plug 'mhinz/vim-signify' 
+" Plug 'airblade/vim-gitgutter'
 
 
 " All of your Plugins must be added before the following line
-call vundle#end()            
+call plug#end()            
 
 " -----------------------------------------------------------------------------
 " Basic
@@ -348,6 +353,13 @@ if exists('*WebDevIconsGetFileTypeSymbol')  " support for vim-devicons
 else 
     let entry_format .= '. entry_path'
 endif
+
+" for vim-easy-align
+" Start interactive EasyAlign in visual mode (e.g. vipga)
+xmap ga <Plug>(EasyAlign)
+" Start interactive EasyAlign for a motion/text object (e.g. gaip)
+nmap ga <Plug>(EasyAlign)
+
 
 " -----------------------------------------------------------------------------
 " /* reference */

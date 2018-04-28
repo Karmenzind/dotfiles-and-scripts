@@ -12,7 +12,8 @@
 # You need to mannual set the path to libclang.so
 libclang_so_path=/usr/lib/libclang.so
 
-plug_dir=${HOME}/.vim/bundle/YouCompleteMe
+# if you use other plugin manager, edit this line 
+plug_dir=${HOME}/.vim/plugged/YouCompleteMe
 build_dir=${HOME}/ycm_build
 
 ycm_git_url=https://github.com/Valloric/YouCompleteMe.git 

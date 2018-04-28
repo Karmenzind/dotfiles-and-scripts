@@ -18,18 +18,19 @@ done
 # --------------------------------------------
 # plugins
 # --------------------------------------------
+# TODO:
 
 # vundle
-git clone https://github.com/VundleVim/Vundle.vim.git ~/.vim/bundle/Vundle.vim
-
-# ycm
-echo 'Use script other than vundle to install YouCompleteMe?(y/n)'
-read ans
-case ans in
-    Y|y) install_ycm.sh     ;;
-    *)                      ;;
-esac
-
-# other plugins
-vim +PluginInstall +qall
-
+# git clone https://github.com/VundleVim/Vundle.vim.git ~/.vim/bundle/Vundle.vim
+# 
+# # ycm
+# echo 'Use script other than Plug to install YouCompleteMe?(y/n)'
+# read ans
+# case ans in
+#     Y|y) install_ycm.sh     ;;
+#     *)                      ;;
+# esac
+# 
+# # other plugins
+# vim +PlugInstall +qall
+# 
