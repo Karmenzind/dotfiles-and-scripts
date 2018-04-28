@@ -62,6 +62,7 @@ _cli=(
     scrot
     shadowsocks
     tig
+    fzf
     unrar
     xclip
     xsel
