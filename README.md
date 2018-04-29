@@ -38,7 +38,7 @@ cd {target_dir}
 ./install.sh  
 ```
 
-**注意**:exclamation:
+:exclamation: **注意：** 
 除了下文单独列举的（如Arch安装第一步）一些功能之外，其他脚本都建议从install.sh统一执行，否则可能出错
 
 

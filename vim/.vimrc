@@ -11,15 +11,16 @@ set guifont=Monaco\ Nerd\ Font\ 12
 filetype off 
 
 " -----------------------------------------------------------------------------
-"  Plugins Manage
+"  Plugin Manager
 " -----------------------------------------------------------------------------
+
+" auto install Plug
 if empty(glob('~/.vim/autoload/plug.vim'))
   silent !curl -fLo ~/.vim/autoload/plug.vim --create-dirs
     \ https://raw.githubusercontent.com/junegunn/vim-plug/master/plug.vim
   autocmd VimEnter * PlugInstall --sync | source $MYVIMRC
 endif
 
-" set the runtime path to include Vundle and initialize
 call plug#begin()
 
 Plug 'junegunn/vim-plug'
@@ -29,7 +30,7 @@ Plug 'vim-airline/vim-airline-themes'
 Plug 'morhetz/gruvbox'
 
 Plug 'junegunn/vim-easy-align'
-Plug 'Valloric/YouCompleteMe', { 'do': './install.py' }
+Plug 'Valloric/YouCompleteMe', { 'do': './install.py --clang-completer --go-completer --js-completer --java-completer' }
 Plug 'SirVer/ultisnips' " ultimate solution for snippets
 Plug 'Chiel92/vim-autoformat'
 
@@ -55,6 +56,7 @@ Plug 'iamcco/markdown-preview.vim'
 Plug 'ryanoasis/vim-devicons'
 Plug 'tiagofumo/vim-nerdtree-syntax-highlight'
 Plug 'junegunn/fzf'
+" Plug 'junegunn/fzf', {'dir': '~/.local/fzf', 'do': './install --all'}
 
 " /* Alternative */
 " Plug 'chxuan/change-colorscheme'
@@ -69,8 +71,6 @@ Plug 'junegunn/fzf'
 " Plug 'mhinz/vim-signify' 
 " Plug 'airblade/vim-gitgutter'
 
-
-" All of your Plugins must be added before the following line
 call plug#end()            
 
 " -----------------------------------------------------------------------------
@@ -199,7 +199,7 @@ let g:ycm_python_binary_path = 'python'
 let g:ycm_global_ycm_extra_conf = '~/.vim/.ycm_extra_conf.py'
 
 " for ycmd server, not completion
-let g:ycm_server_python_interpreter = '/usr/bin/python2'
+let g:ycm_server_python_interpreter = '/usr/bin/python'
 " let g:ycm_goto_buffer_command = 'horizontal-split'
 
 " key mappings
