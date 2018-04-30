@@ -136,23 +136,23 @@ install_driver () {
 # --------------------------------------------
 
 install_gnome () {
-    do_install gnome gnome-extra gdm
     dm_name=gdm
+    do_install gnome gnome-extra
 }
 
 install_kde () {
-    do_install plasma kde-applications sddm
     dm_name=sddm
+    do_install plasma kde-applications
 }
 
 install_xfce () {
-    do_install xfce4 xfce4-goodies sddm
     dm_name=sddm
+    do_install xfce4 xfce4-goodies 
 }
 
 install_i3wm () {
-    do_install i3 sddm
     dm_name=sddm
+    do_install i3 
 }
 
 install_desktop_env () {
@@ -167,7 +167,13 @@ install_desktop_env () {
         3)  install_i3wm    ;;
         *)                  ;;
     esac
+    do_install $dm_name
     sudo systemctl enable $dm_name
+    if (($?!=0)); then
+        echo "Failed to enable $dm_name.
+There might be enabled display manager in your system.
+Disable it and then enable $dm_name by yourself.
+"
 }
 
 

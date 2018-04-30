@@ -5,19 +5,22 @@ if [[ $USER = 'root' ]]; then
     exit -1
 fi
 
-sudo pacman -S gvim --needed
+sudo pacman -S gvim --needed 
 
 # --------------------------------------------
 # colors
 # --------------------------------------------
+
+color_dir=~/.vim/colors
+
 colors_url=('https://raw.githubusercontent.com/tomasr/molokai/master/colors/molokai.vim'
             'https://raw.githubusercontent.com/altercation/vim-colors-solarized/master/colors/solarized.vim')
 
-color_dir=~/.vim/colors
 mkdir -p $color_dir
 for u in ${colors_url[*]}
 do
-    axel $u -o $color_dir
+    fname="$color_dir/`echo $colors_url | sed 's/.*\///g'`"
+    [[ ! -e $fname ]] && axel $u -o $color_dir
 done
 
 # --------------------------------------------

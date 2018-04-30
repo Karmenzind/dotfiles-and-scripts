@@ -9,18 +9,27 @@
 #           clang>=3.9 and corresponding lib/devel
 #           python and corresponding lib/devel
 
+# You need to mannual set the path to libclang.so
+libclang_so_path=/usr/lib/libclang.so
+# if you use other plugin manager, edit this line 
+plug_dir=${HOME}/.vim/plugged/YouCompleteMe
+
 cat << EOF
 Before you start this installation,
 You need to manually set 
     the path to libclang.so
     the path to your plugin dir 
 and edit ycm.sh carefully
+
+current path:
+    libclang.so:    $libclang_so_path
+    plugin:         $plug_dir 
+
+ctrl+C to exit
+or type any key to continue
 EOF
 
-# You need to mannual set the path to libclang.so
-libclang_so_path=/usr/lib/libclang.so
-# if you use other plugin manager, edit this line 
-plug_dir=${HOME}/.vim/plugged/YouCompleteMe
+read whatever
 
 # --------------------------------------------
 ycm_git_url=https://github.com/Valloric/YouCompleteMe.git 
@@ -38,18 +47,17 @@ fi
 # --------------------------------------------
 
 [[ -d $plug_dir ]] && rm -rf $plug_dir
-mkdir -p $build_dir $plug_dir
+
+git clone $ycm_git_url $plug_dir --depth 1
 
 cd $plug_dir 
-
-git clone https://github.com/Valloric/YouCompleteMe.git 
-
 git submodule update --init --recursive 
 
 # --------------------------------------------
 # compile ycm_core library
 # --------------------------------------------
 
+mkdir -p $build_dir
 cd $build_dir && rm -rf *
 cmake -G "Unix Makefiles" -DEXTERNAL_LIBCLANG_PATH=${libclang_so_path} . ${plug_dir}/third_party/ycmd/cpp 
 
