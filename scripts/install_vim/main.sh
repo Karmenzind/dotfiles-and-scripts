@@ -1,6 +1,11 @@
 #! /usr/bin/env bash
 
-sudo pacman -S gvim
+if [[ $USER = 'root' ]]; then
+    echo "Do not use root."
+    exit -1
+fi
+
+sudo pacman -S gvim --needed
 
 # --------------------------------------------
 # colors
@@ -18,19 +23,21 @@ done
 # --------------------------------------------
 # plugins
 # --------------------------------------------
-# TODO:
 
-# vundle
-# git clone https://github.com/VundleVim/Vundle.vim.git ~/.vim/bundle/Vundle.vim
-# 
-# # ycm
-# echo 'Use script other than Plug to install YouCompleteMe?(y/n)'
-# read ans
-# case ans in
-#     Y|y) install_ycm.sh     ;;
-#     *)                      ;;
-# esac
-# 
-# # other plugins
-# vim +PlugInstall +qall
-# 
+restore_my_vim () {
+    cp $repo_dir/vim/.vimrc ~/.vimrc
+    cat << EOF
+PlugInstall will start right now.
+If it fails on YouCompleteMe,
+you may need to execute install.sh
+and try 'install Vim Plugin: YouCompleteMe' 
+EOF
+    read -p "Type any key to continue" whatever
+    vim +PlugInstall +qall
+}
+
+echo "Do you want to use my .vimrc? (Y/n)"
+check_input yn
+if [[ $ans = 'y' ]]; then
+    restore_my_vim
+fi

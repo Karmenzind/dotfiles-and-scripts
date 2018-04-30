@@ -9,17 +9,25 @@
 #           clang>=3.9 and corresponding lib/devel
 #           python and corresponding lib/devel
 
+cat << EOF
+Before you start this installation,
+You need to manually set 
+    the path to libclang.so
+    the path to your plugin dir 
+and edit ycm.sh carefully
+EOF
+
 # You need to mannual set the path to libclang.so
 libclang_so_path=/usr/lib/libclang.so
-
 # if you use other plugin manager, edit this line 
 plug_dir=${HOME}/.vim/plugged/YouCompleteMe
-build_dir=${HOME}/ycm_build
 
+# --------------------------------------------
 ycm_git_url=https://github.com/Valloric/YouCompleteMe.git 
 # if low speed coz Great F**king Wall
 # ycm_git_url=https://gitee.com/mirrors/youcompleteme.git
  
+build_dir=${HOME}/ycm_build
 # --------------------------------------------
 
 if [[ -z "`vim --version | grep '+python'`" ]]; then

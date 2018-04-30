@@ -7,6 +7,7 @@ set report=0
 set encoding=utf-8
 set guifont=Monaco\ Nerd\ Font\ 12
 
+
 " file type detection
 filetype off 
 
@@ -39,10 +40,10 @@ Plug 'Xuyuanp/nerdtree-git-plugin'
 Plug 'wsdjeg/FlyGrep.vim'
 Plug 'Yggdroot/LeaderF'
 
-Plug 'tmhedberg/SimpylFold' " code folding for Python
-Plug 'nvie/vim-flake8' " Python syntax checker (flake8 required) [press F7 to run]
-Plug 'vim-scripts/indentpython.vim'
-Plug 'plytophogy/vim-virtualenv' " Python v e
+Plug 'tmhedberg/SimpylFold', { 'for': 'python' } " code folding for Python
+Plug 'nvie/vim-flake8', { 'for': 'python' } " Python syntax checker (flake8 required) [press F7 to run]
+Plug 'vim-scripts/indentpython.vim', { 'for': 'python' }
+Plug 'plytophogy/vim-virtualenv', { 'for': 'python' } " Python v e
 
 Plug 'terryma/vim-smooth-scroll' 
 Plug 'junegunn/goyo.vim'
@@ -50,13 +51,17 @@ Plug 'junegunn/vim-slash'
 Plug 'mhinz/vim-startify'
 Plug 'majutsushi/tagbar'
 Plug 'iamcco/mathjax-support-for-mkdp'
-Plug 'iamcco/markdown-preview.vim'
+Plug 'iamcco/markdown-preview.vim', { 'for': 'markdown' }
+
+Plug 'junegunn/vim-emoji' ", { 'for': 'markdown' }
+
+Plug 'junegunn/fzf'
+" Plug 'junegunn/fzf.vim'
+" Plug 'junegunn/fzf', {'dir': '~/.local/fzf', 'do': './install --all'}
 
 " load after other plugins 
 Plug 'ryanoasis/vim-devicons'
 Plug 'tiagofumo/vim-nerdtree-syntax-highlight'
-Plug 'junegunn/fzf'
-" Plug 'junegunn/fzf', {'dir': '~/.local/fzf', 'do': './install --all'}
 
 " /* Alternative */
 " Plug 'chxuan/change-colorscheme'
@@ -360,6 +365,8 @@ xmap ga <Plug>(EasyAlign)
 " Start interactive EasyAlign for a motion/text object (e.g. gaip)
 nmap ga <Plug>(EasyAlign)
 
+" for vim-emoji
+set completefunc=emoji#complete
 
 " -----------------------------------------------------------------------------
 " /* reference */
