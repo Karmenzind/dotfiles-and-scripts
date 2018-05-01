@@ -1,6 +1,14 @@
 #! /usr/bin/env bash
 
 cut_off='--------------------------------------------'
+pacman_conf=/etc/pacman.conf
+
+no_root () {
+    if [[ $USER = 'root' ]]; then
+        echo "Do not use root."
+        exit -1
+    fi
+}
 
 # $1 prompt
 put_cutoff () {
@@ -11,8 +19,6 @@ put_cutoff () {
         echo -e $_line
     fi
 }
-    
-
 
 do_install () {
     sudo pacman -S --needed --noconfirm $*
@@ -54,14 +60,14 @@ Include = /etc/pacman.d/mirrorlist
 EOF
 }
 
-prepare () {
-    sudo pacman -Sy 
-    pacman_conf=/etc/pacman.conf
+check_multilib_support () {
+    echo 'Check multilib support ...'
     if [[ -z "grep '^\[multilib\]' $pacman_conf" ]]; then
         multilib_enabled=0
-        echo "Do you want to let pacman use the multilib repo?(Y/n)"
-        check_input Yyn
-        [[ 'Yy' = *$ans* ]] && enable_multilib && multilib_enabled=1
+        echo "Add multilib repo support? (Y/n)"
+        check_input yn
+        [[ $ans = 'y' ]] && enable_multilib && multilib_enabled=1
+        sudo pacman -Sy
     else
         multilib_enabled=1
     fi

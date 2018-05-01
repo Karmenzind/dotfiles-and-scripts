@@ -178,8 +178,9 @@ format_parts
 mount_parts
 
 # --------------------------------------------
+put_cutoff 'Config pacman ...'
+
 # make ranked mirrors
-put_cutoff 'Modifying mirrorlist ...'
 
 ranked_servers=(
     'http://mirrors.163.com/archlinux/$repo/os/$arch'
@@ -200,6 +201,7 @@ ranked_servers=(
 )
 
 rearrange_mirrorlist () {
+    echo 'Modifying mirrorlist ...'
     mfile=/etc/pacman.d/mirrorlist
     cp ${mfile} ${mfile}_bak
     # header
@@ -221,10 +223,10 @@ rearrange_mirrorlist () {
 }
 
 rearrange_mirrorlist
+check_multilib_support
 
 # --------------------------------------------
 # Install the base packages
-pacman -Sy
 put_cutoff 'Install the base packages ...'
 pacstrap /mnt base base-devel git vim
 

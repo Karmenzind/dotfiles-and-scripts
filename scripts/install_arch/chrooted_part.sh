@@ -1,6 +1,6 @@
 #! /usr/bin/env bash
 
-do_install vim dialog wpa_supplicant ntfs-3g dhcpcd 
+do_install dialog wpa_supplicant ntfs-3g dhcpcd 
 put_cutoff
 
 # --------------------------------------------
@@ -46,7 +46,6 @@ put_cutoff
 # root pw
 echo "Set the root password"
 passwd
-put_cutoff
 
 # --------------------------------------------
 

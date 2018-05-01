@@ -14,68 +14,6 @@ intentions=(
     i3wm
 )
 
-cutoff='\n--------------------------------------------'
-
-# --------------------------------------------
-# utils
-# --------------------------------------------
-
-do_install () {
-    sudo pacman -S --needed --noconfirm $*
-}
-
-display_array () {
-    tmp_array=($@)
-    length=${#tmp_array[@]}
-    for (( i=0; i<$length; i++ )); do
-        echo "$i    ${tmp_array[$i]}"
-    done
-    echo
-}
-
-check_input () {
-    _range=$1
-    is_valid=no
-    _default=${_range:0:1}
-    while [[ $is_valid = 'no' ]]; do
-        echo "Input:"
-        read ans
-        [[ -z "$ans" ]] && ans=$_default
-        if [[ "$_range" = *$ans* ]]; then
-            is_valid=yes
-        else
-            echo "Valid answer: $_range (default=$_default):"
-        fi
-    done
-}
-
-# -----------------------------------------------------------------------------
-# basic
-# -----------------------------------------------------------------------------
-
-enable_multilib() {
-    sudo cat >>/etc/pacman.conf << EOF
-[multilib]
-Include = /etc/pacman.d/mirrorlist
-EOF
-}
-
-prepare () {
-    sudo pacman -Sy 
-    pacman_conf=/etc/pacman.conf
-    if [[ -z "grep '^\[multilib\]' $pacman_conf" ]]; then
-        multilib_enabled=0
-        echo "Do you want to let pacman use the multilib repo?(Y/n)"
-        check_input Yyn
-        [[ 'Yy' = *$ans* ]] && enable_multilib && multilib_enabled=1
-    else
-        multilib_enabled=1
-    fi
-
-    (( $multilib_enabled == 0 )) && enable_multilib
-    echo "Support multilib: $multilib_enabled"
-}
-
 # -----------------------------------------------------------------------------
 # display server
 # -----------------------------------------------------------------------------
@@ -174,23 +112,29 @@ install_desktop_env () {
 There might be enabled display manager in your system.
 Disable it and then enable $dm_name by yourself.
 "
+    fi
 }
 
 
 # --------------------------------------------
 
-prepare
-echo -e $cutoff
-install_driver 
-echo -e $cutoff
-install_display_server
-echo -e $cutoff
-install_desktop_env
+put_cutoff 'Preparation'
+check_multilib_support
 
-echo 'DONE :)'
+put_cutoff 'Display Driver'
+install_driver 
+
+put_cutoff 'Display Server'
+install_display_server
+
+put_cutoff 'Desktop Env'
+install_desktop_env
 
 # tear part
 sudo pacman -Sc --noconfirm
+
+echo 'DONE :)'
+
 
 # --------------------------------------------
 # TODO

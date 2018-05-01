@@ -9,6 +9,9 @@
 #           clang>=3.9 and corresponding lib/devel
 #           python and corresponding lib/devel
 
+no_root
+
+# --------------------------------------------
 # You need to mannual set the path to libclang.so
 libclang_so_path=/usr/lib/libclang.so
 # if you use other plugin manager, edit this line 
@@ -37,6 +40,7 @@ ycm_git_url=https://github.com/Valloric/YouCompleteMe.git
 # ycm_git_url=https://gitee.com/mirrors/youcompleteme.git
  
 build_dir=${HOME}/ycm_build
+
 # --------------------------------------------
 
 if [[ -z "`vim --version | grep '+python'`" ]]; then

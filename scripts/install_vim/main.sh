@@ -1,9 +1,6 @@
 #! /usr/bin/env bash
 
-if [[ $USER = 'root' ]]; then
-    echo "Do not use root."
-    exit -1
-fi
+no_root
 
 sudo pacman -S gvim --needed 
 
