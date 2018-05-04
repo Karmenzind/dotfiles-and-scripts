@@ -1,9 +1,38 @@
 #! /usr/bin/env bash
 
+bold='\033[1m'
+origin='\033[0m'
+black='\E[30;1m'
+red='\E[31;1m'
+green='\E[32;1m'
+yellow='\E[33;1m'
+blue='\E[34;1m'
+magenta='\E[35;1m'
+cyan='\E[36;1m'
+white='\E[37;1m'
+
 cut_off='--------------------------------------------'
+
+# Color-echo
+# $1: message
+# $2: color
+cecho() {
+    echo -e "${2:-${bold}}${1}" 
+    tput sgr0                        # Reset to normal.
+}  
+
+put_error() {
+    cecho "$1" $red
+}
+
+exit_with_msg() {
+    cecho "$1" $red
+    exit -1
+}
+
 pacman_conf=/etc/pacman.conf
 
-no_root () {
+no_root() {
     if [[ $USER = 'root' ]]; then
         echo "Do not use root."
         exit -1
@@ -11,7 +40,7 @@ no_root () {
 }
 
 # $1 prompt
-put_cutoff () {
+put_cutoff() {
     _line="\n${cut_off}\n"
     echo -e $_line
     if [[ -n "$1" ]]; then
@@ -20,11 +49,11 @@ put_cutoff () {
     fi
 }
 
-do_install () {
+do_install() {
     sudo pacman -S --needed --noconfirm $*
 }
 
-display_array () {
+display_array() {
     tmp_array=($@)
     length=${#tmp_array[@]}
     for (( i=0; i<$length; i++ )); do
@@ -33,7 +62,7 @@ display_array () {
     echo
 }
 
-check_input () {
+check_input() {
     _range=$1
     is_valid=no
     _default=${_range:0:1}
@@ -49,6 +78,13 @@ check_input () {
     done
 }
 
+put_suspend() {
+    cecho "
+Type Ctrl+C to exit 
+or type any key to continue" $cyan
+    read whatever
+}
+
 # -----------------------------------------------------------------------------
 # basic
 # -----------------------------------------------------------------------------
@@ -60,7 +96,7 @@ Include = /etc/pacman.d/mirrorlist
 EOF
 }
 
-check_multilib_support () {
+check_multilib_support() {
     echo 'Check multilib support ...'
     if [[ -z "grep '^\[multilib\]' $pacman_conf" ]]; then
         multilib_enabled=0

@@ -7,7 +7,6 @@ set report=0
 set encoding=utf-8
 set guifont=Monaco\ Nerd\ Font\ 12
 
-
 " file type detection
 filetype off 
 
@@ -55,7 +54,7 @@ Plug 'iamcco/markdown-preview.vim', { 'for': 'markdown' }
 
 Plug 'junegunn/vim-emoji' ", { 'for': 'markdown' }
 
-Plug 'junegunn/fzf'
+" Plug 'junegunn/fzf'
 " Plug 'junegunn/fzf.vim'
 " Plug 'junegunn/fzf', {'dir': '~/.local/fzf', 'do': './install --all'}
 

@@ -1,5 +1,6 @@
 #! /usr/bin/env bash
 
+clear
 cd `dirname $0`
 repo_dir=$PWD
 
