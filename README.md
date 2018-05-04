@@ -138,8 +138,7 @@ Vim比较特殊，尤其是YCM经常安装失败，所以单独列出来
 2.  修改ycm.sh中的ycm插件安装地址
 3.  如果为Arch系统，直接选择任意一种方式安装；如果非Arch系统选择`my way`方式安装，需要手动安装python、cmake和clang，然后修改ycm.sh中的`libclang.so`地址
 
-> 关于安装方式：`official way`是采用ycm自带安装脚本编译安装，`my way`是用我写的命令编译安装
-> 如果用`my way`方式安装时`git clone`太慢，手动修改ycm.sh中的git repo地址（脚本注释中提供了国内源地址）
+> `official way`是采用ycm自带安装脚本编译安装，`my way`是用我写的命令编译安装。如果用`my way`安装时`git clone`速度太慢，可以手动修改ycm.sh中的git repo地址（脚本注释中提供了国内源）
 
 ## 工具脚本部分
 

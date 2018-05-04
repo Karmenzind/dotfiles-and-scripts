@@ -112,8 +112,11 @@ set mouse=a
 " status line if there is more than one window
 set laststatus=2
 
-"Status line gnarliness
-set statusline=%F%m%r%h%w\ (%{&ff}){%Y}\ [%l,%v][%p%%]
+set matchtime=5 
+set iskeyword+=_,$,@,%,#,-
+
+" Status line gnarliness
+" set statusline=%F%m%r%h%w\ (%{&ff}){%Y}\ [%l,%v][%p%%]
 
 " -----------------------------------------------------------------------------
 "  coding
@@ -157,6 +160,27 @@ set splitbelow
 set splitright
 
 " -----------------------------------------------------------------------------
+" header
+" -----------------------------------------------------------------------------
+
+function HeaderPython()
+     call setline(1, "# !/usr/bin/env python")
+     call append(1, "# -*- coding: utf-8 -*-")
+     "call append(2, "# Created at: " . strftime('%Y-%m-%d %T', localtime()))
+     normal G
+     normal o
+     normal o
+ endf
+ autocmd bufnewfile *.py call HeaderPython()
+
+function HeaderBash()
+     call setline(1, "# !/usr/bin/env bash")
+     normal G
+     normal o
+ endf
+ autocmd bufnewfile *.sh call HeaderBash()
+
+" -----------------------------------------------------------------------------
 " format for specific file type
 " -----------------------------------------------------------------------------
 
@@ -184,15 +208,15 @@ au BufNewFile,BufRead *.js, *.html, *.css
 
 let python_highlight_all=1
 
-"python with virtualenv support
-py << EOF
-import os
-import sys
-if 'VIRTUAL_ENV' in os.environ:
-    project_base_dir = os.environ['VIRTUAL_ENV']
-    activate_this = os.path.join(project_base_dir, 'bin/activate_this.py')
-    execfile(activate_this, dict(__file__=activate_this))
-EOF
+" python with virtualenv support
+" py << EOF
+" import os
+" import sys
+" if 'VIRTUAL_ENV' in os.environ:
+"     project_base_dir = os.environ['VIRTUAL_ENV']
+"     activate_this = os.path.join(project_base_dir, 'bin/activate_this.py')
+"     execfile(activate_this, dict(__file__=activate_this))
+" EOF
 
 " -----------------------------------------------------------------------------
 " for ycm
@@ -201,6 +225,13 @@ EOF
 let g:ycm_autoclose_preview_window_after_completion = 1
 let g:ycm_python_binary_path = 'python'
 let g:ycm_global_ycm_extra_conf = '~/.vim/.ycm_extra_conf.py'
+
+let g:ycm_collect_identifiers_from_tags_files = 1
+let g:ycm_seed_identifiers_with_syntax = 1
+let g:ycm_complete_in_comments = 1
+let g:ycm_complete_in_strings = 1 
+let g:ycm_collect_identifiers_from_comments_and_strings = 1
+
 
 " for ycmd server, not completion
 let g:ycm_server_python_interpreter = '/usr/bin/python'
