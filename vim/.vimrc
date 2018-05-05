@@ -1,5 +1,6 @@
 " Github: https://github.com/Karmenzind/dotfiles-and-scripts
 
+
 set nocompatible
 set noerrorbells
 set noeb
@@ -16,8 +17,12 @@ filetype off
 
 " auto install Plug
 if empty(glob('~/.vim/autoload/plug.vim'))
-  silent !curl -fLo ~/.vim/autoload/plug.vim --create-dirs
-    \ https://raw.githubusercontent.com/junegunn/vim-plug/master/plug.vim
+  " silent !curl -fLo ~/.vim/autoload/plug.vim --create-dirs
+  "   \ https://raw.githubusercontent.com/junegunn/vim-plug/master/plug.vim
+  " might be no curl
+  silent !mkdir -p ~/.vim/autoload &&
+    \ wget https://raw.githubusercontent.com/junegunn/vim-plug/master/plug.vim
+    \ -O ~/.vim/autoload/plug.vim
   autocmd VimEnter * PlugInstall --sync | source $MYVIMRC
 endif
 
@@ -163,7 +168,7 @@ set splitright
 " header
 " -----------------------------------------------------------------------------
 
-function HeaderPython()
+function HeaderPy()
      call setline(1, "# !/usr/bin/env python")
      call append(1, "# -*- coding: utf-8 -*-")
      "call append(2, "# Created at: " . strftime('%Y-%m-%d %T', localtime()))
@@ -171,7 +176,7 @@ function HeaderPython()
      normal o
      normal o
  endf
- autocmd bufnewfile *.py call HeaderPython()
+ autocmd bufnewfile *.py call HeaderPy()
 
 function HeaderBash()
      call setline(1, "# !/usr/bin/env bash")

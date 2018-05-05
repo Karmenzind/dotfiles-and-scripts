@@ -147,7 +147,7 @@ You have these options for ycm installation:
 EOF
 check_input 12
 put_cutoff
-#process_repo
+process_repo
 case $ans in 
     1)
         put_cutoff
