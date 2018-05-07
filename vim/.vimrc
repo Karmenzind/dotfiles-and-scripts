@@ -39,7 +39,7 @@ Plug 'morhetz/gruvbox'
 
 Plug 'tpope/vim-commentary'
 Plug 'junegunn/vim-easy-align'
-Plug 'Valloric/YouCompleteMe', { 'do': './install.py --clang-completer --system-libclang --go-completer --js-completer --java-completer' }
+Plug 'Valloric/YouCompleteMe', { 'frozen': 1, 'do': './install.py --clang-completer --system-libclang --go-completer --js-completer --java-completer' }
 Plug 'SirVer/ultisnips' " ultimate solution for snippets
 Plug 'honza/vim-snippets'
 Plug 'Chiel92/vim-autoformat'
