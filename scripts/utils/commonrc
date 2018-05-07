@@ -42,10 +42,10 @@ no_root() {
 # $1 prompt
 put_cutoff() {
     _line="\n${cut_off}\n"
-    echo -e $_line
+    cecho $_line $cyan
     if [[ -n "$1" ]]; then
         echo -e $1
-        echo -e $_line
+        cecho $_line $cyan
     fi
 }
 
@@ -73,7 +73,7 @@ check_input() {
         if [[ "$_range" = *$ans* ]]; then
             is_valid=yes
         else
-            echo "Valid answer: $_range (default=$_default):"
+            put_error "Valid answer: $_range (default=$_default):"
         fi
     done
 }

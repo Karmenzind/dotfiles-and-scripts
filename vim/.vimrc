@@ -1,21 +1,21 @@
 " Github: https://github.com/Karmenzind/dotfiles-and-scripts
 
+" --------------------------------------------
+" general keymap
+" --------------------------------------------
 
-set nocompatible
-set noerrorbells
-set noeb
-set report=0
-set encoding=utf-8
-set guifont=Monaco\ Nerd\ Font\ 12
-
-" file type detection
-filetype off 
+noremap <leader>e  :vsp $MYVIMRC<cr>
+noremap <leader>R  :source $MYVIMRC<cr>
+noremap <leader>pi :source $MYVIMRC<cr>:PlugInstall<cr>
+noremap <leader>pu :source $MYVIMRC<cr>:PlugUpdate<cr>
+noremap <leader>ps :source $MYVIMRC<cr>:PlugStatus<cr>
+noremap <leader>pc :source $MYVIMRC<cr>:PlugClean<cr>
 
 " -----------------------------------------------------------------------------
 "  Plugin Manager
 " -----------------------------------------------------------------------------
 
-" auto install Plug
+" automatically install Plug
 if empty(glob('~/.vim/autoload/plug.vim'))
   " silent !curl -fLo ~/.vim/autoload/plug.vim --create-dirs
   "   \ https://raw.githubusercontent.com/junegunn/vim-plug/master/plug.vim
@@ -30,20 +30,32 @@ call plug#begin()
 
 Plug 'junegunn/vim-plug'
 
+Plug 'vim-scripts/txt.vim', { 'for': 'txt' }
+Plug 'tpope/vim-endwise'
+
 Plug 'vim-airline/vim-airline'
 Plug 'vim-airline/vim-airline-themes'
 Plug 'morhetz/gruvbox'
 
+Plug 'tpope/vim-commentary'
 Plug 'junegunn/vim-easy-align'
-Plug 'Valloric/YouCompleteMe', { 'do': './install.py --clang-completer --go-completer --js-completer --java-completer' }
+Plug 'Valloric/YouCompleteMe', { 'do': './install.py --clang-completer --system-libclang --go-completer --js-completer --java-completer' }
 Plug 'SirVer/ultisnips' " ultimate solution for snippets
+Plug 'honza/vim-snippets'
 Plug 'Chiel92/vim-autoformat'
+
+Plug 'Shougo/context_filetype.vim'
+Plug 'Shougo/echodoc.vim'
 
 Plug 'scrooloose/nerdtree', { 'on':  'NERDTreeToggle' }
 Plug 'Xuyuanp/nerdtree-git-plugin'
 Plug 'wsdjeg/FlyGrep.vim'
 Plug 'Yggdroot/LeaderF'
+Plug 'easymotion/vim-easymotion'
 
+Plug 'airblade/vim-gitgutter'
+
+Plug 'rkulla/pydiction', { 'for': 'python' }
 Plug 'tmhedberg/SimpylFold', { 'for': 'python' } " code folding for Python
 Plug 'nvie/vim-flake8', { 'for': 'python' } " Python syntax checker (flake8 required) [press F7 to run]
 Plug 'vim-scripts/indentpython.vim', { 'for': 'python' }
@@ -63,59 +75,75 @@ Plug 'junegunn/vim-emoji' ", { 'for': 'markdown' }
 " Plug 'junegunn/fzf.vim'
 " Plug 'junegunn/fzf', {'dir': '~/.local/fzf', 'do': './install --all'}
 
+Plug 'chxuan/change-colorscheme'
+
 " load after other plugins 
 Plug 'ryanoasis/vim-devicons'
 Plug 'tiagofumo/vim-nerdtree-syntax-highlight'
 
 " /* Alternative */
-" Plug 'chxuan/change-colorscheme'
+" Plug 'flazz/vim-colorschemes', { 'do': 'rsync -avz ./colors/ ~/.vim/colors/' }
+" Plug 'bagrat/vim-workspace' " tab bar
 " Plug 'junegunn/limelight.vim'
 " Plug 'junegunn/rainbow_parentheses.vim'
 " Plug 'davidhalter/jedi-vim'
 " Plug 'vim-scripts/fcitx.vim' " keep and restore fcitx state when leaving/re-entering insert mode
-" Plug 'Lokaltog/powerline', {'rtp': 'powerline/bindings/vim/'}  a status bar
-" Plug 'rkulla/pydiction' " Python Tab-completion 
 " Plug 'ctrlpvim/ctrlp.vim'
 " https://github.com/python-mode/python-mode
 " Plug 'mhinz/vim-signify' 
-" Plug 'airblade/vim-gitgutter'
+" Plug 'mattn/vim-terminal'
 
 call plug#end()            
 
-" -----------------------------------------------------------------------------
-" Basic
-" -----------------------------------------------------------------------------
+" load vim default plugin
+runtime macros/matchit.vim
 
-filetype plugin indent on    
+" --------------------------------------------
+" basic
+" --------------------------------------------
 
+set nocompatible
+set noerrorbells
+
+set report=0
+
+" encode
+set termencoding=utf-8
+set fileencodings=utf8,ucs-bom,gbk,cp936,gb2312,gb18030
+set encoding=utf-8
+
+" appearence
+set ruler
+set showtabline=1
+syntax enable
 syntax on
-
-" colorscheme Tomorrow-Night-Eighties
-" colorscheme Tomorrow-Night-Bright
-
-" colorscheme molokai
+set guifont=Monaco\ Nerd\ Font\ 12
+set background=dark
+" bubblegum birds-of-paradise blaquemagick buddy_modified dante eclipse darkburn enigma eva01 evening evolution
+colorscheme solarized
 " let g:solarized_termcolors=256
 " let g:solarized_termtrans=1
-colorscheme solarized
-
-set background=dark
- 
 set cursorline
 " highlight CursorLine guibg=darkgray ctermbg=black
-
-
 set nu
+set noshowmode
+" set cmdheight=2
+" status line if there is more than one window
+set laststatus=2
+set nowrap
+" set whichwrap+=<,>,h,l
 
-set history=1000
+" layout
+set splitbelow
+set splitright
+
 
 " This shows what you are typing as a command.  
 set showcmd
 
+" operate
 " Enable mouse support in console
 set mouse=a
-
-" status line if there is more than one window
-set laststatus=2
 
 set matchtime=5 
 set iskeyword+=_,$,@,%,#,-
@@ -123,9 +151,13 @@ set iskeyword+=_,$,@,%,#,-
 " Status line gnarliness
 " set statusline=%F%m%r%h%w\ (%{&ff}){%Y}\ [%l,%v][%p%%]
 
+" filetype plugin on
+
 " -----------------------------------------------------------------------------
 "  coding
 " -----------------------------------------------------------------------------
+
+set wildmenu
 
 " Spaces are better than a tab character
 set expandtab
@@ -147,28 +179,26 @@ au BufRead,BufNewFile *.py,*.pyw,*.c,*.h match BadWhitespace /\s\+$/
 highlight BadWhitespace ctermbg=red guibg=darkred
 
 " Use english for spellchecking, but don't spellcheck by default
-if version >= 700
-   set spl=en spell
-   set nospell
-endif
+set spl=en spell
+set nospell
 
 " -----------------------------------------------------------------------------
-"  File
+"  Cache
 " -----------------------------------------------------------------------------
 
-" backup
-"set backup
-"set backupdir=~/tmp/vim_backup/
-"set directory=~/.vim/tmp
+set history=1000
 
-set splitbelow
-set splitright
+set nobackup
+set noswapfile          
+" set autoread            
+" set autowrite           
+" set confirm             
 
 " -----------------------------------------------------------------------------
 " header
 " -----------------------------------------------------------------------------
 
-function HeaderPy()
+function! HeaderPy()
      call setline(1, "# !/usr/bin/env python")
      call append(1, "# -*- coding: utf-8 -*-")
      "call append(2, "# Created at: " . strftime('%Y-%m-%d %T', localtime()))
@@ -178,7 +208,7 @@ function HeaderPy()
  endf
  autocmd bufnewfile *.py call HeaderPy()
 
-function HeaderBash()
+function! HeaderBash()
      call setline(1, "# !/usr/bin/env bash")
      normal G
      normal o
@@ -191,24 +221,24 @@ function HeaderBash()
 
 " PEP8 intent
 au BufNewFile,BufRead *.py
-    \ set tabstop=4 |
-    \ set softtabstop=4 |
-    \ set shiftwidth=4 |
-    \ set expandtab |
-    \ set autoindent |
+    \ set tabstop=4       |
+    \ set softtabstop=4   |
+    \ set shiftwidth=4    |
+    \ set expandtab       |
+    \ set autoindent      |
     \ set fileformat=unix |
-    \ set nowrap | 
+    \ set nowrap          |
     \ set sidescroll=5 
     " \ set listchars+=precedes:<,extends:>
     " \ set textwidth=79 |
 
 au BufNewFile,BufRead *.js, *.html, *.css
-    \ set tabstop=2 |
+    \ set tabstop=2     |
     \ set softtabstop=2 |
     \ set shiftwidth=2
 
 " -----------------------------------------------------------------------------
-" for Python
+" for Python coding
 " -----------------------------------------------------------------------------
 
 let python_highlight_all=1
@@ -236,24 +266,24 @@ let g:ycm_seed_identifiers_with_syntax = 1
 let g:ycm_complete_in_comments = 1
 let g:ycm_complete_in_strings = 1 
 let g:ycm_collect_identifiers_from_comments_and_strings = 1
-
+let g:ycm_cache_omnifunc = 0
 
 " for ycmd server, not completion
 let g:ycm_server_python_interpreter = '/usr/bin/python'
 " let g:ycm_goto_buffer_command = 'horizontal-split'
 
 " key mappings
-nnoremap <leader>gt :YcmCompleter GoTo<CR>'
-map <leader>dd  :YcmCompleter GoToDefinitionElseDeclaration<CR>
-map <leader>rf  :YcmCompleter GoToReferences<CR>
-map <leader>doc  :YcmCompleter GetDoc<CR>
+nnoremap <leader> gt  :YcmCompleter GoTo<CR>
+map      <leader> dd  :YcmCompleter GoToDefinitionElseDeclaration<CR>
+map      <leader> rf  :YcmCompleter GoToReferences<CR>
+map      <leader> doc :YcmCompleter GetDoc<CR>
 
 " -----------------------------------------------------------------------------
 " for NERDTree
 " -----------------------------------------------------------------------------
 
 " How can I map a specific key or shortcut to open NERDTree?
-map <C-n> :NERDTreeToggle<CR>
+map <c-n> :NERDTreeToggle<CR>
 
 " change default arrows?
 " let g:NERDTreeDirArrowExpandable = '▸'
@@ -317,7 +347,22 @@ let g:mkdp_command_for_global = 0
 " For vim-airline
 let g:airline_theme="minimalist"
 let g:airline_powerline_fonts = 1
-
+" let g:airline_theme="solarized"
+" let g:airline_solarized_bg='dark'
+let g:airline#extensions#tabline#enabled = 1
+let g:airline#extensions#tabline#tab_nr_type = 1 " tab number
+" let g:airline#extensions#tabline#buffer_idx_mode = 1
+" nmap <leader>1 <Plug>AirlineSelectTab1
+" nmap <leader>2 <Plug>AirlineSelectTab2
+" nmap <leader>3 <Plug>AirlineSelectTab3
+" nmap <leader>4 <Plug>AirlineSelectTab4
+" nmap <leader>5 <Plug>AirlineSelectTab5
+" nmap <leader>6 <Plug>AirlineSelectTab6
+" nmap <leader>7 <Plug>AirlineSelectTab7
+" nmap <leader>8 <Plug>AirlineSelectTab8
+" nmap <leader>9 <Plug>AirlineSelectTab9
+" support for other plugins
+let g:airline#extensions#tmuxline#enabled = 1
 
 " For vim-autoformatter
 let g:formatter_yapf_style = 'pep8'
@@ -338,9 +383,9 @@ let g:Lf_WindowPosition = 'bottom'
 let g:Lf_DefaultMode = 'FullPath'
 let g:Lf_StlColorscheme = 'powerline'
 let g:Lf_WildIgnore = {
-    \ 'dir': ['.svn','.git','.hg', '.idea', '__pycache__'],
-    \ 'file': ['*.sw?','~$*','*.exe','*.o','*.so','*.py[co]']
-    \}
+\ 'dir': ['.svn','.git','.hg', '.idea', '__pycache__'],
+\ 'file': ['*.sw?','~$*','*.exe','*.o','*.so','*.py[co]']
+\}
 let g:Lf_MruFileExclude = ['*.so']
 let g:Lf_UseVersionControlTool = 0 " use version control tool to index the files
 " let g:Lf_PreviewCode = 0
@@ -387,12 +432,10 @@ let g:WebDevIconsUnicodeDecorateFolderNodes = 1
 let g:DevIconsEnableFoldersOpenClose = 1
 let g:WebDevIconsOS = 'ArchLinux'
 
-let entry_format = "'   ['. index .']'. repeat(' ', (3 - strlen(index)))"
-if exists('*WebDevIconsGetFileTypeSymbol')  " support for vim-devicons
-    let entry_format .= ". WebDevIconsGetFileTypeSymbol(entry_path) .' '.  entry_path"
-else 
-    let entry_format .= '. entry_path'
-endif
+" for startify
+function! StartifyEntryFormat()
+  return 'WebDevIconsGetFileTypeSymbol(absolute_path) ." ". entry_path'
+endfunction
 
 " for vim-easy-align
 " Start interactive EasyAlign in visual mode (e.g. vipga)
@@ -403,9 +446,37 @@ nmap ga <Plug>(EasyAlign)
 " for vim-emoji
 set completefunc=emoji#complete
 
+" for echodoc.vim
+let g:echodoc_enable_at_startup = 1
+let g:echodoc#enable_force_overwrite = 1
+
+" for easymotion
+" Move to word
+map  <Leader>w <Plug>(easymotion-bd-w)
+nmap <Leader>w <Plug>(easymotion-overwin-w)
+
+" for Pydiction
+let g:pydiction_location='~/.vim/plugged/pydiction/complete-dict'
+let g:pydiction_menu_height=10
+
+" for ultisnips
+" Trigger configuration. Do not use <tab> if you use YouCompleteMe.
+let g:UltiSnipsExpandTrigger="<F12>"
+let g:UltiSnipsListSnippets="<F10>"
+" let g:UltiSnipsJumpForwardTrigger="<F12>"
+" let g:UltiSnipsJumpBackwardTrigger="<S-F12>"
+" If you want :UltiSnipsEdit to split your window.
+let g:UltiSnipsEditSplit="vertical"
+let g:UltiSnipsUsePythonVersion = 3
+
+" for colorscheme
+noremap <leader>c :NextColorScheme<cr>:colorscheme<cr>
+noremap <leader>C :PreviousColorScheme<cr>:colorscheme<cr>
+
 " -----------------------------------------------------------------------------
 " /* reference */
 " -----------------------------------------------------------------------------
 
 " https://stackoverflow.com/questions/164847/what-is-in-your-vimrc
 " https://segmentfault.com/a/1190000003962806
+

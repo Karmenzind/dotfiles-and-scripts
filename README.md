@@ -62,6 +62,8 @@ cd {target_dir}
 	- [bashrc_ext](./others/bashrc_ext)
 	- [fcitx](./others/fcitx)
 
+> the font I am using is: [Monaco Nerd](https://github.com/Karmenzind/monaco-nerd-fonts)
+
 ## 安装脚本部分
 
 ### ArchLinux安装

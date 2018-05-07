@@ -42,7 +42,7 @@ prepare() {
         do_install clang cmake python3
     else
         put_cutoff
-        cecho -e "Make sure you have these requirements installed:
+        cecho "Make sure you have these requirements installed:
         python3 
         cmake 
         clang>=3.9"
@@ -83,12 +83,19 @@ EOF
 # --------------------------------------------
 
 process_repo() {
-    [[ -d $plug_dir ]] && rm -rf $plug_dir
+    echo "Clone ycm's repo and initialize it? (Y/n)"
+    echo "(cancel it if you've done 'git clone' and 'git init' before)"
+    check_input yn
+    if [[ $ans = 'y' ]]; then
+        [[ -d $plug_dir ]] && rm -rf $plug_dir
 
-    git clone $ycm_git_url $plug_dir --depth 1
+        git clone $ycm_git_url $plug_dir --depth 1
 
-    cd $plug_dir 
-    git submodule update --init --recursive 
+        cd $plug_dir 
+        git submodule update --init --recursive 
+    else
+        [[ -d $plug_dir ]] || exit_with_msg 'You must clone and initialize the repo to continue.'
+    fi
 }
 
 # --------------------------------------------
@@ -99,8 +106,6 @@ compile_ycm_core() {
     mkdir -p $build_dir
     cd $build_dir && rm -rf *
 
-    #cmake -G "Unix Makefiles" -DEXTERNAL_LIBCLANG_PATH=${libclang_so_path} . ${plug_dir}/third_party/ycmd/cpp 
-
     if ($is_arch); then
         cmake_extra='-DUSE_SYSTEM_LIBCLANG=ON -DUSE_PYTHON2=OFF'
     else
@@ -108,14 +113,15 @@ compile_ycm_core() {
     fi
 
     # config
-    cmake -G "Unix Makefiles" \
-        -DUSE_CLANG_COMPLETER=ON \
+    cmake -G "Unix Makefiles"                        \
+        -DUSE_CLANG_COMPLETER=ON                     \
         -DEXTERNAL_LIBCLANG_PATH=${libclang_so_path} \
-        -DUSE_SYSTEM_LIBCLANG=ON \
-        $cmake_extra \
+        -DUSE_SYSTEM_LIBCLANG=ON                     \
+        $cmake_extra                                 \
         . ${plug_dir}/third_party/ycmd/cpp 
 
-    # Now that configuration files have been generated, compile the libraries using this command:
+    # Now that configuration files have been generated
+    # compile the libraries 
     cmake --build . --target ycm_core --config Release
 }
 
@@ -125,8 +131,15 @@ compile_ycm_core() {
 
 use_official_script() {
     cd $plug_dir
-    ($is_arch) && extra='--system-libclang'
-    python3 ./install.py --clang-completer --go-completer --js-completer --java-completer $extra
+    # C# support         : install Mono and                  add --cs-completer when calling ./install.py.
+    # Go support         : install Go                        and add --go-completer when calling ./install.py.
+    # TypeScript support : install Node.js                   and npm then install the TypeScript SDK with npm install -g typescript.
+    # JavaScript support : install Node.js and npm           and add --js-completer when calling ./install.py.
+    # Rust support       : install Rust                      and add --rust-completer when calling ./install.py.
+    # Java support       : install JDK8 (version 8 required) and add --java-completer when calling ./install.py.
+    params='--clang-completer'
+    ($is_arch) && params="--system-libclang $params"
+    python3 ./install.py $params
 }
 
 use_my_script() {

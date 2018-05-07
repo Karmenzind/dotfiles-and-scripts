@@ -1,0 +1,122 @@
+#! /usr/bin/env bash
+
+# If not running interactively, don't do anything
+
+# PS1='
+# \u \t \033[31;1m>\033[0m \w
+# \$ '
+
+alias vi=vim
+
+export spi='pi@192.168.0.104'
+export svb='-p 3022 k@localhost'
+
+
+alias diff='diff --color=auto'
+
+alias grep='grep --color=auto'
+export GREP_COLOR="1;32"
+
+export LESS=-R
+export LESS_TERMCAP_mb=$'\E[1;31m'     # begin bold
+export LESS_TERMCAP_md=$'\E[1;36m'     # begin blink
+export LESS_TERMCAP_me=$'\E[0m'        # reset bold/blink
+export LESS_TERMCAP_so=$'\E[01;44;33m' # begin reverse video
+export LESS_TERMCAP_se=$'\E[0m'        # reset reverse video
+export LESS_TERMCAP_us=$'\E[1;32m'     # begin underline
+export LESS_TERMCAP_ue=$'\E[0m'        # reset underline
+
+# [colorful man]
+man() {
+    LESS_TERMCAP_md=$'\e[01;31m' \
+    LESS_TERMCAP_me=$'\e[0m' \
+    LESS_TERMCAP_se=$'\e[0m' \
+    LESS_TERMCAP_so=$'\e[01;44;33m' \
+    LESS_TERMCAP_ue=$'\e[0m' \
+    LESS_TERMCAP_us=$'\e[01;32m' \
+    command man "$@"
+}
+
+# make tmux support 256color
+# export TERM="screen-256color"
+[ -z "$TMUX" ] && export TERM="xterm-256color"
+# alias tmux='tmux -2'
+
+# source /home/k/.local/oh-my-git/prompt.sh
+
+# better yaourt colors
+export YAOURT_COLORS="nb=1:pkg=1:ver=1;32:lver=1;45:installed=1;42:grp=1;34:od=1;41;5:votes=1;44:dsc=0:other=1;35"
+
+export TERMINAL=xfce4-terminal
+export VISUAL=vim
+export EDITOR=vim
+
+export CATALINA_HOME=/usr/share/tomcat8
+
+# # ex - archive extractor
+# # usage: ex <file>
+ex ()
+{
+  if [ -f $1 ] ; then
+    case $1 in
+      *.tar.bz2)   tar xjf $1   ;;
+      *.tar.gz)    tar xzf $1   ;;
+      *.bz2)       bunzip2 $1   ;;
+      *.rar)       unrar x $1   ;;
+      *.gz)        gunzip $1    ;;
+      *.tar)       tar xf $1    ;;
+      *.tbz2)      tar xjf $1   ;;
+      *.tgz)       tar xzf $1   ;;
+      *.zip)       unzip $1     ;;
+      *.Z)         uncompress $1;;
+      *.7z)        7z x $1      ;;
+      *)           echo "'$1' cannot be extracted via ex()" ;;
+    esac
+  else
+    echo "'$1' is not a valid file"
+  fi
+}
+
+alias neofetch_local='neofetch --w3m ~/Pictures/LOCKSCREENS/kieslowski4-resize.png'
+
+# for fzf
+export FZF_DEFAULT_OPTS="--preview '[ -f {} ] && head -50 {} ' --height 40% --reverse --border "
+export FZF_DEFAULT_COMMAND='fd --type f --hidden --follow --exclude .git'
+
+# - The first argument to the function ($1) is the base path to start traversal
+# - See the source code (completion.{bash,zsh}) for the details.
+# _fzf_compgen_path() {
+#   fd --hidden --follow --exclude ".git" . "$1"
+# }
+
+# Use fd to generate the list for directory completion
+# _fzf_compgen_dir() {
+#   fd --type d --hidden --follow --exclude ".git" . "$1"
+# }
+
+# fkill - kill process with fzf
+fkill() {
+  local pid
+  pid=$(ps -ef | sed 1d | fzf -m | awk '{print $2}')
+
+  if [ "x$pid" != "x" ]
+  then
+    echo $pid | xargs kill -${1:-9}
+  fi
+}
+
+# attach a default session (create it if not existed)
+# and detach other connections bound to it
+stmux() {
+    if [[ -z "$TMUX" ]];then
+        default_tmux_sname=k
+        tmuxinator $default_tmux_sname
+        tmux new -s $default_tmux_sname -d
+        tmux choose-tree -t $default_tmux_sname -Zs
+        tmux attach-session -t $default_tmux_sname -d
+    else
+        tmux choose-tree -Zs
+    fi
+}
+
+alias sdcv='sdcv --color '
