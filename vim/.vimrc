@@ -29,6 +29,8 @@ endif
 call plug#begin()
 
 Plug 'junegunn/vim-plug'
+Plug 'flazz/vim-colorschemes', { 'do': 'rsync -avz ./colors/ ~/.vim/colors/ && rm -rf ./colors/*' }
+Plug 'chxuan/change-colorscheme'
 
 Plug 'vim-scripts/txt.vim', { 'for': 'txt' }
 Plug 'tpope/vim-endwise'
@@ -39,6 +41,7 @@ Plug 'morhetz/gruvbox'
 
 Plug 'tpope/vim-commentary'
 Plug 'junegunn/vim-easy-align'
+Plug 'Valloric/MatchTagAlways'
 Plug 'Valloric/YouCompleteMe', { 'frozen': 1, 'do': './install.py --clang-completer --system-libclang --go-completer --js-completer --java-completer' }
 Plug 'SirVer/ultisnips' " ultimate solution for snippets
 Plug 'honza/vim-snippets'
@@ -71,18 +74,14 @@ Plug 'iamcco/markdown-preview.vim', { 'for': 'markdown' }
 
 Plug 'junegunn/vim-emoji' ", { 'for': 'markdown' }
 
-" Plug 'junegunn/fzf'
-" Plug 'junegunn/fzf.vim'
-" Plug 'junegunn/fzf', {'dir': '~/.local/fzf', 'do': './install --all'}
-
-Plug 'chxuan/change-colorscheme'
-
 " load after other plugins 
 Plug 'ryanoasis/vim-devicons'
 Plug 'tiagofumo/vim-nerdtree-syntax-highlight'
 
 " /* Alternative */
-" Plug 'flazz/vim-colorschemes', { 'do': 'rsync -avz ./colors/ ~/.vim/colors/' }
+" Plug 'junegunn/fzf'
+" Plug 'junegunn/fzf.vim'
+" Plug 'junegunn/fzf', {'dir': '~/.local/fzf', 'do': './install --all'}
 " Plug 'bagrat/vim-workspace' " tab bar
 " Plug 'junegunn/limelight.vim'
 " Plug 'junegunn/rainbow_parentheses.vim'
@@ -120,7 +119,7 @@ syntax on
 set guifont=Monaco\ Nerd\ Font\ 12
 set background=dark
 " bubblegum birds-of-paradise blaquemagick buddy_modified dante eclipse darkburn enigma eva01 evening evolution
-colorscheme solarized
+colo solarized
 " let g:solarized_termcolors=256
 " let g:solarized_termtrans=1
 set cursorline

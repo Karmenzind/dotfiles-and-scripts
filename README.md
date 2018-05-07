@@ -33,8 +33,8 @@
 
 在repo根目录，执行[install.sh](./install.sh)，选择所需的功能，根据提示进行操作
 ```bash
-git clone https://github.com/Karmenzind/dotfiles-and-scripts {target_dir}
-cd {target_dir} 
+git clone https://github.com/Karmenzind/dotfiles-and-scripts --depth=1
+cd ./dotfiles-and-scripts
 ./install.sh  
 ```
 
