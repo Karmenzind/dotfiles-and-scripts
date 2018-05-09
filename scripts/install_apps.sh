@@ -45,6 +45,8 @@ _cli=(
     compton
     cronie
     docker
+    fortune-mod
+    cowsay
     dunst
     feh
     go
@@ -67,6 +69,7 @@ _cli=(
     xclip
     xsel
     youtube-dl
+    zsh
 )
 
 _desktop=(
