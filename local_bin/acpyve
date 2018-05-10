@@ -1,43 +1,61 @@
-#! /bin/bash
+#! /usr/bin/env bash
 # activate python virtual environment
 
-[[ $- != *i* ]] && echo 'Use source other than bash.' && exit -1
+[[ $- != *i* ]] && echo 'Use `source acpyve`.' && exit -1
 
-[ -n "$PY_VIRTUAL_ENV_DIR" ] || PY_VIRTUAL_ENV_DIR="$HOME/Envs"
+[[ -z "$PY_VIRTUAL_ENV_DIR" ]] && PY_VIRTUAL_ENV_DIR="${HOME}/Envs"
 
-function start_it {
-    PYVES=(`ls $PY_VIRTUAL_ENV_DIR | sort`)
-    PYVES_REPR=`ls $PY_VIRTUAL_ENV_DIR | sort | grep -n '' | sed 's/:/  /'`
+start_it() {
+    local pyves=(`ls $PY_VIRTUAL_ENV_DIR | sort`)
+    local pyves_repr=`ls $PY_VIRTUAL_ENV_DIR | sort | grep -n '' | sed 's/:/\t/'`
+    local idx_of_pyve
+
     echo "Pick one virtual environment to activate:"
-    echo -e "\n$PYVES_REPR\n"
-    read -p "Input number: " IDX_OF_PYVE
-    if [ $IDX_OF_PYVE -lt 1 ] || [ $IDX_OF_PYVE -gt ${#PYVES[@]} ]
-    then
+    echo -e "\n$pyves_repr\n"
+    echo "Input number: "
+    read idx_of_pyve
+    if [[ $idx_of_pyve -lt 1 ]] || [[ $idx_of_pyve -gt ${#pyves[@]} ]]; then
         echo "Error: invalid index"
     else
-        activate_ve ${PYVES[$((IDX_OF_PYVE-1))]}
+        case $_shell in
+            zsh  ) activate_ve ${pyves[$idx_of_pyve]}       ;; # fuck zsh
+            bash ) activate_ve ${pyves[$((idx_of_pyve-1))]} ;;
+        esac
     fi
 }
 
-function activate_ve {
-    PYVE_NAME="$1"
-    [ -n "$VIRTUAL_ENV" ] && deactivate
-    echo -e "\nActivating $PYVE_NAME..."
-    cd $PY_VIRTUAL_ENV_DIR
-    source "./${PYVE_NAME}/bin/activate"
-    cd -
+activate_ve() {
+    local pyve_name="$1"
+    [[ -n "$virtual_env" ]] && deactivate
+    echo -e "\nActivating $pyve_name..."
+    source "${PY_VIRTUAL_ENV_DIR}/${pyve_name}/bin/activate"
     echo -e "\nDONE :)\n"
 }
 
+_main() {
+    echo -e "Current PY_VIRTUAL_ENV_DIR: \n\t$PY_VIRTUAL_ENV_DIR\n"
+    if [[ -d $PY_VIRTUAL_ENV_DIR ]]; then
+        start_it
+    else
+        echo "Please give a proper value"
+    fi
+}
 
-if [ -d $PY_VIRTUAL_ENV_DIR ];
-then
-    start_it
-else
-    echo "Current PY_VIRTUAL_ENV_DIR: '$PY_VIRTUAL_ENV_DIR'"
-    echo "Please give a proper value"
-fi
+# --------------------------------------------
 
-unset -v PYVES PYVES_PEPR IDX_OF_PYVE PYVE_NAME
-unset -f start_it activate_ve
+# current shell
+_shell=`ps -ef | grep "^\w\+ \+$$" | sed 's/.* \+//'` 
+[[ $_shell = *zsh* ]] && _shell=zsh
+
+case $_shell in 
+    bash|zsh ) 
+        _main 
+        ;;
+    * )    
+        echo "Only for zsh and bash" 
+        ;;
+esac
+
+unset -v _shell
+unset -f start_it activate_ve _main
 
