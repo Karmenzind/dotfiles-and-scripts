@@ -4,12 +4,12 @@
 " general keymap
 " --------------------------------------------
 
-noremap <leader>e  :vsp $MYVIMRC<cr>
+noremap <leader>e  :vsp    $MYVIMRC<cr>
 noremap <leader>R  :source $MYVIMRC<cr>
-noremap <leader>pi :source $MYVIMRC<cr>:PlugInstall<cr>
-noremap <leader>pu :source $MYVIMRC<cr>:PlugUpdate<cr>
-noremap <leader>ps :source $MYVIMRC<cr>:PlugStatus<cr>
-noremap <leader>pc :source $MYVIMRC<cr>:PlugClean<cr>
+noremap <leader>pi :source $MYVIMRC<cr> :PlugInstall<cr>
+noremap <leader>pu :source $MYVIMRC<cr> :PlugUpdate<cr>
+noremap <leader>ps :source $MYVIMRC<cr> :PlugStatus<cr>
+noremap <leader>pc :source $MYVIMRC<cr> :PlugClean<cr>
 
 " -----------------------------------------------------------------------------
 "  Plugin Manager
@@ -17,9 +17,7 @@ noremap <leader>pc :source $MYVIMRC<cr>:PlugClean<cr>
 
 " automatically install Plug
 if empty(glob('~/.vim/autoload/plug.vim'))
-  " silent !curl -fLo ~/.vim/autoload/plug.vim --create-dirs
-  "   \ https://raw.githubusercontent.com/junegunn/vim-plug/master/plug.vim
-  " might be no curl
+  " silent !curl -fLo ~/.vim/autoload/plug.vim --create-dirs https://raw.githubusercontent.com/junegunn/vim-plug/master/plug.vim
   silent !mkdir -p ~/.vim/autoload &&
     \ wget https://raw.githubusercontent.com/junegunn/vim-plug/master/plug.vim
     \ -O ~/.vim/autoload/plug.vim
@@ -37,7 +35,6 @@ Plug 'tpope/vim-endwise'
 
 Plug 'vim-airline/vim-airline'
 Plug 'vim-airline/vim-airline-themes'
-Plug 'morhetz/gruvbox'
 
 Plug 'tpope/vim-commentary'
 Plug 'junegunn/vim-easy-align'
@@ -69,7 +66,9 @@ Plug 'junegunn/goyo.vim'
 Plug 'junegunn/vim-slash'
 Plug 'mhinz/vim-startify'
 Plug 'majutsushi/tagbar'
-Plug 'iamcco/mathjax-support-for-mkdp'
+
+Plug 'hallison/vim-markdown'
+Plug 'iamcco/mathjax-support-for-mkdp', { 'for': 'markdown' }
 Plug 'iamcco/markdown-preview.vim', { 'for': 'markdown' }
 
 Plug 'junegunn/vim-emoji' ", { 'for': 'markdown' }
@@ -83,12 +82,13 @@ Plug 'tiagofumo/vim-nerdtree-syntax-highlight'
 " Plug 'junegunn/fzf.vim'
 " Plug 'junegunn/fzf', {'dir': '~/.local/fzf', 'do': './install --all'}
 " Plug 'bagrat/vim-workspace' " tab bar
+" Plug 'morhetz/gruvbox'
 " Plug 'junegunn/limelight.vim'
 " Plug 'junegunn/rainbow_parentheses.vim'
 " Plug 'davidhalter/jedi-vim'
 " Plug 'vim-scripts/fcitx.vim' " keep and restore fcitx state when leaving/re-entering insert mode
 " Plug 'ctrlpvim/ctrlp.vim'
-" https://github.com/python-mode/python-mode
+" Plug 'python-mode/python-mode'
 " Plug 'mhinz/vim-signify' 
 " Plug 'mattn/vim-terminal'
 
@@ -116,12 +116,10 @@ set ruler
 set showtabline=1
 syntax enable
 syntax on
-set guifont=Monaco\ Nerd\ Font\ 12
+set guifont=Monaco\ Nerd\ Font\ Mono\ Regular\ 12
 set background=dark
-" bubblegum birds-of-paradise blaquemagick buddy_modified dante eclipse darkburn enigma eva01 evening evolution
+" gruvbox bubblegum birds-of-paradise blaquemagick buddy_modified dante eclipse darkburn enigma eva01 evening evolution
 colo solarized
-" let g:solarized_termcolors=256
-" let g:solarized_termtrans=1
 set cursorline
 " highlight CursorLine guibg=darkgray ctermbg=black
 set nu
@@ -182,16 +180,18 @@ set spl=en spell
 set nospell
 
 " -----------------------------------------------------------------------------
-"  Cache
+"  File
 " -----------------------------------------------------------------------------
 
 set history=1000
 
 set nobackup
-set noswapfile          
+" set noswapfile          
 " set autoread            
 " set autowrite           
 " set confirm             
+
+" autocmd BufNewFile,BufRead *.{md,mkd,mkdn,mark*} set filetype=markdown
 
 " -----------------------------------------------------------------------------
 " header
@@ -201,16 +201,13 @@ function! HeaderPy()
      call setline(1, "# !/usr/bin/env python")
      call append(1, "# -*- coding: utf-8 -*-")
      "call append(2, "# Created at: " . strftime('%Y-%m-%d %T', localtime()))
-     normal G
-     normal o
-     normal o
+     normal G2o
  endf
  autocmd bufnewfile *.py call HeaderPy()
 
 function! HeaderBash()
      call setline(1, "# !/usr/bin/env bash")
-     normal G
-     normal o
+     normal G2o
  endf
  autocmd bufnewfile *.sh call HeaderBash()
 
@@ -272,10 +269,10 @@ let g:ycm_server_python_interpreter = '/usr/bin/python'
 " let g:ycm_goto_buffer_command = 'horizontal-split'
 
 " key mappings
-nnoremap <leader> gt  :YcmCompleter GoTo<CR>
-map      <leader> dd  :YcmCompleter GoToDefinitionElseDeclaration<CR>
-map      <leader> rf  :YcmCompleter GoToReferences<CR>
-map      <leader> doc :YcmCompleter GetDoc<CR>
+nnoremap <leader>gt  :YcmCompleter GoTo<CR>
+map      <leader>dd  :YcmCompleter GoToDefinitionElseDeclaration<CR>
+map      <leader>rf  :YcmCompleter GoToReferences<CR>
+map      <leader>doc :YcmCompleter GetDoc<CR>
 
 " -----------------------------------------------------------------------------
 " for NERDTree
@@ -350,7 +347,7 @@ let g:airline_powerline_fonts = 1
 " let g:airline_solarized_bg='dark'
 let g:airline#extensions#tabline#enabled = 1
 let g:airline#extensions#tabline#tab_nr_type = 1 " tab number
-" let g:airline#extensions#tabline#buffer_idx_mode = 1
+let g:airline#extensions#tabline#buffer_idx_mode = 1
 " nmap <leader>1 <Plug>AirlineSelectTab1
 " nmap <leader>2 <Plug>AirlineSelectTab2
 " nmap <leader>3 <Plug>AirlineSelectTab3
@@ -405,7 +402,7 @@ autocmd BufWritePost *.py call Flake8()
 " for vim-slash 
 noremap <plug>(slash-after) zz
 
-" for 'junegunn/rainbow_parentheses.vim'
+" for vim-smooth-scroll
 noremap <silent> <c-u> :call smooth_scroll#up(&scroll, 0, 2)<CR>
 noremap <silent> <c-d> :call smooth_scroll#down(&scroll, 0, 2)<CR>
 noremap <silent> <c-b> :call smooth_scroll#up(&scroll*2, 0, 4)<CR>
@@ -460,8 +457,8 @@ let g:pydiction_menu_height=10
 
 " for ultisnips
 " Trigger configuration. Do not use <tab> if you use YouCompleteMe.
-let g:UltiSnipsExpandTrigger="<F12>"
-let g:UltiSnipsListSnippets="<F10>"
+let g:UltiSnipsExpandTrigger="<c-space>"
+let g:UltiSnipsListSnippets="<F9>"
 " let g:UltiSnipsJumpForwardTrigger="<F12>"
 " let g:UltiSnipsJumpBackwardTrigger="<S-F12>"
 " If you want :UltiSnipsEdit to split your window.
@@ -471,6 +468,10 @@ let g:UltiSnipsUsePythonVersion = 3
 " for colorscheme
 noremap <leader>c :NextColorScheme<cr>:colorscheme<cr>
 noremap <leader>C :PreviousColorScheme<cr>:colorscheme<cr>
+
+" for solarized color
+" let g:solarized_termcolors=256
+" let g:solarized_termtrans=1
 
 " -----------------------------------------------------------------------------
 " /* reference */
