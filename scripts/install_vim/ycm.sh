@@ -25,12 +25,15 @@ build_dir=${HOME}/ycm_build
 # if low speed coz Great F**king Wall, change it to https://gitee.com/mirrors/youcompleteme.git
 ycm_git_url=https://github.com/Valloric/YouCompleteMe.git 
 
+# requirements (can be literally installed by pacman in Arch)
+requirements=('clang>=3.9' 'cmake' 'python3')
+
 # <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 
 # --------------------------------------------
 
 prepare() {
-    (uname -a | grep -i ArchLinux > /dev/null) && is_arch=true || is_arch=false
+    (which pacman > /dev/null) && is_arch=true || is_arch=false
 
     if [[ -z "`vim --version | grep '+python'`" ]]; then
         put_error "YCM can only install on Vim with python2 or python3 support." 
@@ -39,13 +42,16 @@ prepare() {
     fi
 
     if ($is_arch); then
-        do_install clang cmake python3
+        echo 'Installing requirements ...'
+        if do_install ${requirements[@]}; then 
+            cecho 'Requirements installed.' $green
+        else
+            exit_with_msg "Please manually install: ${requirements[*]}" 
+        fi
     else
         put_cutoff
         cecho "Make sure you have these requirements installed:
-        python3 
-        cmake 
-        clang>=3.9"
+        ${requirements[*]}"
         put_suspend
     fi
 }
@@ -137,6 +143,7 @@ use_official_script() {
     # JavaScript support : install Node.js and npm           and add --js-completer when calling ./install.py.
     # Rust support       : install Rust                      and add --rust-completer when calling ./install.py.
     # Java support       : install JDK8 (version 8 required) and add --java-completer when calling ./install.py.
+    echo "here"
     params='--clang-completer'
     ($is_arch) && params="--system-libclang $params"
     python3 ./install.py $params
@@ -158,10 +165,10 @@ You have these options for ycm installation:
     1.  official way
     2.  my way
 EOF
-check_input 12
+check_input 12 _way
 put_cutoff
 process_repo
-case $ans in 
+case $_way in 
     1)
         put_cutoff
         use_official_script

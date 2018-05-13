@@ -54,18 +54,22 @@ do_install() {
 }
 
 display_array() {
-    tmp_array=($@)
-    length=${#tmp_array[@]}
+    local tmp_array=($@)
+    local length=${#tmp_array[@]}
     for (( i=0; i<$length; i++ )); do
         echo "$i    ${tmp_array[$i]}"
     done
     echo
 }
 
+# enhanced `read` - name a range for checking
+# $1 input range, e.g. 123 Yn abcd (case insensitive)
+# $2 variable's name
 check_input() {
-    _range=$1
-    is_valid=no
-    _default=${_range:0:1}
+    local _range=$1
+    local is_valid=no
+    local _default=${_range:0:1}
+
     while [[ $is_valid = 'no' ]]; do
         read -p "Input: " ans
         [[ -z "$ans" ]] && ans=$_default
@@ -76,6 +80,8 @@ check_input() {
             put_error "Valid answer: $_range (default=$_default):"
         fi
     done
+
+    [[ -n $2 ]] && read $2 <<< $ans
 }
 
 put_suspend() {
