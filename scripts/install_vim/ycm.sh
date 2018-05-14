@@ -54,6 +54,8 @@ prepare() {
         ${requirements[*]}"
         put_suspend
     fi
+
+    cp -nv ${repo_dir}/home_k/.vim/.ycm_extra_conf.py ~/.vim/.ycm_extra_conf.py
 }
 
 prompt_path_check() {

@@ -4,7 +4,7 @@
 " general keymap
 " --------------------------------------------
 
-noremap <leader>e  :vsp    $MYVIMRC<cr>
+noremap <leader>e  :tabe   $MYVIMRC<cr>
 noremap <leader>R  :source $MYVIMRC<cr>
 noremap <leader>pi :source $MYVIMRC<cr> :PlugInstall<cr>
 noremap <leader>pu :source $MYVIMRC<cr> :PlugUpdate<cr>
@@ -17,18 +17,21 @@ noremap <leader>pc :source $MYVIMRC<cr> :PlugClean<cr>
 
 " automatically install Plug
 if empty(glob('~/.vim/autoload/plug.vim'))
-  " silent !curl -fLo ~/.vim/autoload/plug.vim --create-dirs https://raw.githubusercontent.com/junegunn/vim-plug/master/plug.vim
   silent !mkdir -p ~/.vim/autoload &&
     \ wget https://raw.githubusercontent.com/junegunn/vim-plug/master/plug.vim
     \ -O ~/.vim/autoload/plug.vim
   autocmd VimEnter * PlugInstall --sync | source $MYVIMRC
+endif
+if empty(glob('~/.vim/.ycm_extra_conf.py'))
+  silent !wget https://raw.githubusercontent.com/Karmenzind/dotfiles-and-scripts/master/home_k/.vim/.ycm_extra_conf.py 
+    \-O ~/.vim/.ycm_extra_conf.py
 endif
 
 call plug#begin()
 
 Plug 'junegunn/vim-plug'
 Plug 'flazz/vim-colorschemes', { 'do': 'rsync -avz ./colors/ ~/.vim/colors/ && rm -rf ./colors/*' }
-Plug 'chxuan/change-colorscheme'
+Plug 'chxuan/change-colorscheme', { 'on': 'NextColorScheme' }
 
 Plug 'vim-scripts/txt.vim', { 'for': 'txt' }
 Plug 'tpope/vim-endwise'
@@ -38,9 +41,8 @@ Plug 'vim-airline/vim-airline-themes'
 
 Plug 'tpope/vim-commentary'
 Plug 'junegunn/vim-easy-align'
-Plug 'Valloric/MatchTagAlways'
-Plug 'Valloric/YouCompleteMe', { 'frozen': 1, 'do': './install.py --clang-completer --system-libclang --go-completer --js-completer --java-completer' }
-Plug 'SirVer/ultisnips' " ultimate solution for snippets
+Plug 'Valloric/YouCompleteMe', { 'do': './install.py --clang-completer --system-libclang --go-completer --js-completer --java-completer' }
+Plug 'SirVer/ultisnips' 
 Plug 'honza/vim-snippets'
 Plug 'Chiel92/vim-autoformat'
 
@@ -62,35 +64,32 @@ Plug 'vim-scripts/indentpython.vim', { 'for': 'python' }
 Plug 'plytophogy/vim-virtualenv', { 'for': 'python' } " Python v e
 
 Plug 'terryma/vim-smooth-scroll' 
-Plug 'junegunn/goyo.vim'
+Plug 'junegunn/goyo.vim', { 'on': 'Goyo' }
 Plug 'junegunn/vim-slash'
-Plug 'mhinz/vim-startify'
 Plug 'majutsushi/tagbar'
+Plug 'mhinz/vim-startify'
 
 Plug 'hallison/vim-markdown'
 Plug 'iamcco/mathjax-support-for-mkdp', { 'for': 'markdown' }
 Plug 'iamcco/markdown-preview.vim', { 'for': 'markdown' }
-
-Plug 'junegunn/vim-emoji' ", { 'for': 'markdown' }
 
 " load after other plugins 
 Plug 'ryanoasis/vim-devicons'
 Plug 'tiagofumo/vim-nerdtree-syntax-highlight'
 
 " /* Alternative */
-" Plug 'junegunn/fzf'
-" Plug 'junegunn/fzf.vim'
+" Plug 'junegunn/vim-emoji' ", { 'for': 'markdown' }
+" Plug 'Valloric/MatchTagAlways'
+" Plug 'python-mode/python-mode'
+" Plug 'w0rp/ale' "Asynchronous Lint Engine
+" Plug 'junegunn/fzf' | Plug 'junegunn/fzf.vim'
 " Plug 'junegunn/fzf', {'dir': '~/.local/fzf', 'do': './install --all'}
 " Plug 'bagrat/vim-workspace' " tab bar
 " Plug 'morhetz/gruvbox'
 " Plug 'junegunn/limelight.vim'
 " Plug 'junegunn/rainbow_parentheses.vim'
-" Plug 'davidhalter/jedi-vim'
 " Plug 'vim-scripts/fcitx.vim' " keep and restore fcitx state when leaving/re-entering insert mode
-" Plug 'ctrlpvim/ctrlp.vim'
 " Plug 'python-mode/python-mode'
-" Plug 'mhinz/vim-signify' 
-" Plug 'mattn/vim-terminal'
 
 call plug#end()            
 
@@ -118,7 +117,7 @@ syntax enable
 syntax on
 set guifont=Monaco\ Nerd\ Font\ Mono\ Regular\ 12
 set background=dark
-" gruvbox bubblegum birds-of-paradise blaquemagick buddy_modified dante eclipse darkburn enigma eva01 evening evolution
+" gruvbox bubblegum birds-of-paradise blaquemagick buddy_modified dante eclipse darkburn enigma eva01 evening evolution 1989
 colo solarized
 set cursorline
 " highlight CursorLine guibg=darkgray ctermbg=black
@@ -133,7 +132,6 @@ set nowrap
 " layout
 set splitbelow
 set splitright
-
 
 " This shows what you are typing as a command.  
 set showcmd
@@ -239,16 +237,6 @@ au BufNewFile,BufRead *.js, *.html, *.css
 
 let python_highlight_all=1
 
-" python with virtualenv support
-" py << EOF
-" import os
-" import sys
-" if 'VIRTUAL_ENV' in os.environ:
-"     project_base_dir = os.environ['VIRTUAL_ENV']
-"     activate_this = os.path.join(project_base_dir, 'bin/activate_this.py')
-"     execfile(activate_this, dict(__file__=activate_this))
-" EOF
-
 " -----------------------------------------------------------------------------
 " for ycm
 " -----------------------------------------------------------------------------
@@ -266,7 +254,6 @@ let g:ycm_cache_omnifunc = 0
 
 " for ycmd server, not completion
 let g:ycm_server_python_interpreter = '/usr/bin/python'
-" let g:ycm_goto_buffer_command = 'horizontal-split'
 
 " key mappings
 nnoremap <leader>gt  :YcmCompleter GoTo<CR>
@@ -280,17 +267,6 @@ map      <leader>doc :YcmCompleter GetDoc<CR>
 
 " How can I map a specific key or shortcut to open NERDTree?
 map <c-n> :NERDTreeToggle<CR>
-
-" change default arrows?
-" let g:NERDTreeDirArrowExpandable = '▸'
-" let g:NERDTreeDirArrowCollapsible = '▾'
-
-" NERDTree automatically when vim starts up
-" autocmd vimenter * NERDTree
-
-" open a NERDTree automatically when vim starts up if no files were specified
-" autocmd StdinReadPre * let s:std_in=1
-" autocmd VimEnter * if argc() == 0 && !exists("s:std_in") | NERDTree | endif
 
 " NERDTree automatically when vim starts up on opening a directory
 autocmd StdinReadPre * let s:std_in = 1
@@ -319,11 +295,9 @@ let NERDTreeShowHidden=1
 let g:mkdp_path_to_chrome = "/usr/bin/chromium"
 " callback vim function to open browser, the only param is the url to open
 let g:mkdp_browserfunc = 'MKDP_browserfunc_default'
-" set to 1, the vim will open the preview window once enter the markdown
-" buffer
+" set to 1, the vim will open the preview window once enter the markdown buffer
 let g:mkdp_auto_start = 0
-" set to 1, the vim will auto open preview window when you edit the
-" markdown file
+" set to 1, the vim will auto open preview window when you edit the markdown file
 let g:mkdp_auto_open = 0
 " set to 1, the vim will auto close current preview window when change
 " from markdown buffer to another buffer
@@ -345,18 +319,6 @@ let g:airline_theme="minimalist"
 let g:airline_powerline_fonts = 1
 " let g:airline_theme="solarized"
 " let g:airline_solarized_bg='dark'
-let g:airline#extensions#tabline#enabled = 1
-let g:airline#extensions#tabline#tab_nr_type = 1 " tab number
-let g:airline#extensions#tabline#buffer_idx_mode = 1
-" nmap <leader>1 <Plug>AirlineSelectTab1
-" nmap <leader>2 <Plug>AirlineSelectTab2
-" nmap <leader>3 <Plug>AirlineSelectTab3
-" nmap <leader>4 <Plug>AirlineSelectTab4
-" nmap <leader>5 <Plug>AirlineSelectTab5
-" nmap <leader>6 <Plug>AirlineSelectTab6
-" nmap <leader>7 <Plug>AirlineSelectTab7
-" nmap <leader>8 <Plug>AirlineSelectTab8
-" nmap <leader>9 <Plug>AirlineSelectTab9
 " support for other plugins
 let g:airline#extensions#tmuxline#enabled = 1
 
@@ -365,10 +327,6 @@ let g:formatter_yapf_style = 'pep8'
 
 " For vim-virtualenv
 let g:virtualenv_directory = '~/Envs'
-
-" for jedi-vim
-" let g:jedi#use_splits_not_buffers = "right"
-" let g:jedi#completions_command = "<leader><Space>"
 
 " for LeaderF
 " let g:Lf_ShortcurF = '<leader>n'
@@ -410,18 +368,9 @@ noremap <silent> <c-f> :call smooth_scroll#down(&scroll*2, 0, 4)<CR>
 
 " for tagbar
 noremap <leader>t :TagbarOpenAutoClose<CR>
-" let g:tagbar_ctags_bin='/usr/bin/ctags'    " Proper Ctags locations
-" let g:tagbar_width=26                      " Default is 40, seems too wide
 " noremap <Leader>y :TagbarToggle<CR>        " Display panel with (,y)
 let g:tagbar_autofocus = 1
 let g:tagbar_show_linenumbers = 1
-
-" for change-colorscheme
-" nnoremap <leader>nc :NextColorScheme<cr>
-" map <F10> :NextColorScheme<CR>
-" imap <F10> <ESC> :NextColorScheme<CR>
-" map <F9> :PreviousColorScheme<CR>
-" imap <F9> <ESC> :PreviousColorScheme<CR>
 
 " for devicons
 let g:WebDevIconsUnicodeDecorateFolderNodes = 1
@@ -456,12 +405,8 @@ let g:pydiction_location='~/.vim/plugged/pydiction/complete-dict'
 let g:pydiction_menu_height=10
 
 " for ultisnips
-" Trigger configuration. Do not use <tab> if you use YouCompleteMe.
 let g:UltiSnipsExpandTrigger="<c-space>"
 let g:UltiSnipsListSnippets="<F9>"
-" let g:UltiSnipsJumpForwardTrigger="<F12>"
-" let g:UltiSnipsJumpBackwardTrigger="<S-F12>"
-" If you want :UltiSnipsEdit to split your window.
 let g:UltiSnipsEditSplit="vertical"
 let g:UltiSnipsUsePythonVersion = 3
 
@@ -472,11 +417,4 @@ noremap <leader>C :PreviousColorScheme<cr>:colorscheme<cr>
 " for solarized color
 " let g:solarized_termcolors=256
 " let g:solarized_termtrans=1
-
-" -----------------------------------------------------------------------------
-" /* reference */
-" -----------------------------------------------------------------------------
-
-" https://stackoverflow.com/questions/164847/what-is-in-your-vimrc
-" https://segmentfault.com/a/1190000003962806
 
