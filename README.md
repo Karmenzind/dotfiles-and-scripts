@@ -31,7 +31,7 @@
 
 ## Usage
 
-- **安装ArchLinux或软件**：在repo根目录，运行[install.sh](./install.sh)，选择所需的功能，根据提示进行操作
+- **安装ArchLinux或软件**：在repo根目录，运行[install.sh](./install.sh)，选择所需的功能，根据提示进行操作。详细内容见[下文介绍](#安装脚本部分)。
     ```bash
     git clone https://github.com/Karmenzind/dotfiles-and-scripts --depth=1
     cd ./dotfiles-and-scripts

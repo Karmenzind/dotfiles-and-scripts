@@ -30,58 +30,62 @@ endif
 call plug#begin()
 
 Plug 'junegunn/vim-plug'
-Plug 'flazz/vim-colorschemes', { 'do': 'rsync -avz ./colors/ ~/.vim/colors/ && rm -rf ./colors/*' }
-Plug 'chxuan/change-colorscheme', { 'on': 'NextColorScheme' }
 
-Plug 'vim-scripts/txt.vim', { 'for': 'txt' }
+" /* coding tools */
 Plug 'tpope/vim-endwise'
-
-Plug 'vim-airline/vim-airline'
-Plug 'vim-airline/vim-airline-themes'
-
+Plug 'jiangmiao/auto-pairs'
 Plug 'tpope/vim-commentary'
 Plug 'junegunn/vim-easy-align'
 Plug 'Valloric/YouCompleteMe', { 'do': './install.py --clang-completer --system-libclang --go-completer --js-completer --java-completer' }
 Plug 'SirVer/ultisnips' 
 Plug 'honza/vim-snippets'
-Plug 'Chiel92/vim-autoformat'
+Plug 'Shougo/echodoc.vim' 
+Plug 'Shougo/context_filetype.vim' 
+Plug 'majutsushi/tagbar'
+Plug 'w0rp/ale' " Asynchronous Lint Engine
 
-Plug 'Shougo/context_filetype.vim'
-Plug 'Shougo/echodoc.vim'
-
-Plug 'scrooloose/nerdtree', { 'on':  'NERDTreeToggle' }
-Plug 'Xuyuanp/nerdtree-git-plugin'
-Plug 'wsdjeg/FlyGrep.vim'
-Plug 'Yggdroot/LeaderF'
-Plug 'easymotion/vim-easymotion'
-
+" /* Manage file & version control */
+Plug 'mhinz/vim-startify'
+Plug 'scrooloose/nerdtree', { 'on':  'NERDTreeToggle' } 
+Plug 'Xuyuanp/nerdtree-git-plugin'         
+Plug 'tiagofumo/vim-nerdtree-syntax-highlight'
 Plug 'airblade/vim-gitgutter'
 
+" /* Search */
+Plug 'mileszs/ack.vim'
+Plug 'Yggdroot/LeaderF'
+Plug 'easymotion/vim-easymotion'
+Plug 'junegunn/vim-slash' " enhancing in-buffer search experience 
+
+" /* Python */
 Plug 'rkulla/pydiction', { 'for': 'python' }
 Plug 'tmhedberg/SimpylFold', { 'for': 'python' } " code folding for Python
-Plug 'nvie/vim-flake8', { 'for': 'python' } " Python syntax checker (flake8 required) [press F7 to run]
 Plug 'vim-scripts/indentpython.vim', { 'for': 'python' }
 Plug 'plytophogy/vim-virtualenv', { 'for': 'python' } " Python v e
 
-Plug 'terryma/vim-smooth-scroll' 
-Plug 'junegunn/goyo.vim', { 'on': 'Goyo' }
-Plug 'junegunn/vim-slash'
-Plug 'majutsushi/tagbar'
-Plug 'mhinz/vim-startify'
-
+" /* Markdown */
 Plug 'hallison/vim-markdown'
 Plug 'iamcco/mathjax-support-for-mkdp', { 'for': 'markdown' }
 Plug 'iamcco/markdown-preview.vim', { 'for': 'markdown' }
 
-" load after other plugins 
-Plug 'ryanoasis/vim-devicons'
-Plug 'tiagofumo/vim-nerdtree-syntax-highlight'
+" /* Experience */
+Plug 'terryma/vim-smooth-scroll' 
+Plug 'junegunn/goyo.vim', { 'on': 'Goyo' }
 
-" /* Alternative */
+" /* Syntax */
+Plug 'vim-scripts/txt.vim', { 'for': 'txt' }
+
+" /* Appearance */
+Plug 'flazz/vim-colorschemes', { 'do': 'rsync -avz ./colors/ ~/.vim/colors/ && rm -rf ./colors/*' }
+Plug 'chxuan/change-colorscheme', { 'on': 'NextColorScheme' }
+Plug 'vim-airline/vim-airline'
+Plug 'vim-airline/vim-airline-themes'
+Plug 'ryanoasis/vim-devicons' " load after other plugins 
+
+" /* Alternatives */
 " Plug 'junegunn/vim-emoji' ", { 'for': 'markdown' }
 " Plug 'Valloric/MatchTagAlways'
 " Plug 'python-mode/python-mode'
-" Plug 'w0rp/ale' "Asynchronous Lint Engine
 " Plug 'junegunn/fzf' | Plug 'junegunn/fzf.vim'
 " Plug 'junegunn/fzf', {'dir': '~/.local/fzf', 'do': './install --all'}
 " Plug 'bagrat/vim-workspace' " tab bar
@@ -105,12 +109,12 @@ set noerrorbells
 
 set report=0
 
-" encode
+" /* encode */
 set termencoding=utf-8
 set fileencodings=utf8,ucs-bom,gbk,cp936,gb2312,gb18030
 set encoding=utf-8
 
-" appearence
+" /* appearence */
 set ruler
 set showtabline=1
 syntax enable
@@ -121,7 +125,7 @@ set background=dark
 colo solarized
 set cursorline
 " highlight CursorLine guibg=darkgray ctermbg=black
-set nu
+set number
 set noshowmode
 " set cmdheight=2
 " status line if there is more than one window
@@ -129,14 +133,14 @@ set laststatus=2
 set nowrap
 " set whichwrap+=<,>,h,l
 
-" layout
+" /* layout */
 set splitbelow
 set splitright
 
 " This shows what you are typing as a command.  
 set showcmd
 
-" operate
+" /* operate */
 " Enable mouse support in console
 set mouse=a
 
@@ -144,7 +148,7 @@ set matchtime=5
 set iskeyword+=_,$,@,%,#,-
 
 " Status line gnarliness
-" set statusline=%F%m%r%h%w\ (%{&ff}){%Y}\ [%l,%v][%p%%]
+set statusline=%F%m%r%h%w\ (%{&ff}){%Y}\ [%l,%v][%p%%]
 
 " filetype plugin on
 
@@ -163,7 +167,7 @@ set shiftwidth=4
 
 " set showmatch
 
-" Enable folding
+" /* Enable folding */
 " set foldmethod=indent
 set foldmethod=manual
 set foldlevel=99
@@ -174,7 +178,7 @@ au BufRead,BufNewFile *.py,*.pyw,*.c,*.h match BadWhitespace /\s\+$/
 highlight BadWhitespace ctermbg=red guibg=darkred
 
 " Use english for spellchecking, but don't spellcheck by default
-set spl=en spell
+set spelllang=en spell
 set nospell
 
 " -----------------------------------------------------------------------------
@@ -196,15 +200,15 @@ set nobackup
 " -----------------------------------------------------------------------------
 
 function! HeaderPy()
-     call setline(1, "# !/usr/bin/env python")
-     call append(1, "# -*- coding: utf-8 -*-")
+     call setline(1, '#!/usr/bin/env python')
+     call append(1, '# -*- coding: utf-8 -*-')
      "call append(2, "# Created at: " . strftime('%Y-%m-%d %T', localtime()))
      normal G2o
  endf
  autocmd bufnewfile *.py call HeaderPy()
 
 function! HeaderBash()
-     call setline(1, "# !/usr/bin/env bash")
+     call setline(1, '#!/usr/bin/env bash')
      normal G2o
  endf
  autocmd bufnewfile *.sh call HeaderBash()
@@ -232,17 +236,16 @@ au BufNewFile,BufRead *.js, *.html, *.css
     \ set shiftwidth=2
 
 " -----------------------------------------------------------------------------
-" for Python coding
+" for Python 
 " -----------------------------------------------------------------------------
 
-let python_highlight_all=1
+let g:python_highlight_all = 1
 
 " -----------------------------------------------------------------------------
 " for ycm
 " -----------------------------------------------------------------------------
 
 let g:ycm_autoclose_preview_window_after_completion = 1
-let g:ycm_python_binary_path = 'python'
 let g:ycm_global_ycm_extra_conf = '~/.vim/.ycm_extra_conf.py'
 
 let g:ycm_collect_identifiers_from_tags_files = 1
@@ -250,10 +253,11 @@ let g:ycm_seed_identifiers_with_syntax = 1
 let g:ycm_complete_in_comments = 1
 let g:ycm_complete_in_strings = 1 
 let g:ycm_collect_identifiers_from_comments_and_strings = 1
-let g:ycm_cache_omnifunc = 0
 
-" for ycmd server, not completion
+" for ycmd server
 let g:ycm_server_python_interpreter = '/usr/bin/python'
+" for completion
+let g:ycm_python_binary_path = 'python'
 
 " key mappings
 nnoremap <leader>gt  :YcmCompleter GoTo<CR>
@@ -265,16 +269,12 @@ map      <leader>doc :YcmCompleter GetDoc<CR>
 " for NERDTree
 " -----------------------------------------------------------------------------
 
-" How can I map a specific key or shortcut to open NERDTree?
 map <c-n> :NERDTreeToggle<CR>
-
 " NERDTree automatically when vim starts up on opening a directory
 autocmd StdinReadPre * let s:std_in = 1
 autocmd VimEnter * if argc() == 1 && isdirectory(argv()[0]) && !exists("s:std_in") | exe 'NERDTree' argv()[0] | wincmd p | ene | endif
-
-" How can I close vim if the only window left open is a NERDTree?
+" close vim if the only window left open is a NERDTree
 autocmd bufenter * if (winnr("$") == 1 && exists("b:NERDTree") && b:NERDTree.isTabTree()) | q | endif
-
 " hide specific files in NERDTREE
 let g:NERDTreeIgnore=['\.pyc$', 
     \'\~$',
@@ -283,16 +283,13 @@ let g:NERDTreeIgnore=['\.pyc$',
 let NERDTreeNaturalSort=1 
 let NERDTreeShowLineNumbers=1
 let NERDTreeShowHidden=1
-" let NERDTreeMinimalUI=1
 
 " -----------------------------------------------------------------------------
 " other plugin config
 " -----------------------------------------------------------------------------
 
-" For Markdown-preview
-" path to the chrome or the command to open chrome(or other modern browsers)
-" if set, g:mkdp_browserfunc would be ignored
-let g:mkdp_path_to_chrome = "/usr/bin/chromium"
+" /* For Markdown-preview */
+let g:mkdp_path_to_chrome = '/usr/bin/chromium'
 " callback vim function to open browser, the only param is the url to open
 let g:mkdp_browserfunc = 'MKDP_browserfunc_default'
 " set to 1, the vim will open the preview window once enter the markdown buffer
@@ -314,21 +311,19 @@ let g:mkdp_command_for_global = 0
 " nmap <silent> <F9> <Plug>StopMarkdownPreview    " for normal mode
 " imap <silent> <F9> <Plug>StopMarkdownPreview    " for insert mode
 
-" For vim-airline
-let g:airline_theme="minimalist"
+" /* For vim-airline */
+" lucius hybrid minimalist monochrome
+let g:airline_theme = 'lucius'
 let g:airline_powerline_fonts = 1
 " let g:airline_theme="solarized"
 " let g:airline_solarized_bg='dark'
 " support for other plugins
 let g:airline#extensions#tmuxline#enabled = 1
 
-" For vim-autoformatter
-let g:formatter_yapf_style = 'pep8'
-
-" For vim-virtualenv
+" /* For vim-virtualenv */
 let g:virtualenv_directory = '~/Envs'
 
-" for LeaderF
+" /* for LeaderF */
 " let g:Lf_ShortcurF = '<leader>n'
 nnoremap <leader>f :LeaderfFile<cr>
 highlight Lf_hl_match gui=bold guifg=Blue cterm=bold ctermfg=21
@@ -337,84 +332,93 @@ let g:Lf_WindowPosition = 'bottom'
 let g:Lf_DefaultMode = 'FullPath'
 let g:Lf_StlColorscheme = 'powerline'
 let g:Lf_WildIgnore = {
-\ 'dir': ['.svn','.git','.hg', '.idea', '__pycache__'],
-\ 'file': ['*.sw?','~$*','*.exe','*.o','*.so','*.py[co]']
-\}
+    \   'dir': ['.svn','.git','.hg', '.idea', '__pycache__'],
+    \   'file': ['*.sw?','~$*','*.exe','*.o','*.so','*.py[co]']
+    \}
 let g:Lf_MruFileExclude = ['*.so']
 let g:Lf_UseVersionControlTool = 0 " use version control tool to index the files
-" let g:Lf_PreviewCode = 0
 
-" for FlyGrep
-nnoremap <leader>s :FlyGrep<cr>
+" /* for Ack */
+nnoremap <leader>s :Ack!<space>
+" if executable('ag')
+"   let g:ackprg = 'ag --vimgrep'
+" endif
 
-" for Flake8
-" to use colors defined in the colorscheme
-highlight link Flake8_Error      Error
-highlight link Flake8_Warning    WarningMsg
-highlight link Flake8_Complexity WarningMsg
-highlight link Flake8_Naming     WarningMsg
-highlight link Flake8_PyFlake    WarningMsg
-" to run the Flake8 check every time you write
-autocmd BufWritePost *.py call Flake8()
-
-" for vim-slash 
+" /* for vim-slash  */
 noremap <plug>(slash-after) zz
 
-" for vim-smooth-scroll
+" /* for vim-smooth-scroll */
 noremap <silent> <c-u> :call smooth_scroll#up(&scroll, 0, 2)<CR>
 noremap <silent> <c-d> :call smooth_scroll#down(&scroll, 0, 2)<CR>
 noremap <silent> <c-b> :call smooth_scroll#up(&scroll*2, 0, 4)<CR>
 noremap <silent> <c-f> :call smooth_scroll#down(&scroll*2, 0, 4)<CR>
 
-" for tagbar
+" /* for tagbar */
 noremap <leader>t :TagbarOpenAutoClose<CR>
 " noremap <Leader>y :TagbarToggle<CR>        " Display panel with (,y)
 let g:tagbar_autofocus = 1
 let g:tagbar_show_linenumbers = 1
 
-" for devicons
+" /* for devicons */
 let g:WebDevIconsUnicodeDecorateFolderNodes = 1
 let g:DevIconsEnableFoldersOpenClose = 1
 let g:WebDevIconsOS = 'ArchLinux'
 
-" for startify
+" /* for startify */
 function! StartifyEntryFormat()
   return 'WebDevIconsGetFileTypeSymbol(absolute_path) ." ". entry_path'
 endfunction
 
-" for vim-easy-align
+" /* for vim-easy-align */
 " Start interactive EasyAlign in visual mode (e.g. vipga)
 xmap ga <Plug>(EasyAlign)
 " Start interactive EasyAlign for a motion/text object (e.g. gaip)
 nmap ga <Plug>(EasyAlign)
 
-" for vim-emoji
+" /* for vim-emoji */
 set completefunc=emoji#complete
 
-" for echodoc.vim
+" /* for echodoc.vim */
 let g:echodoc_enable_at_startup = 1
 let g:echodoc#enable_force_overwrite = 1
 
-" for easymotion
+" /* for easymotion */
 " Move to word
 map  <Leader>w <Plug>(easymotion-bd-w)
 nmap <Leader>w <Plug>(easymotion-overwin-w)
 
-" for Pydiction
+" /* for Pydiction */
 let g:pydiction_location='~/.vim/plugged/pydiction/complete-dict'
 let g:pydiction_menu_height=10
 
-" for ultisnips
-let g:UltiSnipsExpandTrigger="<c-space>"
-let g:UltiSnipsListSnippets="<F9>"
-let g:UltiSnipsEditSplit="vertical"
+" /* for ultisnips */
+let g:UltiSnipsExpandTrigger = '<c-space>'
+let g:UltiSnipsListSnippets = '<F9>'
+let g:UltiSnipsEditSplit = 'vertical'
 let g:UltiSnipsUsePythonVersion = 3
 
-" for colorscheme
+" /* for colorscheme */
 noremap <leader>c :NextColorScheme<cr>:colorscheme<cr>
 noremap <leader>C :PreviousColorScheme<cr>:colorscheme<cr>
 
-" for solarized color
+" /* for ale */
+nmap <silent> <C-k> <Plug>(ale_previous)
+nmap <silent> <C-j> <Plug>(ale_next)
+nmap <silent> <leader>fix <Plug>(ale_fix)
+let g:ale_fixers = {
+            \   'python': [
+            \       'autopep8', 
+            \       'isort', 
+            \       'add_blank_lines_for_python_control_statements',
+            \       'trim_whitespace'
+            \   ],
+            \   'sh': [
+            \       'shfmt',
+            \       'trim_whitespace'
+            \   ],
+            \}
+
+" /* for solarized color */
 " let g:solarized_termcolors=256
 " let g:solarized_termtrans=1
 
