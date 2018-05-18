@@ -50,7 +50,7 @@ put_cutoff() {
 }
 
 do_install() {
-    sudo pacman -S --needed --noconfirm $*
+    sudo pacman -S --needed --noconfirm "$@"
 }
 
 display_array() {

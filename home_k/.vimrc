@@ -32,6 +32,7 @@ call plug#begin()
 Plug 'junegunn/vim-plug'
 
 " /* coding tools */
+Plug 'terryma/vim-multiple-cursors'
 Plug 'tpope/vim-endwise'
 Plug 'jiangmiao/auto-pairs'
 Plug 'tpope/vim-commentary'
@@ -43,25 +44,31 @@ Plug 'Shougo/echodoc.vim'
 Plug 'Shougo/context_filetype.vim' 
 Plug 'majutsushi/tagbar'
 Plug 'w0rp/ale' " Asynchronous Lint Engine
+" Plug 'junegunn/rainbow_parentheses.vim'
+" Plug 'Valloric/MatchTagAlways'
 
-" /* Manage file & version control */
+" /* version control | workspace */
 Plug 'mhinz/vim-startify'
 Plug 'scrooloose/nerdtree', { 'on':  'NERDTreeToggle' } 
 Plug 'Xuyuanp/nerdtree-git-plugin'         
 Plug 'tiagofumo/vim-nerdtree-syntax-highlight'
 Plug 'airblade/vim-gitgutter'
+" Plug 'bagrat/vim-workspace' " tab bar
 
 " /* Search */
 Plug 'mileszs/ack.vim'
 Plug 'Yggdroot/LeaderF'
 Plug 'easymotion/vim-easymotion'
 Plug 'junegunn/vim-slash' " enhancing in-buffer search experience 
+" Plug 'junegunn/fzf' | Plug 'junegunn/fzf.vim'
+" Plug 'junegunn/fzf', {'dir': '~/.local/fzf', 'do': './install --all'}
 
 " /* Python */
 Plug 'rkulla/pydiction', { 'for': 'python' }
-Plug 'tmhedberg/SimpylFold', { 'for': 'python' } " code folding for Python
+Plug 'tmhedberg/SimpylFold', { 'for': 'python' } " code folding 
 Plug 'vim-scripts/indentpython.vim', { 'for': 'python' }
-Plug 'plytophogy/vim-virtualenv', { 'for': 'python' } " Python v e
+Plug 'plytophogy/vim-virtualenv', { 'for': 'python' } 
+" Plug 'python-mode/python-mode', { 'for': 'python' } 
 
 " /* Markdown */
 Plug 'hallison/vim-markdown'
@@ -71,6 +78,8 @@ Plug 'iamcco/markdown-preview.vim', { 'for': 'markdown' }
 " /* Experience */
 Plug 'terryma/vim-smooth-scroll' 
 Plug 'junegunn/goyo.vim', { 'on': 'Goyo' }
+" Plug 'junegunn/limelight.vim'
+" Plug 'vim-scripts/fcitx.vim' " keep and restore fcitx state when leaving/re-entering insert mode
 
 " /* Syntax */
 Plug 'vim-scripts/txt.vim', { 'for': 'txt' }
@@ -82,18 +91,18 @@ Plug 'vim-airline/vim-airline'
 Plug 'vim-airline/vim-airline-themes'
 Plug 'ryanoasis/vim-devicons' " load after other plugins 
 
-" /* Alternatives */
+" /* External Tools */
+" Plug 'skywind3000/asyncrun.vim' ", { 'on': 'AsyncRun' }
+
+" /* Funny Stuff */
 " Plug 'junegunn/vim-emoji' ", { 'for': 'markdown' }
-" Plug 'Valloric/MatchTagAlways'
-" Plug 'python-mode/python-mode'
-" Plug 'junegunn/fzf' | Plug 'junegunn/fzf.vim'
-" Plug 'junegunn/fzf', {'dir': '~/.local/fzf', 'do': './install --all'}
-" Plug 'bagrat/vim-workspace' " tab bar
-" Plug 'morhetz/gruvbox'
-" Plug 'junegunn/limelight.vim'
-" Plug 'junegunn/rainbow_parentheses.vim'
-" Plug 'vim-scripts/fcitx.vim' " keep and restore fcitx state when leaving/re-entering insert mode
-" Plug 'python-mode/python-mode'
+
+" /* Games*/
+Plug 'vim-scripts/TeTrIs.vim'
+" Plug 'rbtnn/game_engine.vim'
+" Plug 'rbtnn/mario.vim'
+" Plug 'johngrib/vim-game-code-break'
+" Plug 'johngrib/vim-game-snake'
 
 call plug#end()            
 
@@ -120,7 +129,7 @@ set showtabline=1
 syntax enable
 syntax on
 set guifont=Monaco\ Nerd\ Font\ Mono\ Regular\ 12
-set background=dark
+set background=light
 " gruvbox bubblegum birds-of-paradise blaquemagick buddy_modified dante eclipse darkburn enigma eva01 evening evolution 1989
 colo solarized
 set cursorline
@@ -269,7 +278,7 @@ map      <leader>doc :YcmCompleter GetDoc<CR>
 " for NERDTree
 " -----------------------------------------------------------------------------
 
-map <c-n> :NERDTreeToggle<CR>
+map <leader>n :NERDTreeToggle<CR>
 " NERDTree automatically when vim starts up on opening a directory
 autocmd StdinReadPre * let s:std_in = 1
 autocmd VimEnter * if argc() == 1 && isdirectory(argv()[0]) && !exists("s:std_in") | exe 'NERDTree' argv()[0] | wincmd p | ene | endif
@@ -313,10 +322,9 @@ let g:mkdp_command_for_global = 0
 
 " /* For vim-airline */
 " lucius hybrid minimalist monochrome
-let g:airline_theme = 'lucius'
+let g:airline_theme = 'solarized'
 let g:airline_powerline_fonts = 1
-" let g:airline_theme="solarized"
-" let g:airline_solarized_bg='dark'
+let g:airline_solarized_bg='light'
 " support for other plugins
 let g:airline#extensions#tmuxline#enabled = 1
 
@@ -405,6 +413,12 @@ noremap <leader>C :PreviousColorScheme<cr>:colorscheme<cr>
 nmap <silent> <C-k> <Plug>(ale_previous)
 nmap <silent> <C-j> <Plug>(ale_next)
 nmap <silent> <leader>fix <Plug>(ale_fix)
+let g:ale_linters = {
+            \   'markdown': ['mdl', 'prettier', 'proselint', 'alex'],
+            \   'text': ['proselint', 'alex', 'redpen'],
+            \   'sql': ['sqlint'],
+            \   'cpp': ['gcc']
+            \}
 let g:ale_fixers = {
             \   'python': [
             \       'autopep8', 
@@ -417,6 +431,11 @@ let g:ale_fixers = {
             \       'trim_whitespace'
             \   ],
             \}
+
+" /* for vim-multiple-cursors */
+" if !has('gui_running')
+"   map "in Insert mode, type Ctrl+v Alt+n here" <A-n>
+" endif
 
 " /* for solarized color */
 " let g:solarized_termcolors=256
