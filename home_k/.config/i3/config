@@ -160,18 +160,19 @@ bindsym $mod+r mode "resize"
 # finds out, if available)
 
 bar {
-  #status_command $HOME/.config/conky/build-i3bar
-    status_command conky -c $HOME/.config/conky/conky.conf
+    status_command bash $HOME/.config/conky/build-i3bar
+    # status_command i3status
+    i3bar_command i3bar 
     #position bottom
     #font -misc-fixed-medium-r-normal--13-120-75-75-C-70-iso10646-1
     #font pango:MV Boli Regular 10
     #font pango:Cantarell Regular 9
-    #font pango:Monaco Nerd Font 9
     #font pango:Noto Sans Mono Regular 10
     #font pango:Segoe UI Fett 9
     #font pango:Adobe Courier Regular 9
     #font pango:AvantGarde LT Medium Regular 10
-    font pango:Hermit medium 9
+    font pango:Monaco Nerd Font Regular 9
+    # font pango:Hermit medium 9
     #font pango:WenQuanYi WenQuanYi Bitmap Song 10
   colors {
     separator #586e75
@@ -202,7 +203,7 @@ bar {
 # --------------------------------------------------------------------------------------
 
 # Configure border style <normal|1pixel|pixel xx|none|pixel>
-new_window pixel 1
+new_window pixel 2
 new_float normal
 
 # Hide borders
@@ -294,7 +295,7 @@ bindsym $mod+Shift+m bar mode toggle
 exec_always xrandr --output HDMI3 --off --output HDMI2 --off --output HDMI1 --mode 1920x1080 --pos 1920x0 --rotate normal --output VIRTUAL1 --off --output DP1 --primary --mode 1920x1080 --pos 0x0 --rotate normal
 
 exec_always dunst &
-exec_always --no-startup-id compton -b &
+exec_always --no-startup-id killall compton; compton -b &
 exec --no-startup-id fcitx &
 exec --no-startup-id pamac-tray &
 exec --no-startup-id volumeicon &
@@ -314,3 +315,5 @@ client.focused #586e75 #586e75 #fdf6e3 #268bd2
 client.focused_inactive #073642 #073642 #93a1a1 #002b36
 client.unfocused #002b36 #002b36 #586e75 #002b36
 client.urgent #dc322f #dc322f #fdf6e3 #dc322f
+
+popup_during_fullscreen smart
