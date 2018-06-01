@@ -134,14 +134,15 @@ recommended table:
 
 ### Vim及插件安装
 
-Vim比较特殊，尤其是YCM经常安装失败，所以单独列出来
-
 - [complete installation](./scripts/install_vim/main.sh) 直接按照我的Vim配置一键安装Vim和各种插件，无需其他配置
-- [compile and install YouCompleteMe](./scripts/install_vim/ycm.sh) YouCompleteMe插件编译安装
+
+Vim比较特殊，尤其是YCM经常安装失败，所以单独列出来，安装见[Usage](#usage)
 
 ### YouCompleteMe编译安装
 
-通过install.sh**选择第四项单独安装YouCompleteMe插件**时，需要注意：
+- [compile and install YouCompleteMe](./scripts/install_vim/ycm.sh) YouCompleteMe插件编译安装
+
+[通过install.sh](#usage)**选择第四项单独安装YouCompleteMe插件**时，需要注意：
 1.  阅读ycm.sh的开头部分
 2.  修改ycm.sh中的ycm插件安装地址
 3.  如果为Arch系统，直接选择任意一种方式安装；如果非Arch系统选择`my way`方式安装，需要手动安装python、cmake和clang，然后修改ycm.sh中的`libclang.so`地址

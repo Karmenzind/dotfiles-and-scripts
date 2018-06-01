@@ -2,15 +2,12 @@
 # export PATH=$HOME/bin:/usr/local/bin:$PATH
 
 # Path to your oh-my-zsh installation.
-  export ZSH=/home/k/.oh-my-zsh
+export ZSH=/home/k/.oh-my-zsh
 
 # Set name of the theme to load. Optionally, if you set this to "random"
 # it'll load a random theme each time that oh-my-zsh is loaded.
 # See https://github.com/robbyrussell/oh-my-zsh/wiki/Themes
-ZSH_THEME="robbyrussell"
-ZSH_THEME="tjkirch"
 ZSH_THEME="bureau"
-# ZSH_THEME="candy"
 
 # Set list of themes to load
 # Setting this variable when ZSH_THEME=random
@@ -62,65 +59,36 @@ HIST_STAMPS="yyyy-mm-dd"
 # Example format: plugins=(rails git textmate ruby lighthouse)
 # Add wisely, as too many plugins slow down shell startup.
 plugins=(
-  'archlinux'
   #'autojump'
+  #'colorize'
+  #'django'
+  #'extract'
+  #'github'
+  #'gitignore'
+  #'go'
+  #'pyenv'
+  #'web-search'
+  'archlinux'
   'chucknorris'
   'colored-man-pages'
-  #'colorize'
   'command-not-found'
   'common-aliases'
   'copydir'
   'copyfile'
   'cp'
-  #'django'
   'dirhistory'
-  #'docker'
-  #'extract'
+  'docker'
   'git'
-  #'github'
-  #'gitignore'
-  #'go'
   'history'
   'pip'
-  #'pyenv'
   'python'
   'rsync'
   'ssh-agent'
   'tmux'
   'tmuxinator'
-  #'virtualenv'
-  #'web-search'
+  'virtualenv'
 )
 
 source $ZSH/oh-my-zsh.sh
-
-# User configuration
-
-# export MANPATH="/usr/local/man:$MANPATH"
-
-# You may need to manually set your language environment
-# export LANG=en_US.UTF-8
-
-# Preferred editor for local and remote sessions
-# if [[ -n $SSH_CONNECTION ]]; then
-#   export EDITOR='vim'
-# else
-#   export EDITOR='mvim'
-# fi
-
-# Compilation flags
-# export ARCHFLAGS="-arch x86_64"
-
-# ssh
-# export SSH_KEY_PATH="~/.ssh/rsa_id"
-
-# Set personal aliases, overriding those provided by oh-my-zsh libs,
-# plugins, and themes. Aliases can be placed here, though oh-my-zsh
-# users are encouraged to define aliases within the ZSH_CUSTOM folder.
-# For a full list of active aliases, run `alias`.
-#
-# Example aliases
-# alias zshconfig="mate ~/.zshrc"
-# alias ohmyzsh="mate ~/.oh-my-zsh"
 
 source ~/.config/shrc.ext
