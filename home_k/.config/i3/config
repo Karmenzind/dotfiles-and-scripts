@@ -150,9 +150,10 @@ for_window [class="Wine"] floating enable border none
 for_window [class="fontforge"] floating enable 
 for_window [class="Xiami Music"] floating enable border none
 for_window [class="TeamViewer"] floating enable border none
-for_window [class="Pcmanfm"] floating enable border none, move container to workspace 10
+for_window [class="Pcmanfm"] floating enable border none
 for_window [class="Crossover"] floating enable border none
-for_window [class="electronic-wechat"] floating enable border none, move container to workspace 10
+# for_window [title="QQ"] floating enable border none, move container to workspace 10
+for_window [class="electronic-wechat"] floating enable border none  #, move container to workspace 10
 
 # /* notice in fullscreen */
 popup_during_fullscreen smart

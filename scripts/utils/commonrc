@@ -114,7 +114,18 @@ check_multilib_support() {
         multilib_enabled=1
     fi
 
-    (( $multilib_enabled == 0 )) && enable_multilib
+    (( multilib_enabled == 0 )) && enable_multilib
     echo "Support multilib: $multilib_enabled"
 }
 
+# -----------------------------------------------------------------------------
+# basic
+# -----------------------------------------------------------------------------
+
+# $1 expr that will be passed to bc
+# return 0 if nothing's wrong
+valid_by_bc() {
+    local res
+    res=$(bc <<< "$1")
+    (( res == 1 )) || return 255
+}

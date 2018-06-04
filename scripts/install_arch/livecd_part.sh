@@ -47,10 +47,10 @@ for the whole Arch system? (default=$disk_size)"
         read -p "Input a number: " use_size
         [[ -z "$use_size" ]] && use_size=$disk_size 
         if [[ -z `echo $use_size | grep -i '[^0-9]'` ]] \
-            && (($use_size<=$disk_size)) \
-            && (($use_size>5)); then
+            && valid_by_bc "${use_size}<=${disk_size}"  \
+            && valid_by_bc "${use_size}>5"; then
             is_valid=yes
-            if (($use_size==$disk_size)); then
+            if valid_by_bc "${use_size}==${disk_size}"; then
                 end_point='100%'
             else
                 end_point=${use_size}GiB
@@ -72,7 +72,7 @@ for the whole Arch system? (default=$disk_size)"
 
     root_start=551MiB
 
-    if (($use_size>=60)); then
+    if valid_by_bc "${use_size}>=60"; then
         mem_size=`lsmem | grep -i "online memory" | sed 's/.* //g'`
         echo "Size of your mem: $mem_size"
         swap_size=`echo $mem_size | sed 's/G//'`

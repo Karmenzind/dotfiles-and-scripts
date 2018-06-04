@@ -31,6 +31,10 @@ nnoremap <c-w><c-h> :tabprevious<CR>
 nnoremap <c-w><c-l> :tabnext<CR>
 " toggle relativenumber
 nnoremap <silent> <Leader>rn :set relativenumber!<CR>
+" toggle backgroud
+nnoremap <silent> <Leader>B :call BackgroudToggle()<CR>
+" move current buffer to new tab
+nnoremap <c-w>ts :call TabSplitAndCloseCurrentBuf()<CR>
 
 " -----------------------------------------------------------------------------
 "  plugin manager
@@ -159,9 +163,10 @@ set matchtime=5
 set statusline=%F%m%r%h%w\ (%{&ff}){%Y}\ [%l,%v][%p%%]
 
 " /* colorscheme and background */
-colorscheme solarized " gruvbox bubblegum birds-of-paradise blaquemagick buddy_modified dante eclipse darkburn enigma eva01 evening evolution apprentice
-set background=dark
-" automatically fit colo and clock
+" gruvbox bubblegum birds-of-paradise blaquemagick buddy_modified dante
+" eclipse darkburn enigma eva01 evening evolution apprentice
+colorscheme solarized
+" let solarized fit clock
 if g:colors_name ==# 'solarized'
   let g:airline_theme = 'solarized' " lucius hybrid minimalist monochrome
   let b:current_hour = strftime('%H')
@@ -419,7 +424,7 @@ noremap <silent> <c-f> :call smooth_scroll#down(&scroll*2, 0, 4)<CR>
 
 " /* for tagbar */
 noremap <Leader>t :TagbarOpenAutoClose<CR>
-" noremap <Leader>y :TagbarToggle<CR>
+noremap <Leader>T :TagbarToggle<CR>
 let g:tagbar_autofocus = 1
 let g:tagbar_show_linenumbers = 1
 
@@ -523,5 +528,27 @@ function! ZoomToggle()
     execute "normal! \<c-w>="
     let b:current_zoom_mode = '='
   endif
+endfunction
+
+function! BackgroudToggle()
+  if &background ==# 'dark'
+    set background=light
+    if g:colors_name ==# 'solarized'
+      let g:airline_solarized_bg = 'light'
+      AirlineRefresh
+    endif
+  elseif &background ==# 'light'
+    set background=dark
+    if g:colors_name ==# 'solarized'
+      let g:airline_solarized_bg = 'dark'
+      AirlineRefresh
+    endif
+  endif
+endfunction
+
+function! TabSplitAndCloseCurrentBuf()
+  let l:curbuf = expand('%')
+  quit
+  exec 'tabe ' . l:curbuf
 endfunction
 
