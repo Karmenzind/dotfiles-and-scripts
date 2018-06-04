@@ -46,7 +46,7 @@ for the whole Arch system? (default=$disk_size)"
     while [[ $is_valid = 'no' ]]; do
         read -p "Input a number: " use_size
         [[ -z "$use_size" ]] && use_size=$disk_size 
-        if [[ -z `echo $use_size | grep -i '[^0-9]'` ]] \
+        if [[ -z ${use_size//[0-9.]/} ]]                \
             && valid_by_bc "${use_size}<=${disk_size}"  \
             && valid_by_bc "${use_size}>5"; then
             is_valid=yes
@@ -79,11 +79,11 @@ for the whole Arch system? (default=$disk_size)"
         echo "Your swap part will be allocated $swap_size GiB"
 
         # root
-        $part_pref mkpart primary ext4 $root_start 30.5GiB   
+        $part_pref mkpart primary ext4 $root_start 32.5GiB   
         parts[root]=${target_disk}2
         # swap
-        swap_end=`echo 30.5 $mem_size | awk '{print $1+$2}'`GiB
-        $part_pref mkpart primary linux-swap 30.5GiB $swap_end
+        swap_end=`echo 32.5 $mem_size | awk '{print $1+$2}'`GiB
+        $part_pref mkpart primary linux-swap 32.5GiB $swap_end
         parts[swap]=${target_disk}3
         # home
         $part_pref mkpart primary ext4 $swap_end $end_point

@@ -94,13 +94,14 @@ Do you want to use recommended partition table as follows (Y)
 or do the partition by yourself? (N)
 recommended table:
 1. for a disk larger than 60G:
-    550MiB      ESP         for boot
-    32GiB       ext4        for ROOT
-    8GiB        linux-swap  for SWAP
-    remainder   ext4        for HOME
+    550MiB              ESP             for boot
+    32GiB               ext4            for ROOT
+    the same as         linux-swap      for SWAP
+    your ram            
+    remainder           ext4            for HOME
 2. for a disk smaller than 60G:
-    550MiB      ESP         for BOOT
-    remainder   ext4        for ROOT
+    550MiB              ESP             for BOOT
+    remainder           ext4            for ROOT
     (you can create a swapfile by yourself after installation)
 ```
 分别为：
