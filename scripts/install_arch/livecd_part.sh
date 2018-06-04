@@ -1,6 +1,149 @@
 #! /usr/bin/env bash
 # refer https://wiki.archlinux.org/index.php/Installation_guide
 
+#######################################################################
+#                        copied from commonrc                         #
+#######################################################################
+# commonrc {{{
+bold='\033[1m'
+origin='\033[0m'
+black='\E[30;1m'
+red='\E[31;1m'
+green='\E[32;1m'
+yellow='\E[33;1m'
+blue='\E[34;1m'
+magenta='\E[35;1m'
+cyan='\E[36;1m'
+white='\E[37;1m'
+
+cut_off='--------------------------------------------'
+
+# Color-echo
+# $1: message
+# $2: color
+cecho() {
+    echo -e "${2:-${bold}}${1}" 
+    tput sgr0                        # Reset to normal.
+}  
+
+put_error() {
+    cecho "$1" $red
+}
+
+exit_with_msg() {
+    cecho "$1" $red
+    exit -1
+}
+
+pacman_conf=/etc/pacman.conf
+
+no_root() {
+    if [[ $USER = 'root' ]]; then
+        echo "Do not use root."
+        exit -1
+    fi
+}
+
+# $1 prompt
+put_cutoff() {
+    _line="\n${cut_off}\n"
+    cecho $_line $cyan
+    if [[ -n "$1" ]]; then
+        echo -e "$1"
+        cecho $_line $cyan
+    fi
+}
+
+do_install() {
+    sudo pacman -S --needed --noconfirm "$@"
+}
+
+display_array() {
+    local tmp_array=($@)
+    local length=${#tmp_array[@]}
+    for (( i=0; i<$length; i++ )); do
+        echo "$i    ${tmp_array[$i]}"
+    done
+    echo
+}
+
+# enhanced `read` - name a range for checking
+# $1 input range, e.g. 123 Yn abcd (case insensitive)
+# $2 variable's name
+check_input() {
+    local _range=$1
+    local is_valid=no
+    local _default=${_range:0:1}
+
+    while [[ $is_valid = 'no' ]]; do
+        read -p "Input: " ans
+        [[ -z "$ans" ]] && ans=$_default
+        ans=`echo $ans | tr '[A-Z]' '[a-z]'`
+        if [[ "$_range" = *$ans* ]]; then
+            is_valid=yes
+        else
+            put_error "Valid answer: $_range (default=$_default):"
+        fi
+    done
+
+    [[ -n $2 ]] && read $2 <<< $ans
+}
+
+put_suspend() {
+    cecho "
+Type Ctrl+C to exit 
+or type any key to continue" $cyan
+    read whatever
+}
+
+# -----------------------------------------------------------------------------
+# basic
+# -----------------------------------------------------------------------------
+
+enable_multilib() {
+    sudo cat >>/etc/pacman.conf << EOF
+[multilib]
+Include = /etc/pacman.d/mirrorlist
+EOF
+}
+
+check_multilib_support() {
+    echo 'Check multilib support ...'
+    if [[ -z "grep '^\[multilib\]' $pacman_conf" ]]; then
+        multilib_enabled=0
+        echo "Add multilib repo support? (Y/n)"
+        check_input yn
+        [[ $ans = 'y' ]] && enable_multilib && multilib_enabled=1
+        sudo pacman -Sy
+    else
+        multilib_enabled=1
+    fi
+
+    (( multilib_enabled == 0 )) && enable_multilib
+    echo "Support multilib: $multilib_enabled"
+}
+
+# -----------------------------------------------------------------------------
+# basic
+# -----------------------------------------------------------------------------
+
+# $1 expr that will be passed to bc
+# return 0 if nothing's wrong
+valid_by_bc() {
+    local res
+    res=$(bc <<< "$1")
+    (( res == 1 )) || return 255
+}
+# }}}
+
+
+#######################################################################
+#                                main                                 #
+#######################################################################
+
+# --------------------------------------------
+# base check
+
 declare -A parts
 
 # Verify the boot mode
@@ -240,10 +383,6 @@ for i in `seq ${#parts[*]}`; do
     $part_pref align-check optimal $i
 done
 
-# echo -e "Check the information above, and edit /mnt/etc/fstab in case of errors."
-# echo -e "After you've done it, do:"
-# echo -e "\tarch-chroot /mnt"
-# echo -e "And then follow my construction in README.md"
 if [[ -n $repo_dir ]]; then
     cp -r $repo_dir /mnt/dotfiles-and-scripts -v
     put_cutoff "After arch-chroot, execute:

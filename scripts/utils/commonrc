@@ -44,7 +44,7 @@ put_cutoff() {
     _line="\n${cut_off}\n"
     cecho $_line $cyan
     if [[ -n "$1" ]]; then
-        echo -e $1
+        echo -e "$1"
         cecho $_line $cyan
     fi
 }
