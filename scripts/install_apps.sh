@@ -74,29 +74,32 @@ _cli=(
 )
 
 _desktop=(
-    xfce4-terminal
+    # thunar 
+    # thunar-archive-plugin
+    # thunar-media-tags-plugin
+    # thunar-volman
     chromium
     fbreader
     libreoffice
-    thunar 
-    thunar-archive-plugin
-    thunar-media-tags-plugin
-    thunar-volman
+    lxappearance
+    pcmanfm
     thunderbird
     volumeicon
-    lxappearance
+    xfce4-terminal
 )
 
 _aur=(
-    #wewechat
+    # wewechat
+    # wps-office
     acroread
     acroread-fonts
+    alacritty-scrollback-git
     apvlv
+    bmenu
     crossover
     electronic-wechat
+    oh-my-zsh-git
     teamviewer
-    wps-office
-    bmenu
 )
 
 # appearance
@@ -119,11 +122,11 @@ _required_by_vim=(
     ack
 )
 _required_by_vim_aur=(
-    shfmt
     #gitlint
+    #python-vint
+    shfmt
     sqlint
     python-proselint
-    python-vint
 )
 
 # pip
@@ -131,24 +134,36 @@ _py_general=()
 
 
 # --------------------------------------------
-# Mannualy install
+# Manually install
 # --------------------------------------------
 
-install_yaourt() {
-    which yaourt >/dev/null && return
-    aur_tmp=/tmp/_my_aur
+# manually install pkg from aur
+# $1    the app to install
+install_aur_app() {
+    local aur_tmp=/tmp/_my_aur
+    [[ -z "$1" ]] && exit_with_msg "Invalid argument: $1"
+    local app=$1
     do_install git
-    local _yaourt_requirements=(package-query yaourt)
 
     mkdir -p $aur_tmp 
-    for app in ${_yaourt_requirements[*]}; do
-        cd $aur_tmp 
-        git clone "https://aur.archlinux.org/${app}.git" $app
-        cd $app
-        makepkg -sri --noconfirm
-    done
+    cd $aur_tmp 
+    git clone "https://aur.archlinux.org/${app}.git" $app 
+    cd $app 
+    makepkg -sri --noconfirm
     cd ~
     rm -rf $aur_tmp
+}
+
+install_yay() {
+    command -v yay >/dev/null && return
+    do_install 'go'
+    install_aur_app 'yay'
+}
+
+install_yaourt() {
+    command -v yaourt >/dev/null && return
+    install_aur_app 'package-query'
+    install_aur_app 'yaourt'
 }
 
 install_nerd_fonts() {
@@ -187,9 +202,10 @@ do_install ${_basic[*]} ${_fonts[*]} ${_cli[*]} ${_desktop[*]} ${_themes[*]} ${_
 sudo pacman -Sc 
 
 # aur
-install_yaourt  
-yaourt -S -v --needed --noconfirm ${_aur[*]} ${_aur_themes[*]} ${_required_by_vim_aur[*]}
-yaourt -Sc
+install_yay
+aur_helper=yay
+$aur_helper -S -v --needed --noconfirm ${_aur[*]} ${_aur_themes[*]} ${_required_by_vim_aur[*]}
+$aur_helper -Sc
 
 # others
 install_ranger_and_plugins

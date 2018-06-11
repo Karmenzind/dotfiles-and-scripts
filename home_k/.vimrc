@@ -21,20 +21,15 @@ augroup AbbreForVim
 augroup END
 
 " /* workspace, layout, format and others */
+" use <Leader>s as 'set' prefix
 " toggle wrap-mode
-nnoremap <c-\> :set wrap!<CR> :set wrap?<CR>
-" inoremap <c-d> <delete>
-" (tmux-like) zoom in current buffer
-nnoremap <silent> <c-w>z :call ZoomToggle()<CR>
-" (tmux-like) change tab
-nnoremap <c-w><c-h> :tabprevious<CR>
-nnoremap <c-w><c-l> :tabnext<CR>
-" toggle relativenumber
-nnoremap <silent> <Leader>rn :set relativenumber!<CR>
+nnoremap <silent> <Leader>sw :set wrap!<CR> :set wrap?<CR>
 " toggle backgroud
-nnoremap <silent> <Leader>B :call BackgroudToggle()<CR>
-" move current buffer to new tab
-nnoremap <c-w>ts :call TabSplitAndCloseCurrentBuf()<CR>
+nnoremap <silent> <Leader>sb :call BackgroudToggle()<CR>
+" toggle relativenumber
+" nnoremap <silent> <Leader>rn :set relativenumber!<CR>
+
+" inoremap <c-d> <delete>
 
 " -----------------------------------------------------------------------------
 "  plugin manager
@@ -51,6 +46,7 @@ endif
 call plug#begin()
 
 Plug 'junegunn/vim-plug'
+Plug 't9md/vim-choosewin'
 
 " /* coding tools */
 Plug 'terryma/vim-multiple-cursors'
@@ -91,7 +87,7 @@ Plug 'junegunn/vim-slash' " enhancing in-buffer search experience
 Plug 'tmhedberg/SimpylFold', { 'for': 'python' } " code folding
 Plug 'vim-scripts/indentpython.vim', { 'for': 'python' }
 Plug 'plytophogy/vim-virtualenv', { 'for': 'python' }
-Plug 'rkulla/pydiction', { 'for': 'python' }
+" Plug 'rkulla/pydiction', { 'for': 'python' }
 " Plug 'python-mode/python-mode', { 'for': 'python' }
 
 " /* Write doc */
@@ -100,18 +96,22 @@ Plug 'mzlogin/vim-markdown-toc', { 'for': 'markdown' }
 Plug 'plasticboy/vim-markdown', { 'for': 'markdown' }
 Plug 'iamcco/mathjax-support-for-mkdp', { 'for': 'markdown' }
 Plug 'iamcco/markdown-preview.vim', { 'for': 'markdown' }
+Plug 'nelstrom/vim-markdown-folding', { 'for': 'markdown' }
+Plug 'mklabs/vim-markdown-helpfile'
+Plug 'Traap/vim-helptags'
 " Plug 'scrooloose/vim-slumlord'
 
 " /* Experience */
-Plug 'terryma/vim-smooth-scroll'
 Plug 'junegunn/goyo.vim', { 'on': 'Goyo' }
 " Plug 'junegunn/limelight.vim'
+" Plug 'terryma/vim-smooth-scroll'
 " Plug 'vim-scripts/fcitx.vim' " keep and restore fcitx state when leaving/re-entering insert mode
 
 " /* Syntax */
 Plug 'vim-scripts/txt.vim', { 'for': 'txt' }
 
 " /* Appearance */
+Plug 'arcticicestudio/nord-vim'
 Plug 'flazz/vim-colorschemes', { 'do': 'rsync -avz ./colors/ ~/.vim/colors/ && rm -rf ./colors/*' }
 Plug 'chxuan/change-colorscheme', { 'on': 'NextColorScheme' }
 Plug 'vim-airline/vim-airline'
@@ -125,11 +125,15 @@ Plug 'ryanoasis/vim-devicons' " load after other plugins
 " Plug 'junegunn/vim-emoji' ", { 'for': 'markdown' }
 
 " /* Games*/
-Plug 'vim-scripts/TeTrIs.vim'
+" Plug 'vim-scripts/TeTrIs.vim'
 " Plug 'rbtnn/game_engine.vim'
 " Plug 'rbtnn/mario.vim'
 " Plug 'johngrib/vim-game-code-break'
 " Plug 'johngrib/vim-game-snake'
+
+" /* Local */
+Plug 'karmenzind/vim-tmuxlike'
+" Plug '~/Workspace/vim-tmuxlike'
 
 call plug#end()
 
@@ -154,13 +158,21 @@ set showtabline=1
 set guifont=Hack\ Nerd\ Font\ 12
 set cursorline
 " highlight CursorLine guibg=darkgray ctermbg=black
-set number
-set noshowmode
-" set cmdheight=2
+" set noshowmode
+set showmode
+set cmdheight=2
 set laststatus=2
 " set whichwrap+=<,>,h,l
 set matchtime=5
 set statusline=%F%m%r%h%w\ (%{&ff}){%Y}\ [%l,%v][%p%%]
+
+" /* line number */
+set number
+augroup relative_number_toggle
+  autocmd!
+  autocmd BufEnter,FocusGained,InsertLeave,WinEnter * if &nu | set rnu   | endif
+  autocmd BufLeave,FocusLost,InsertEnter,WinLeave   * if &nu | set nornu | endif
+augroup END
 
 " /* colorscheme and background */
 " gruvbox bubblegum birds-of-paradise blaquemagick buddy_modified dante
@@ -177,6 +189,8 @@ if g:colors_name ==# 'solarized'
     set background=dark
     let g:airline_solarized_bg = 'dark'
   endif
+elseif g:colors_name ==# 'nord'
+  let g:airline_theme = 'nord'
 else
   let g:airline_theme = 'minimalist'
 endif
@@ -197,7 +211,6 @@ endif
 " set foldmethod=indent
 set foldmethod=manual
 set foldlevel=99
-let g:SimpylFold_docstring_preview = 1
 
 " /* spell check */
 " Use english for spellchecking, but don't spellcheck by default
@@ -330,14 +343,14 @@ endif
 
 let g:ycm_autoclose_preview_window_after_completion = 1
 let g:ycm_global_ycm_extra_conf = '~/.vim/.ycm_extra_conf.py'
-let g:ycm_collect_identifiers_from_tags_files = 1
 let g:ycm_seed_identifiers_with_syntax = 1
 let g:ycm_complete_in_comments = 1
 let g:ycm_complete_in_strings = 1
-let g:ycm_collect_identifiers_from_comments_and_strings = 1
 let g:ycm_server_python_interpreter = '/usr/bin/python'
 let g:ycm_python_binary_path = 'python'
 let g:ycm_goto_buffer_command = 'horizontal-split'
+" let g:ycm_collect_identifiers_from_tags_files = 1
+" let g:ycm_collect_identifiers_from_comments_and_strings = 1
 
 nnoremap <silent> <Leader>gt  :YcmCompleter GoTo<CR>
 nnoremap <silent> <Leader>dd  :YcmCompleter GoToDefinitionElseDeclaration<CR>
@@ -348,7 +361,7 @@ nnoremap <silent> <Leader>doc :YcmCompleter GetDoc<CR>
 " for NERDTree
 " -----------------------------------------------------------------------------
 
-nnoremap <Leader>n :NERDTreeToggle<CR>
+nnoremap <silent> <Leader>n :NERDTreeToggle<CR>
 
 let g:NERDTreeIgnore = ['\.pyc$', '\~$', '__pycache__[[dir]]']
 
@@ -394,7 +407,7 @@ let g:virtualenv_directory = '~/Envs'
 
 " /* for LeaderF */
 " let g:Lf_ShortcurF = '<Leader>n'
-nnoremap <Leader>f :LeaderfFile<CR>
+nnoremap <Leader>ff :LeaderfFile<CR>
 highlight Lf_hl_match gui=bold guifg=Blue cterm=bold ctermfg=21
 highlight Lf_hl_matchRefine  gui=bold guifg=Magenta cterm=bold ctermfg=201
 let g:Lf_WindowPosition = 'bottom'
@@ -408,7 +421,7 @@ let g:Lf_MruFileExclude = ['*.so']
 let g:Lf_UseVersionControlTool = 0
 
 " /* for Ack */
-nnoremap <Leader>s :Ack!<space>
+nnoremap <Leader>fc :Ack!<space>
 " if executable('ag')
 "   let g:ackprg = 'ag --vimgrep'
 " endif
@@ -417,10 +430,10 @@ nnoremap <Leader>s :Ack!<space>
 " noremap <plug>(slash-after) zz
 
 " /* for vim-smooth-scroll */
-noremap <silent> <c-u> :call smooth_scroll#up(&scroll, 0, 2)<CR>
-noremap <silent> <c-d> :call smooth_scroll#down(&scroll, 0, 2)<CR>
-noremap <silent> <c-b> :call smooth_scroll#up(&scroll*2, 0, 4)<CR>
-noremap <silent> <c-f> :call smooth_scroll#down(&scroll*2, 0, 4)<CR>
+" noremap <silent> <c-u> :call smooth_scroll#up(&scroll, 0, 2)<CR>
+" noremap <silent> <c-d> :call smooth_scroll#down(&scroll, 0, 2)<CR>
+" noremap <silent> <c-b> :call smooth_scroll#up(&scroll*2, 0, 4)<CR>
+" noremap <silent> <c-f> :call smooth_scroll#down(&scroll*2, 0, 4)<CR>
 
 " /* for tagbar */
 noremap <Leader>t :TagbarOpenAutoClose<CR>
@@ -454,8 +467,8 @@ map  <Leader>w <Plug>(easymotion-bd-w)
 nmap <Leader>w <Plug>(easymotion-overwin-w)
 
 " /* for Pydiction */
-let g:pydiction_location='~/.vim/plugged/pydiction/complete-dict'
-let g:pydiction_menu_height=10
+" let g:pydiction_location='~/.vim/plugged/pydiction/complete-dict'
+" let g:pydiction_menu_height=10
 
 " /* for ultisnips */
 let g:UltiSnipsExpandTrigger = '<c-space>'
@@ -506,29 +519,39 @@ let g:ale_fixers = {
 let g:vim_markdown_toc_autofit = 1
 let g:vim_markdown_no_default_key_mappings = 1
 let g:vim_markdown_json_frontmatter = 1
+au FileType markdown :nnoremap <Leader>t :Toc<CR>
+
+" /* for Game */
+" silent! nunmap <Leader>te
+" " have fun
+" nnoremap <silent> <Leader>hf :call <SNR>55_Main()<CR>
 
 " /* for signjk-motion */
-map <Leader>j <Plug>(signjk-j)
-map <Leader>k <Plug>(signjk-k)
+" map <Leader>j <Plug>(signjk-j)
+" map <Leader>k <Plug>(signjk-k)
+
+" /* for SimpylFold */
+let g:SimpylFold_docstring_preview = 1
+
+" /* for nord theme */
+" colo nord
+" let g:nord_italic = 1
+" let g:nord_italic_comments = 1
+" let g:nord_uniform_status_lines = 1
+" let g:nord_comment_brightness = 20
+
+" /* for choosewin */
+" invoke with '-'
+" nmap  -  <Plug>(choosewin)
+" " if you want to use overlay feature
+" let g:choosewin_overlay_enable = 1
+
+" /* for vim-tmuxlike */
+nmap <silent> <c-\> <Plug>(tmuxlike-prefix)
 
 " --------------------------------------------
 " custom funcs
 " --------------------------------------------
-
-nnoremap <silent> <c-w>=  <c-w>=:let b:current_zoom_mode = '='<CR>
-
-function! ZoomToggle()
-  if !exists('b:current_zoom_mode')
-    let b:current_zoom_mode = '='
-  endif
-  if b:current_zoom_mode ==# '='
-    execute 'NERDTreeClose | resize | vertical resize'
-    let b:current_zoom_mode = '+'
-  elseif b:current_zoom_mode ==# '+'
-    execute "normal! \<c-w>="
-    let b:current_zoom_mode = '='
-  endif
-endfunction
 
 function! BackgroudToggle()
   if &background ==# 'dark'
@@ -544,11 +567,5 @@ function! BackgroudToggle()
       AirlineRefresh
     endif
   endif
-endfunction
-
-function! TabSplitAndCloseCurrentBuf()
-  let l:curbuf = expand('%')
-  quit
-  exec 'tabe ' . l:curbuf
 endfunction
 
