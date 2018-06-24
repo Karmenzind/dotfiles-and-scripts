@@ -1,61 +1,153 @@
 #! /usr/bin/env bash
 # activate python virtual environment
 
-[[ $- != *i* ]] && echo 'Use `source acpyve`.' && exit -1
+_this_cmd=$0
+declare -A known_dir_ve_map
 
-[[ -z "$PY_VIRTUAL_ENV_DIR" ]] && PY_VIRTUAL_ENV_DIR="${HOME}/Envs"
+[[ -z "$PY_VIRTUAL_ENV_DIR" ]] && export PY_VIRTUAL_ENV_DIR="${HOME}/Envs"
 
-start_it() {
-    local pyves=(`ls $PY_VIRTUAL_ENV_DIR | sort`)
-    local pyves_repr=`ls $PY_VIRTUAL_ENV_DIR | sort | grep -n '' | sed 's/:/\t/'`
-    local idx_of_pyve
+pyves_repr=$(ls $PY_VIRTUAL_ENV_DIR | sort | grep -n '' | sed 's/:/\t/')
 
-    echo "Pick one virtual environment to activate:"
-    echo -e "\n$pyves_repr\n"
-    echo "Input number: "
-    read idx_of_pyve
-    if [[ $idx_of_pyve -lt 1 ]] || [[ $idx_of_pyve -gt ${#pyves[@]} ]]; then
-        echo "Error: invalid index"
-    else
-        case $_shell in
-            zsh  ) activate_ve ${pyves[$idx_of_pyve]}       ;; # fuck zsh
-            bash ) activate_ve ${pyves[$((idx_of_pyve-1))]} ;;
-        esac
-    fi
+# --------------------------------------------
+# funcs
+# --------------------------------------------
+
+echo_help() {
+	cat <<EOF
+
+--------------------------------------------
+$_this_cmd
+
+This script can help you to use your
+python virtual environment.
+
+    if no params:
+        interactive mode
+
+    params:
+        -h  print this help
+        -v  the virtual env you want to activate
+        -l  list current virtual envs
+            in $PY_VIRTUAL_ENV_DIR
+
+        * You cannot use one param at one time.
+          If you run:
+            source acpyve -v XXX -d XXX
+          It works like:
+            source acpyve -v XXX
+
+--------------------------------------------
+EOF
 }
 
-activate_ve() {
-    local pyve_name="$1"
-    [[ -n "$virtual_env" ]] && deactivate
-    echo -e "\nActivating $pyve_name..."
-    source "${PY_VIRTUAL_ENV_DIR}/${pyve_name}/bin/activate"
-    echo -e "\nDONE :)\n"
-}
-
-_main() {
-    echo -e "Current PY_VIRTUAL_ENV_DIR: \n\t$PY_VIRTUAL_ENV_DIR\n"
-    if [[ -d $PY_VIRTUAL_ENV_DIR ]]; then
-        start_it
-    else
-        echo "Please give a proper value"
-    fi
+base_check() {
+	# no root
+	[[ $USER == 'root' ]] && echo 'Do not use root.' && return 255
+	# only source
+	[[ $- != *i* ]] && echo 'Use `source acpyve`.' && exit 255
+	# current shell
+	current_shell=$(ps -ef | grep "^\w\+ \+$$" | sed 's/.* \+//')
+	[[ $current_shell == *zsh* ]] && current_shell=zsh
+    # echo "Your shell: $current_shell"
+	case $current_shell in
+	bash | zsh) ;;
+	*)
+		echo "Only for zsh and bash"
+		return 255
+		;;
+	esac
 }
 
 # --------------------------------------------
+# Auto activate ve when entered these dirs
+# --------------------------------------------
 
-# current shell
-_shell=`ps -ef | grep "^\w\+ \+$$" | sed 's/.* \+//'` 
-[[ $_shell = *zsh* ]] && _shell=zsh
+echo_pyves_repr() {
+	echo "You have these virtual environments:"
+	echo -e "\n$pyves_repr\n"
+}
 
-case $_shell in 
-    bash|zsh ) 
-        _main 
-        ;;
-    * )    
-        echo "Only for zsh and bash" 
-        ;;
-esac
+start_it() {
+	local pyves=($(ls $PY_VIRTUAL_ENV_DIR | sort))
+	local idx_of_pyve
 
-unset -v _shell
-unset -f start_it activate_ve _main
+	echo_pyves_repr
+	echo "Please pick one virtual environment to activate."
+	echo "Input number: "
+	read idx_of_pyve
+	if [[ $idx_of_pyve -lt 1 ]] || [[ $idx_of_pyve -gt ${#pyves[@]} ]]; then
+		echo "Error: invalid index"
+	else
+		case $current_shell in
+		zsh) activate_ve ${pyves[$idx_of_pyve]} ;; # fuck zsh
+		bash) activate_ve ${pyves[$((idx_of_pyve - 1))]} ;;
+		esac
+	fi
+}
 
+dir_exists() {
+	if [[ ! -d "$1" ]]; then
+		echo "$1 doesn't exist."
+		return 255
+	fi
+}
+
+activate_ve() {
+	local pyve_name="$1"
+	local ve_dir
+    # echo "You choosed $pyve_name."
+	[[ -n "$virtual_env" ]] && deactivate
+	ve_dir="${PY_VIRTUAL_ENV_DIR}/${pyve_name}"
+	if dir_exists $ve_dir; then
+		echo -e "\nActivating $pyve_name..."
+		source "${ve_dir}/bin/activate"
+        echo -e "Checking current VIRTUAL_ENV: $VIRTUAL_ENV"
+		echo -e "\nDONE :)\n"
+    else
+        echo -e "Cannot find $ve_dir!"
+	fi
+}
+
+interactive() {
+	echo -e "Current PY_VIRTUAL_ENV_DIR: \n\t$PY_VIRTUAL_ENV_DIR\n"
+	if [[ -d $PY_VIRTUAL_ENV_DIR ]]; then
+		start_it
+	else
+		echo "Please give a proper value"
+	fi
+}
+
+parse_params() {
+	case $1 in
+	-v)
+		activate_ve $2
+		;;
+	-l)
+		echo_pyves_repr
+		;;
+	-h | help)
+		echo_help
+		;;
+	*)
+		echo "Invalid params: ${*}"
+		echo_help
+		;;
+	esac
+}
+
+_main() {
+	if (($#)); then
+		parse_params ${*}
+	else
+		interactive
+	fi
+}
+
+# --------------------------------------------
+# run
+# --------------------------------------------
+
+base_check && _main "$@"
+
+unset -v known_dir_ve_map current_shell pyves_repr
+unset -f start_it activate_ve _main base_check echo_pyves_repr echo_help

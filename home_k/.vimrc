@@ -8,12 +8,6 @@ noremap <Leader>e  :tabe   $MYVIMRC<CR>
 noremap <Leader>R  :source $MYVIMRC<CR> :echom 'Vimrc reloaded :)'<CR>
 noremap <Leader>S  :source %<CR> :echom expand('%') . ' sourced :)'<CR>
 
-" /* plugin */
-noremap <Leader>pi :PlugInstall<CR>
-noremap <Leader>pu :PlugUpdate<CR>
-noremap <Leader>ps :PlugStatus<CR>
-noremap <Leader>pc :PlugClean<CR>
-
 " (TODO: move to snippets)
 augroup AbbreForVim
   au!
@@ -26,14 +20,12 @@ augroup END
 nnoremap <silent> <Leader>sw :set wrap!<CR> :set wrap?<CR>
 " toggle backgroud
 nnoremap <silent> <Leader>sb :call BackgroudToggle()<CR>
-" toggle relativenumber
-" nnoremap <silent> <Leader>rn :set relativenumber!<CR>
 
 " inoremap <c-d> <delete>
 
-" -----------------------------------------------------------------------------
+" --------------------------------------------
 "  plugin manager
-" -----------------------------------------------------------------------------
+" --------------------------------------------
 
 " automatically install Plug
 if empty(glob('~/.vim/autoload/plug.vim'))
@@ -46,10 +38,8 @@ endif
 call plug#begin()
 
 Plug 'junegunn/vim-plug'
-Plug 't9md/vim-choosewin'
 
 " /* coding tools */
-Plug 'terryma/vim-multiple-cursors'
 Plug 'tpope/vim-endwise'
 Plug 'jiangmiao/auto-pairs'
 Plug 'tpope/vim-commentary'
@@ -61,17 +51,19 @@ Plug 'Shougo/echodoc.vim'
 Plug 'Shougo/context_filetype.vim'
 Plug 'majutsushi/tagbar'
 Plug 'w0rp/ale' " Asynchronous Lint Engine
+" Plug 'terryma/vim-multiple-cursors'
 " Plug 'junegunn/rainbow_parentheses.vim'
 " Plug 'Valloric/MatchTagAlways'
 
 " /* version control | workspace */
-Plug 'mhinz/vim-startify'
 Plug 'scrooloose/nerdtree', { 'on':  'NERDTreeToggle' }
 Plug 'Xuyuanp/nerdtree-git-plugin'
 Plug 'tiagofumo/vim-nerdtree-syntax-highlight'
 Plug 'airblade/vim-gitgutter'
 Plug 'tpope/vim-fugitive'
-Plug 'junegunn/gv.vim'
+Plug 't9md/vim-choosewin'
+Plug 'mhinz/vim-startify'
+" Plug 'junegunn/gv.vim'
 " Plug 'bagrat/vim-workspace' " tab bar
 
 " /* Search */
@@ -107,42 +99,34 @@ Plug 'junegunn/goyo.vim', { 'on': 'Goyo' }
 " Plug 'terryma/vim-smooth-scroll'
 " Plug 'vim-scripts/fcitx.vim' " keep and restore fcitx state when leaving/re-entering insert mode
 
-" /* Syntax */
-Plug 'vim-scripts/txt.vim', { 'for': 'txt' }
-
-" /* Appearance */
-Plug 'arcticicestudio/nord-vim'
-Plug 'flazz/vim-colorschemes', { 'do': 'rsync -avz ./colors/ ~/.vim/colors/ && rm -rf ./colors/*' }
-Plug 'chxuan/change-colorscheme', { 'on': 'NextColorScheme' }
-Plug 'vim-airline/vim-airline'
-Plug 'vim-airline/vim-airline-themes'
-Plug 'ryanoasis/vim-devicons' " load after other plugins
-
-" /* External Tools */
-" Plug 'skywind3000/asyncrun.vim' ", { 'on': 'AsyncRun' }
+" /* Mine */
+Plug 'karmenzind/vim-tmuxlike'
 
 " /* Funny Stuff */
 " Plug 'junegunn/vim-emoji' ", { 'for': 'markdown' }
 
 " /* Games*/
 " Plug 'vim-scripts/TeTrIs.vim'
-" Plug 'rbtnn/game_engine.vim'
-" Plug 'rbtnn/mario.vim'
-" Plug 'johngrib/vim-game-code-break'
-" Plug 'johngrib/vim-game-snake'
 
-" /* Local */
-Plug 'karmenzind/vim-tmuxlike'
-" Plug '~/Workspace/vim-tmuxlike'
+" /* Syntax */
+" Plug 'vim-scripts/txt.vim', { 'for': 'txt' }
+
+" /* Appearance */
+Plug 'flazz/vim-colorschemes', { 'do': 'rsync -avz ./colors/ ~/.vim/colors/ && rm -rf ./colors/*' }
+Plug 'vim-airline/vim-airline'
+Plug 'vim-airline/vim-airline-themes'
+Plug 'ryanoasis/vim-devicons' " load after other plugins
+Plug 'gerardbm/vim-atomic'
+" Plug 'chxuan/change-colorscheme', { 'on': 'NextColorScheme' }
 
 call plug#end()
-
-" load vim default plugin
-runtime macros/matchit.vim
 
 " --------------------------------------------
 " basic
 " --------------------------------------------
+
+" load vim default plugin
+runtime macros/matchit.vim
 
 " /* base */
 set nocompatible
@@ -152,6 +136,7 @@ set showcmd " This shows what you are typing as a command.
 set suffixes=.bak,~,.swp,.o,.info,.aux,.log,.dvi,.bbl,.blg,.brf,.cb,.ind,.idx,.ilg,.inx,.out,.toc,.png,.jpg
 
 " /* appearence */
+" set termguicolors
 set wildmenu
 set ruler
 set showtabline=1
@@ -173,27 +158,6 @@ augroup relative_number_toggle
   autocmd BufEnter,FocusGained,InsertLeave,WinEnter * if &nu | set rnu   | endif
   autocmd BufLeave,FocusLost,InsertEnter,WinLeave   * if &nu | set nornu | endif
 augroup END
-
-" /* colorscheme and background */
-" gruvbox bubblegum birds-of-paradise blaquemagick buddy_modified dante
-" eclipse darkburn enigma eva01 evening evolution apprentice
-colorscheme solarized
-" let solarized fit clock
-if g:colors_name ==# 'solarized'
-  let g:airline_theme = 'solarized' " lucius hybrid minimalist monochrome
-  let b:current_hour = strftime('%H')
-  if b:current_hour <= 16
-    set background=light
-    let g:airline_solarized_bg = 'light'
-  else
-    set background=dark
-    let g:airline_solarized_bg = 'dark'
-  endif
-elseif g:colors_name ==# 'nord'
-  let g:airline_theme = 'nord'
-else
-  let g:airline_theme = 'minimalist'
-endif
 
 " /* layout */
 set splitbelow
@@ -236,12 +200,12 @@ set nobackup
 "   silent! call mkdir(expand(&g:directory), 'p', 0700)
 " endif
 
-" -----------------------------------------------------------------------------
+" --------------------------------------------
 " format and syntax
-" -----------------------------------------------------------------------------
+" --------------------------------------------
 
 syntax enable
-syntax on
+" syntax on
 " filetype plugin indent on
 
 set termencoding=utf-8
@@ -266,7 +230,6 @@ augroup filetype_formats
         \ setlocal softtabstop=2     |
         \ setlocal shiftwidth=2
 
-  " PEP8 intent
   au BufNewFile,BufRead *.py
        \ setlocal autoindent      |
        \ setlocal nowrap          |
@@ -285,15 +248,14 @@ augroup filetype_formats
 
   " useless whitespaces
   au BufRead,BufNewFile *.py,*.pyw,*.c,*.h,*.{vim,vimrc}
+      \ highlight BadWhitespace ctermbg=red guibg=darkred |
       \ match BadWhitespace /\s\+$/
 
 augroup END
 
-highlight BadWhitespace ctermbg=red guibg=darkred
-
-" -----------------------------------------------------------------------------
+" --------------------------------------------
 " Header
-" -----------------------------------------------------------------------------
+" --------------------------------------------
 
 " /* file headers */
 augroup AddFileHeaders
@@ -322,9 +284,9 @@ augroup AddFileHeaders
         \ normal! Go
 augroup END
 
-" -----------------------------------------------------------------------------
+" --------------------------------------------
 " GUI
-" -----------------------------------------------------------------------------
+" --------------------------------------------
 
 if has('gui_running')
   " Make shift-insert work like in Xterm
@@ -332,9 +294,9 @@ if has('gui_running')
   map! <S-Insert> <MiddleMouse>
 endif
 
-" -----------------------------------------------------------------------------
+" --------------------------------------------
 " for ycm
-" -----------------------------------------------------------------------------
+" --------------------------------------------
 
 if empty(glob('~/.vim/.ycm_extra_conf.py'))
   silent !wget https://raw.githubusercontent.com/Karmenzind/dotfiles-and-scripts/master/home_k/.vim/.ycm_extra_conf.py
@@ -343,12 +305,12 @@ endif
 
 let g:ycm_autoclose_preview_window_after_completion = 1
 let g:ycm_global_ycm_extra_conf = '~/.vim/.ycm_extra_conf.py'
-let g:ycm_seed_identifiers_with_syntax = 1
 let g:ycm_complete_in_comments = 1
 let g:ycm_complete_in_strings = 1
 let g:ycm_server_python_interpreter = '/usr/bin/python'
 let g:ycm_python_binary_path = 'python'
 let g:ycm_goto_buffer_command = 'horizontal-split'
+" let g:ycm_seed_identifiers_with_syntax = 1
 " let g:ycm_collect_identifiers_from_tags_files = 1
 " let g:ycm_collect_identifiers_from_comments_and_strings = 1
 
@@ -357,9 +319,9 @@ nnoremap <silent> <Leader>dd  :YcmCompleter GoToDefinitionElseDeclaration<CR>
 nnoremap <silent> <Leader>rf  :YcmCompleter GoToReferences<CR>
 nnoremap <silent> <Leader>doc :YcmCompleter GetDoc<CR>
 
-" -----------------------------------------------------------------------------
+" --------------------------------------------
 " for NERDTree
-" -----------------------------------------------------------------------------
+" --------------------------------------------
 
 nnoremap <silent> <Leader>n :NERDTreeToggle<CR>
 
@@ -367,20 +329,19 @@ let g:NERDTreeIgnore = ['\.pyc$', '\~$', '__pycache__[[dir]]']
 
 augroup NerdBehaviours
   au!
-  " NERDTree automatically when vim starts up on opening a directory
   autocmd StdinReadPre * let s:std_in = 1
   autocmd VimEnter * if argc() == 1 && isdirectory(argv()[0]) && !exists("s:std_in") | exe 'NERDTree' argv()[0] | wincmd p | ene | endif
-  " close vim if the only window left open is a NERDTree
   autocmd bufenter * if (winnr("$") == 1 && exists("b:NERDTree") && b:NERDTree.isTabTree()) | q | endif
+  autocmd tableave * if exists('g:loaded_nerd_tree') | execute 'NERDTreeClose' | endif
 augroup END
 
 let g:NERDTreeNaturalSort = 1
 let g:NERDTreeShowLineNumbers = 1
 let g:NERDTreeShowHidden = 1
 
-" -----------------------------------------------------------------------------
+" --------------------------------------------
 " other plugin config
-" -----------------------------------------------------------------------------
+" --------------------------------------------
 
 " /* For Markdown-preview */
 let g:mkdp_path_to_chrome = '/usr/bin/chromium'
@@ -477,8 +438,8 @@ let g:UltiSnipsEditSplit = 'vertical'
 let g:UltiSnipsUsePythonVersion = 3
 
 " /* for colorscheme */
-noremap <Leader>c :NextColorScheme<CR>:colorscheme<CR>
-noremap <Leader>C :PreviousColorScheme<CR>:colorscheme<CR>
+" noremap <Leader>c :NextColorScheme<CR>:colorscheme<CR>
+" noremap <Leader>C :PreviousColorScheme<CR>:colorscheme<CR>
 
 " /* for ale */
 nmap <silent> <C-k> <Plug>(ale_previous)
@@ -511,10 +472,6 @@ let g:ale_fixers = {
 "   map "in Insert mode, type Ctrl+v Alt+n here" <A-n>
 " endif
 
-" /* for solarized color */
-" let g:solarized_termcolors=256
-" let g:solarized_termtrans=1
-
 " /* for vim-markdown */
 let g:vim_markdown_toc_autofit = 1
 let g:vim_markdown_no_default_key_mappings = 1
@@ -533,13 +490,6 @@ au FileType markdown :nnoremap <Leader>t :Toc<CR>
 " /* for SimpylFold */
 let g:SimpylFold_docstring_preview = 1
 
-" /* for nord theme */
-" colo nord
-" let g:nord_italic = 1
-" let g:nord_italic_comments = 1
-" let g:nord_uniform_status_lines = 1
-" let g:nord_comment_brightness = 20
-
 " /* for choosewin */
 " invoke with '-'
 " nmap  -  <Plug>(choosewin)
@@ -549,23 +499,78 @@ let g:SimpylFold_docstring_preview = 1
 " /* for vim-tmuxlike */
 nmap <silent> <c-\> <Plug>(tmuxlike-prefix)
 
+" /* for vim-plug */
+noremap <Leader>pi :PlugInstall<CR>
+noremap <Leader>pu :PlugUpdate<CR>
+noremap <Leader>ps :PlugStatus<CR>
+noremap <Leader>pc :PlugClean<CR>
+
+nnoremap <S-F9> :call CycleModes()<CR>:colorscheme atomic<CR>
+vnoremap <S-F9> :<C-u>call CycleModes()<CR>:colorscheme atomic<CR>gv
+
 " --------------------------------------------
-" custom funcs
+" colorscheme
 " --------------------------------------------
 
-function! BackgroudToggle()
-  if &background ==# 'dark'
-    set background=light
-    if g:colors_name ==# 'solarized'
-      let g:airline_solarized_bg = 'light'
-      AirlineRefresh
-    endif
-  elseif &background ==# 'light'
-    set background=dark
-    if g:colors_name ==# 'solarized'
-      let g:airline_solarized_bg = 'dark'
-      AirlineRefresh
-    endif
+" /* basic */
+" gruvbox bubblegum birds-of-paradise blaquemagick buddy_modified dante
+" eclipse darkburn enigma eva01 evening evolution apprentice
+" colorscheme solarized
+colorscheme solarized
+" italic
+" set t_ZH=[3m
+" set t_ZR=[23m
+" enhance termguicolors
+let &t_8f = "\<Esc>[38;2;%lu;%lu;%lum"
+let &t_8b = "\<Esc>[48;2;%lu;%lu;%lum"
+
+function! SetTermguiColors(k)
+  if a:k ==# 'yes'
+      if &termguicolors == 0 && has('termguicolors')
+        set termguicolors
+      endif
+  elseif &termguicolors == 1
+      set notermguicolors
   endif
 endfunction
 
+" /* background */
+function! BackgroudToggle()
+  if &background ==# 'dark'
+    set background=light
+  elseif &background ==# 'light'
+    set background=dark
+  endif
+endfunction
+
+function! LetBgFitClock()
+  let b:current_hour = strftime('%H')
+  if b:current_hour <= 16
+    set background=light
+  else
+    set background=dark
+  endif
+endfunction
+
+" /* for solarized color */
+" let g:solarized_termcolors=256
+" let g:solarized_termtrans=1
+
+" /* for atomic */
+let g:atomic_mode = 3
+
+function! AfterChangeColorscheme()
+  " highlight
+  highlight Comment cterm=italic
+endfunction
+
+augroup fit_colorscheme
+  au!
+  au ColorSchemePre * call SetTermguiColors('no')
+  au ColorSchemePre atomic,NeoSolarized call SetTermguiColors('yes')
+  au ColorScheme * call AfterChangeColorscheme()
+augroup END
+
+" initial
+call LetBgFitClock()
+call AfterChangeColorscheme()

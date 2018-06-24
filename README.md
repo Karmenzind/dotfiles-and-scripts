@@ -223,13 +223,13 @@ Reference:
 
 i3 desktop:
 
-![float.png](./pics/float.png)
-![desktop.png](./pics/desktop.png)
+![](https://raw.githubusercontent.com/Karmenzind/i/master/dotfiles-and-scripts/float.png)
+![](https://raw.githubusercontent.com/Karmenzind/i/master/dotfiles-and-scripts/desktop.png)
 
 Vim:
 
-![vim.png](./pics/vim.png)
-![vim_goyo.png](./pics/vim_goyo.png)
+![](https://raw.githubusercontent.com/Karmenzind/i/master/dotfiles-and-scripts/vim.png)
+![](https://raw.githubusercontent.com/Karmenzind/i/master/dotfiles-and-scripts/vim_goyo.png)
 
 ## TODO
 
