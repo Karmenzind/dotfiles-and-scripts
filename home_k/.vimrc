@@ -513,10 +513,6 @@ vnoremap <S-F9> :<C-u>call CycleModes()<CR>:colorscheme atomic<CR>gv
 " --------------------------------------------
 
 " /* basic */
-" gruvbox bubblegum birds-of-paradise blaquemagick buddy_modified dante
-" eclipse darkburn enigma eva01 evening evolution apprentice
-" colorscheme solarized
-colorscheme solarized
 " italic
 " set t_ZH=[3m
 " set t_ZR=[23m
@@ -545,7 +541,7 @@ endfunction
 
 function! LetBgFitClock()
   let b:current_hour = strftime('%H')
-  if b:current_hour <= 16
+  if b:current_hour >=8 && b:current_hour <= 16
     set background=light
   else
     set background=dark
@@ -571,6 +567,10 @@ augroup fit_colorscheme
   au ColorScheme * call AfterChangeColorscheme()
 augroup END
 
-" initial
+" /* initial */
+" gruvbox bubblegum birds-of-paradise blaquemagick buddy_modified dante
+" eclipse darkburn enigma eva01 evening evolution apprentice
+" colorscheme solarized
+colorscheme atomic
 call LetBgFitClock()
 call AfterChangeColorscheme()
