@@ -21,7 +21,9 @@ nnoremap <silent> <Leader>sw :set wrap!<CR> :set wrap?<CR>
 " toggle backgroud
 nnoremap <silent> <Leader>sb :call BackgroudToggle()<CR>
 
+" /* input */
 " inoremap <c-d> <delete>
+nnoremap <leader><CR> i<CR><ESC>k$
 
 " --------------------------------------------
 "  plugin manager
@@ -44,7 +46,7 @@ Plug 'tpope/vim-endwise'
 Plug 'jiangmiao/auto-pairs'
 Plug 'tpope/vim-commentary'
 Plug 'junegunn/vim-easy-align'
-Plug 'Valloric/YouCompleteMe', { 'do': './install.py --clang-completer --system-libclang --go-completer --js-completer --java-completer' }
+Plug 'Valloric/YouCompleteMe', { 'for': 'python,c,cpp,js,go,java', 'do': './install.py --clang-completer --system-libclang --go-completer --js-completer --java-completer' }
 Plug 'SirVer/ultisnips'
 Plug 'honza/vim-snippets'
 Plug 'Shougo/echodoc.vim'
@@ -95,15 +97,15 @@ Plug 'Traap/vim-helptags'
 
 " /* Experience */
 Plug 'junegunn/goyo.vim', { 'on': 'Goyo' }
+Plug 'vim-scripts/fcitx.vim', {'for': 'markdown'} " keep and restore fcitx state when leaving/re-entering insert mode
 " Plug 'junegunn/limelight.vim'
 " Plug 'terryma/vim-smooth-scroll'
-" Plug 'vim-scripts/fcitx.vim' " keep and restore fcitx state when leaving/re-entering insert mode
 
 " /* Mine */
 Plug 'karmenzind/vim-tmuxlike'
 
 " /* Funny Stuff */
-" Plug 'junegunn/vim-emoji' ", { 'for': 'markdown' }
+Plug 'junegunn/vim-emoji', { 'for': 'markdown,gitcommit' }
 
 " /* Games*/
 " Plug 'vim-scripts/TeTrIs.vim'
@@ -327,7 +329,7 @@ nnoremap <silent> <Leader>n :NERDTreeToggle<CR>
 
 let g:NERDTreeIgnore = ['\.pyc$', '\~$', '__pycache__[[dir]]']
 
-augroup NerdBehaviours
+augroup nerd_behaviours
   au!
   autocmd StdinReadPre * let s:std_in = 1
   autocmd VimEnter * if argc() == 1 && isdirectory(argv()[0]) && !exists("s:std_in") | exe 'NERDTree' argv()[0] | wincmd p | ene | endif
@@ -476,7 +478,11 @@ let g:ale_fixers = {
 let g:vim_markdown_toc_autofit = 1
 let g:vim_markdown_no_default_key_mappings = 1
 let g:vim_markdown_json_frontmatter = 1
-au FileType markdown :nnoremap <Leader>t :Toc<CR>
+augroup for_markdown_ft
+  au!
+  au FileType markdown :nnoremap <Leader>t :Toc<CR>
+  au FileType markdown :nnoremap <Leader>T :Toc<CR>
+augroup END
 
 " /* for Game */
 " silent! nunmap <Leader>te
@@ -507,6 +513,12 @@ noremap <Leader>pc :PlugClean<CR>
 
 nnoremap <S-F9> :call CycleModes()<CR>:colorscheme atomic<CR>
 vnoremap <S-F9> :<C-u>call CycleModes()<CR>:colorscheme atomic<CR>gv
+
+" /* for vim-emoji */
+" let g:gitgutter_sign_added = emoji#for('small_blue_diamond')
+" let g:gitgutter_sign_modified = emoji#for('small_orange_diamond')
+" let g:gitgutter_sign_removed = emoji#for('small_red_triangle')
+" let g:gitgutter_sign_modified_removed = emoji#for('collision')
 
 " --------------------------------------------
 " colorscheme
@@ -567,10 +579,19 @@ augroup fit_colorscheme
   au ColorScheme * call AfterChangeColorscheme()
 augroup END
 
-" /* initial */
 " gruvbox bubblegum birds-of-paradise blaquemagick buddy_modified dante
 " eclipse darkburn enigma eva01 evening evolution apprentice
-" colorscheme solarized
-colorscheme atomic
+function! InitColors()
+  if &termguicolors == 0 && has('termguicolors')
+    set termguicolors
+    colorscheme atomic
+  else
+    colorscheme solarized
+  endif
+endfunction
+
+" /* initial */
+colorscheme solarized
+" call InitColors()
 call LetBgFitClock()
 call AfterChangeColorscheme()
