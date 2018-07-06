@@ -202,7 +202,7 @@ bar {
 
 # /* i3-gaps */
 gaps inner 6
-gaps outer -4
+gaps outer 0
 smart_gaps on
 smart_borders on
 
@@ -212,22 +212,23 @@ smart_borders on
 
 # /* screenshot */
 # Multi-screen screenshots with scrot
-bindsym --release Print exec scrot 'SCREENSHOT_TEMP.png' -e 'mv $f ~/Pictures && xclip -selection clipboard -t image/png -i ~/Pictures/SCREENSHOT_TEMP.png' & # All screens
+set $screenshot_png $HOME/Pictures/SCREENSHOT.png
+bindsym --release Print exec scrot $screenshot_png && xclip -selection clipboard -t image/png -i $screenshot_png  # All screens
 # OSX-like area selection screenshots
-bindsym --release Shift+Print exec scrot -s 'SCREENSHOT_TEMP.png' -e 'mv $f ~/Pictures && xclip -selection clipboard -t image/png -i ~/Pictures/SCREENSHOT_TEMP.png' # Area selection
+bindsym --release Shift+Print exec scrot -s $screenshot_png && xclip -selection clipboard -t image/png -i $screenshot_png  # Area selection
 
-# /* background */
+# /* background and screen lock*/
+set $wallpaper_png $HOME/Pictures/LOCKSCREEN.png
+set $wallpaper_dir $HOME/Pictures/LOCKSCREENS
+# background
 exec_always --no-startup-id feh --bg-max `ls $HOME/Pictures/BACKGROUND.*` &
-bindsym $mod+Shift+b exec --no-startup-id feh --bg-max `[[ -d $lock_screen_dir ]] && (find $lock_screen_dir -type f | sort -R | head -1) || echo $lock_screen_png` &
-
-# /* screen lock */
-exec_always --no-startup-id xautolock -time 20 -locker i3lock -t -i $lock_screen_png &
-# lock with a pic
-set $lock_screen_png $HOME/Pictures/LOCKSCREEN.png
-# bindsym $mod+Ctrl+l exec --no-startup-id i3lock -t -i $lock_screen_png
+# change background
+bindsym $mod+Shift+b exec --no-startup-id feh --bg-max `[[ -d $wallpaper_dir ]] && (find $wallpaper_dir -type f | sort -R | head -1) || echo $wallpaper_png` &
+# auto lock
+exec_always --no-startup-id xautolock -time 20 -locker i3lock -t -i $wallpaper_png &
+# bindsym $mod+Ctrl+l exec --no-startup-id i3lock -t -i $wallpaper_png
 # lock with random pic of specific dir
-set $lock_screen_dir $HOME/Pictures/LOCKSCREENS
-bindsym $mod+Ctrl+l exec --no-startup-id i3lock -t -i `[ -d $lock_screen_dir ] && (find $lock_screen_dir -type f -name '*png' | sort -R | head -1) || echo $lock_screen_png` &
+bindsym $mod+Ctrl+l exec --no-startup-id i3lock -t -i `[ -d $wallpaper_dir ] && (find $wallpaper_dir -type f -name '*png' | sort -R | head -1) || echo $wallpaper_png` &
 # lock with random pic from internet (random picture source: https://www.zhihu.com/question/21168322)
 # ...todo
 
@@ -256,5 +257,5 @@ exec --no-startup-id fcitx &
 # for test
 # -----------------------------------------------------------------------------
 
-# bindsym $mod+p exec "notify-send asdf "
+# bindsym $mod+p exec "notify-send asdf"
 
