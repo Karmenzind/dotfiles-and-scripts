@@ -91,6 +91,7 @@ _desktop=(
 _aur=(
     # wewechat
     # wps-office
+    sqlint
     acroread
     acroread-fonts
     alacritty-scrollback-git

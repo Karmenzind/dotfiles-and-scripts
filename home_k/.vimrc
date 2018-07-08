@@ -1,5 +1,4 @@
 " Github: https://github.com/Karmenzind/dotfiles-and-scripts
-
 " --------------------------------------------
 " general keymaps and abbreviations
 " --------------------------------------------
@@ -46,12 +45,11 @@ Plug 'tpope/vim-endwise'
 Plug 'jiangmiao/auto-pairs'
 Plug 'tpope/vim-commentary'
 Plug 'junegunn/vim-easy-align'
-Plug 'Valloric/YouCompleteMe', { 'for': 'python,c,cpp,js,go,java', 'do': './install.py --clang-completer --system-libclang --go-completer --js-completer --java-completer' }
-Plug 'SirVer/ultisnips'
-Plug 'honza/vim-snippets'
-Plug 'Shougo/echodoc.vim'
+Plug 'Valloric/YouCompleteMe', { 'do': './install.py --clang-completer --system-libclang --go-completer --js-completer --java-completer' }
+Plug 'SirVer/ultisnips' | Plug 'honza/vim-snippets'
 Plug 'Shougo/context_filetype.vim'
 Plug 'majutsushi/tagbar'
+Plug 'Shougo/echodoc.vim'
 Plug 'w0rp/ale' " Asynchronous Lint Engine
 " Plug 'terryma/vim-multiple-cursors'
 " Plug 'junegunn/rainbow_parentheses.vim'
@@ -81,7 +79,6 @@ Plug 'junegunn/vim-slash' " enhancing in-buffer search experience
 Plug 'tmhedberg/SimpylFold', { 'for': 'python' } " code folding
 Plug 'vim-scripts/indentpython.vim', { 'for': 'python' }
 Plug 'plytophogy/vim-virtualenv', { 'for': 'python' }
-" Plug 'rkulla/pydiction', { 'for': 'python' }
 " Plug 'python-mode/python-mode', { 'for': 'python' }
 
 " /* Write doc */
@@ -151,19 +148,19 @@ set cmdheight=2
 set laststatus=2
 " set whichwrap+=<,>,h,l
 set matchtime=5
-set statusline=%F%m%r%h%w\ (%{&ff}){%Y}\ [%l,%v][%p%%]
+" set statusline=%F%m%r%h%w\ (%{&ff}){%Y}\ [%l,%v][%p%%]
+set statusline=%f\ %{WebDevIconsGetFileTypeSymbol()}\ %h%w%m%r\ %=%(%l,%c%V\ %Y\ %=\ %P%)
 
 " /* line number */
 set number
 augroup relative_number_toggle
   autocmd!
-  autocmd BufEnter,FocusGained,InsertLeave,WinEnter * if &nu | set rnu   | endif
-  autocmd BufLeave,FocusLost,InsertEnter,WinLeave   * if &nu | set nornu | endif
+  autocmd BufEnter,FocusGained,InsertLeave,WinEnter * set rnu
+  autocmd BufLeave,FocusLost,InsertEnter,WinLeave   * set nornu
 augroup END
 
 " /* layout */
-set splitbelow
-set splitright
+set splitbelow splitright
 
 " /* operate and edit */
 set mouse=a
@@ -172,6 +169,7 @@ set backspace=indent,eol,start  " more powerful backspacing
 if has('clipboard')
   set clipboard=unnamed
 endif
+set scrolloff=5
 
 " /* Enable folding */
 " set foldmethod=indent
@@ -179,9 +177,7 @@ set foldmethod=manual
 set foldlevel=99
 
 " /* spell check */
-" Use english for spellchecking, but don't spellcheck by default
-set spelllang=en spell
-set nospell
+set spelllang=en nospell
 
 " /* cache and swap */
 set history=50
@@ -201,6 +197,12 @@ set nobackup
 " if ! isdirectory(expand(&g:directory))
 "   silent! call mkdir(expand(&g:directory), 'p', 0700)
 " endif
+
+" /* persistent undo */
+" set undodir=~/.vim/persistence/undo//
+" set backupdir=~/.vim/persistence/backup//
+" set directory=~/.vim/persistence/swp//
+" set undofile
 
 " --------------------------------------------
 " format and syntax
@@ -226,6 +228,9 @@ set softtabstop=4
 " for different file types
 augroup filetype_formats
   au!
+
+  au FileType help setlocal nu
+
   au BufNewFile,BufRead *.{vim,vimrc}
         \ setlocal foldmethod=marker |
         \ setlocal tabstop=2         |
@@ -236,7 +241,12 @@ augroup filetype_formats
        \ setlocal autoindent      |
        \ setlocal nowrap          |
        \ setlocal sidescroll=5    |
-       \ let g:python_highlight_all = 1
+       \ let g:python_highlight_all = 1 |
+       \ setlocal complete+=t |
+       \ setlocal formatoptions-=t |
+       \ setlocal nowrap |
+       \ setlocal commentstring=#%s |
+       \ setlocal define=^\s*\\(def\\\\|class\\)
        " \ set listchars+=precedes:<,extends:>
        " \ set textwidth=79 |
 
@@ -305,13 +315,32 @@ if empty(glob('~/.vim/.ycm_extra_conf.py'))
     \ -O ~/.vim/.ycm_extra_conf.py
 endif
 
+let g:ycm_filetype_blacklist = {
+      \ 'tagbar' : 1,
+      \ 'qf' : 1,
+      \ 'notes' : 1,
+      \ 'unite' : 1,
+      \ 'text' : 1,
+      \ 'vimwiki' : 1,
+      \ 'pandoc' : 1,
+      \ 'infolog' : 1,
+      \ 'mail' : 1
+      \}
+
+set completeopt-=preview
+set completeopt+=longest,menu
+let g:ycm_add_preview_to_completeopt = 0
 let g:ycm_autoclose_preview_window_after_completion = 1
+
+let g:ycm_max_num_candidates = 10
+let g:ycm_max_num_identifier_candidates = 5
 let g:ycm_global_ycm_extra_conf = '~/.vim/.ycm_extra_conf.py'
 let g:ycm_complete_in_comments = 1
 let g:ycm_complete_in_strings = 1
 let g:ycm_server_python_interpreter = '/usr/bin/python'
 let g:ycm_python_binary_path = 'python'
 let g:ycm_goto_buffer_command = 'horizontal-split'
+
 " let g:ycm_seed_identifiers_with_syntax = 1
 " let g:ycm_collect_identifiers_from_tags_files = 1
 " let g:ycm_collect_identifiers_from_comments_and_strings = 1
@@ -361,9 +390,33 @@ let g:mkdp_refresh_slow = 0
 let g:mkdp_command_for_global = 0
 
 " /* For vim-airline */
-let g:airline_powerline_fonts = 1
-let g:airline#extensions#tmuxline#enabled = 1
 nnoremap <Leader>A :AirlineToggle<CR>:AirlineRefresh<CR>
+let g:airline_powerline_fonts = 1
+let g:airline_left_sep=''
+let g:airline_right_sep=''
+let g:airline_mode_map = {
+     \ '__' : '-',
+     \ 'n'  : 'N',
+     \ 'i'  : 'I',
+     \ 'R'  : 'R',
+     \ 'c'  : 'C',
+     \ 'v'  : 'V',
+     \ 'V'  : 'V',
+     \ '' : 'V',
+     \ 's'  : 'S',
+     \ 'S'  : 'S',
+     \ '' : 'S',
+     \ 't'  : 'T',
+     \ }
+let g:airline_highlighting_cache = 1
+let g:airline_skip_empty_sections = 1
+let g:airline#extensions#ale#enabled = 0
+let g:airline#extensions#branch#enabled = 0
+let g:airline#extensions#wordcount#enabled = 0
+let g:airline#extensions#whitespace#enabled = 0
+let g:airline#extensions#fugitiveline#enabled = 0
+let g:airline#extensions#hunks#enabled = 0
+" let g:airline#extensions#hunks#non_zero_only = 1
 
 " /* For vim-virtualenv */
 let g:virtualenv_directory = '~/Envs'
@@ -422,22 +475,24 @@ nmap ga <Plug>(EasyAlign)
 set completefunc=emoji#complete
 
 " /* for echodoc.vim */
-let g:echodoc_enable_at_startup = 1
-let g:echodoc#enable_force_overwrite = 1
+" let g:echodoc_enable_at_startup = 1
+" let g:echodoc#enable_force_overwrite = 1
 
 " /* for easymotion */
 map  <Leader>w <Plug>(easymotion-bd-w)
 nmap <Leader>w <Plug>(easymotion-overwin-w)
 
-" /* for Pydiction */
-" let g:pydiction_location='~/.vim/plugged/pydiction/complete-dict'
-" let g:pydiction_menu_height=10
-
 " /* for ultisnips */
-let g:UltiSnipsExpandTrigger = '<c-space>'
+let g:UltiSnipsExpandTrigger = '<c-j>'
 let g:UltiSnipsListSnippets = '<F9>'
 let g:UltiSnipsEditSplit = 'vertical'
 let g:UltiSnipsUsePythonVersion = 3
+let g:UltiSnipsSnippetsDir = $HOME . '/.vim/mysnippets'
+let g:UltiSnipsSnippetDirectories=['UltiSnips', 'mysnippets']
+let g:UltiSnipsEnableSnipMate = 1
+let g:snips_author = 'k'
+let g:snips_email = 'valesail7@gmail.com'
+let g:snips_github = 'https://github.com/Karmenzind/'
 
 " /* for colorscheme */
 " noremap <Leader>c :NextColorScheme<CR>:colorscheme<CR>
@@ -514,12 +569,6 @@ noremap <Leader>pc :PlugClean<CR>
 nnoremap <S-F9> :call CycleModes()<CR>:colorscheme atomic<CR>
 vnoremap <S-F9> :<C-u>call CycleModes()<CR>:colorscheme atomic<CR>gv
 
-" /* for vim-emoji */
-" let g:gitgutter_sign_added = emoji#for('small_blue_diamond')
-" let g:gitgutter_sign_modified = emoji#for('small_orange_diamond')
-" let g:gitgutter_sign_removed = emoji#for('small_red_triangle')
-" let g:gitgutter_sign_modified_removed = emoji#for('collision')
-
 " --------------------------------------------
 " colorscheme
 " --------------------------------------------
@@ -591,7 +640,7 @@ function! InitColors()
 endfunction
 
 " /* initial */
-colorscheme solarized
-" call InitColors()
+" colorscheme solarized
+call InitColors()
 call LetBgFitClock()
 call AfterChangeColorscheme()
