@@ -1,4 +1,5 @@
 " Github: https://github.com/Karmenzind/dotfiles-and-scripts
+
 " --------------------------------------------
 " general keymaps and abbreviations
 " --------------------------------------------
@@ -7,11 +8,8 @@ noremap <Leader>e  :tabe   $MYVIMRC<CR>
 noremap <Leader>R  :source $MYVIMRC<CR> :echom 'Vimrc reloaded :)'<CR>
 noremap <Leader>S  :source %<CR> :echom expand('%') . ' sourced :)'<CR>
 
-" (TODO: move to snippets)
-augroup AbbreForVim
-  au!
-  autocmd FileType vim :iabbrev <buffer> /* /*<space>*/<left><left><left>
-augroup END
+" write with sudo
+cabbrev w!! w !sudo tee %
 
 " /* workspace, layout, format and others */
 " use <Leader>s as 'set' prefix
@@ -78,18 +76,18 @@ Plug 'junegunn/vim-slash' " enhancing in-buffer search experience
 " /* Python */
 Plug 'tmhedberg/SimpylFold', { 'for': 'python' } " code folding
 Plug 'vim-scripts/indentpython.vim', { 'for': 'python' }
-Plug 'plytophogy/vim-virtualenv', { 'for': 'python' }
+" Plug 'plytophogy/vim-virtualenv', { 'for': 'python' }
 " Plug 'python-mode/python-mode', { 'for': 'python' }
 
 " /* Write doc */
 Plug 'godlygeek/tabular'
 Plug 'mzlogin/vim-markdown-toc', { 'for': 'markdown' }
 Plug 'plasticboy/vim-markdown', { 'for': 'markdown' }
-Plug 'iamcco/mathjax-support-for-mkdp', { 'for': 'markdown' }
 Plug 'iamcco/markdown-preview.vim', { 'for': 'markdown' }
 Plug 'nelstrom/vim-markdown-folding', { 'for': 'markdown' }
 Plug 'mklabs/vim-markdown-helpfile'
 Plug 'Traap/vim-helptags'
+" Plug 'iamcco/mathjax-support-for-mkdp', { 'for': 'markdown' }  " before markdown-preview
 " Plug 'scrooloose/vim-slumlord'
 
 " /* Experience */
@@ -155,8 +153,8 @@ set statusline=%f\ %{WebDevIconsGetFileTypeSymbol()}\ %h%w%m%r\ %=%(%l,%c%V\ %Y\
 set number
 augroup relative_number_toggle
   autocmd!
-  autocmd BufEnter,FocusGained,InsertLeave,WinEnter * set rnu
-  autocmd BufLeave,FocusLost,InsertEnter,WinLeave   * set nornu
+  autocmd BufEnter,FocusGained,InsertLeave,WinEnter * if &nu | set rnu | endif
+  autocmd BufLeave,FocusLost,InsertEnter,WinLeave   * if &nu | set nornu | endif
 augroup END
 
 " /* layout */
@@ -316,6 +314,7 @@ if empty(glob('~/.vim/.ycm_extra_conf.py'))
 endif
 
 let g:ycm_filetype_blacklist = {
+      \ 'gitcommit': 1,
       \ 'tagbar' : 1,
       \ 'qf' : 1,
       \ 'notes' : 1,
@@ -419,7 +418,8 @@ let g:airline#extensions#hunks#enabled = 0
 " let g:airline#extensions#hunks#non_zero_only = 1
 
 " /* For vim-virtualenv */
-let g:virtualenv_directory = '~/Envs'
+" let g:virtualenv_directory = '~/Envs'
+" let g:virtualenv_auto_activate = 1
 
 " /* for LeaderF */
 " let g:Lf_ShortcurF = '<Leader>n'

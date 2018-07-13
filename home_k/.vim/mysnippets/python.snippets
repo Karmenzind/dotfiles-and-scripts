@@ -1,0 +1,27 @@
+
+snippet log
+${1:logger}.info("${2}")
+endsnippet
+
+snippet getdictif
+${1:t} = ${2:d}.get("${3}")
+if $1:
+	${4:pass}
+else:
+	${5:pass}
+endsnippet
+
+snippet fordictkv
+for ${1:key}, ${2:value} in ${3:d}.items():
+	${0:pass}
+endsnippet
+
+snippet fordictk
+for ${1:key} in ${2:d}:
+	${0:pass}
+endsnippet
+
+snippet fordictv
+for ${1:value} in ${2:d}.values():
+	${0:pass}
+endsnippet

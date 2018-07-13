@@ -42,6 +42,7 @@ _fonts=(
 _cli=(
     arandr
     aria2
+    bat
     conky
     compton
     cronie
