@@ -148,6 +148,9 @@ set laststatus=2
 set matchtime=5
 " set statusline=%F%m%r%h%w\ (%{&ff}){%Y}\ [%l,%v][%p%%]
 set statusline=%f\ %{WebDevIconsGetFileTypeSymbol()}\ %h%w%m%r\ %=%(%l,%c%V\ %Y\ %=\ %P%)
+" cursor's shape (FIXIT)
+" let &t_SI = "\e[6 q"
+" let &t_EI = "\e[2 q"
 
 " /* line number */
 set number
@@ -375,17 +378,11 @@ let g:NERDTreeShowHidden = 1
 
 " /* For Markdown-preview */
 let g:mkdp_path_to_chrome = '/usr/bin/chromium'
-" callback vim function to open browser, the only param is the url to open
 let g:mkdp_browserfunc = 'MKDP_browserfunc_default'
-" open the preview window once enter the markdown buffer
 let g:mkdp_auto_start = 0
-" auto open preview window when you edit the markdown file
 let g:mkdp_auto_open = 0
-" auto close current preview window when changeto another buffer
 let g:mkdp_auto_close = 1
-" refresh markdown when save the buffer or leave from insert mode
 let g:mkdp_refresh_slow = 0
-" use the MarkdownPreview command for all files
 let g:mkdp_command_for_global = 0
 
 " /* For vim-airline */
@@ -566,8 +563,8 @@ noremap <Leader>pu :PlugUpdate<CR>
 noremap <Leader>ps :PlugStatus<CR>
 noremap <Leader>pc :PlugClean<CR>
 
-nnoremap <S-F9> :call CycleModes()<CR>:colorscheme atomic<CR>
-vnoremap <S-F9> :<C-u>call CycleModes()<CR>:colorscheme atomic<CR>gv
+nnoremap <Leader>cm :call CycleModes()<CR>:colorscheme atomic<CR>
+vnoremap <Leader>cm :<C-u>call CycleModes()<CR>:colorscheme atomic<CR>gv
 
 " --------------------------------------------
 " colorscheme
@@ -628,11 +625,17 @@ augroup fit_colorscheme
   au ColorScheme * call AfterChangeColorscheme()
 augroup END
 
+function! InitTermguicolors()
+  if &termguicolors == 0 && has('termguicolors')
+    set termguicolors
+  endif
+  return &termguicolors
+endfunction
+
 " gruvbox bubblegum birds-of-paradise blaquemagick buddy_modified dante
 " eclipse darkburn enigma eva01 evening evolution apprentice
 function! InitColors()
-  if &termguicolors == 0 && has('termguicolors')
-    set termguicolors
+  if InitTermguicolors()
     colorscheme atomic
   else
     colorscheme solarized
@@ -644,3 +647,4 @@ endfunction
 call InitColors()
 call LetBgFitClock()
 call AfterChangeColorscheme()
+

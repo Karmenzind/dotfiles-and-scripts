@@ -1,9 +1,11 @@
 # Github: https://github.com/Karmenzind/dotfiles-and-scripts
+
+set $mod Mod4
+set $i3_config_dir $HOME/.config/i3/
+
 # -----------------------------------------------------------------------------
 # basics
 # -----------------------------------------------------------------------------
-
-set $mod Mod4
 
 # Font for window titles. Also as a fallback for bar
 # font -misc-fixed-medium-r-normal--13-120-75-75-C-70-iso10646-1
@@ -160,10 +162,6 @@ for_window [class="Gitter"] floating enable border none  #, move container to wo
 popup_during_fullscreen smart
 
 # /* colorscheme */
-client.focused #586e75 #586e75 #fdf6e3 #268bd2
-client.focused_inactive #073642 #073642 #93a1a1 #002b36
-client.unfocused #002b36 #002b36 #586e75 #002b36
-client.urgent #dc322f #dc322f #fdf6e3 #dc322f
 
 # /* focus follows mouse */
 focus_follows_mouse no
@@ -176,24 +174,23 @@ bindsym $mod+Shift+m bar mode toggle
 
 # Start i3bar to display a workspace bar 
 bar {
-    # status_command i3status
-    status_command bash $HOME/.config/conky/build-i3bar
+  # status_command i3status
+    status_command bash $i3_config_dir/conky_status.sh
     i3bar_command i3bar 
     # top|bottom
     position top
     # font -misc-fixed-medium-r-normal--13-120-75-75-C-70-iso10646-1
     # font pango:WenQuanYi WenQuanYi Bitmap Song 10
     font pango:Hack Nerd Font Bold 9
-
-    colors {
-        separator #586e75
-        background #002b36
-        statusline #aea79f
-        focused_workspace #586e75 #586e75 #ffffff
-        active_workspace #073642 #073642 #ffffff
-        inactive_workspace #002b36 #002b36 #aea79f
-        urgent_workspace #77216f #77216f #ffffff
-    }
+  colors {
+    separator #586e75
+    background #002b36
+    statusline #aea79f
+    focused_workspace #586e75 #586e75 #ffffff
+    active_workspace #073642 #073642 #ffffff
+    inactive_workspace #002b36 #002b36 #aea79f
+    urgent_workspace #77216f #77216f #ffffff
+  }
 }
 
 # -----------------------------------------------------------------------------
@@ -211,17 +208,18 @@ smart_borders on
 # -----------------------------------------------------------------------------
 
 # /* screenshot */
-# Multi-screen screenshots with scrot
-set $screenshot_png $HOME/Pictures/SCREENSHOT.png
-bindsym --release Print exec scrot $screenshot_png && xclip -selection clipboard -t image/png -i $screenshot_png  # All screens
-# OSX-like area selection screenshots
-bindsym --release Shift+Print exec scrot -s $screenshot_png && xclip -selection clipboard -t image/png -i $screenshot_png  # Area selection
+# full
+bindsym --release Print exec bash $i3_config_dir/screenshot.sh full
+# area
+bindsym --release Shift+Print exec bash $i3_config_dir/screenshot.sh area
+# area with flameshot
+bindsym --release $mod+Shift+Print exec bash $i3_config_dir/screenshot.sh area_fs
 
 # /* background and screen lock*/
 set $wallpaper_png $HOME/Pictures/LOCKSCREEN.png
 set $wallpaper_dir $HOME/Pictures/LOCKSCREENS
 # background
-exec_always --no-startup-id feh --bg-max `ls $HOME/Pictures/BACKGROUND.*` &
+exec_always --no-startup-id ls $HOME/Pictures/BACKGROUND.* && feh --bg-max `ls $HOME/Pictures/BACKGROUND.*` &
 # change background
 bindsym $mod+Shift+b exec --no-startup-id feh --bg-max `[[ -d $wallpaper_dir ]] && (find $wallpaper_dir -type f | sort -R | head -1) || echo $wallpaper_png` &
 # auto lock
@@ -248,14 +246,16 @@ exec_always --no-startup-id killall -9 xflux; xflux -l '30.2443314184' -g '120.1
 # arrange monitors
 # exec_always xrandr --output HDMI3 --off --output HDMI2 --off --output HDMI1 --mode 1920x1080 --pos 1920x0 --rotate normal --output VIRTUAL1 --off --output DP1 --primary --mode 1920x1080 --pos 0x0 --rotate normal
 
+# a cat chasing the mouse
+exec_always --no-startup-id killall -9 oneko; oneko -tofocus &
+
 # /* with tray icons */
 exec --no-startup-id pamac-tray &
 exec --no-startup-id volumeicon &
 exec --no-startup-id fcitx &
 
-# -----------------------------------------------------------------------------
-# for test
-# -----------------------------------------------------------------------------
-
-# bindsym $mod+p exec "notify-send asdf"
-
+# generated with i3-style
+client.focused #586e75 #586e75 #fdf6e3 #268bd2
+client.focused_inactive #073642 #073642 #93a1a1 #002b36
+client.unfocused #002b36 #002b36 #586e75 #002b36
+client.urgent #dc322f #dc322f #fdf6e3 #dc322f
