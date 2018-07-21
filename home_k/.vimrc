@@ -509,6 +509,9 @@ let g:ale_fixers = {
       \  'vim': [
       \    'trim_whitespace'
       \  ],
+      \  'c': [
+      \    'clang-format'
+      \  ],
       \  'python': [
       \    'autopep8',
       \    'isort',
