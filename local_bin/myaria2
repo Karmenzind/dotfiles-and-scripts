@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Github: Karmenzind/dotfiles-and-scripts
+# Github: https://github.com/Karmenzind/MyConfig/tree/master/others/aria2
 # a script to manage aria2
 
 download_dir=${HOME}/Downloads/aria2
@@ -35,14 +35,11 @@ save_history=0
 history_dir=${HOME}/Downloads/aria2/logs # leave it to '' if you don't need it
 
 # aria2c running paramters. See aria2c's man page
-aria2c_params="$@"
+aria2c_params="--rpc-listen-all --enable-rpc $@"
 
 # -----------------------------------------------------------------------------
 
 mkdir -p $config_dir
-mkdir -p $download_dir
-mkdir -p `dirname "$log_path"`
-[[ ! -e $log_path ]] && touch $log_path
 
 cut_off='--------------------------------------------'
 is_running=0
@@ -88,7 +85,7 @@ stop() {
         echo -e 'No need to stop.'
     else
         echo -e  '\nStopping...'
-        ps -aux | grep aria2c | grep -v 'grep' | awk '{ print $2 }' | xargs -n 1 kill -9 #--verbose
+        ps -aux | grep aria2c | grep -v 'grep' | awk '{ print $2 }' | xargs -n 1 kill -9 --verbose
         psinfo
     fi
 }
@@ -103,6 +100,7 @@ start() {
             mv -v $log_path "${history_dir}/until_`date +%s`.log"
         fi
         echo -e  '\nStarting...'
+        aria2c_params="--rpc-listen-all --enable-rpc $@"
         [[ -n ${trackers} ]] && aria2c_params="--bt-tracker=$trackers $aria2c_params"
         echo '[PARAMETERS]' $aria2c_params
         aria2c $aria2c_params
@@ -184,7 +182,7 @@ case $1 in
     status)     psinfo; log                         ;;
     update)     psinfo; update force                ;;
     log)        psinfo; log -f                      ;;
-    *)          help                                ;;
+    *)          help                        ;;
 esac
 
 if (( open_browser )); then

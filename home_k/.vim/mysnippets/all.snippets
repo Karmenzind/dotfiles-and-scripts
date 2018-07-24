@@ -1,15 +1,16 @@
-global !p
-def create_seq(snip):
-    ph = snip.buffer[snip.line].strip()[3:]
-    s, e, l = re.match('(\d+)-(\d+)\|(.*)', ph).groups()
-    body = snip.buffer[snip.line] = ''
-    for i in range(int(s), int(e)):
-        body += l.format(N=i) + '\n'
-    snip.expand_anon(body)
-endglobal
 
-pre_expand "create_seq(snip)"
-snippet "seq(\d+-\d+\|.*\{N\}.*)" "create a seq" br
+###########
+#  boxes  #
+###########
+
+snippet lb "line box"
+`!v printf(&cms . &cms, '--------------------------------------------', '')`${1:${VISUAL}}
+`!v printf(&cms, '--------------------------------------------')`
+endsnippet
+
+snippet llb "long line box"
+`!v printf(&cms . &cms, ' -----------------------------------------------------------------------------', ' ')`${1:${VISUAL}}
+`!v printf(&cms, ' -----------------------------------------------------------------------------')`
 endsnippet
 
 ###########
@@ -40,6 +41,36 @@ snippet /* "c style block commentary" w
 /* ${1:${VISUAL}} */
 endsnippet
 
+##############
+#  identity  #
+##############
+
+snippet gmail "" w
+valesail7@gmail.com
+endsnippet
+
+snippet github "" w
+https://github.com/Karmenzind/
+endsnippet
+
+##############
+#  sequence  #
+##############
+
+global !p
+def create_seq(snip):
+    ph = snip.buffer[snip.line].strip()[3:]
+    s, e, l = re.match('(\d+)-(\d+)\|(.*)', ph).groups()
+    body = snip.buffer[snip.line] = ''
+    for i in range(int(s), int(e)):
+        body += l.format(N=i) + '\n'
+    snip.expand_anon(body)
+endglobal
+
+pre_expand "create_seq(snip)"
+snippet "seq(\d+-\d+\|.*\{N\}.*)" "create a seq" br
+endsnippet
+
 ##########
 #  test  #
 ##########
@@ -52,14 +83,3 @@ endsnippet
 # `date +%d.%m.%y`
 # endsnippet
 
-##############
-#  identity  #
-##############
-
-snippet gmail "" w
-valesail7@gmail.com
-endsnippet
-
-snippet github "" w
-https://github.com/Karmenzind/
-endsnippet

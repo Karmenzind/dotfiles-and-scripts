@@ -14,7 +14,9 @@
 
 * [用法简述](#用法简述)
     * [安装ArchLinux或其他软件](#安装archlinux或其他软件)
-    * [使用我的Vim配置](#使用我的vim配置)
+    * [使用我的配置](#使用我的配置)
+        * [所有配置文件和工具脚本](#所有配置文件和工具脚本)
+        * [使用我的Vim配置](#使用我的vim配置)
 * [配置文件部分](#配置文件部分)
 * [安装脚本部分](#安装脚本部分)
     * [ArchLinux安装](#archlinux安装)
@@ -25,8 +27,8 @@
     * [Python虚拟环境快速切换](#python虚拟环境快速切换)
     * [Aria2管理&自动更新bt-tracker](#aria2管理自动更新bt-tracker)
     * [本地Docker服务项目管理](#本地docker服务项目管理)
-* [Screenshot](#screenshot)
-* [TODO](#todo)
+* [效果截图](#效果截图)
+* [创建你自己的DotFile仓库](#创建你自己的dotfile仓库)
 
 <!-- vim-markdown-toc -->
 
@@ -42,9 +44,23 @@ cd ./dotfiles-and-scripts
 ```
 :exclamation: 注意：除了下文特别说明的（如Arch安装第一步）一些功能，其他脚本都建议**从install.sh统一执行**，否则会报错
 
-### 使用我的[Vim配置](./home_k/.vimrc)
+### 使用我的配置
 
-Unix环境直接运行以下命令，等待自动安装完成
+#### 所有配置文件和工具脚本
+
+通过以下命令来一键安装（支持交互模式选择）。[配置文件结构见下文](#配置文件部分)。
+
+```bash
+git clone https://github.com/Karmenzind/dotfiles-and-scripts --depth=1
+cd ./dotfiles-and-scripts
+python3 do_synch.py apply
+```
+
+如果你想创建一个自己的dotfile仓库，[参考下文](#创建你自己的dotfile仓库)
+
+#### 使用我的Vim配置
+
+如果只需要我的[Vim配置](./home_k/.vimrc)，Unix环境直接运行以下命令，等待自动安装完成
 ```bash
 wget https://raw.githubusercontent.com/Karmenzind/dotfiles-and-scripts/master/home_k/.vimrc -O ~/.vimrc && vim 
 ```
@@ -211,7 +227,7 @@ $
 配合cron使用
 
 
-## Screenshot
+## 效果截图
 
 - i3 desktop:
     ![](https://raw.githubusercontent.com/Karmenzind/i/master/dotfiles-and-scripts/float.png)
@@ -221,7 +237,9 @@ $
     ![](https://raw.githubusercontent.com/Karmenzind/i/master/dotfiles-and-scripts/vim.png)
     ![](https://raw.githubusercontent.com/Karmenzind/i/master/dotfiles-and-scripts/vim_goyo.png)
 
-## TODO
+## 创建你自己的DotFile仓库
 
-- `do_synch.sh` from host to repo... vise versa
+[do_synch.py](./do_synch.py)提供了把本地配置文件同步到repo项目下的功能
+
+你可以fork这个项目，然后借助`python3 do_synch.py update`来同步你自己的配置文件
 

@@ -4,7 +4,7 @@ pic_dir=$HOME/Pictures
 # screenshot_dir=${pic_dir}/ScreenShots
 screenshot_png=${pic_dir}/SCREENSHOT.png
 flameshot_dir=${pic_dir}/FlameShots
-# flameshot_png=${flameshot_dir}/screenshot.png
+flameshot_png=${pic_dir}/SCREENSHOT_FLAME.png
 
 after() {
     xclip -selection clipboard -t image/png -i "$screenshot_png"
@@ -12,10 +12,8 @@ after() {
 }
 
 flameshot_before() {
-    if [[ -d $flameshot_dir ]]; then
-        rm -vrf ${flameshot_dir:?}/*
-    else 
-        mkdir -vp $flameshot_dir
+    if [[ -e $flameshot_png ]]; then
+        rm -vf "${flameshot_png}"
     fi
 }
 
@@ -25,7 +23,7 @@ do_scrot() {
 
 flameshot_area() {
     flameshot_before 
-    flameshot gui -p $flameshot_dir 
+    flameshot gui -p $pic_dir
 }
 
 prompt() {

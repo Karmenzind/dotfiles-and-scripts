@@ -35,7 +35,6 @@ if empty(glob('~/.vim/autoload/plug.vim'))
 endif
 
 call plug#begin()
-
 Plug 'junegunn/vim-plug'
 
 " /* coding tools */
@@ -43,12 +42,12 @@ Plug 'tpope/vim-endwise'
 Plug 'jiangmiao/auto-pairs'
 Plug 'tpope/vim-commentary'
 Plug 'junegunn/vim-easy-align'
-Plug 'Valloric/YouCompleteMe', { 'do': './install.py --clang-completer --system-libclang --go-completer --js-completer --java-completer' }
 Plug 'SirVer/ultisnips' | Plug 'honza/vim-snippets'
 Plug 'Shougo/context_filetype.vim'
 Plug 'majutsushi/tagbar'
 Plug 'Shougo/echodoc.vim'
 Plug 'w0rp/ale' " Asynchronous Lint Engine
+Plug 'Valloric/YouCompleteMe', { 'do': './install.py --clang-completer --system-libclang --go-completer --js-completer --java-completer' }
 " Plug 'terryma/vim-multiple-cursors'
 " Plug 'junegunn/rainbow_parentheses.vim'
 " Plug 'Valloric/MatchTagAlways'
@@ -109,7 +108,7 @@ Plug 'junegunn/vim-emoji', { 'for': 'markdown,gitcommit' }
 " Plug 'vim-scripts/txt.vim', { 'for': 'txt' }
 
 " /* Appearance */
-Plug 'flazz/vim-colorschemes', { 'do': 'rsync -avz ./colors/ ~/.vim/colors/ && rm -rf ./colors/*' }
+Plug 'flazz/vim-colorschemes'
 Plug 'vim-airline/vim-airline'
 Plug 'vim-airline/vim-airline-themes'
 Plug 'ryanoasis/vim-devicons' " load after other plugins
@@ -130,7 +129,8 @@ set nocompatible
 set noerrorbells
 " set report=0
 set showcmd " This shows what you are typing as a command.
-set suffixes=.bak,~,.swp,.o,.info,.aux,.log,.dvi,.bbl,.blg,.brf,.cb,.ind,.idx,.ilg,.inx,.out,.toc,.png,.jpg
+" set suffixes=.bak,~,.swp,.o,.info,.aux,.log,.dvi,.bbl,.blg,.brf,.cb,.ind,.idx,.ilg,.inx,.out,.toc,.png,.jpg
+set noincsearch
 
 " /* appearence */
 " set termguicolors
@@ -334,8 +334,8 @@ set completeopt+=longest,menu
 let g:ycm_add_preview_to_completeopt = 0
 let g:ycm_autoclose_preview_window_after_completion = 1
 
-let g:ycm_max_num_candidates = 10
-let g:ycm_max_num_identifier_candidates = 5
+let g:ycm_max_num_candidates = 14
+let g:ycm_max_num_identifier_candidates = 7
 let g:ycm_global_ycm_extra_conf = '~/.vim/.ycm_extra_conf.py'
 let g:ycm_complete_in_comments = 1
 let g:ycm_complete_in_strings = 1
@@ -343,8 +343,8 @@ let g:ycm_server_python_interpreter = '/usr/bin/python'
 let g:ycm_python_binary_path = 'python'
 let g:ycm_goto_buffer_command = 'horizontal-split'
 
-" let g:ycm_seed_identifiers_with_syntax = 1
-" let g:ycm_collect_identifiers_from_tags_files = 1
+let g:ycm_seed_identifiers_with_syntax = 1
+let g:ycm_collect_identifiers_from_tags_files = 1
 " let g:ycm_collect_identifiers_from_comments_and_strings = 1
 
 nnoremap <silent> <Leader>gt  :YcmCompleter GoTo<CR>
@@ -472,8 +472,8 @@ nmap ga <Plug>(EasyAlign)
 set completefunc=emoji#complete
 
 " /* for echodoc.vim */
-" let g:echodoc_enable_at_startup = 1
-" let g:echodoc#enable_force_overwrite = 1
+let g:echodoc_enable_at_startup = 1
+let g:echodoc#enable_force_overwrite = 1
 
 " /* for easymotion */
 map  <Leader>w <Plug>(easymotion-bd-w)
@@ -500,28 +500,22 @@ nmap <silent> <C-k> <Plug>(ale_previous)
 nmap <silent> <C-j> <Plug>(ale_next)
 nmap <silent> <Leader>fix <Plug>(ale_fix)
 let g:ale_linters = {
+      \  'vim': ['vint'],
       \  'markdown': ['mdl', 'prettier', 'proselint', 'alex'],
       \  'text': ['proselint', 'alex', 'redpen'],
+      \  'gitcommit': ['gitlint'],
+      \  'dockerfile': ['hadolint'],
       \  'sql': ['sqlint'],
-      \  'cpp': ['gcc']
+      \  'cpp': ['gcc'],
       \ }
 let g:ale_fixers = {
-      \  'vim': [
-      \    'trim_whitespace'
-      \  ],
-      \  'c': [
-      \    'clang-format'
-      \  ],
+      \  '*': ['trim_whitespace'],
+      \  'c': ['clang-format'],
+      \  'sh': ['shfmt'],
       \  'python': [
       \    'autopep8',
       \    'isort',
-      \    'add_blank_lines_for_python_control_statements',
-      \    'trim_whitespace'
       \  ],
-      \  'sh': [
-      \    'shfmt',
-      \    'trim_whitespace'
-      \  ]
       \ }
 
 " /* for vim-multiple-cursors */
@@ -538,15 +532,6 @@ augroup for_markdown_ft
   au FileType markdown :nnoremap <Leader>t :Toc<CR>
   au FileType markdown :nnoremap <Leader>T :Toc<CR>
 augroup END
-
-" /* for Game */
-" silent! nunmap <Leader>te
-" " have fun
-" nnoremap <silent> <Leader>hf :call <SNR>55_Main()<CR>
-
-" /* for signjk-motion */
-" map <Leader>j <Plug>(signjk-j)
-" map <Leader>k <Plug>(signjk-k)
 
 " /* for SimpylFold */
 let g:SimpylFold_docstring_preview = 1
@@ -573,10 +558,10 @@ vnoremap <Leader>cm :<C-u>call CycleModes()<CR>:colorscheme atomic<CR>gv
 " colorscheme
 " --------------------------------------------
 
-" /* basic */
 " italic
 " set t_ZH=[3m
 " set t_ZR=[23m
+
 " enhance termguicolors
 let &t_8f = "\<Esc>[38;2;%lu;%lu;%lum"
 let &t_8b = "\<Esc>[48;2;%lu;%lu;%lum"
@@ -616,18 +601,6 @@ endfunction
 " /* for atomic */
 let g:atomic_mode = 3
 
-function! AfterChangeColorscheme()
-  " highlight
-  highlight Comment cterm=italic
-endfunction
-
-augroup fit_colorscheme
-  au!
-  au ColorSchemePre * call SetTermguiColors('no')
-  au ColorSchemePre atomic,NeoSolarized call SetTermguiColors('yes')
-  au ColorScheme * call AfterChangeColorscheme()
-augroup END
-
 function! InitTermguicolors()
   if &termguicolors == 0 && has('termguicolors')
     set termguicolors
@@ -635,19 +608,35 @@ function! InitTermguicolors()
   return &termguicolors
 endfunction
 
-" gruvbox bubblegum birds-of-paradise blaquemagick buddy_modified dante
-" eclipse darkburn enigma eva01 evening evolution apprentice
 function! InitColors()
-  if InitTermguicolors()
-    colorscheme atomic
+  " gruvbox bubblegum birds-of-paradise blaquemagick buddy_modified dante
+  " eclipse darkburn enigma eva01 evening evolution apprentice
+  if has('nvim')
+    if InitTermguicolors()
+      colorscheme atomic
+    else
+      colorscheme gruvbox
+    endif
   else
     colorscheme solarized
   endif
 endfunction
 
+function! AfterChangeColorscheme()
+  call LetBgFitClock()
+  highlight Comment cterm=italic
+endfunction
+
+augroup fit_colorscheme
+  au!
+  if v:version >= 801
+    au ColorSchemePre *                   call SetTermguiColors('no')
+    au ColorSchemePre atomic,NeoSolarized call SetTermguiColors('yes')
+  endif
+  au ColorScheme * call AfterChangeColorscheme()
+augroup END
+
 " /* initial */
-" colorscheme solarized
 call InitColors()
-call LetBgFitClock()
 call AfterChangeColorscheme()
 

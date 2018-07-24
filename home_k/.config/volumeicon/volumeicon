@@ -18,9 +18,9 @@ show_sound_level=true
 use_transparent_background=true
 
 [Hotkeys]
-up_enabled=false
-down_enabled=false
-mute_enabled=false
+up_enabled=true
+down_enabled=true
+mute_enabled=true
 up=XF86AudioRaiseVolume
 down=XF86AudioLowerVolume
 mute=XF86AudioMute
