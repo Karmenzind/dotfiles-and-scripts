@@ -1,0 +1,39 @@
+[user]
+	email = valesail7@gmail.com
+	name = K
+    
+[core]
+	editor = vim
+
+[alias]
+    a = add --all
+    c = commit
+    st = status
+    co = checkout
+    up = pull --rebase=preserve
+    g = grep --break --heading --line-number
+    fa = fetch --all
+    p = push
+    pf = push -f
+
+[http]
+
+[https]
+
+[color]
+    diff = auto
+    status = auto
+    branch = auto
+
+[push]
+    default = simple
+
+[merge]
+    tool = vimdiff
+
+[mergetool]
+    keepBackup = false
+
+[gui]
+	fontui = -family Hack -size 11 -weight normal -slant roman -underline 0 -overstrike 0
+	fontdiff = -family Hack -size 11 -weight normal -slant roman -underline 0 -overstrike 0

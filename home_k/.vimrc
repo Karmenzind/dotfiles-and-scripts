@@ -412,6 +412,7 @@ highlight Lf_hl_matchRefine  gui=bold guifg=Magenta cterm=bold ctermfg=201
 let g:Lf_WindowPosition = 'bottom'
 let g:Lf_DefaultMode = 'FullPath'
 let g:Lf_StlColorscheme = 'powerline'
+let g:Lf_ShowHidden = 1
 let g:Lf_WildIgnore = {
       \  'dir': ['.svn','.git','.hg', '.idea', '__pycache__'],
       \  'file': ['*.sw?','~$*','*.exe','*.o','*.so','*.py[co]']
