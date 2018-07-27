@@ -8,8 +8,9 @@ noremap <Leader>e  :tabe   $MYVIMRC<CR>
 noremap <Leader>R  :source $MYVIMRC<CR> :echom 'Vimrc reloaded :)'<CR>
 noremap <Leader>S  :source %<CR> :echom expand('%') . ' sourced :)'<CR>
 
-" write with sudo
+" /* command */
 cabbrev w!! w !sudo tee %
+cabbrev th tab<SPACE>help
 
 " /* workspace, layout, format and others */
 " use <Leader>s as 'set' prefix
@@ -271,7 +272,7 @@ augroup END
 " --------------------------------------------
 
 " /* file headers */
-augroup AddFileHeaders
+augroup add_file_headers
   au!
   au BufNewFile *.sh
         \ call setline(1, '#!/usr/bin/env bash') |
@@ -308,9 +309,10 @@ if has('gui_running')
 endif
 
 " --------------------------------------------
-" for ycm
+" plugin configuration
 " --------------------------------------------
 
+" /* for YCM */
 if empty(glob('~/.vim/.ycm_extra_conf.py'))
   silent !wget https://raw.githubusercontent.com/Karmenzind/dotfiles-and-scripts/master/home_k/.vim/.ycm_extra_conf.py
     \ -O ~/.vim/.ycm_extra_conf.py
@@ -352,12 +354,9 @@ nnoremap <silent> <Leader>dd  :YcmCompleter GoToDefinitionElseDeclaration<CR>
 nnoremap <silent> <Leader>rf  :YcmCompleter GoToReferences<CR>
 nnoremap <silent> <Leader>doc :YcmCompleter GetDoc<CR>
 
-" --------------------------------------------
-" for NERDTree
-" --------------------------------------------
+" /* for NERDTree */
 
 nnoremap <silent> <Leader>n :NERDTreeToggle<CR>
-
 let g:NERDTreeIgnore = ['\.pyc$', '\~$', '__pycache__[[dir]]']
 
 augroup nerd_behaviours
@@ -371,19 +370,6 @@ augroup END
 let g:NERDTreeNaturalSort = 1
 let g:NERDTreeShowLineNumbers = 1
 let g:NERDTreeShowHidden = 1
-
-" --------------------------------------------
-" other plugin config
-" --------------------------------------------
-
-" /* For Markdown-preview */
-let g:mkdp_path_to_chrome = '/usr/bin/chromium'
-let g:mkdp_browserfunc = 'MKDP_browserfunc_default'
-let g:mkdp_auto_start = 0
-let g:mkdp_auto_open = 0
-let g:mkdp_auto_close = 1
-let g:mkdp_refresh_slow = 0
-let g:mkdp_command_for_global = 0
 
 " /* For vim-airline */
 nnoremap <Leader>A :AirlineToggle<CR>:AirlineRefresh<CR>
@@ -435,9 +421,13 @@ let g:Lf_UseVersionControlTool = 0
 
 " /* for Ack */
 nnoremap <Leader>fc :Ack!<space>
-" if executable('ag')
-"   let g:ackprg = 'ag --vimgrep'
-" endif
+if executable('ag')
+  let g:ackprg = 'ag --vimgrep'
+endif
+let g:ackhighlight = 1
+let g:ack_mappings = {
+      \  'v':  '<C-W><CR><C-W>L<C-W>p<C-W>J<C-W>p',
+      \ 'gv': '<C-W><CR><C-W>L<C-W>p<C-W>J' }
 
 " /* for vim-slash  */
 " noremap <plug>(slash-after) zz
@@ -449,8 +439,7 @@ nnoremap <Leader>fc :Ack!<space>
 " noremap <silent> <c-f> :call smooth_scroll#down(&scroll*2, 0, 4)<CR>
 
 " /* for tagbar */
-noremap <Leader>t :TagbarOpenAutoClose<CR>
-noremap <Leader>T :TagbarToggle<CR>
+noremap <Leader>t :TagbarToggle<CR>
 let g:tagbar_autofocus = 1
 let g:tagbar_show_linenumbers = 1
 
@@ -523,15 +512,29 @@ let g:ale_fixers = {
 "   map "in Insert mode, type Ctrl+v Alt+n here" <A-n>
 " endif
 
-" /* for vim-markdown */
+" /* for vim-markdown | markdown-preview */
+" vim-markdown
 let g:vim_markdown_toc_autofit = 1
 let g:vim_markdown_no_default_key_mappings = 1
 let g:vim_markdown_json_frontmatter = 1
+
+" markdown-preview
+let g:mkdp_path_to_chrome = '/usr/bin/chromium'
+let g:mkdp_browserfunc = 'MKDP_browserfunc_default'
+let g:mkdp_auto_start = 0
+let g:mkdp_auto_open = 0
+let g:mkdp_auto_close = 1
+let g:mkdp_refresh_slow = 0
+let g:mkdp_command_for_global = 0
+
+" particular keymaps
 augroup for_markdown_ft
   au!
-  au FileType markdown :nnoremap <Leader>t :Toc<CR>
-  au FileType markdown :nnoremap <Leader>T :Toc<CR>
+  au FileType markdown
+     \ nnoremap <silent> <Leader>mt :Toc<CR>             |
+     \ nnoremap <silent> <Leader>mp :MarkdownPreview<CR> 
 augroup END
+
 
 " /* for SimpylFold */
 let g:SimpylFold_docstring_preview = 1
@@ -551,6 +554,7 @@ noremap <Leader>pu :PlugUpdate<CR>
 noremap <Leader>ps :PlugStatus<CR>
 noremap <Leader>pc :PlugClean<CR>
 
+" /* for atomic */
 nnoremap <Leader>cm :call CycleModes()<CR>:colorscheme atomic<CR>
 vnoremap <Leader>cm :<C-u>call CycleModes()<CR>:colorscheme atomic<CR>gv
 
