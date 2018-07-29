@@ -176,7 +176,7 @@ def recurse(action):
 
 def main(action):
     recurse(action)
-    print('--------------------------------------------')
+    # print('============================================')
     print('\nNot to be synchronized:')
     for t, es in not_sync.items():
         print('%s:' % (TAB + t))

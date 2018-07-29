@@ -13,10 +13,10 @@ cabbrev w!! w !sudo tee %
 cabbrev th tab<SPACE>help
 
 " /* workspace, layout, format and others */
+nnoremap <silent> <A-a> gT
+nnoremap <silent> <A-d> gt
 " use <Leader>s as 'set' prefix
-" toggle wrap-mode
 nnoremap <silent> <Leader>sw :set wrap!<CR> :set wrap?<CR>
-" toggle backgroud
 nnoremap <silent> <Leader>sb :call BackgroudToggle()<CR>
 
 " /* input */
@@ -220,16 +220,16 @@ set encoding=utf-8
 
 set iskeyword+=_,$,@,%,#,-
 set fileformat=unix
-set shiftwidth=4
-
-set expandtab
-set smarttab
-set tabstop=4
-set softtabstop=4
 
 " for different file types
 augroup filetype_formats
   au!
+  au FileType *
+        \ set shiftwidth=4 |
+        \ set expandtab    |
+        \ set smarttab     |
+        \ set tabstop=4    |
+        \ set softtabstop=4
 
   au FileType help setlocal nu
 
@@ -240,30 +240,30 @@ augroup filetype_formats
         \ setlocal shiftwidth=2
 
   au BufNewFile,BufRead *.py
-       \ setlocal autoindent      |
-       \ setlocal nowrap          |
-       \ setlocal sidescroll=5    |
-       \ let g:python_highlight_all = 1 |
-       \ setlocal complete+=t |
-       \ setlocal formatoptions-=t |
-       \ setlocal nowrap |
-       \ setlocal commentstring=#%s |
-       \ setlocal define=^\s*\\(def\\\\|class\\)
-       " \ set listchars+=precedes:<,extends:>
-       " \ set textwidth=79 |
+        \ setlocal autoindent            |
+        \ setlocal nowrap                |
+        \ setlocal sidescroll=5          |
+        \ let g:python_highlight_all = 1 |
+        \ setlocal complete+=t           |
+        \ setlocal formatoptions-=t      |
+        \ setlocal nowrap                |
+        \ setlocal commentstring=#%s     |
+        \ setlocal define=^\s*\\(def\\\\|class\\)
+  " \ set listchars+=precedes:<,extends:>
+  " \ set textwidth=79 |
 
   au BufNewFile,BufRead *.js,*.html,*.css,*.yml
-      \ setlocal tabstop=2     |
-      \ setlocal softtabstop=2 |
-      \ setlocal shiftwidth=2
+        \ setlocal tabstop=2     |
+        \ setlocal softtabstop=2 |
+        \ setlocal shiftwidth=2
 
   " autocmd BufNewFile,BufRead *.{md,mkd,mkdn,mark*}
   "   \ set filetype=markdown
 
   " useless whitespaces
   au BufRead,BufNewFile *.py,*.pyw,*.c,*.h,*.{vim,vimrc}
-      \ highlight BadWhitespace ctermbg=red guibg=darkred |
-      \ match BadWhitespace /\s\+$/
+        \ highlight BadWhitespace ctermbg=red guibg=darkred |
+        \ match BadWhitespace /\s\+$/
 
 augroup END
 
@@ -275,21 +275,21 @@ augroup END
 augroup add_file_headers
   au!
   au BufNewFile *.sh
-        \ call setline(1, '#!/usr/bin/env bash') |
-        \ call append(line('.'), '')             |
+        \ call setline(1, '#!/usr/bin/env bash')                   |
+        \ call append(line('.'), '')                               |
         \ normal! Go
   au BufNewFile *.py
-        \ call setline(1, '#!/usr/bin/env python')          |
-        \ call append(line('.'), '# -*- coding: utf-8 -*-') |
-        \ call append(line('.')+1, '')                      |
+        \ call setline(1, '#!/usr/bin/env python')                 |
+        \ call append(line('.'), '# -*- coding: utf-8 -*-')        |
+        \ call append(line('.')+1, '')                             |
         \ normal! Go
   au BufNewFile *.{cpp,cc}
-        \ call setline(1, '#include <iostream>') |
-        \ call append(line('.'), '')             |
+        \ call setline(1, '#include <iostream>')                   |
+        \ call append(line('.'), '')                               |
         \ normal! Go
   au BufNewFile *.c
-        \ call setline(1, '#include <stdio.h>') |
-        \ call append(line('.'), '')            |
+        \ call setline(1, '#include <stdio.h>')                    |
+        \ call append(line('.'), '')                               |
         \ normal! Go
   au BufNewFile *.h,*.hpp
         \ call setline(1, '#ifndef _'.toupper(expand('%:r')).'_H') |
@@ -315,7 +315,7 @@ endif
 " /* for YCM */
 if empty(glob('~/.vim/.ycm_extra_conf.py'))
   silent !wget https://raw.githubusercontent.com/Karmenzind/dotfiles-and-scripts/master/home_k/.vim/.ycm_extra_conf.py
-    \ -O ~/.vim/.ycm_extra_conf.py
+        \ -O ~/.vim/.ycm_extra_conf.py
 endif
 
 let g:ycm_filetype_blacklist = {
@@ -377,19 +377,19 @@ let g:airline_powerline_fonts = 1
 let g:airline_left_sep=''
 let g:airline_right_sep=''
 let g:airline_mode_map = {
-     \ '__' : '-',
-     \ 'n'  : 'N',
-     \ 'i'  : 'I',
-     \ 'R'  : 'R',
-     \ 'c'  : 'C',
-     \ 'v'  : 'V',
-     \ 'V'  : 'V',
-     \ '' : 'V',
-     \ 's'  : 'S',
-     \ 'S'  : 'S',
-     \ '' : 'S',
-     \ 't'  : 'T',
-     \ }
+      \ '__' : '-',
+      \ 'n'  : 'N',
+      \ 'i'  : 'I',
+      \ 'R'  : 'R',
+      \ 'c'  : 'C',
+      \ 'v'  : 'V',
+      \ 'V'  : 'V',
+      \ '' : 'V',
+      \ 's'  : 'S',
+      \ 'S'  : 'S',
+      \ '' : 'S',
+      \ 't'  : 'T',
+      \ }
 let g:airline_highlighting_cache = 1
 let g:airline_skip_empty_sections = 1
 let g:airline#extensions#ale#enabled = 0
@@ -414,8 +414,8 @@ let g:Lf_DefaultMode = 'FullPath'
 let g:Lf_StlColorscheme = 'powerline'
 let g:Lf_ShowHidden = 1
 let g:Lf_WildIgnore = {
-      \  'dir': ['.svn','.git','.hg', '.idea', '__pycache__'],
-      \  'file': ['*.sw?','~$*','*.exe','*.o','*.so','*.py[co]']
+      \  'dir': ['.svn', '.git', '.hg', '.idea', '__pycache__', '.scrapy'],
+      \  'file': ['*.sw?', '~$*', '*.exe', '*.o', '*.so', '*.py[co]']
       \ }
 let g:Lf_MruFileExclude = ['*.so']
 let g:Lf_UseVersionControlTool = 0
@@ -532,8 +532,8 @@ let g:mkdp_command_for_global = 0
 augroup for_markdown_ft
   au!
   au FileType markdown
-     \ nnoremap <silent> <Leader>mt :Toc<CR>             |
-     \ nnoremap <silent> <Leader>mp :MarkdownPreview<CR> 
+        \ nnoremap <silent> <Leader>mt :Toc<CR>             |
+        \ nnoremap <silent> <Leader>mp :MarkdownPreview<CR>
 augroup END
 
 
@@ -564,8 +564,8 @@ vnoremap <Leader>cm :<C-u>call CycleModes()<CR>:colorscheme atomic<CR>gv
 " --------------------------------------------
 
 " italic
-" set t_ZH=[3m
-" set t_ZR=[23m
+set t_ZH=[3m
+set t_ZR=[23m
 
 " enhance termguicolors
 let &t_8f = "\<Esc>[38;2;%lu;%lu;%lum"
@@ -573,11 +573,11 @@ let &t_8b = "\<Esc>[48;2;%lu;%lu;%lum"
 
 function! SetTermguiColors(k)
   if a:k ==# 'yes'
-      if &termguicolors == 0 && has('termguicolors')
-        set termguicolors
-      endif
+    if &termguicolors == 0 && has('termguicolors')
+      set termguicolors
+    endif
   elseif &termguicolors == 1
-      set notermguicolors
+    set notermguicolors
   endif
 endfunction
 
@@ -605,6 +605,10 @@ endfunction
 
 " /* for atomic */
 let g:atomic_mode = 3
+let g:atomic_italic = 1
+let g:atomic_bold = 1
+let g:atomic_underline = 1
+let g:atomic_undercurl = 1
 
 function! InitTermguicolors()
   if &termguicolors == 0 && has('termguicolors')
@@ -616,14 +620,20 @@ endfunction
 function! InitColors()
   " gruvbox bubblegum birds-of-paradise blaquemagick buddy_modified dante
   " eclipse darkburn enigma eva01 evening evolution apprentice
-  if has('nvim')
-    if InitTermguicolors()
-      colorscheme atomic
+  if $USER == 'k'
+    if has('nvim')
+      colorscheme solarized
     else
-      colorscheme gruvbox
+      if InitTermguicolors()
+        colorscheme atomic
+      else
+        colorscheme evening
+      endif
     endif
+    call AfterChangeColorscheme()
   else
-    colorscheme solarized
+    set background=dark
+    colorscheme molokai
   endif
 endfunction
 
@@ -643,5 +653,4 @@ augroup END
 
 " /* initial */
 call InitColors()
-call AfterChangeColorscheme()
 
