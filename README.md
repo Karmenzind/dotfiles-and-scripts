@@ -87,6 +87,7 @@ wget https://raw.githubusercontent.com/Karmenzind/dotfiles-and-scripts/master/ho
 		- [dunst](./home_k/.config/dunst)
 		- [fcitx](./home_k/.config/fcitx/data)
 		- [i3](./home_k/.config/i3)
+		- [neovim](./home_k/.config/nvim)
 		- [rofi](./home_k/.config/rofi)
 		- [shrc.ext](./home_k/.config/shrc.ext)
 		- [xfce4](./home_k/.config/xfce4)
