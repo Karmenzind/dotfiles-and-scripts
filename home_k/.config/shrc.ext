@@ -19,6 +19,7 @@ export CATALINA_HOME=/usr/share/tomcat8 # tomcat
 #                             appearance                              #
 #######################################################################
 
+export COLORTERM='truecolor'
 export GREP_COLOR="1;32"
 alias neofetch_local='neofetch --w3m ~/Pictures/LOCKSCREENS/kieslowski4-resize.png' # neofetch
 alias grep='grep --color=auto'

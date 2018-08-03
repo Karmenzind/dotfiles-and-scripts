@@ -18,6 +18,7 @@ nnoremap <silent> <A-d> gt
 " use <Leader>s as 'set' prefix
 nnoremap <silent> <Leader>sw :set wrap!<CR> :set wrap?<CR>
 nnoremap <silent> <Leader>sb :call BackgroudToggle()<CR>
+nnoremap <silent> <leader>q  :call QuickfixToggle()<CR>
 
 " /* input */
 " inoremap <c-d> <delete>
@@ -27,7 +28,7 @@ nnoremap <leader><CR> i<CR><ESC>k$
 "  plugin manager
 " --------------------------------------------
 
-" automatically install Plug
+" /* automatically install Plug */
 if empty(glob('~/.vim/autoload/plug.vim'))
   silent !mkdir -p ~/.vim/autoload &&
         \ wget https://raw.githubusercontent.com/junegunn/vim-plug/master/plug.vim
@@ -114,6 +115,8 @@ Plug 'vim-airline/vim-airline'
 Plug 'vim-airline/vim-airline-themes'
 Plug 'ryanoasis/vim-devicons' " load after other plugins
 Plug 'gerardbm/vim-atomic'
+Plug 'icymind/NeoSolarized'
+" Plug 'drewtempelmeyer/palenight.vim'
 " Plug 'chxuan/change-colorscheme', { 'on': 'NextColorScheme' }
 
 call plug#end()
@@ -122,31 +125,28 @@ call plug#end()
 " basic
 " --------------------------------------------
 
-" load vim default plugin
-runtime macros/matchit.vim
-
 " /* base */
+" runtime macros/matchit.vim
 set nocompatible
 set noerrorbells
-" set report=0
 set showcmd " This shows what you are typing as a command.
-" set suffixes=.bak,~,.swp,.o,.info,.aux,.log,.dvi,.bbl,.blg,.brf,.cb,.ind,.idx,.ilg,.inx,.out,.toc,.png,.jpg
 set noincsearch
+" set report=0
+" set suffixes=.bak,~,.swp,.o,.info,.aux,.log,.dvi,.bbl,.blg,.brf,.cb,.ind,.idx,.ilg,.inx,.out,.toc,.png,.jpg
 
 " /* appearence */
-" set termguicolors
 set wildmenu
 set ruler
 set showtabline=1
 set guifont=Hack\ Nerd\ Font\ 12
 set cursorline
-" highlight CursorLine guibg=darkgray ctermbg=black
-" set noshowmode
 set showmode
 set cmdheight=2
 set laststatus=2
-" set whichwrap+=<,>,h,l
 set matchtime=5
+" highlight CursorLine guibg=darkgray ctermbg=black
+" set noshowmode
+" set whichwrap+=<,>,h,l
 " set statusline=%F%m%r%h%w\ (%{&ff}){%Y}\ [%l,%v][%p%%]
 set statusline=%f\ %{WebDevIconsGetFileTypeSymbol()}\ %h%w%m%r\ %=%(%l,%c%V\ %Y\ %=\ %P%)
 " cursor's shape (FIXIT)
@@ -170,6 +170,10 @@ set backspace=indent,eol,start  " more powerful backspacing
 " make * reg the default
 if has('clipboard')
   set clipboard=unnamed
+endif
+if has('gui_running')
+  map <S-Insert> <MiddleMouse>
+  map! <S-Insert> <MiddleMouse>
 endif
 set scrolloff=5
 
@@ -237,7 +241,10 @@ augroup filetype_formats
         \ setlocal foldmethod=marker |
         \ setlocal tabstop=2         |
         \ setlocal softtabstop=2     |
-        \ setlocal shiftwidth=2
+        \ setlocal shiftwidth=2      |
+        \ setlocal foldmethod=expr   |
+        \ setlocal foldlevel=2       |
+        \ setlocal foldexpr=VimScriptFold(v:lnum)
 
   au BufNewFile,BufRead *.py
         \ setlocal autoindent            |
@@ -299,16 +306,6 @@ augroup add_file_headers
 augroup END
 
 " --------------------------------------------
-" GUI
-" --------------------------------------------
-
-if has('gui_running')
-  " Make shift-insert work like in Xterm
-  map <S-Insert> <MiddleMouse>
-  map! <S-Insert> <MiddleMouse>
-endif
-
-" --------------------------------------------
 " plugin configuration
 " --------------------------------------------
 
@@ -328,7 +325,7 @@ let g:ycm_filetype_blacklist = {
       \ 'vimwiki' : 1,
       \ 'pandoc' : 1,
       \ 'infolog' : 1,
-      \ 'mail' : 1
+      \ 'mail' : 1,
       \}
 
 set completeopt-=preview
@@ -354,8 +351,13 @@ nnoremap <silent> <Leader>dd  :YcmCompleter GoToDefinitionElseDeclaration<CR>
 nnoremap <silent> <Leader>rf  :YcmCompleter GoToReferences<CR>
 nnoremap <silent> <Leader>doc :YcmCompleter GetDoc<CR>
 
-" /* for NERDTree */
+augroup ycm_autos
+  au!
+  au FileType python
+        \ nnoremap <silent> <C-]> :YcmCompleter GoTo<CR>
+augroup END
 
+" /* for NERDTree */
 nnoremap <silent> <Leader>n :NERDTreeToggle<CR>
 let g:NERDTreeIgnore = ['\.pyc$', '\~$', '__pycache__[[dir]]']
 
@@ -400,10 +402,6 @@ let g:airline#extensions#fugitiveline#enabled = 0
 let g:airline#extensions#hunks#enabled = 0
 " let g:airline#extensions#hunks#non_zero_only = 1
 
-" /* For vim-virtualenv */
-" let g:virtualenv_directory = '~/Envs'
-" let g:virtualenv_auto_activate = 1
-
 " /* for LeaderF */
 " let g:Lf_ShortcurF = '<Leader>n'
 nnoremap <Leader>ff :LeaderfFile<CR>
@@ -415,8 +413,7 @@ let g:Lf_StlColorscheme = 'powerline'
 let g:Lf_ShowHidden = 1
 let g:Lf_WildIgnore = {
       \  'dir': ['.svn', '.git', '.hg', '.idea', '__pycache__', '.scrapy'],
-      \  'file': ['*.sw?', '~$*', '*.exe', '*.o', '*.so', '*.py[co]']
-      \ }
+      \  'file': ['*.sw?', '~$*', '*.exe', '*.o', '*.so', '*.py[co]'] }
 let g:Lf_MruFileExclude = ['*.so']
 let g:Lf_UseVersionControlTool = 0
 
@@ -428,16 +425,7 @@ endif
 let g:ackhighlight = 1
 let g:ack_mappings = {
       \  'v':  '<C-W><CR><C-W>L<C-W>p<C-W>J<C-W>p',
-      \ 'gv': '<C-W><CR><C-W>L<C-W>p<C-W>J' }
-
-" /* for vim-slash  */
-" noremap <plug>(slash-after) zz
-
-" /* for vim-smooth-scroll */
-" noremap <silent> <c-u> :call smooth_scroll#up(&scroll, 0, 2)<CR>
-" noremap <silent> <c-d> :call smooth_scroll#down(&scroll, 0, 2)<CR>
-" noremap <silent> <c-b> :call smooth_scroll#up(&scroll*2, 0, 4)<CR>
-" noremap <silent> <c-f> :call smooth_scroll#down(&scroll*2, 0, 4)<CR>
+      \  'gv': '<C-W><CR><C-W>L<C-W>p<C-W>J' }
 
 " /* for tagbar */
 noremap <Leader>t :TagbarToggle<CR>
@@ -481,10 +469,6 @@ let g:snips_author = 'k'
 let g:snips_email = 'valesail7@gmail.com'
 let g:snips_github = 'https://github.com/Karmenzind/'
 
-" /* for colorscheme */
-" noremap <Leader>c :NextColorScheme<CR>:colorscheme<CR>
-" noremap <Leader>C :PreviousColorScheme<CR>:colorscheme<CR>
-
 " /* for ale */
 nmap <silent> <C-k> <Plug>(ale_previous)
 nmap <silent> <C-j> <Plug>(ale_next)
@@ -510,7 +494,7 @@ let g:ale_fixers = {
 
 " /* for vim-multiple-cursors */
 " if !has('gui_running')
-"   map "in Insert mode, type Ctrl+v Alt+n here" <A-n>
+"   map <M-n> <A-n>
 " endif
 
 " /* for vim-markdown | markdown-preview */
@@ -536,9 +520,9 @@ augroup for_markdown_ft
         \ nnoremap <silent> <Leader>mp :MarkdownPreview<CR>
 augroup END
 
-
 " /* for SimpylFold */
 let g:SimpylFold_docstring_preview = 1
+let g:SimpylFold_fold_docstring = 0
 
 " /* for choosewin */
 " invoke with '-'
@@ -560,17 +544,24 @@ nnoremap <Leader>cm :call CycleModes()<CR>:colorscheme atomic<CR>
 vnoremap <Leader>cm :<C-u>call CycleModes()<CR>:colorscheme atomic<CR>gv
 
 " --------------------------------------------
-" colorscheme
+" Functions
 " --------------------------------------------
 
-" italic
-set t_ZH=[3m
-set t_ZR=[23m
+" toggle quickfix window
+let g:quickfix_is_open = 0
+function! QuickfixToggle()
+  if g:quickfix_is_open
+    cclose
+    let g:quickfix_is_open = 0
+    execute g:quickfix_return_to_window . "wincmd w"
+  else
+    let g:quickfix_return_to_window = winnr()
+    copen
+    let g:quickfix_is_open = 1
+  endif
+endfunction
 
-" enhance termguicolors
-let &t_8f = "\<Esc>[38;2;%lu;%lu;%lum"
-let &t_8b = "\<Esc>[48;2;%lu;%lu;%lum"
-
+" (toggle) set termguicolors
 function! SetTermguiColors(k)
   if a:k ==# 'yes'
     if &termguicolors == 0 && has('termguicolors')
@@ -581,7 +572,7 @@ function! SetTermguiColors(k)
   endif
 endfunction
 
-" /* background */
+" toggle background
 function! BackgroudToggle()
   if &background ==# 'dark'
     set background=light
@@ -590,6 +581,7 @@ function! BackgroudToggle()
   endif
 endfunction
 
+" let background fit the clock
 function! LetBgFitClock()
   let b:current_hour = strftime('%H')
   if b:current_hour >=8 && b:current_hour <= 16
@@ -599,17 +591,7 @@ function! LetBgFitClock()
   endif
 endfunction
 
-" /* for solarized color */
-" let g:solarized_termcolors=256
-" let g:solarized_termtrans=1
-
-" /* for atomic */
-let g:atomic_mode = 3
-let g:atomic_italic = 1
-let g:atomic_bold = 1
-let g:atomic_underline = 1
-let g:atomic_undercurl = 1
-
+" try to set termguicolors and return the status
 function! InitTermguicolors()
   if &termguicolors == 0 && has('termguicolors')
     set termguicolors
@@ -617,6 +599,7 @@ function! InitTermguicolors()
   return &termguicolors
 endfunction
 
+" initialize the colorscheme
 function! InitColors()
   " gruvbox bubblegum birds-of-paradise blaquemagick buddy_modified dante
   " eclipse darkburn enigma eva01 evening evolution apprentice
@@ -626,31 +609,78 @@ function! InitColors()
     else
       if InitTermguicolors()
         colorscheme atomic
+        " colo palenight
       else
         colorscheme evening
       endif
     endif
     call AfterChangeColorscheme()
   else
-    set background=dark
     colorscheme molokai
   endif
 endfunction
 
+" do some highlights after set colo
 function! AfterChangeColorscheme()
   call LetBgFitClock()
   highlight Comment cterm=italic
 endfunction
 
+" vim's folding expr
+function! VimScriptFold(lnum)
+  if getline(a:lnum) =~? '\v^\s*$'
+    return '-1'
+  elseif getline(a:lnum) =~? '\v^"\s+(-{44}|\/\*).*$'
+    return '0'
+  elseif getline(a:lnum) =~? '\v^\s*".*$'
+    if getline(a:lnum + 1) =~? '\v^\s*(".*)?$' || (a:lnum > 0 && getline(a:lnum - 1) =~? '\v^\s*"')
+      return '3'
+    else
+      return '1'
+    endif
+  elseif getline(a:lnum) =~? '\v^(augroup|function).*$'
+    return '1'
+  elseif getline(a:lnum) =~? '\v\S'
+    return '2'
+  endif
+endfunction
+
+" au when change colo
 augroup fit_colorscheme
   au!
   if v:version >= 801
-    au ColorSchemePre *                   call SetTermguiColors('no')
-    au ColorSchemePre atomic,NeoSolarized call SetTermguiColors('yes')
+    au ColorSchemePre * call SetTermguiColors('no')
+    au ColorSchemePre atomic,NeoSolarized,ayu,palenight
+          \ call SetTermguiColors('yes')
   endif
   au ColorScheme * call AfterChangeColorscheme()
 augroup END
 
-" /* initial */
-call InitColors()
+" --------------------------------------------
+" colorscheme
+" --------------------------------------------
 
+" /* for solarized */
+" let g:solarized_termcolors=256
+" let g:solarized_termtrans=1
+
+" /* for vim-atomic */
+let g:atomic_mode = 3
+let g:atomic_italic = 1
+let g:atomic_bold = 1
+let g:atomic_underline = 1
+let g:atomic_undercurl = 1
+
+" /* initial */
+set background=dark
+
+" italic
+set t_ZH=[3m
+set t_ZR=[23m
+
+" enhance termguicolors
+let &t_8f = "\<Esc>[38;2;%lu;%lu;%lum"
+let &t_8b = "\<Esc>[48;2;%lu;%lu;%lum"
+
+" initialize the colo
+call InitColors()
