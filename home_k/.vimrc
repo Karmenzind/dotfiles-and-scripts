@@ -116,7 +116,6 @@ Plug 'vim-airline/vim-airline-themes'
 Plug 'ryanoasis/vim-devicons' " load after other plugins
 Plug 'gerardbm/vim-atomic'
 Plug 'icymind/NeoSolarized'
-" Plug 'drewtempelmeyer/palenight.vim'
 " Plug 'chxuan/change-colorscheme', { 'on': 'NextColorScheme' }
 
 call plug#end()
@@ -338,8 +337,8 @@ let g:ycm_max_num_identifier_candidates = 7
 let g:ycm_global_ycm_extra_conf = '~/.vim/.ycm_extra_conf.py'
 let g:ycm_complete_in_comments = 1
 let g:ycm_complete_in_strings = 1
-let g:ycm_server_python_interpreter = '/usr/bin/python'
-let g:ycm_python_binary_path = 'python'
+let g:ycm_server_python_interpreter = '/usr/bin/python3'
+let g:ycm_python_binary_path = 'python3'
 let g:ycm_goto_buffer_command = 'horizontal-split'
 
 let g:ycm_seed_identifiers_with_syntax = 1
@@ -609,7 +608,6 @@ function! InitColors()
     else
       if InitTermguicolors()
         colorscheme atomic
-        " colo palenight
       else
         colorscheme evening
       endif
@@ -623,7 +621,9 @@ endfunction
 " do some highlights after set colo
 function! AfterChangeColorscheme()
   call LetBgFitClock()
-  highlight Comment cterm=italic
+  if !(exists('$TMUX') && $TERM !~ '\vtmux|italic')
+    highlight Comment cterm=italic
+  endif
 endfunction
 
 " vim's folding expr
@@ -633,11 +633,8 @@ function! VimScriptFold(lnum)
   elseif getline(a:lnum) =~? '\v^"\s+(-{44}|\/\*).*$'
     return '0'
   elseif getline(a:lnum) =~? '\v^\s*".*$'
-    if getline(a:lnum + 1) =~? '\v^\s*(".*)?$' || (a:lnum > 0 && getline(a:lnum - 1) =~? '\v^\s*"')
-      return '3'
-    else
-      return '1'
-    endif
+    if a:lnum > 0 && (getline(a:lnum + 1) =~? '\v^\s*(".*)?$' || getline(a:lnum - 1) =~? '\v^\s*"')
+      return '3' | else | return '1' | endif
   elseif getline(a:lnum) =~? '\v^(augroup|function).*$'
     return '1'
   elseif getline(a:lnum) =~? '\v\S'
@@ -684,3 +681,13 @@ let &t_8b = "\<Esc>[48;2;%lu;%lu;%lum"
 
 " initialize the colo
 call InitColors()
+
+" --------------------------------------------
+" extra
+" --------------------------------------------
+
+" load local configure
+let s:extra_vimrc = glob('~/.vimrc.local')
+if filereadable(s:extra_vimrc)
+  execute 'source' . s:extra_vimrc
+endif
