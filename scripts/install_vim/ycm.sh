@@ -5,8 +5,8 @@
 # for further info: https://github.com/Valloric/YouCompleteMe#full-installation-guide
 
 # required: cmake 
-#           clang>=3.9 (and corresponding lib/devel if necessary)
-#           python (and corresponding lib/devel if necessary)
+#           python3 (and corresponding lib/devel if necessary)
+#           libclang>=3.9
 
 
 # if you use other plugin manager, edit this line 
@@ -26,7 +26,8 @@ build_dir=${HOME}/ycm_build
 ycm_git_url=https://github.com/Valloric/YouCompleteMe.git 
 
 # requirements (can be literally installed by pacman in Arch)
-requirements=('clang>=3.9' 'cmake' 'python3')
+requirements=('cmake' 'python3')
+alternatives=('clang>=3.9')
 
 # <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 
@@ -43,15 +44,17 @@ prepare() {
 
     if ($is_arch); then
         echo 'Installing requirements ...'
-        if do_install ${requirements[@]}; then 
+        if do_install ${requirements[@]} ${alternatives[@]}; then 
             cecho 'Requirements installed.' $green
         else
-            exit_with_msg "Please manually install: ${requirements[*]}" 
+            exit_with_msg "Please manually install: ${requirements[*]} ${alternatives[*]}" 
         fi
     else
         put_cutoff
         cecho "Make sure you have these requirements installed:
         ${requirements[*]}"
+        cecho "If you choose 'my way', make sure these requirements are installed:
+        ${alternatives[*]}"
         put_suspend
     fi
 

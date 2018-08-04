@@ -208,7 +208,8 @@ def main(action):
                 for _f, _t in not_sync['Override the newer']:
                     msg = 'Edit %s and %s?' % (_f, _t)
                     ans = ask(YN, msg)
-                    os.system('vimdiff %s %s' % (_f, _t))
+                    if ans == 'y':
+                        os.system('vimdiff %s %s' % (_f, _t))
 
 
 if __name__ == '__main__':

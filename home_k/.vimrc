@@ -106,7 +106,8 @@ Plug 'junegunn/vim-emoji', { 'for': 'markdown,gitcommit' }
 " /* Games*/
 " Plug 'vim-scripts/TeTrIs.vim'
 
-" /* Syntax */
+" /* Syntax | Fold */
+Plug 'demophoon/bash-fold-expr', { 'for': 'sh' }
 " Plug 'vim-scripts/txt.vim', { 'for': 'txt' }
 
 " /* Appearance */
@@ -177,7 +178,6 @@ endif
 set scrolloff=5
 
 " /* Enable folding */
-" set foldmethod=indent
 set foldmethod=manual
 set foldlevel=99
 
@@ -228,16 +228,15 @@ set fileformat=unix
 augroup filetype_formats
   au!
   au FileType *
-        \ set shiftwidth=4 |
-        \ set expandtab    |
-        \ set smarttab     |
-        \ set tabstop=4    |
+        \ set shiftwidth=4      |
+        \ set expandtab         |
+        \ set smarttab          |
+        \ set tabstop=4         |
         \ set softtabstop=4
 
   au FileType help setlocal nu
 
   au BufNewFile,BufRead *.{vim,vimrc}
-        \ setlocal foldmethod=marker |
         \ setlocal tabstop=2         |
         \ setlocal softtabstop=2     |
         \ setlocal shiftwidth=2      |
@@ -691,3 +690,4 @@ let s:extra_vimrc = glob('~/.vimrc.local')
 if filereadable(s:extra_vimrc)
   execute 'source' . s:extra_vimrc
 endif
+
