@@ -37,6 +37,7 @@ _fonts=(
     ttf-linux-libertine
     wqy-bitmapfont
     wqy-zenhei
+    noto-fonts-emoji
 )
 
 _cli=(
@@ -92,6 +93,7 @@ _desktop=(
 _aur=(
     # wewechat
     # wps-office
+    emojify
     sqlint
     acroread
     acroread-fonts

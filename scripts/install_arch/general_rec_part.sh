@@ -1,7 +1,7 @@
 #! /usr/bin/env bash
 # create sudo user
 
-new_sudo_user () {
+new_sudo_user() {
     do_install sudo
 
     echo "Input your new user name:"

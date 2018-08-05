@@ -5,7 +5,7 @@ put_cutoff
 
 # --------------------------------------------
 # time and locale
-time_and_locale () {
+time_and_locale() {
     echo -e "Set your time zone to ShangHai?(Y/n)\nOr you can set it manually later."
     check_input yn
     [[ "y" = "$ans" ]] && ln -sf /usr/share/zoneinfo/Asia/Shanghai /etc/localtime
@@ -21,7 +21,7 @@ put_cutoff
 
 # --------------------------------------------
 # Hostname
-set_hostname () {
+set_hostname() {
     echo "Set your hostname (e.g. 'MyArch'), or just type ENTER to ignore this step"
     read -p "Input: " hostname
 
@@ -49,7 +49,7 @@ passwd
 
 # --------------------------------------------
 
-set_boot_loader () {
+set_boot_loader() {
     [[ -n `lscpu | grep -i 'model.*intel'` ]] && do_install intel-ucode
     do_install os-prober grub efibootmgr
     grub-install --target=x86_64-efi --efi-directory=/boot --bootloader-id=grub

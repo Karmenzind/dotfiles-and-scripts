@@ -15,6 +15,7 @@
     fa = fetch --all
     p = push
     pf = push -f
+    hst = !git --no-pager log --color --pretty=format:'%C(yellow)%h%C(reset)%C(bold red)%d%C(reset) %s %C(black)— %an (%ad)%C(reset)' --relative-date | emojify | bat
 
 [http]
 

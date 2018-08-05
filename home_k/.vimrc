@@ -102,12 +102,10 @@ Plug 'karmenzind/vim-tmuxlike'
 
 " /* Funny Stuff */
 Plug 'junegunn/vim-emoji', { 'for': 'markdown,gitcommit' }
-
-" /* Games*/
 " Plug 'vim-scripts/TeTrIs.vim'
 
 " /* Syntax | Fold */
-Plug 'demophoon/bash-fold-expr', { 'for': 'sh' }
+" Plug 'demophoon/bash-fold-expr', { 'for': 'sh' }
 " Plug 'vim-scripts/txt.vim', { 'for': 'txt' }
 
 " /* Appearance */
@@ -178,8 +176,7 @@ endif
 set scrolloff=5
 
 " /* Enable folding */
-set foldmethod=manual
-set foldlevel=99
+" set foldlevel=99
 
 " /* spell check */
 set spelllang=en nospell
@@ -228,11 +225,11 @@ set fileformat=unix
 augroup filetype_formats
   au!
   au FileType *
-        \ set shiftwidth=4      |
-        \ set expandtab         |
-        \ set smarttab          |
-        \ set tabstop=4         |
-        \ set softtabstop=4
+        \ setlocal shiftwidth=4      |
+        \ setlocal expandtab         |
+        \ setlocal smarttab          |
+        \ setlocal tabstop=4         |
+        \ setlocal softtabstop=4
 
   au FileType help setlocal nu
 
@@ -248,7 +245,7 @@ augroup filetype_formats
         \ setlocal autoindent            |
         \ setlocal nowrap                |
         \ setlocal sidescroll=5          |
-        \ let g:python_highlight_all = 1 |
+        \ let b:python_highlight_all = 1 |
         \ setlocal complete+=t           |
         \ setlocal formatoptions-=t      |
         \ setlocal nowrap                |
@@ -537,9 +534,35 @@ noremap <Leader>pu :PlugUpdate<CR>
 noremap <Leader>ps :PlugStatus<CR>
 noremap <Leader>pc :PlugClean<CR>
 
-" /* for atomic */
-nnoremap <Leader>cm :call CycleModes()<CR>:colorscheme atomic<CR>
-vnoremap <Leader>cm :<C-u>call CycleModes()<CR>:colorscheme atomic<CR>gv
+" /* for startify */
+let g:startify_update_oldfiles = 1
+let g:startify_change_to_dir = 0
+let g:startify_session_persistence = 1
+let g:startify_session_before_save = [ 'silent! NERDTreeClose' ]
+
+augroup staritify_autos
+  au!
+  autocmd VimEnter * let t:startify_new_tab = 1
+  autocmd BufEnter *
+        \ if !exists('t:startify_new_tab') && empty(expand('%')) |
+        \   let t:startify_new_tab = 1 | Startify | endif
+augroup END
+
+function! s:list_commits()
+  let l:not_repo = str2nr(system("git rev-parse >/dev/null 2>&1; echo $?"))
+  if l:not_repo | return | endif
+  let list_cmd = 'git log --oneline | head -n7'
+  if executable('emojify') | let list_cmd .= ' | emojify' | endif
+  let commits = systemlist(list_cmd)
+  return map(commits, '{"line": matchstr(v:val, "\\s\\zs.*"), "cmd": "Git show ". matchstr(v:val, "^\\x\\+") }')
+  return map(commits, '{"line": {matchstr(v:val, "^\\x\\+"): matchstr(v:val, "\\s\\zs.*")}, "cmd": "Git show ". matchstr(v:val, "^\\x\\+") }')
+endfunction
+
+let g:startify_lists = [
+      \ { 'header': ['   » SESSIONS    '], 'type': 'sessions' },
+      \ { 'header': ['   » RECENT FILES'],   'type': 'files' },
+      \ { 'header': ['   » GIT HISTORY '],  'type': function('s:list_commits') },
+      \ ]
 
 " --------------------------------------------
 " Functions
@@ -633,7 +656,10 @@ function! VimScriptFold(lnum)
     return '0'
   elseif getline(a:lnum) =~? '\v^\s*".*$'
     if a:lnum > 0 && (getline(a:lnum + 1) =~? '\v^\s*(".*)?$' || getline(a:lnum - 1) =~? '\v^\s*"')
-      return '3' | else | return '1' | endif
+      return '3'
+    else
+      return '1'
+    endif
   elseif getline(a:lnum) =~? '\v^(augroup|function).*$'
     return '1'
   elseif getline(a:lnum) =~? '\v\S'
@@ -666,6 +692,8 @@ let g:atomic_italic = 1
 let g:atomic_bold = 1
 let g:atomic_underline = 1
 let g:atomic_undercurl = 1
+nnoremap <Leader>cm :call CycleModes()<CR>:colorscheme atomic<CR>
+vnoremap <Leader>cm :<C-u>call CycleModes()<CR>:colorscheme atomic<CR>gv
 
 " /* initial */
 set background=dark
