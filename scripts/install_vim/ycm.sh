@@ -148,7 +148,6 @@ use_official_script() {
     # JavaScript support : install Node.js and npm           and add --js-completer when calling ./install.py.
     # Rust support       : install Rust                      and add --rust-completer when calling ./install.py.
     # Java support       : install JDK8 (version 8 required) and add --java-completer when calling ./install.py.
-    echo "here"
     params='--clang-completer'
     ($is_arch) && params="--system-libclang $params"
     python3 ./install.py $params

@@ -4,7 +4,13 @@
 _this_cmd=$0
 declare -A known_dir_ve_map
 
-[[ -z "$PY_VIRTUAL_ENV_DIR" ]] && export PY_VIRTUAL_ENV_DIR="${HOME}/Envs"
+if [[ -z "$PY_VIRTUAL_ENV_DIR" ]]; then
+    if [[ -n "$WORKON_HOME" ]]; then
+        export PY_VIRTUAL_ENV_DIR=$WORKON_HOME
+    else
+        export PY_VIRTUAL_ENV_DIR="${HOME}/.venvs"
+    fi
+fi
 
 pyves_repr=$(ls $PY_VIRTUAL_ENV_DIR | sort | grep -n '' | sed 's/:/\t/')
 

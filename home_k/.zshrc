@@ -68,10 +68,10 @@ plugins=(
   #'go'
   #'node'
   #'npm'
-  #'pyenv'
   #'git'
   #'emoji-clock'
   #'rand-quote'
+  #'command-not-found'
   'vi-mode'
   'virtualenv'
   'virtualenvwrapper'
@@ -101,10 +101,10 @@ plugins=(
   'taskwarrior'
   'urltools'
   'web-search'
-  'command-not-found'
   'zsh-syntax-highlighting'
   'tmux'
   'tmuxinator'
+  'pyenv'
 )
 
 source $ZSH/oh-my-zsh.sh

@@ -97,9 +97,6 @@ Plug 'vim-scripts/fcitx.vim', {'for': 'markdown'} " keep and restore fcitx state
 " Plug 'junegunn/limelight.vim'
 " Plug 'terryma/vim-smooth-scroll'
 
-" /* Mine */
-Plug 'karmenzind/vim-tmuxlike'
-
 " /* Funny Stuff */
 Plug 'junegunn/vim-emoji', { 'for': 'markdown,gitcommit' }
 " Plug 'vim-scripts/TeTrIs.vim'
@@ -107,6 +104,9 @@ Plug 'junegunn/vim-emoji', { 'for': 'markdown,gitcommit' }
 " /* Syntax | Fold */
 " Plug 'demophoon/bash-fold-expr', { 'for': 'sh' }
 " Plug 'vim-scripts/txt.vim', { 'for': 'txt' }
+
+" /* Enhancement */
+Plug 'karmenzind/vim-tmuxlike'
 
 " /* Appearance */
 Plug 'flazz/vim-colorschemes'
@@ -176,7 +176,7 @@ endif
 set scrolloff=5
 
 " /* Enable folding */
-" set foldlevel=99
+set foldlevel=99
 
 " /* spell check */
 set spelllang=en nospell
@@ -312,16 +312,16 @@ endif
 
 let g:ycm_filetype_blacklist = {
       \ 'gitcommit': 1,
-      \ 'tagbar' : 1,
-      \ 'qf' : 1,
-      \ 'notes' : 1,
-      \ 'unite' : 1,
-      \ 'text' : 1,
-      \ 'vimwiki' : 1,
-      \ 'pandoc' : 1,
-      \ 'infolog' : 1,
-      \ 'mail' : 1,
-      \}
+      \ 'tagbar': 1,
+      \ 'qf': 1,
+      \ 'notes': 1,
+      \ 'unite': 1,
+      \ 'text': 1,
+      \ 'vimwiki': 1,
+      \ 'pandoc': 1,
+      \ 'infolog': 1,
+      \ 'mail': 1,
+      \ }
 
 set completeopt-=preview
 set completeopt+=longest,menu

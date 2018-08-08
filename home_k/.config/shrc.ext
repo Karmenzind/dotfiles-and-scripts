@@ -9,8 +9,8 @@ alias vi=vim
 alias nv=nvim
 alias mux=tmuxinator
 
-# copy to clipboard
 alias toboard='xclip -selection clipboard'
+alias acp='source acpyve'
 
 # /* others apps */
 export CATALINA_HOME=/usr/share/tomcat8 # tomcat
@@ -180,7 +180,7 @@ _init_alarcrity
 export PROJECT_PATHS=(~/Workspace)
 
 # virtualenv wrapper
-export WORKON_HOME=~/Envs
+export WORKON_HOME=~/.venvs
 
 #######################################################################
 #                               others                                #
