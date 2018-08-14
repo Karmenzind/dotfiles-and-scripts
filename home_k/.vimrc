@@ -4,7 +4,7 @@
 " general keymaps and abbreviations
 " --------------------------------------------
 
-noremap <Leader>e  :tabe   $MYVIMRC<CR>
+noremap <Leader>e  :call EditRcFiles()<CR>
 noremap <Leader>R  :source $MYVIMRC<CR> :echom 'Vimrc reloaded :)'<CR>
 noremap <Leader>S  :source %<CR> :echom expand('%') . ' sourced :)'<CR>
 
@@ -129,6 +129,7 @@ set nocompatible
 set noerrorbells
 set showcmd " This shows what you are typing as a command.
 set noincsearch
+set ttimeoutlen=0
 " set report=0
 " set suffixes=.bak,~,.swp,.o,.info,.aux,.log,.dvi,.bbl,.blg,.brf,.cb,.ind,.idx,.ilg,.inx,.out,.toc,.png,.jpg
 
@@ -148,8 +149,8 @@ set matchtime=5
 " set statusline=%F%m%r%h%w\ (%{&ff}){%Y}\ [%l,%v][%p%%]
 set statusline=%f\ %{WebDevIconsGetFileTypeSymbol()}\ %h%w%m%r\ %=%(%l,%c%V\ %Y\ %=\ %P%)
 " cursor's shape (FIXIT)
-" let &t_SI = "\e[6 q"
-" let &t_EI = "\e[2 q"
+let &t_SI = "\e[6 q"
+let &t_EI = "\e[2 q"
 
 " /* line number */
 set number
@@ -568,6 +569,16 @@ let g:startify_lists = [
 " Functions
 " --------------------------------------------
 
+" edit rc files
+let s:extra_vimrc = glob('~/.vimrc.local')
+let s:valid_extra_vimrc = filereadable(s:extra_vimrc)
+function! EditRcFiles()
+  execute 'tabe ' . $MYVIMRC
+  if s:valid_extra_vimrc
+    execute 'split ' . s:extra_vimrc
+  endif
+endfunction
+
 " toggle quickfix window
 let g:quickfix_is_open = 0
 function! QuickfixToggle()
@@ -730,8 +741,7 @@ call InitColors()
 " --------------------------------------------
 
 " load local configure
-let s:extra_vimrc = glob('~/.vimrc.local')
-if filereadable(s:extra_vimrc)
+if s:valid_extra_vimrc
   execute 'source' . s:extra_vimrc
 endif
 
