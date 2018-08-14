@@ -215,11 +215,8 @@ syntax enable
 " filetype plugin indent on
 
 set termencoding=utf-8
-set fileencodings=utf8,chinese,latin-1,ucs-bom,gbk,cp936,gb2312,gb18030
+set fileencodings=utf8,ucs-bom,gbk,cp936,gb2312,gb18030
 set encoding=utf-8
-if has('win32')
-  set fileencoding=chinese
-endif
 
 set iskeyword+=_,$,@,%,#,-
 set fileformat=unix
@@ -236,7 +233,7 @@ augroup filetype_formats
 
   au FileType help setlocal nu
 
-  au BufNewFile,BufRead *.{vim,vimrc}
+  au BufNewFile,BufRead *.{vim},*vimrc
         \ setlocal tabstop=2         |
         \ setlocal softtabstop=2     |
         \ setlocal shiftwidth=2      |
@@ -687,6 +684,19 @@ augroup fit_colorscheme
   endif
   au ColorScheme * call AfterChangeColorscheme()
 augroup END
+
+" --------------------------------------------
+" compatible with f cking windows
+" --------------------------------------------
+
+" gvim on win
+if has("win32")
+  set fileencodings=ucs-bom,utf-8,chinese,cp936
+  set fileencoding=chinese
+  source $VIMRUNTIME/delmenu.vim
+  source $VIMRUNTIME/menu.vim
+  language messages zh_CN.utf-8
+endif
 
 " --------------------------------------------
 " colorscheme
