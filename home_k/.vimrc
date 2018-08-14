@@ -29,7 +29,7 @@ nnoremap <leader><CR> i<CR><ESC>k$
 " --------------------------------------------
 
 " /* automatically install Plug */
-if empty(glob('~/.vim/autoload/plug.vim'))
+if empty(glob('~/.vim/autoload/plug.vim')) && !has('win32')
   silent !mkdir -p ~/.vim/autoload &&
         \ wget https://raw.githubusercontent.com/junegunn/vim-plug/master/plug.vim
         \ -O ~/.vim/autoload/plug.vim
@@ -215,8 +215,11 @@ syntax enable
 " filetype plugin indent on
 
 set termencoding=utf-8
-set fileencodings=utf8,ucs-bom,gbk,cp936,gb2312,gb18030
+set fileencodings=utf8,chinese,latin-1,ucs-bom,gbk,cp936,gb2312,gb18030
 set encoding=utf-8
+if has('win32')
+  set fileencoding=chinese
+endif
 
 set iskeyword+=_,$,@,%,#,-
 set fileformat=unix
@@ -584,12 +587,14 @@ endfunction
 
 " (toggle) set termguicolors
 function! SetTermguiColors(k)
-  if a:k ==# 'yes'
-    if &termguicolors == 0 && has('termguicolors')
-      set termguicolors
-    endif
-  elseif &termguicolors == 1
-    set notermguicolors
+  if has('termguicolors')
+      if a:k ==# 'yes'
+        if &termguicolors == 0
+          set termguicolors
+        endif
+      elseif &termguicolors == 1
+        set notermguicolors
+      endif
   endif
 endfunction
 
@@ -614,10 +619,15 @@ endfunction
 
 " try to set termguicolors and return the status
 function! InitTermguicolors()
-  if &termguicolors == 0 && has('termguicolors')
-    set termguicolors
+  if has('termguicolors')
+    if &termguicolors == 0
+      set termguicolors
+      " enhance termguicolors
+      let &t_8f = "\<Esc>[38;2;%lu;%lu;%lum"
+      let &t_8b = "\<Esc>[48;2;%lu;%lu;%lum"
+    endif
+    return &termguicolors
   endif
-  return &termguicolors
 endfunction
 
 " initialize the colorscheme
@@ -631,7 +641,7 @@ function! InitColors()
       if InitTermguicolors()
         colorscheme atomic
       else
-        colorscheme evening
+        colorscheme solarized
       endif
     endif
     call AfterChangeColorscheme()
@@ -701,10 +711,6 @@ set background=dark
 " italic
 set t_ZH=[3m
 set t_ZR=[23m
-
-" enhance termguicolors
-let &t_8f = "\<Esc>[38;2;%lu;%lu;%lum"
-let &t_8b = "\<Esc>[48;2;%lu;%lu;%lum"
 
 " initialize the colo
 call InitColors()
