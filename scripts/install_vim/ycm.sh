@@ -94,18 +94,24 @@ EOF
 # --------------------------------------------
 
 process_repo() {
-    echo "Clone ycm's repo and initialize it? (Y/n)"
-    echo "(cancel it if you've done 'git clone' and 'git init' before)"
+    echo "Clone ycm's repo to $plug_dir? (Y/n)"
+    echo "(cancel if you've done this before)"
     check_input yn
     if [[ $ans = 'y' ]]; then
         [[ -d $plug_dir ]] && rm -rf $plug_dir
 
         git clone $ycm_git_url $plug_dir --depth 1
+    else
+        [[ -d $plug_dir ]] || exit_with_msg 'You must clone the repo to continue.'
+    fi
 
+    echo "Run 'git submodule udpate --init --recursive'? (Y/n)"
+    echo "(cancel if you've done this before)"
+    check_input yn
+    if [[ $ans = 'y' ]]; then
         cd $plug_dir 
         git submodule update --init --recursive 
-    else
-        [[ -d $plug_dir ]] || exit_with_msg 'You must clone and initialize the repo to continue.'
+        # TODO: else
     fi
 }
 

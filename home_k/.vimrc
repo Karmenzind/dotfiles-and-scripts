@@ -92,8 +92,10 @@ Plug 'Traap/vim-helptags'
 " Plug 'scrooloose/vim-slumlord'
 
 " /* Experience */
-Plug 'junegunn/goyo.vim', { 'on': 'Goyo' }
-Plug 'vim-scripts/fcitx.vim', {'for': 'markdown'} " keep and restore fcitx state when leaving/re-entering insert mode
+if executable('fcitx')
+  Plug 'vim-scripts/fcitx.vim', {'for': 'markdown'} " keep and restore fcitx state when leaving/re-entering insert mode
+endif
+" Plug 'junegunn/goyo.vim', { 'on': 'Goyo' }
 " Plug 'junegunn/limelight.vim'
 " Plug 'terryma/vim-smooth-scroll'
 
@@ -147,7 +149,7 @@ set matchtime=5
 " set noshowmode
 " set whichwrap+=<,>,h,l
 " set statusline=%F%m%r%h%w\ (%{&ff}){%Y}\ [%l,%v][%p%%]
-set statusline=%f\ %{WebDevIconsGetFileTypeSymbol()}\ %h%w%m%r\ %=%(%l,%c%V\ %Y\ %=\ %P%)
+" set statusline=%f\ %{WebDevIconsGetFileTypeSymbol()}\ %h%w%m%r\ %=%(%l,%c%V\ %Y\ %=\ %P%)
 " cursor's shape (FIXIT)
 let &t_SI = "\e[6 q"
 let &t_EI = "\e[2 q"
@@ -708,6 +710,18 @@ if has("win32")
   source $VIMRUNTIME/menu.vim
   language messages zh_CN.utf-8
 endif
+
+" interact with Windows's clipboard in WSL
+" let s:clip = '/mnt/c/Windows/System32/clip.exe'
+" if executable(s:clip)
+"   augroup WSLYank
+"     autocmd!
+"     autocmd TextYankPost * call system('echo '.shellescape(join(v:event.regcontents, "\<CR>")).' | '.s:clip)
+"   augroup END
+" endif
+" map      <silent> "+p    :r !powershell.exe -Command Get-Clipboard<CR>
+" FIXIT!
+" inoremap <silent> <C-r>+ :r !powershell.exe -Command Get-Clipboard<CR>
 
 " --------------------------------------------
 " colorscheme
