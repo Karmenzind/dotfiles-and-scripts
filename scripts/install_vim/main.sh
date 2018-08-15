@@ -25,7 +25,7 @@ done
 # --------------------------------------------
 
 restore_my_vim () {
-    cp $repo_dir/vim/.vimrc ~/.vimrc
+    cp $repo_dir/home_k/.vimrc ~/.vimrc
     cat << EOF
 PlugInstall will start right now.
 If it fails on YouCompleteMe,

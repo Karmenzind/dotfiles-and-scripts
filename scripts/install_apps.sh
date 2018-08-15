@@ -171,6 +171,10 @@ install_yaourt() {
 }
 
 install_nerd_fonts() {
+    echo "Install monaco nerd font? (Y/n)"
+    check_input yn
+    [[ ! $ans = 'y' ]] && return
+
     local target_dir='/usr/share/fonts/nerd'
     local _tmp='/tmp/monaco-nerd-fonts'
     sudo mkdir -p $target_dir
@@ -181,37 +185,68 @@ install_nerd_fonts() {
     rm -rf $_tmp
 }
 
-install_ranger_and_plugins () {
+install_ranger_and_plugins() {
     echo "Install ranger and plugins? (Y/n)"
     check_input yn
-    if [[ $ans = 'y' ]]; then
-        # ranger and basic config
-        do_install ranger
-        ranger --copy-config=all
-        # devicons
-        local clonedir=/tmp/ranger_devicons
-        [[ -d $clonedir ]] && rm -rf $clonedir
-        git clone https://github.com/alexanderjeurissen/ranger_devicons $clonedir
-        cd $clonedir
-        make install
-        cd ~
-        rm -rf $clonedir
+    [[ ! $ans = 'y' ]] && return
+
+    # ranger and basic config
+    do_install ranger
+    ranger --copy-config=all
+    # devicons
+    local clonedir=/tmp/ranger_devicons
+    [[ -d $clonedir ]] && rm -rf $clonedir
+    git clone https://github.com/alexanderjeurissen/ranger_devicons $clonedir
+    cd $clonedir
+    make install
+    cd ~
+    rm -rf $clonedir
+}
+
+install_wudao_dict() {
+    echo "Install wudao-dict? (Y/n)"
+    check_input yn
+    [[ ! $ans = 'y' ]] && return
+
+    command -v 'pip' > /dev/null 2>&1 || do_install 'python-pip'
+    # sudo pip install bs4 lxml requests
+    local target_dir="$HOME/.local/wudao-dict"
+    if [[ -d "$target_dir" ]]; then
+        rm -rf $target_dir
     fi
+    git clone https://github.com/chestnutheng/wudao-dict $target_dir --depth=1
+    cd $target_dir/wudao-dict
+    sudo bash setup.sh
+}
+
+install_officials() {
+    echo "Install offcial apps with pacman? (Y/n)"
+    check_input yn
+    [[ ! $ans = 'y' ]] && return
+
+    do_install ${_basic[*]} ${_fonts[*]} ${_cli[*]} ${_desktop[*]} ${_themes[*]} ${_required_by_vim[*]}
+    sudo pacman -Sc 
+}
+
+install_aurs() {
+    aur_helper=yay
+    echo "Install apps from AUR with $aur_helper? (Y/n)"
+    check_input yn
+    [[ ! $ans = 'y' ]] && return
+
+    install_yay
+    $aur_helper -S -v --needed --noconfirm ${_aur[*]} ${_aur_themes[*]} ${_required_by_vim_aur[*]}
+    $aur_helper -Sc
 }
 
 # --------------------------------------------
 
 # official
-do_install ${_basic[*]} ${_fonts[*]} ${_cli[*]} ${_desktop[*]} ${_themes[*]} ${_required_by_vim[*]}
-sudo pacman -Sc 
-
+install_officials
 # aur
-install_yay
-aur_helper=yay
-$aur_helper -S -v --needed --noconfirm ${_aur[*]} ${_aur_themes[*]} ${_required_by_vim_aur[*]}
-$aur_helper -Sc
-
+install_aurs
 # others
 install_ranger_and_plugins
+install_wudao_dict
 install_nerd_fonts
 

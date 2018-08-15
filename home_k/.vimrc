@@ -4,7 +4,7 @@
 " general keymaps and abbreviations
 " --------------------------------------------
 
-noremap <Leader>e  :tabe   $MYVIMRC<CR>
+noremap <Leader>e  :call EditRcFiles()<CR>
 noremap <Leader>R  :source $MYVIMRC<CR> :echom 'Vimrc reloaded :)'<CR>
 noremap <Leader>S  :source %<CR> :echom expand('%') . ' sourced :)'<CR>
 
@@ -29,7 +29,7 @@ nnoremap <leader><CR> i<CR><ESC>k$
 " --------------------------------------------
 
 " /* automatically install Plug */
-if empty(glob('~/.vim/autoload/plug.vim'))
+if empty(glob('~/.vim/autoload/plug.vim')) && !has('win32')
   silent !mkdir -p ~/.vim/autoload &&
         \ wget https://raw.githubusercontent.com/junegunn/vim-plug/master/plug.vim
         \ -O ~/.vim/autoload/plug.vim
@@ -92,8 +92,10 @@ Plug 'Traap/vim-helptags'
 " Plug 'scrooloose/vim-slumlord'
 
 " /* Experience */
-Plug 'junegunn/goyo.vim', { 'on': 'Goyo' }
-Plug 'vim-scripts/fcitx.vim', {'for': 'markdown'} " keep and restore fcitx state when leaving/re-entering insert mode
+if executable('fcitx')
+  Plug 'vim-scripts/fcitx.vim', {'for': 'markdown'} " keep and restore fcitx state when leaving/re-entering insert mode
+endif
+" Plug 'junegunn/goyo.vim', { 'on': 'Goyo' }
 " Plug 'junegunn/limelight.vim'
 " Plug 'terryma/vim-smooth-scroll'
 
@@ -129,6 +131,7 @@ set nocompatible
 set noerrorbells
 set showcmd " This shows what you are typing as a command.
 set noincsearch
+set ttimeoutlen=0
 " set report=0
 " set suffixes=.bak,~,.swp,.o,.info,.aux,.log,.dvi,.bbl,.blg,.brf,.cb,.ind,.idx,.ilg,.inx,.out,.toc,.png,.jpg
 
@@ -146,10 +149,10 @@ set matchtime=5
 " set noshowmode
 " set whichwrap+=<,>,h,l
 " set statusline=%F%m%r%h%w\ (%{&ff}){%Y}\ [%l,%v][%p%%]
-set statusline=%f\ %{WebDevIconsGetFileTypeSymbol()}\ %h%w%m%r\ %=%(%l,%c%V\ %Y\ %=\ %P%)
+" set statusline=%f\ %{WebDevIconsGetFileTypeSymbol()}\ %h%w%m%r\ %=%(%l,%c%V\ %Y\ %=\ %P%)
 " cursor's shape (FIXIT)
-" let &t_SI = "\e[6 q"
-" let &t_EI = "\e[2 q"
+let &t_SI = "\e[6 q"
+let &t_EI = "\e[2 q"
 
 " /* line number */
 set number
@@ -233,7 +236,7 @@ augroup filetype_formats
 
   au FileType help setlocal nu
 
-  au BufNewFile,BufRead *.{vim,vimrc}
+  au BufNewFile,BufRead *.{vim},*vimrc
         \ setlocal tabstop=2         |
         \ setlocal softtabstop=2     |
         \ setlocal shiftwidth=2      |
@@ -568,6 +571,16 @@ let g:startify_lists = [
 " Functions
 " --------------------------------------------
 
+" edit rc files
+let s:extra_vimrc = glob('~/.vimrc.local')
+let s:valid_extra_vimrc = filereadable(s:extra_vimrc)
+function! EditRcFiles()
+  execute 'tabe ' . $MYVIMRC
+  if s:valid_extra_vimrc
+    execute 'split ' . s:extra_vimrc
+  endif
+endfunction
+
 " toggle quickfix window
 let g:quickfix_is_open = 0
 function! QuickfixToggle()
@@ -584,12 +597,14 @@ endfunction
 
 " (toggle) set termguicolors
 function! SetTermguiColors(k)
-  if a:k ==# 'yes'
-    if &termguicolors == 0 && has('termguicolors')
-      set termguicolors
-    endif
-  elseif &termguicolors == 1
-    set notermguicolors
+  if has('termguicolors')
+      if a:k ==# 'yes'
+        if &termguicolors == 0
+          set termguicolors
+        endif
+      elseif &termguicolors == 1
+        set notermguicolors
+      endif
   endif
 endfunction
 
@@ -614,10 +629,15 @@ endfunction
 
 " try to set termguicolors and return the status
 function! InitTermguicolors()
-  if &termguicolors == 0 && has('termguicolors')
-    set termguicolors
+  if has('termguicolors')
+    if &termguicolors == 0
+      set termguicolors
+      " enhance termguicolors
+      let &t_8f = "\<Esc>[38;2;%lu;%lu;%lum"
+      let &t_8b = "\<Esc>[48;2;%lu;%lu;%lum"
+    endif
+    return &termguicolors
   endif
-  return &termguicolors
 endfunction
 
 " initialize the colorscheme
@@ -631,7 +651,7 @@ function! InitColors()
       if InitTermguicolors()
         colorscheme atomic
       else
-        colorscheme evening
+        colorscheme solarized
       endif
     endif
     call AfterChangeColorscheme()
@@ -679,6 +699,31 @@ augroup fit_colorscheme
 augroup END
 
 " --------------------------------------------
+" compatible with f cking windows
+" --------------------------------------------
+
+" gvim on win
+if has("win32")
+  set fileencodings=ucs-bom,utf-8,chinese,cp936
+  set fileencoding=chinese
+  source $VIMRUNTIME/delmenu.vim
+  source $VIMRUNTIME/menu.vim
+  language messages zh_CN.utf-8
+endif
+
+" interact with Windows's clipboard in WSL
+" let s:clip = '/mnt/c/Windows/System32/clip.exe'
+" if executable(s:clip)
+"   augroup WSLYank
+"     autocmd!
+"     autocmd TextYankPost * call system('echo '.shellescape(join(v:event.regcontents, "\<CR>")).' | '.s:clip)
+"   augroup END
+" endif
+" map      <silent> "+p    :r !powershell.exe -Command Get-Clipboard<CR>
+" FIXIT!
+" inoremap <silent> <C-r>+ :r !powershell.exe -Command Get-Clipboard<CR>
+
+" --------------------------------------------
 " colorscheme
 " --------------------------------------------
 
@@ -702,10 +747,6 @@ set background=dark
 set t_ZH=[3m
 set t_ZR=[23m
 
-" enhance termguicolors
-let &t_8f = "\<Esc>[38;2;%lu;%lu;%lum"
-let &t_8b = "\<Esc>[48;2;%lu;%lu;%lum"
-
 " initialize the colo
 call InitColors()
 
@@ -714,8 +755,7 @@ call InitColors()
 " --------------------------------------------
 
 " load local configure
-let s:extra_vimrc = glob('~/.vimrc.local')
-if filereadable(s:extra_vimrc)
+if s:valid_extra_vimrc
   execute 'source' . s:extra_vimrc
 endif
 
