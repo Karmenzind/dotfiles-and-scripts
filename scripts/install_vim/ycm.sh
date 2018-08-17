@@ -124,16 +124,15 @@ compile_ycm_core() {
     cd $build_dir && rm -rf *
 
     if ($is_arch); then
-        cmake_extra='-DUSE_SYSTEM_LIBCLANG=ON -DUSE_PYTHON2=OFF'
+        cmake_extra='-DUSE_SYSTEM_LIBCLANG=ON'
     else
         cmake_extra="-DEXTERNAL_LIBCLANG_PATH=${libclang_so_path}"
     fi
+    command -v 'python3' >/dev/null 2>&1 && cmake_extra="$cmake_extra -DUSE_PYTHON2=OFF"
 
     # config
     cmake -G "Unix Makefiles"                        \
         -DUSE_CLANG_COMPLETER=ON                     \
-        -DEXTERNAL_LIBCLANG_PATH=${libclang_so_path} \
-        -DUSE_SYSTEM_LIBCLANG=ON                     \
         $cmake_extra                                 \
         . ${plug_dir}/third_party/ycmd/cpp 
 
