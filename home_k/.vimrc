@@ -11,6 +11,7 @@ noremap <Leader>S  :source %<CR> :echom expand('%') . ' sourced :)'<CR>
 " /* command */
 cabbrev w!! w !sudo tee %
 cabbrev th tab<SPACE>help
+cabbrev sss s/\v(,)\s*/\1\r/g
 
 " /* workspace, layout, format and others */
 nnoremap <silent> <A-a> gT
@@ -121,12 +122,15 @@ Plug 'icymind/NeoSolarized'
 
 call plug#end()
 
+" internal plugins
+runtime macros/matchit.vim
+runtime! ftplugin/man.vim
+
 " --------------------------------------------
 " basic
 " --------------------------------------------
 
 " /* base */
-" runtime macros/matchit.vim
 set nocompatible
 set noerrorbells
 set showcmd " This shows what you are typing as a command.
@@ -356,7 +360,7 @@ nnoremap <silent> <Leader>doc :YcmCompleter GetDoc<CR>
 augroup ycm_autos
   au!
   au FileType python
-        \ nnoremap <silent> <C-]> :YcmCompleter GoTo<CR>
+        \ nnoremap <buffer> <silent> <C-]> :YcmCompleter GoTo<CR>
 augroup END
 
 " /* for NERDTree */
@@ -474,7 +478,8 @@ let g:snips_github = 'https://github.com/Karmenzind/'
 " /* for ale */
 nmap <silent> <C-k> <Plug>(ale_previous)
 nmap <silent> <C-j> <Plug>(ale_next)
-nmap <silent> <Leader>fix <Plug>(ale_fix)
+nmap <silent> <Leader>al <Plug>(ale_lint)
+nmap <silent> <Leader>af <Plug>(ale_fix)
 let g:ale_linters = {
       \  'vim': ['vint'],
       \  'markdown': ['mdl', 'prettier', 'proselint', 'alex'],
@@ -520,8 +525,8 @@ let g:mkdp_command_for_global = 0
 augroup for_markdown_ft
   au!
   au FileType markdown
-        \ nnoremap <silent> <Leader>mt :Toc<CR>             |
-        \ nnoremap <silent> <Leader>mp :MarkdownPreview<CR>
+        \ nnoremap <buffer> <silent> <Leader>mt :Toc<CR>             |
+        \ nnoremap <buffer> <silent> <Leader>mp :MarkdownPreview<CR>
 augroup END
 
 " /* for SimpylFold */

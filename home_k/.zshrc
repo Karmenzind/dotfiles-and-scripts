@@ -73,6 +73,7 @@ plugins=(
   #'rand-quote'
   #'command-not-found'
   'vi-mode'
+  'svn'
   'virtualenv'
   'virtualenvwrapper'
   'archlinux'
