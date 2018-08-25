@@ -177,7 +177,7 @@ _init_alarcrity
 #######################################################################
 
 # pj
-export PROJECT_PATHS=(~/Workspace)
+export PROJECT_PATHS=(~/Workspace ~/Localworks)
 
 # virtualenv wrapper
 export WORKON_HOME=~/.venvs
