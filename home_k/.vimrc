@@ -1,6 +1,16 @@
 " Github: https://github.com/Karmenzind/dotfiles-and-scripts
 
 " --------------------------------------------
+" pre funcs
+" --------------------------------------------
+
+let s:alt_map_keys = []
+function! DoAltMap(mod, key, action)
+  execute a:mod . ' ' . a:key . ' ' . a:action
+  call add(s:alt_map_keys, a:key)
+endfunction
+
+" --------------------------------------------
 " general keymaps and abbreviations
 " --------------------------------------------
 
@@ -14,9 +24,8 @@ cabbrev th tab<SPACE>help
 cabbrev sss s/\v(,)\s*/\1\r/g
 
 " /* workspace, layout, format and others */
-nnoremap <silent> <A-a> gT
-nnoremap <silent> <A-d> gt
-
+call DoAltMap('nnoremap', 'a', 'gT')
+call DoAltMap('nnoremap', 'd', 'gt')
 " use <Leader>s as 'set' prefix
 nnoremap <silent> <Leader>sw :set wrap!<CR> :set wrap?<CR>
 nnoremap <silent> <Leader>sb :call BackgroudToggle()<CR>
@@ -52,7 +61,7 @@ Plug 'majutsushi/tagbar'
 Plug 'Shougo/echodoc.vim'
 Plug 'w0rp/ale' " Asynchronous Lint Engine
 Plug 'Valloric/YouCompleteMe', { 'do': './install.py --clang-completer --system-libclang --go-completer --js-completer --java-completer' }
-Plug 'terryma/vim-multiple-cursors'
+" Plug 'terryma/vim-multiple-cursors'
 " Plug 'junegunn/rainbow_parentheses.vim'
 " Plug 'Valloric/MatchTagAlways'
 
@@ -93,10 +102,11 @@ Plug 'Traap/vim-helptags'
 " Plug 'iamcco/mathjax-support-for-mkdp', { 'for': 'markdown' }  " before markdown-preview
 " Plug 'scrooloose/vim-slumlord'
 
-" /* Experience | Enhancement */
-if !has('clipboard') | Plug 'kana/vim-fakeclip' | endif
-if executable('fcitx') | Plug 'vim-scripts/fcitx.vim', {'for': 'markdown'} | endif
-" Plug 'junegunn/goyo.vim', { 'on': 'Goyo' }
+" /* Experience */
+if executable('fcitx')
+  Plug 'vim-scripts/fcitx.vim', {'for': 'markdown'} " keep and restore fcitx state when leaving/re-entering insert mode
+endif
+Plug 'junegunn/goyo.vim', { 'on': 'Goyo' }
 " Plug 'junegunn/limelight.vim'
 " Plug 'terryma/vim-smooth-scroll'
 
@@ -143,11 +153,6 @@ set ttimeoutlen=0
 set wildmenu
 set ruler
 set showtabline=1
-if has('win32')
-  set guifont=consolas:h13
-else
-  set guifont=Hack\ Nerd\ Font\ 12
-endif
 set cursorline
 set showmode
 set cmdheight=2
@@ -179,10 +184,6 @@ set backspace=indent,eol,start  " more powerful backspacing
 " make * reg the default
 if has('clipboard')
   set clipboard=unnamed
-endif
-if has('gui_running')
-  map <S-Insert> <MiddleMouse>
-  map! <S-Insert> <MiddleMouse>
 endif
 set scrolloff=5
 
@@ -316,7 +317,7 @@ augroup END
 " --------------------------------------------
 
 " /* for YCM */
-if empty(glob('~/.vim/.ycm_extra_conf.py')) && !has('win32')
+if empty(glob('~/.vim/.ycm_extra_conf.py'))
   silent !wget https://raw.githubusercontent.com/Karmenzind/dotfiles-and-scripts/master/home_k/.vim/.ycm_extra_conf.py
         \ -O ~/.vim/.ycm_extra_conf.py
 endif
@@ -406,6 +407,7 @@ let g:airline#extensions#wordcount#enabled = 0
 let g:airline#extensions#whitespace#enabled = 0
 let g:airline#extensions#fugitiveline#enabled = 0
 let g:airline#extensions#hunks#enabled = 0
+" let g:airline#extensions#tabline#enabled = 1
 " let g:airline#extensions#hunks#non_zero_only = 1
 
 " /* for LeaderF */
@@ -443,11 +445,6 @@ let g:WebDevIconsUnicodeDecorateFolderNodes = 1
 let g:DevIconsEnableFoldersOpenClose = 1
 " let g:WebDevIconsOS = 'ArchLinux'
 
-" /* for startify */
-function! StartifyEntryFormat()
-  return 'WebDevIconsGetFileTypeSymbol(absolute_path) ." ". entry_path'
-endfunction
-
 " /* for vim-easy-align */
 xmap ga <Plug>(EasyAlign)
 nmap ga <Plug>(EasyAlign)
@@ -484,7 +481,6 @@ let g:ale_linters = {
       \  'vim': ['vint'],
       \  'markdown': ['mdl', 'prettier', 'proselint', 'alex'],
       \  'text': ['proselint', 'alex', 'redpen'],
-      \  'javascript': ['prettier', 'importjs'],
       \  'gitcommit': ['gitlint'],
       \  'dockerfile': ['hadolint'],
       \  'sql': ['sqlint'],
@@ -493,18 +489,12 @@ let g:ale_linters = {
 let g:ale_fixers = {
       \  '*': ['trim_whitespace'],
       \  'c': ['clang-format'],
-      \  'javascript': ['prettier', 'importjs'],
       \  'sh': ['shfmt'],
       \  'python': [
       \    'autopep8',
       \    'isort',
       \  ],
       \ }
-
-" /* for vim-multiple-cursors */
-if !has('gui_running')
-  map <M-n> <A-n>
-endif
 
 " /* for vim-markdown | markdown-preview */
 " vim-markdown
@@ -554,13 +544,9 @@ let g:startify_change_to_dir = 0
 let g:startify_session_persistence = 1
 let g:startify_session_before_save = [ 'silent! NERDTreeClose' ]
 
-augroup staritify_autos
-  au!
-  autocmd VimEnter * let t:startify_new_tab = 1
-  autocmd BufEnter *
-        \ if !exists('t:startify_new_tab') && empty(expand('%')) |
-        \   let t:startify_new_tab = 1 | Startify | endif
-augroup END
+function! StartifyEntryFormat()
+  return 'WebDevIconsGetFileTypeSymbol(absolute_path) ." ". entry_path'
+endfunction
 
 function! s:list_commits()
   let l:not_repo = str2nr(system("git rev-parse >/dev/null 2>&1; echo $?"))
@@ -609,13 +595,13 @@ endfunction
 " (toggle) set termguicolors
 function! SetTermguiColors(k)
   if has('termguicolors')
-    if a:k ==# 'yes'
-      if &termguicolors == 0
-        set termguicolors
+      if a:k ==# 'yes'
+        if &termguicolors == 0
+          set termguicolors
+        endif
+      elseif &termguicolors == 1
+        set notermguicolors
       endif
-    elseif &termguicolors == 1
-      set notermguicolors
-    endif
   endif
 endfunction
 
@@ -710,15 +696,30 @@ augroup fit_colorscheme
 augroup END
 
 " --------------------------------------------
-" compatible with gui
+" for gui
 " --------------------------------------------
 
 if has('gui_running')
-  set winaltkeys=no
-  " lang
+  " lang / encoding
+  set encoding=utf-8
   set langmenu=en_US
   let $LANG = 'en_US.UTF-8'
-  " window / tab / bar / ...
+
+  " key map
+  for _c in s:alt_map_keys
+    execute 'map <A-' . _c . '> ' . _c
+  endfor
+  map <S-Insert> <MiddleMouse>
+  map! <S-Insert> <MiddleMouse>
+
+  " appearance
+  if has('win32')
+    set guifont=Inconsolata:h12:cANSI
+  else
+    set guifont=Hack\ Nerd\ Font\ 12
+  endif
+  source $VIMRUNTIME/delmenu.vim
+  source $VIMRUNTIME/menu.vim
   set guioptions-=T
   set guioptions-=m
   set guioptions-=L
@@ -726,6 +727,7 @@ if has('gui_running')
   set guioptions-=b
   set guioptions-=e
   set nolist
+  " set lines=35 columns=140
 endif
 
 " --------------------------------------------
@@ -735,11 +737,21 @@ endif
 " gvim on win
 if has("win32")
   set fileencodings=ucs-bom,utf-8,chinese,cp936
-  set fileencoding=chinese
-  source $VIMRUNTIME/delmenu.vim
-  source $VIMRUNTIME/menu.vim
-  language messages zh_CN.utf-8
+  " set fileencoding=chinese
+  language messages en_US.utf-8
 endif
+
+" interact with Windows's clipboard in WSL
+" let s:clip = '/mnt/c/Windows/System32/clip.exe'
+" if executable(s:clip)
+"   augroup WSLYank
+"     autocmd!
+"     autocmd TextYankPost * call system('echo '.shellescape(join(v:event.regcontents, "\<CR>")).' | '.s:clip)
+"   augroup END
+" endif
+" map      <silent> "+p    :r !powershell.exe -Command Get-Clipboard<CR>
+" FIXIT!
+" inoremap <silent> <C-r>+ :r !powershell.exe -Command Get-Clipboard<CR>
 
 " --------------------------------------------
 " colorscheme
@@ -774,6 +786,6 @@ call InitColors()
 
 " load local configure
 if s:valid_extra_vimrc
-  execute 'source ' . s:extra_vimrc
+  execute 'source' . s:extra_vimrc
 endif
 
