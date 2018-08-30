@@ -583,13 +583,20 @@ let g:startify_lists = [
 " --------------------------------------------
 
 " edit rc files
-let s:extra_vimrc = glob('~/.vimrc.local')
-let s:valid_extra_vimrc = filereadable(s:extra_vimrc)
+let s:vimrc_path = glob('~/.vimrc')
+let s:extra_vimrc_path = glob('~/.vimrc.local')
+let s:valid_extra_vimrc = filereadable(s:extra_vimrc_path)
 function! EditRcFiles()
-  execute 'tabe ' . $MYVIMRC
-  if s:valid_extra_vimrc
-    execute 'split ' . s:extra_vimrc
+  execute 'tabe ' . s:vimrc_path
+  let l:rc_id = win_getid()
+  if has('nvim')
+    execute 'split ' . g:init_vim_path
+    let l:init_id = win_getid()
+    execute 'vsplit '. g:extra_init_vim_path
   endif
+  call win_gotoid(l:rc_id)
+  execute 'vsplit ' . s:extra_vimrc_path
+  call win_gotoid(l:rc_id)
 endfunction
 
 " toggle quickfix window
@@ -765,7 +772,7 @@ set background=dark
 set t_ZH=[3m
 set t_ZR=[23m
 
-" initialize the colo
+" /* initialize the colorscheme */
 call InitColors()
 
 " --------------------------------------------
@@ -774,6 +781,6 @@ call InitColors()
 
 " load local configure
 if s:valid_extra_vimrc
-  execute 'source ' . s:extra_vimrc
+  execute 'source ' . s:extra_vimrc_path
 endif
 
