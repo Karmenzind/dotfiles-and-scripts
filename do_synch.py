@@ -11,6 +11,7 @@ HOME_DIR = os.path.expanduser('~')
 TAB = ' ' * 4
 YN = ('y', 'n')
 YNI = ('y', 'n', 'i')
+LINE = '\n' + '-' * 44 + '\n'
 
 prompt = """
 USAGE
@@ -36,6 +37,22 @@ ingored_patterns = (
     re.compile("home_k/Pictures"),
     re.compile("README"),
 )
+
+
+class Status:
+    """ as global counter"""
+    copied = []
+    not_copied = []
+
+    def display(self):
+        if self.copied:
+            print(len(self.copied), 'files have been directly copied.')
+            for _f, _t in self.copied:
+                print('\t', _f, '-->', _t)
+        # if self.not_copied:
+        #     print(len(self.copied), 'files remained.')
+        #     for _f, _t in self.copied:
+        #         print('\t', _f, '-->', _t)
 
 
 not_sync = collections.defaultdict(list)  # {reason: files}
@@ -83,8 +100,13 @@ def copy(_f, _t, interactive=False):
             os.system('sudo cp %s %s' % (_f, _t))
         print('Copied %s to %s' % (_f, _t))
 
+        Status.copied.append((_f, _t))
+    else:
+        Status.not_copied.append((_f, _t))
+
 
 def create_parent_dir(path):
+    """ before copy"""
     par = os.path.dirname(path)
     if not os.path.exists(par):
         print('Creating', par)
@@ -95,6 +117,7 @@ def create_parent_dir(path):
 
 
 def cmp(f1, f2):
+    """ compare 2 files literally"""
     with open(f1) as f1, open(f2) as f2:
         return f1.read() == f2.read()
 
@@ -196,7 +219,8 @@ def main(action):
         ans = ask(YNI)
         if ans in ('y', 'i'):
             sync(ans)
-            print(len(sync_queue), 'files has been copied.')
+        print(LINE)
+        Status().display()
 
     if not_sync['Override the newer']:
         tool_ok = not os.system('command -v vimdiff > /dev/null 2>&1')
@@ -220,4 +244,3 @@ if __name__ == '__main__':
     else:
         print(prompt)
     print('DONE :)')
-

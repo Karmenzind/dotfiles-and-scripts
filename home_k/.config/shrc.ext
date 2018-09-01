@@ -5,6 +5,9 @@ export VISUAL=vim
 export EDITOR=vim
 export BROWSER='/usr/bin/chromium'
 
+alias py=python
+alias py3=python3
+alias py2=python2
 alias vi=vim
 alias nv=nvim
 alias mux=tmuxinator
@@ -181,6 +184,24 @@ export PROJECT_PATHS=(~/Workspace ~/Localworks)
 
 # virtualenv wrapper
 export WORKON_HOME=~/.venvs
+
+#######################################################################
+#                                pyenv                                #
+#######################################################################
+
+if [[ -d "$HOME/.pyenv" ]]; then
+    export PATH="$PATH:$HOME/.pyenv/bin"
+    eval "$(pyenv init -)"
+    eval "$(pyenv virtualenv-init -)"
+fi
+
+#######################################################################
+#                                ruby                                 #
+#######################################################################
+
+if [[ -d "$HOME/.gem" ]]; then
+    export PATH=$PATH:$(find $HOME/.gem -regex '.*ruby/[^/]+/bin')
+fi
 
 #######################################################################
 #                               others                                #

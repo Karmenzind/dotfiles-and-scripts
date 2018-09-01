@@ -239,6 +239,16 @@ install_aurs() {
     $aur_helper -Sc
 }
 
+# TODO
+install_fcitx() {
+    aur_helper=yay
+    echo "Install fcitx and Chinese input method? (Y/n)"
+    check_input yn
+    [[ ! $ans = 'y' ]] && return
+
+    do_install fcitx-im fcitx-configtool fcitx-sunpinyin fcitx-cloudpinyin
+}
+
 # --------------------------------------------
 
 # official

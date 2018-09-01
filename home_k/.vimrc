@@ -7,6 +7,7 @@
 noremap <Leader>e  :call EditRcFiles()<CR>
 noremap <Leader>R  :source $MYVIMRC<CR> :echom 'Vimrc reloaded :)'<CR>
 noremap <Leader>S  :source %<CR> :echom expand('%') . ' sourced :)'<CR>
+noremap <Leader>T  :terminal<CR>
 
 " /* command */
 cabbrev w!! w !sudo tee %
@@ -153,14 +154,16 @@ set showmode
 set cmdheight=2
 set laststatus=2
 set matchtime=5
-" highlight CursorLine guibg=darkgray ctermbg=black
+
 " set noshowmode
 " set whichwrap+=<,>,h,l
 " set statusline=%F%m%r%h%w\ (%{&ff}){%Y}\ [%l,%v][%p%%]
 " set statusline=%f\ %{WebDevIconsGetFileTypeSymbol()}\ %h%w%m%r\ %=%(%l,%c%V\ %Y\ %=\ %P%)
 " cursor's shape (FIXIT)
-let &t_SI = "\e[6 q"
-let &t_EI = "\e[2 q"
+if !has('nvim')
+  let &t_SI = "\e[6 q"
+  let &t_EI = "\e[2 q"
+endif
 
 " /* line number */
 set number
@@ -443,11 +446,6 @@ let g:WebDevIconsUnicodeDecorateFolderNodes = 1
 let g:DevIconsEnableFoldersOpenClose = 1
 " let g:WebDevIconsOS = 'ArchLinux'
 
-" /* for startify */
-function! StartifyEntryFormat()
-  return 'WebDevIconsGetFileTypeSymbol(absolute_path) ." ". entry_path'
-endfunction
-
 " /* for vim-easy-align */
 xmap ga <Plug>(EasyAlign)
 nmap ga <Plug>(EasyAlign)
@@ -525,8 +523,9 @@ let g:mkdp_command_for_global = 0
 augroup for_markdown_ft
   au!
   au FileType markdown
-        \ nnoremap <buffer> <silent> <Leader>mt :Toc<CR>             |
-        \ nnoremap <buffer> <silent> <Leader>mp :MarkdownPreview<CR>
+        \ nnoremap <buffer> <silent> <Leader>t :Toc<CR>              |
+        \ nnoremap <buffer> <silent> <Leader>mp :MarkdownPreview<CR> |
+        \ cabbrev <buffer> TF TableFormat
 augroup END
 
 " /* for SimpylFold */
@@ -554,13 +553,9 @@ let g:startify_change_to_dir = 0
 let g:startify_session_persistence = 1
 let g:startify_session_before_save = [ 'silent! NERDTreeClose' ]
 
-augroup staritify_autos
-  au!
-  autocmd VimEnter * let t:startify_new_tab = 1
-  autocmd BufEnter *
-        \ if !exists('t:startify_new_tab') && empty(expand('%')) |
-        \   let t:startify_new_tab = 1 | Startify | endif
-augroup END
+function! StartifyEntryFormat()
+  return 'WebDevIconsGetFileTypeSymbol(absolute_path) ." ". entry_path'
+endfunction
 
 function! s:list_commits()
   let l:not_repo = str2nr(system("git rev-parse >/dev/null 2>&1; echo $?"))
@@ -584,12 +579,12 @@ let g:startify_lists = [
 
 " edit rc files
 let s:vimrc_path = glob('~/.vimrc')
-let s:extra_vimrc_path = glob('~/.vimrc.local')
+let s:extra_vimrc_path = s:vimrc_path . '.local'
 let s:valid_extra_vimrc = filereadable(s:extra_vimrc_path)
 function! EditRcFiles()
   execute 'tabe ' . s:vimrc_path
   let l:rc_id = win_getid()
-  if has('nvim')
+  if exists('g:extra_init_vim_path') && exists('g:extra_init_vim_path')
     execute 'split ' . g:init_vim_path
     let l:init_id = win_getid()
     execute 'vsplit '. g:extra_init_vim_path
