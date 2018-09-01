@@ -1,13 +1,12 @@
 # vim:set et ft=sh sw=4 ts=4:
 
-export TERMINAL=alacritty
-export VISUAL=vim
-export EDITOR=vim
-export BROWSER='/usr/bin/chromium'
-
 alias py=python
 alias py3=python3
 alias py2=python2
+alias ipy=ipython
+alias ipy3=ipython3
+alias ipy2=ipython2
+
 alias vi=vim
 alias nv=nvim
 alias mux=tmuxinator
@@ -16,6 +15,19 @@ alias toboard='xclip -selection clipboard'
 alias acp='source acpyve'
 
 # /* others apps */
+export VISUAL=vim
+export EDITOR=vim
+
+for _tmp_terminal in alacritty xfce4-terminal urxvt; do
+  export TERMINAL=`command -v $_tmp_terminal`
+  [[ -n $TERMINAL ]] && unset _tmp_terminal && break
+done
+
+for _tmp_browser in chromium chrome firefox elinks; do
+  export BROWSER=`command -v $_tmp_browser`
+  [[ -n $BROWSER ]] && unset _tmp_browser && break
+done
+
 export CATALINA_HOME=/usr/share/tomcat8 # tomcat
 
 #######################################################################
