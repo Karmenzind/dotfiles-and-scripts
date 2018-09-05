@@ -69,12 +69,17 @@ Plug 'mhinz/vim-startify'
 " Plug 'bagrat/vim-workspace' " tab bar
 
 " /* Search */
-Plug 'mileszs/ack.vim'
-Plug 'Yggdroot/LeaderF'
 Plug 'easymotion/vim-easymotion'
 Plug 'junegunn/vim-slash' " enhancing in-buffer search experience
-" Plug 'junegunn/fzf' | Plug 'junegunn/fzf.vim'
-" Plug 'junegunn/fzf', {'dir': '~/.local/fzf', 'do': './install --all'}
+if executable('fzf')
+  Plug system('which fzf')
+  Plug 'junegunn/fzf.vim'
+else
+  Plug 'junegunn/fzf', {'dir': '~/.local/fzf', 'do': './install --all'}
+  Plug 'junegunn/fzf.vim'
+endif
+" Plug 'mileszs/ack.vim'
+" Plug 'Yggdroot/LeaderF'
 " Plug 'haya14busa/vim-signjk-motion'
 
 " /* Python */
@@ -97,7 +102,7 @@ Plug 'Traap/vim-helptags'
 " /* Experience | Enhancement */
 if !has('clipboard') | Plug 'kana/vim-fakeclip' | endif
 if executable('fcitx') | Plug 'vim-scripts/fcitx.vim', {'for': 'markdown'} | endif
-" Plug 'junegunn/goyo.vim', { 'on': 'Goyo' }
+Plug 'junegunn/goyo.vim', { 'on': 'Goyo' }
 " Plug 'junegunn/limelight.vim'
 " Plug 'terryma/vim-smooth-scroll'
 
@@ -411,30 +416,65 @@ let g:airline#extensions#fugitiveline#enabled = 0
 let g:airline#extensions#hunks#enabled = 0
 " let g:airline#extensions#hunks#non_zero_only = 1
 
+" /* for fzf */
+let g:fzf_action = {
+  \ 'ctrl-t': 'tab split',
+  \ 'ctrl-x': 'split',
+  \ 'ctrl-v': 'vsplit' }
+let g:fzf_layout = { 'down': '~50%' }
+let g:fzf_buffers_jump = 1
+let g:fzf_tags_command = 'ctags -R'
+
+command! -bang -nargs=* Ag
+  \ call fzf#vim#ag(<q-args>,
+  \                 <bang>0 ? fzf#vim#with_preview('up:60%')
+  \                         : fzf#vim#with_preview('right:50%:hidden', '?'),
+  \                 <bang>0)
+
+command! -bang -nargs=? -complete=dir Files
+  \ call fzf#vim#files(<q-args>, fzf#vim#with_preview(), <bang>0)
+
+augroup fzf_autos
+  au!
+  autocmd! FileType fzf
+  autocmd  FileType fzf set laststatus=0 noshowmode noruler
+    \| autocmd BufLeave <buffer> set laststatus=2 showmode ruler
+augroup END
+
+nnoremap <Leader>ff :Files<SPACE>
+nnoremap <Leader>fa :Ag<SPACE>
+nnoremap <Leader>fr :Rg<SPACE>
+nnoremap <Leader>fl :Lines<SPACE>
+nnoremap <Leader>fL :BLines<SPACE>
+nnoremap <Leader>fb :Buffers<CR>
+nnoremap <Leader>fw :Windows<CR>
+nnoremap <Leader>fs :Snippets<CR>
+nnoremap <Leader>fh :History/<CR>
+
 " /* for LeaderF */
 " let g:Lf_ShortcurF = '<Leader>n'
-nnoremap <Leader>ff :LeaderfFile<CR>
-highlight Lf_hl_match gui=bold guifg=Blue cterm=bold ctermfg=21
-highlight Lf_hl_matchRefine  gui=bold guifg=Magenta cterm=bold ctermfg=201
-let g:Lf_WindowPosition = 'bottom'
-let g:Lf_DefaultMode = 'FullPath'
-let g:Lf_StlColorscheme = 'powerline'
-let g:Lf_ShowHidden = 1
-let g:Lf_WildIgnore = {
-      \  'dir': ['.svn', '.git', '.hg', '.idea', '__pycache__', '.scrapy'],
-      \  'file': ['*.sw?', '~$*', '*.exe', '*.o', '*.so', '*.py[co]'] }
-let g:Lf_MruFileExclude = ['*.so']
-let g:Lf_UseVersionControlTool = 0
+" nnoremap <Leader>ff :LeaderfFile<CR>
+" highlight Lf_hl_match gui=bold guifg=Blue cterm=bold ctermfg=21
+" highlight Lf_hl_matchRefine  gui=bold guifg=Magenta cterm=bold ctermfg=201
+" let g:Lf_WindowPosition = 'bottom'
+" let g:Lf_DefaultMode = 'FullPath'
+" let g:Lf_StlColorscheme = 'powerline'
+" let g:Lf_ShowHidden = 1
+" let g:Lf_WildIgnore = {
+"       \  'dir': ['.svn', '.git', '.hg', '.idea', '__pycache__', '.scrapy'],
+"       \  'file': ['*.sw?', '~$*', '*.exe', '*.o', '*.so', '*.py[co]'] }
+" let g:Lf_MruFileExclude = ['*.so']
+" let g:Lf_UseVersionControlTool = 0
 
 " /* for Ack */
-nnoremap <Leader>fc :Ack!<space>
-if executable('ag')
-  let g:ackprg = 'ag --vimgrep'
-endif
-let g:ackhighlight = 1
-let g:ack_mappings = {
-      \  'v':  '<C-W><CR><C-W>L<C-W>p<C-W>J<C-W>p',
-      \  'gv': '<C-W><CR><C-W>L<C-W>p<C-W>J' }
+" nnoremap <Leader>fc :Ack!<space>
+" if executable('ag')
+"   let g:ackprg = 'ag --vimgrep'
+" endif
+" let g:ackhighlight = 1
+" let g:ack_mappings = {
+"       \  'v':  '<C-W><CR><C-W>L<C-W>p<C-W>J<C-W>p',
+"       \  'gv': '<C-W><CR><C-W>L<C-W>p<C-W>J' }
 
 " /* for tagbar */
 noremap <Leader>t :TagbarToggle<CR>
@@ -478,6 +518,8 @@ nmap <silent> <C-k> <Plug>(ale_previous)
 nmap <silent> <C-j> <Plug>(ale_next)
 nmap <silent> <Leader>al <Plug>(ale_lint)
 nmap <silent> <Leader>af <Plug>(ale_fix)
+nmap <silent> <Leader>at <Plug>(ale_toggle)
+
 let g:ale_linters = {
       \  'vim': ['vint'],
       \  'markdown': ['mdl', 'prettier', 'proselint', 'alex'],
@@ -498,6 +540,29 @@ let g:ale_fixers = {
       \    'isort',
       \  ],
       \ }
+
+let g:ale_warn_about_trailing_whitespace = 0
+let g:ale_maximum_file_size = 1024 * 1024
+let g:ale_set_balloons_legacy_echo = 1
+let g:ale_lint_on_text_changed = 'normal'
+let g:ale_lint_on_insert_leave = 1
+
+" for python
+let g:ale_python_mypy_ignore_invalid_syntax = 1
+let g:ale_python_mypy_options = '--incremental'
+let g:ale_python_pylint_options = '--max-line-length=120'
+let g:ale_python_autopep8_options = '--max-line-length=120'
+let g:ale_python_flake8_options = '--max-line-length=120'
+
+" format
+let g:ale_echo_msg_format = '(%severity% %linter%) %code:% %s'
+let g:ale_echo_msg_error_str = 'E'
+let g:ale_echo_msg_info_str = 'I'
+let g:ale_echo_msg_warning_str = 'W'
+
+" others
+let g:ale_c_parse_compile_commands = 1
+let g:ale_typescript_tslint_ignore_empty_files = 1
 
 " /* for vim-multiple-cursors */
 if !has('gui_running')
