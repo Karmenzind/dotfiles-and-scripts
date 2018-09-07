@@ -441,7 +441,7 @@ augroup fzf_autos
     \| autocmd BufLeave <buffer> set laststatus=2 showmode ruler
 augroup END
 
-nnoremap <Leader>ff :Files<SPACE>
+nnoremap <Leader>ff :Files<CR>
 nnoremap <Leader>fa :Ag<SPACE>
 nnoremap <Leader>fr :Rg<SPACE>
 nnoremap <Leader>fl :Lines<SPACE>
@@ -480,6 +480,7 @@ nnoremap <Leader>fh :History/<CR>
 noremap <Leader>t :TagbarToggle<CR>
 let g:tagbar_autofocus = 1
 let g:tagbar_show_linenumbers = 1
+let g:tagbar_sort = 0
 
 " /* for devicons */
 let g:WebDevIconsUnicodeDecorateFolderNodes = 1
