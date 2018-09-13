@@ -24,7 +24,7 @@ nnoremap <silent> <Leader>sb :call BackgroudToggle()<CR>
 nnoremap <silent> <leader>q  :call QuickfixToggle()<CR>
 
 " /* input */
-" inoremap <c-d> <delete>
+inoremap <c-d> <delete>
 nnoremap <leader><CR> i<CR><ESC>k$
 
 " --------------------------------------------
@@ -65,6 +65,9 @@ Plug 'airblade/vim-gitgutter'
 Plug 'tpope/vim-fugitive'
 Plug 't9md/vim-choosewin'
 Plug 'mhinz/vim-startify'
+if executable('svn')
+  Plug 'juneedahamed/vc.vim'
+endif
 " Plug 'junegunn/gv.vim'
 " Plug 'bagrat/vim-workspace' " tab bar
 
@@ -589,8 +592,9 @@ let g:mkdp_command_for_global = 0
 augroup for_markdown_ft
   au!
   au FileType markdown
-        \ nnoremap <buffer> <silent> <Leader>t :Toc<CR>              |
-        \ nnoremap <buffer> <silent> <Leader>mp :MarkdownPreview<CR> |
+        \ nnoremap <buffer> <silent> <Leader>t :Toc<CR>                  |
+        \ nnoremap <buffer> <silent> <Leader>mp :MarkdownPreview<CR>     |
+        \ let  b:AutoPairs = {'(':')', '[':']', '{':'}',"'":"'",'"':'"'} |
         \ cabbrev <buffer> TF TableFormat
 augroup END
 
@@ -699,7 +703,7 @@ endfunction
 " let background fit the clock
 function! LetBgFitClock()
   let b:current_hour = strftime('%H')
-  if b:current_hour >=8 && b:current_hour <= 16
+  if b:current_hour >=8 && b:current_hour <= 13
     set background=light
   else
     set background=dark
