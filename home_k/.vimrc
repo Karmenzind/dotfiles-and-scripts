@@ -162,6 +162,7 @@ set showmode
 set cmdheight=2
 set laststatus=2
 set matchtime=5
+set nowrap
 
 " set noshowmode
 " set whichwrap+=<,>,h,l
@@ -265,12 +266,10 @@ augroup filetype_formats
 
   au BufNewFile,BufRead *.py
         \ setlocal autoindent            |
-        \ setlocal nowrap                |
         \ setlocal sidescroll=5          |
         \ let b:python_highlight_all = 1 |
         \ setlocal complete+=t           |
         \ setlocal formatoptions-=t      |
-        \ setlocal nowrap                |
         \ setlocal commentstring=#%s     |
         \ setlocal define=^\s*\\(def\\\\|class\\)
   " \ set listchars+=precedes:<,extends:>
@@ -539,10 +538,7 @@ let g:ale_fixers = {
       \  'c': ['clang-format'],
       \  'javascript': ['prettier', 'importjs'],
       \  'sh': ['shfmt'],
-      \  'python': [
-      \    'autopep8',
-      \    'isort',
-      \  ],
+      \  'python': ['autopep8', 'isort'],
       \ }
 
 let g:ale_warn_about_trailing_whitespace = 0
