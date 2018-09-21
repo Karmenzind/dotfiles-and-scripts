@@ -58,7 +58,7 @@ Plug 'terryma/vim-multiple-cursors'
 " Plug 'Valloric/MatchTagAlways'
 
 " /* version control | workspace */
-Plug 'scrooloose/nerdtree', { 'on':  'NERDTreeToggle' }
+Plug 'scrooloose/nerdtree'
 Plug 'Xuyuanp/nerdtree-git-plugin'
 Plug 'tiagofumo/vim-nerdtree-syntax-highlight'
 Plug 'airblade/vim-gitgutter'
@@ -86,26 +86,26 @@ endif
 " Plug 'haya14busa/vim-signjk-motion'
 
 " /* Python */
-Plug 'tmhedberg/SimpylFold', { 'for': 'python' } " code folding
-Plug 'vim-scripts/indentpython.vim', { 'for': 'python' }
-" Plug 'plytophogy/vim-virtualenv', { 'for': 'python' }
-" Plug 'python-mode/python-mode', { 'for': 'python' }
+Plug 'tmhedberg/SimpylFold' " code folding
+Plug 'vim-scripts/indentpython.vim'
+" Plug 'plytophogy/vim-virtualenv'
+" Plug 'python-mode/python-mode'
 
 " /* Write doc */
 Plug 'godlygeek/tabular'
-Plug 'mzlogin/vim-markdown-toc', { 'for': 'markdown' }
-Plug 'plasticboy/vim-markdown', { 'for': 'markdown' }
-Plug 'iamcco/markdown-preview.vim', { 'for': 'markdown' }
-Plug 'nelstrom/vim-markdown-folding', { 'for': 'markdown' }
+Plug 'mzlogin/vim-markdown-toc'
+Plug 'plasticboy/vim-markdown'
+Plug 'iamcco/markdown-preview.vim'
+Plug 'nelstrom/vim-markdown-folding'
 Plug 'mklabs/vim-markdown-helpfile'
 Plug 'Traap/vim-helptags'
-" Plug 'iamcco/mathjax-support-for-mkdp', { 'for': 'markdown' }  " before markdown-preview
+" Plug 'iamcco/mathjax-support-for-mkdp'  " before markdown-preview
 " Plug 'scrooloose/vim-slumlord'
 
 " /* Experience | Enhancement */
 if !has('clipboard') | Plug 'kana/vim-fakeclip' | endif
-if executable('fcitx') | Plug 'vim-scripts/fcitx.vim', {'for': 'markdown'} | endif
-Plug 'junegunn/goyo.vim', { 'on': 'Goyo' }
+if executable('fcitx') | Plug 'vim-scripts/fcitx.vim' | endif
+Plug 'junegunn/goyo.vim'
 " Plug 'junegunn/limelight.vim'
 " Plug 'terryma/vim-smooth-scroll'
 
@@ -419,13 +419,21 @@ let g:airline#extensions#hunks#enabled = 0
 " let g:airline#extensions#hunks#non_zero_only = 1
 
 " /* for fzf */
+function! s:build_quickfix_list(lines)
+  call setqflist(map(copy(a:lines), '{ "filename": v:val }'))
+  copen
+  cc
+endfunction
+
 let g:fzf_action = {
   \ 'ctrl-t': 'tab split',
   \ 'ctrl-x': 'split',
-  \ 'ctrl-v': 'vsplit' }
+  \ 'ctrl-v': 'vsplit',
+  \ 'ctrl-q': function('s:build_quickfix_list') }
 let g:fzf_layout = { 'down': '~50%' }
 let g:fzf_buffers_jump = 1
 let g:fzf_tags_command = 'ctags -R'
+let g:fzf_history_dir = '~/.local/share/fzf-history'
 
 command! -bang -nargs=* Ag
   \ call fzf#vim#ag(<q-args>,
@@ -435,13 +443,6 @@ command! -bang -nargs=* Ag
 
 command! -bang -nargs=? -complete=dir Files
   \ call fzf#vim#files(<q-args>, fzf#vim#with_preview(), <bang>0)
-
-augroup fzf_autos
-  au!
-  autocmd! FileType fzf
-  autocmd  FileType fzf set laststatus=0 noshowmode noruler
-    \| autocmd BufLeave <buffer> set laststatus=2 showmode ruler
-augroup END
 
 nnoremap <Leader>ff :Files<CR>
 nnoremap <Leader>fa :Ag<SPACE>
@@ -688,12 +689,16 @@ function! SetTermguiColors(k)
 endfunction
 
 " toggle background
+" FIXME doesn't work at all
 function! BackgroudToggle()
-  if &background ==# 'dark'
+  let cs = g:colors_name
+  if &background ==? 'dark'
     set background=light
-  elseif &background ==# 'light'
+  else
     set background=dark
   endif
+  execute 'colorscheme ' . cs
+  echom "Color: " . cs . " Background: " . &background
 endfunction
 
 " let background fit the clock

@@ -103,7 +103,11 @@ ex() {
 export FZF_DEFAULT_OPTS="--preview '[ -f {} ] && file {} && head -30 {} '
                          --height 50% --reverse --border
                          --preview-window=down:30%"
-export FZF_DEFAULT_COMMAND='fd --type f --hidden --follow --exclude .git'
+# use fd
+# export FZF_DEFAULT_COMMAND="fd --type f --hidden --follow --ignore-file ~/.config/search_ignore"
+# use the silver searcher
+# command -v 'ag' || echo "The silver search needs to be installed"
+export FZF_DEFAULT_COMMAND="ag --hidden --nocolor -U -g ''"
 
 # - The first argument to the function ($1) is the base path to start traversal
 # - See the source code (completion.{bash,zsh}) for the details.
@@ -220,7 +224,9 @@ fi
 #######################################################################
 
 svna() {
-    svn status | grep '?' | awk '{print $2}' | xargs -n 1 svn add 
+    while read _f ; do
+        [[ -n "$_f" ]] && svn add $_f
+    done <<< `svn status | grep '?' | awk '{print $2}'`
 }
 
 #######################################################################

@@ -1,0 +1,6 @@
+.idea
+.svn
+.git
+__pycache__
+*.pyc
+*.pyo
