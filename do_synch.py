@@ -5,6 +5,7 @@ import os
 import re
 import shutil
 import sys
+from pprint import pprint
 
 REPO_DIR = os.path.dirname(os.path.abspath(__file__))
 HOME_DIR = os.path.expanduser('~')
@@ -203,6 +204,7 @@ def main(action):
     print('\nNot to be synchronized:')
     for t, es in not_sync.items():
         print('%s:' % (TAB + t))
+        print(TAB, len(t) * '-')
         for e in es:
             if isinstance(e, (tuple, list)):
                 e = '\t'.join(e)

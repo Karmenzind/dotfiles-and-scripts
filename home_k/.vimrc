@@ -124,9 +124,9 @@ Plug 'karmenzind/vim-tmuxlike'
 Plug 'flazz/vim-colorschemes'
 Plug 'vim-airline/vim-airline'
 Plug 'vim-airline/vim-airline-themes'
-Plug 'ryanoasis/vim-devicons' " load after other plugins
 Plug 'gerardbm/vim-atomic'
 Plug 'icymind/NeoSolarized'
+" Plug 'ryanoasis/vim-devicons' " load after other plugins
 " Plug 'chxuan/change-colorscheme', { 'on': 'NextColorScheme' }
 
 call plug#end()
@@ -620,9 +620,10 @@ let g:startify_change_to_dir = 0
 let g:startify_session_persistence = 1
 let g:startify_session_before_save = [ 'silent! NERDTreeClose' ]
 
-function! StartifyEntryFormat()
-  return 'WebDevIconsGetFileTypeSymbol(absolute_path) ." ". entry_path'
-endfunction
+" with devicons
+" function! StartifyEntryFormat()
+"   return 'WebDevIconsGetFileTypeSymbol(absolute_path) ." ". entry_path'
+" endfunction
 
 function! s:list_commits()
   let l:not_repo = str2nr(system("git rev-parse >/dev/null 2>&1; echo $?"))
