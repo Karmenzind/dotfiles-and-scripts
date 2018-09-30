@@ -1,4 +1,5 @@
 #! /usr/bin/env bash
+# https://github.com/Karmenzind/
 
 # delete the app you don't need
 

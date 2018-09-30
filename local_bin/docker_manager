@@ -1,6 +1,7 @@
 #!/usr/bin/env bash
 # 用于管理Docker服务
 # 隐去部分本地内容
+# github: https://github.com/Karmenzind/
 
 RUN_ENV=''    
 

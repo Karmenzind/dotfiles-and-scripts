@@ -1,4 +1,5 @@
 #! /usr/bin/env bash
+# https://github.com/Karmenzind/
 
 clear
 cd `dirname $0`

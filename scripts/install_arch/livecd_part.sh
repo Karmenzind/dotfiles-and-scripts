@@ -1,5 +1,6 @@
 #! /usr/bin/env bash
 # refer https://wiki.archlinux.org/index.php/Installation_guide
+# https://github.com/Karmenzind/
 
 #######################################################################
 #                        copied from commonrc                         #

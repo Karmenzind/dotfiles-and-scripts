@@ -1,5 +1,6 @@
 #! /usr/bin/env bash
 # create sudo user
+# https://github.com/Karmenzind/
 
 new_sudo_user() {
     do_install sudo

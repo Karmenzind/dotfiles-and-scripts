@@ -1,4 +1,5 @@
 #! /usr/bin/env bash
+# https://github.com/Karmenzind/
 
 do_install dialog wpa_supplicant ntfs-3g dhcpcd 
 put_cutoff

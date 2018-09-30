@@ -1,5 +1,6 @@
 #! /usr/bin/env bash
 # activate python virtual environment
+# github: https://github.com/Karmenzind/
 
 _this_cmd=$0
 declare -A known_dir_ve_map
