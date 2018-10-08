@@ -75,12 +75,11 @@ endif
 Plug 'easymotion/vim-easymotion'
 Plug 'junegunn/vim-slash' " enhancing in-buffer search experience
 if executable('fzf')
-  Plug system('which fzf')
-  Plug 'junegunn/fzf.vim'
+  Plug 'junegunn/fzf'
 else
   Plug 'junegunn/fzf', {'dir': '~/.local/fzf', 'do': './install --all'}
-  Plug 'junegunn/fzf.vim'
 endif
+Plug 'junegunn/fzf.vim'
 " Plug 'mileszs/ack.vim'
 " Plug 'Yggdroot/LeaderF'
 " Plug 'haya14busa/vim-signjk-motion'
@@ -540,6 +539,7 @@ let g:ale_fixers = {
       \  'javascript': ['prettier', 'importjs'],
       \  'sh': ['shfmt'],
       \  'python': ['autopep8', 'isort'],
+      \  'json': ['fixjson', 'prettier'],
       \ }
 
 let g:ale_warn_about_trailing_whitespace = 0

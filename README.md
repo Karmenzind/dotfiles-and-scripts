@@ -8,6 +8,11 @@
 3.  工具脚本
     *   工具脚本，如Docker、Aria2管理
 
+内容              | 状态
+:-----------------|:--
+ArchLinux安装脚本 | 2018-09-20 自测成功安装
+其他配置文件      | 自用，日常滚动更新
+
 ## TOC
 
 <!-- vim-markdown-toc GFM -->
@@ -66,7 +71,8 @@ wget https://raw.githubusercontent.com/Karmenzind/dotfiles-and-scripts/master/ho
 ```
 也可以用[脚本安装](#vim及插件安装)
 
-> 其他软件配置、工具脚本请手动拷贝
+> 使用**root用户**安装我的配置可能会出问题。我不喜欢给root用户单独配置，采用的做法是在`/root`目录下创建`.vimrc`和`.vim`的软链接，与普通用户共用一套配置，供参考。如果要**直接**给root用户安装配置，请自行研究解决方案。
+
 
 ## 配置文件部分
 
