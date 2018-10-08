@@ -177,8 +177,8 @@ endif
 set number
 augroup relative_number_toggle
   autocmd!
-  autocmd BufEnter,FocusGained,InsertLeave,WinEnter * if &nu | set rnu | endif
-  autocmd BufLeave,FocusLost,InsertEnter,WinLeave   * if &nu | set nornu | endif
+  autocmd BufEnter,FocusGained,InsertLeave,WinEnter * if &nu | set rnu | else | set nu rnu | endif
+  autocmd BufLeave,FocusLost,InsertEnter,WinLeave   * if &nu | set nornu | else | set nu rnu | endif
 augroup END
 
 " /* layout */
@@ -348,8 +348,6 @@ set completeopt+=longest,menu
 let g:ycm_add_preview_to_completeopt = 0
 let g:ycm_autoclose_preview_window_after_completion = 1
 
-let g:ycm_max_num_candidates = 14
-let g:ycm_max_num_identifier_candidates = 7
 let g:ycm_global_ycm_extra_conf = '~/.vim/.ycm_extra_conf.py'
 let g:ycm_complete_in_comments = 1
 let g:ycm_complete_in_strings = 1
@@ -360,6 +358,8 @@ let g:ycm_goto_buffer_command = 'horizontal-split'
 let g:ycm_seed_identifiers_with_syntax = 1
 let g:ycm_collect_identifiers_from_tags_files = 1
 " let g:ycm_collect_identifiers_from_comments_and_strings = 1
+" let g:ycm_max_num_candidates = 14
+" let g:ycm_max_num_identifier_candidates = 7
 
 nnoremap <silent> <Leader>gt  :YcmCompleter GoTo<CR>
 nnoremap <silent> <Leader>dd  :YcmCompleter GoToDefinitionElseDeclaration<CR>
@@ -425,23 +425,23 @@ function! s:build_quickfix_list(lines)
 endfunction
 
 let g:fzf_action = {
-  \ 'ctrl-t': 'tab split',
-  \ 'ctrl-x': 'split',
-  \ 'ctrl-v': 'vsplit',
-  \ 'ctrl-q': function('s:build_quickfix_list') }
+      \ 'ctrl-t': 'tab split',
+      \ 'ctrl-x': 'split',
+      \ 'ctrl-v': 'vsplit',
+      \ 'ctrl-q': function('s:build_quickfix_list') }
 let g:fzf_layout = { 'down': '~50%' }
 let g:fzf_buffers_jump = 1
 let g:fzf_tags_command = 'ctags -R'
 let g:fzf_history_dir = '~/.local/share/fzf-history'
 
 command! -bang -nargs=* Ag
-  \ call fzf#vim#ag(<q-args>,
-  \                 <bang>0 ? fzf#vim#with_preview('up:60%')
-  \                         : fzf#vim#with_preview('right:50%:hidden', '?'),
-  \                 <bang>0)
+      \ call fzf#vim#ag(<q-args>,
+      \                 <bang>0 ? fzf#vim#with_preview('up:60%')
+      \                         : fzf#vim#with_preview('right:50%:hidden', '?'),
+      \                 <bang>0)
 
 command! -bang -nargs=? -complete=dir Files
-  \ call fzf#vim#files(<q-args>, fzf#vim#with_preview(), <bang>0)
+      \ call fzf#vim#files(<q-args>, fzf#vim#with_preview(), <bang>0)
 
 nnoremap <Leader>ff :Files<CR>
 nnoremap <Leader>fa :Ag<SPACE>
@@ -641,6 +641,28 @@ let g:startify_lists = [
       \ { 'header': ['   » GIT HISTORY '],  'type': function('s:list_commits') },
       \ ]
 
+" /* for vc */
+
+if executable('svn')
+  let g:vc_browse_cache_all = 1
+  map <silent> <leader>vB :VCBlame<CR>
+  map <silent> <leader>vd :VCDiff<CR>
+  map <silent> <leader>vdf :VCDiff!<CR>
+  map <silent> <leader>vs :VCStatus<CR>
+  map <silent> <leader>vsu :VCStatus -u<CR>
+  map <silent> <leader>vsq :VCStatus -qu<CR>
+  map <silent> <leader>vsc :VCStatus .<CR>
+  map <silent> <leader>vl :VCLog!<CR>
+  map <silent> <leader>vb :VCBrowse<CR>
+  map <silent> <leader>vbm :VCBrowse<CR>
+  map <silent> <leader>vbw :VCBrowseWorkingCopy<CR>
+  map <silent> <leader>vbr :VCBrowseRepo<CR>
+  map <silent> <leader>vbl :VCBrowseMyList<CR>
+  map <silent> <leader>vbb :VCBrowseBookMarks<CR>
+  map <silent> <leader>vbf :VCBrowseBuffer<CR>
+  map <silent> <leader>vq :diffoff! <CR> :q<CR>
+endif
+
 " --------------------------------------------
 " Functions
 " --------------------------------------------
@@ -679,11 +701,9 @@ endfunction
 " (toggle) set termguicolors
 function! SetTermguiColors(k)
   if has('termguicolors')
-    if a:k ==# 'yes'
-      if &termguicolors == 0
-        set termguicolors
-      endif
-    elseif &termguicolors == 1
+    if a:k ==# 'yes' && &termguicolors == 0
+      call InitTermguicolors()
+    elseif a:k ==# 'no' && &termguicolors == 1
       set notermguicolors
     endif
   endif
@@ -732,12 +752,10 @@ function! InitColors()
   if $USER == 'k'
     if has('nvim')
       colorscheme solarized
+    elseif InitTermguicolors()
+      colorscheme atomic
     else
-      if InitTermguicolors()
-        colorscheme atomic
-      else
-        colorscheme solarized
-      endif
+      colorscheme solarized
     endif
     call AfterChangeColorscheme()
   else
@@ -840,7 +858,7 @@ set t_ZH=[3m
 set t_ZR=[23m
 
 " /* initialize the colorscheme */
-call InitColors()
+" call InitColors()
 
 " --------------------------------------------
 " extra
@@ -851,3 +869,6 @@ if s:valid_extra_vimrc
   execute 'source ' . s:extra_vimrc_path
 endif
 
+if !exists('g:colors_name')
+  colorscheme molokai
+endif
