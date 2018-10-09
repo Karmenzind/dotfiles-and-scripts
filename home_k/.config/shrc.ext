@@ -214,6 +214,8 @@ if [[ -d "$HOME/.pyenv" ]]; then
     eval "$(pyenv virtualenv-init -)"
 fi
 
+export PYTHON_CONFIGURE_OPTS="--enable-shared"
+
 #######################################################################
 #                                ruby                                 #
 #######################################################################

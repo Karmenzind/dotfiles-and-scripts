@@ -725,7 +725,7 @@ endfunction
 " let background fit the clock
 function! LetBgFitClock()
   let b:current_hour = strftime('%H')
-  if b:current_hour >=8 && b:current_hour <= 13
+  if b:current_hour >=8 && b:current_hour < 13
     set background=light
   else
     set background=dark
@@ -763,9 +763,14 @@ function! InitColors()
   endif
 endfunction
 
+" do some highlights before set colo
+function! BeforeChangeColorscheme()
+  call SetTermguiColors('no')
+  call LetBgFitClock()
+endfunction
+
 " do some highlights after set colo
 function! AfterChangeColorscheme()
-  call LetBgFitClock()
   if !(exists('$TMUX') && $TERM !~ '\vtmux|italic')
     highlight Comment cterm=italic
   endif
@@ -794,12 +799,18 @@ endfunction
 augroup fit_colorscheme
   au!
   if v:version >= 801
-    au ColorSchemePre * call SetTermguiColors('no')
-    au ColorSchemePre atomic,NeoSolarized,ayu,palenight
-          \ call SetTermguiColors('yes')
+    au ColorSchemePre * call BeforeChangeColorscheme()
+    au ColorSchemePre atomic,NeoSolarized,ayu,palenight call SetTermguiColors('yes')
   endif
   au ColorScheme * call AfterChangeColorscheme()
 augroup END
+
+function! SetColorScheme(cname)
+  if v:version < 801
+    call SetTermguiColors('no') | call LetBgFitClock()
+  endif
+  execute 'colorscheme ' . a:cname
+endfunction
 
 " --------------------------------------------
 " compatible with gui
@@ -857,18 +868,12 @@ vnoremap <Leader>cm :<C-u>call CycleModes()<CR>:colorscheme atomic<CR>gv
 set t_ZH=[3m
 set t_ZR=[23m
 
-" /* initialize the colorscheme */
-" call InitColors()
-
-" --------------------------------------------
-" extra
-" --------------------------------------------
-
-" load local configure
+" load local configuration
 if s:valid_extra_vimrc
   execute 'source ' . s:extra_vimrc_path
 endif
 
+" fallback
 if !exists('g:colors_name')
-  colorscheme molokai
+  call SetColorScheme('molokai')
 endif
