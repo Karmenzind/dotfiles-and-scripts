@@ -851,7 +851,7 @@ nnoremap <Leader>cm :call CycleModes()<CR>:colorscheme atomic<CR>
 vnoremap <Leader>cm :<C-u>call CycleModes()<CR>:colorscheme atomic<CR>gv
 
 " /* initial */
-set background=dark
+" set background=dark
 
 " italic
 set t_ZH=[3m
