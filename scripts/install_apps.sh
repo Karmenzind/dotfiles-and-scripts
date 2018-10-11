@@ -46,7 +46,6 @@ _cli=(
     aria2
     bat
     conky
-    compton
     cronie
     docker
     fortune-mod
@@ -64,7 +63,7 @@ _cli=(
     python3
     python-pip
     rabbitmq
-    screenfetch
+    # screenfetch
     scrot
     shadowsocks
     tig
@@ -81,12 +80,14 @@ _desktop=(
     # thunar-archive-plugin
     # thunar-media-tags-plugin
     # thunar-volman
+    # libreoffice
+    # fbreader
+    # thunderbird
+    compton
+    rofi
     chromium
-    fbreader
-    libreoffice
     lxappearance
     pcmanfm
-    thunderbird
     volumeicon
     xfce4-terminal
 )
@@ -94,15 +95,15 @@ _desktop=(
 _aur=(
     # wewechat
     # wps-office
+    # bmenu
+    # electronic-wechat
+    # apvlv
     emojify
     sqlint
     acroread
     acroread-fonts
     alacritty-scrollback-git
-    apvlv
-    bmenu
     crossover
-    electronic-wechat
     oh-my-zsh-git
     teamviewer
 )
@@ -110,7 +111,7 @@ _aur=(
 # appearance
 _themes=(
     xcursor-simpleandsoft
-    ark-icon-theme
+    # ark-icon-theme
     papirus-icon-theme
 )
 _aur_themes=(
@@ -225,7 +226,12 @@ install_officials() {
     check_input yn
     [[ ! $ans = 'y' ]] && return
 
-    do_install ${_basic[*]} ${_fonts[*]} ${_cli[*]} ${_desktop[*]} ${_themes[*]} ${_required_by_vim[*]}
+    do_install ${_basic[*]} 
+    do_install ${_fonts[*]} 
+    do_install ${_cli[*]} 
+    do_install ${_desktop[*]} 
+    do_install ${_themes[*]} 
+    do_install ${_required_by_vim[*]}
     sudo pacman -Sc 
 }
 
@@ -236,7 +242,9 @@ install_aurs() {
     [[ ! $ans = 'y' ]] && return
 
     install_yay
-    $aur_helper -S -v --needed --noconfirm ${_aur[*]} ${_aur_themes[*]} ${_required_by_vim_aur[*]}
+    $aur_helper -S -v --needed --noconfirm ${_aur[*]} 
+    $aur_helper -S -v --needed --noconfirm ${_aur_themes[*]} 
+    $aur_helper -S -v --needed --noconfirm ${_required_by_vim_aur[*]}
     $aur_helper -Sc
 }
 
@@ -247,7 +255,7 @@ install_fcitx() {
     check_input yn
     [[ ! $ans = 'y' ]] && return
 
-    do_install fcitx-im fcitx-configtool fcitx-sunpinyin fcitx-cloudpinyin
+    do_install fcitx fcitx-im fcitx-configtool fcitx-sunpinyin fcitx-cloudpinyin
 }
 
 # --------------------------------------------
@@ -260,4 +268,5 @@ install_aurs
 install_ranger_and_plugins
 install_wudao_dict
 install_nerd_fonts
+install_fcitx
 

@@ -145,6 +145,10 @@ valid_by_bc() {
 # --------------------------------------------
 # base check
 
+# TODO
+# keyboard
+# loadkeys us
+
 declare -A parts
 
 # Verify the boot mode
@@ -372,7 +376,7 @@ check_multilib_support
 # --------------------------------------------
 # Install the base packages
 put_cutoff 'Install the base packages ...'
-pacstrap /mnt base base-devel git vim
+pacstrap /mnt base base-devel git vim wget curl arch-install-scripts dhcpcd
 
 # --------------------------------------------
 # Configure the system
