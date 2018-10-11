@@ -2,6 +2,8 @@
 # create sudo user
 # https://github.com/Karmenzind/
 
+# TODO move this part to chrooted_part
+
 new_sudo_user() {
     do_install sudo
 

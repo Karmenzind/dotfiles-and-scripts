@@ -2,6 +2,9 @@
 # https://github.com/Karmenzind/
 
 do_install dialog wpa_supplicant ntfs-3g dhcpcd 
+# TODO
+# systemctl enable dhcpcd
+# systemctl start dhcpcd
 put_cutoff
 
 # --------------------------------------------
@@ -27,6 +30,7 @@ set_hostname() {
     read -p "Input: " hostname
 
     if [[ -n "$hostname" ]]; then
+        echo ${hostname} >> /etc/hostname
         echo -e "\n127.0.0.1   localhost\n::1     localhost\n127.0.1.1   ${hostname}.localdomain  ${hostname}\n" >> /etc/hosts
     fi
 }
