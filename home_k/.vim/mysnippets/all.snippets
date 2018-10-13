@@ -1,12 +1,11 @@
-# https://github.com/Karmenzind/
 
 ###########
 #  boxes  #
 ###########
 
 snippet lb "line box"
-`!v printf(&cms . &cms, '--------------------------------------------', '')`${1:${VISUAL}}
-`!v printf(&cms, '--------------------------------------------')`
+`!v printf(&cms . &cms, ' --------------------------------------------', ' ')`${1:${VISUAL}}
+`!v printf(&cms, ' --------------------------------------------')`
 endsnippet
 
 snippet llb "long line box"
@@ -18,11 +17,11 @@ endsnippet
 #  abbre  #
 ###########
 
-snippet 192 " "
+snippet 192 ".168.0.1"
 192.168.0.${1:1}
 endsnippet
 
-snippet 127 " "
+snippet 127 "localhost"
 127.0.0.1
 endsnippet
 
@@ -30,11 +29,11 @@ endsnippet
 #  commentary  #
 ################
 
-snippet 44 "" 
+snippet 44 "line" 
 --------------------------------------------
 endsnippet
 
-snippet 77 "" 
+snippet 77 "line" 
 -----------------------------------------------------------------------------
 endsnippet
 
@@ -46,11 +45,11 @@ endsnippet
 #  identity  #
 ##############
 
-snippet gmail "" w
+snippet gmail "valesail7" w
 valesail7@gmail.com
 endsnippet
 
-snippet github "" w
+snippet github "kmz" w
 https://github.com/Karmenzind/
 endsnippet
 

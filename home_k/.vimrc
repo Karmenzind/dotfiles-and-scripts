@@ -87,6 +87,7 @@ Plug 'junegunn/fzf.vim'
 " /* Python */
 Plug 'tmhedberg/SimpylFold' " code folding
 Plug 'vim-scripts/indentpython.vim'
+Plug 'tweekmonster/django-plus.vim'
 " Plug 'plytophogy/vim-virtualenv'
 " Plug 'python-mode/python-mode'
 
@@ -125,7 +126,8 @@ Plug 'vim-airline/vim-airline'
 Plug 'vim-airline/vim-airline-themes'
 Plug 'gerardbm/vim-atomic'
 Plug 'icymind/NeoSolarized'
-" Plug 'ryanoasis/vim-devicons' " load after other plugins
+Plug 'junegunn/seoul256.vim'
+Plug 'ryanoasis/vim-devicons' " load after other plugins
 " Plug 'chxuan/change-colorscheme', { 'on': 'NextColorScheme' }
 
 call plug#end()
@@ -167,6 +169,13 @@ set nowrap
 " set whichwrap+=<,>,h,l
 " set statusline=%F%m%r%h%w\ (%{&ff}){%Y}\ [%l,%v][%p%%]
 " set statusline=%f\ %{WebDevIconsGetFileTypeSymbol()}\ %h%w%m%r\ %=%(%l,%c%V\ %Y\ %=\ %P%)
+function! EchoIfNotUnix()
+  if &ff ==? 'unix'
+    return ''
+  endif
+  return '<' . &ff . '>'
+endfunction
+set statusline=%f\ %h%w%m%r\ %=%(%l,%c%V\ %{WebDevIconsGetFileTypeSymbol()}\ %{EchoIfNotUnix()}\%=\ %P%)
 " cursor's shape (FIXIT)
 if !has('nvim')
   let &t_SI = "\e[6 q"
@@ -505,9 +514,10 @@ map  <Leader>w <Plug>(easymotion-bd-w)
 nmap <Leader>w <Plug>(easymotion-overwin-w)
 
 " /* for ultisnips */
+cabbrev UE UltiSnipsEdit
 let g:UltiSnipsExpandTrigger = '<c-j>'
 let g:UltiSnipsListSnippets = '<F9>'
-let g:UltiSnipsEditSplit = 'vertical'
+let g:UltiSnipsEditSplit = 'context'
 let g:UltiSnipsUsePythonVersion = 3
 let g:UltiSnipsSnippetsDir = $HOME . '/.vim/mysnippets'
 let g:UltiSnipsSnippetDirectories=['UltiSnips', 'mysnippets']
@@ -808,8 +818,21 @@ augroup END
 function! SetColorScheme(cname)
   if v:version < 801
     call SetTermguiColors('no') | call LetBgFitClock()
+    if a:cname =~ '\vatomic|NeoSolarized|ayu|palenight'
+      call SetTermguiColors('yes')
+    endif
   endif
   execute 'colorscheme ' . a:cname
+  if a:cname =~ '\vseoul'
+    augroup ColoAirlineAug
+      au!
+      au BufWinEnter,WinEnter * let w:airline_disabled = 1
+    augroup END
+  else
+    augroup ColoAirlineAug
+      au!
+    augroup END
+  endif
 endfunction
 
 " --------------------------------------------

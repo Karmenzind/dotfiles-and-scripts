@@ -1,10 +1,40 @@
-# https://github.com/Karmenzind/
+# --------------------------------------------
+# logger
+# --------------------------------------------
 
-snippet log
-${1:logger}.info("${2}")
+snippet lg
+${2:LOGGER}.log("${1}")
 endsnippet
 
-snippet getdictif
+snippet lgd
+${2:LOGGER}.debug("${1}")
+endsnippet
+
+snippet lgi
+${2:LOGGER}.info("${1}")
+endsnippet
+
+snippet lgw
+${2:LOGGER}.warning("${1}")
+endsnippet
+
+snippet lge
+${2:LOGGER}.error("${1}")
+endsnippet
+
+snippet lgex
+${2:LOGGER}.exception("${1}")
+endsnippet
+
+snippet lgc
+${2:LOGGER}.critical("${1}")
+endsnippet
+
+# --------------------------------------------
+# dict
+# --------------------------------------------
+
+snippet getif "dict"
 ${1:t} = ${2:d}.get("${3}")
 if $1:
 	${4:pass}
@@ -12,17 +42,93 @@ else:
 	${5:pass}
 endsnippet
 
-snippet fordictkv
+snippet forkv "dict"
 for ${1:key}, ${2:value} in ${3:d}.items():
 	${0:pass}
 endsnippet
 
-snippet fordictk
+snippet fork "dict"
 for ${1:key} in ${2:d}:
 	${0:pass}
 endsnippet
 
-snippet fordictv
+snippet forv "dict"
 for ${1:value} in ${2:d}.values():
 	${0:pass}
+endsnippet
+
+snippet dfd "default dict"
+import collections
+${2:d} = collections.defaultdict(${1})
+endsnippet
+
+# --------------------------------------------
+# attr
+# --------------------------------------------
+
+snippet geta "attr"
+${2:attr} = getattr(${1:obj}, None)
+endsnippet
+
+snippet getaif "attr if True"
+${3:attr} = getattr(${1:obj}, "${2:}", None)
+if $3:
+    ${4:pass}
+endsnippet
+
+# --------------------------------------------
+# requests
+# --------------------------------------------
+
+snippet req "requests"
+import requests
+${0:r} = requests.request(${1:method}, ${2:url}, *args, **kwargs)
+endsnippet
+
+snippet reqget "requests"
+import requests
+${0:r} = requests.get(${1:url}, params=${2:None})
+endsnippet
+
+snippet reqpost "requests"
+import requests
+${0:r} = requests.post(${1:url}, data=${2:None}, json=${3:None})
+endsnippet
+
+snippet reqpatch "requests"
+import requests
+${0:r} = requests.patch(${1:url}, data=${2:None})
+endsnippet
+
+# --------------------------------------------
+# path
+# --------------------------------------------
+
+snippet dirp "dir abspath" b
+import os
+os.path.dirname(os.path.abspath(__file__))
+endsnippet
+
+# --------------------------------------------
+# import
+# --------------------------------------------
+
+snippet impurljoin "import urljoin" b
+from urllib.parse import urljoin
+endsnippet
+
+# --------------------------------------------
+# todo
+# --------------------------------------------
+
+snippet td "todo"
+# TODO: <`date +%Y-%m-%d`, ${1:`echo $USER`}> $0 #
+endsnippet
+
+snippet fixme "fixme"
+# FIXME: <`date +%Y-%m-%d`, ${1:`echo $USER`}> $0 #
+endsnippet
+
+snippet xxx "XXX"
+# XXX: <`date +%Y-%m-%d`, ${1:`echo $USER`}> $0 #
 endsnippet
