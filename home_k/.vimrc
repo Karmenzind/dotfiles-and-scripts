@@ -826,7 +826,7 @@ function! SetColorScheme(cname)
   if a:cname =~ '\vseoul'
     augroup ColoAirlineAug
       au!
-      au BufWinEnter,WinEnter * let w:airline_disabled = 1
+      au BufReadPre,BufWinEnter,WinEnter * let w:airline_disabled = 1
     augroup END
   else
     augroup ColoAirlineAug
