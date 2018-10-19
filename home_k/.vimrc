@@ -44,6 +44,7 @@ Plug 'junegunn/vim-plug'
 
 " /* coding tools */
 Plug 'tpope/vim-endwise'
+Plug 'tpope/vim-surround'
 Plug 'jiangmiao/auto-pairs'
 Plug 'tpope/vim-commentary'
 Plug 'junegunn/vim-easy-align'
@@ -517,7 +518,7 @@ nmap <Leader>w <Plug>(easymotion-overwin-w)
 cabbrev UE UltiSnipsEdit
 let g:UltiSnipsExpandTrigger = '<c-j>'
 let g:UltiSnipsListSnippets = '<F9>'
-let g:UltiSnipsEditSplit = 'context'
+let g:UltiSnipsEditSplit = 'tabdo'
 let g:UltiSnipsUsePythonVersion = 3
 let g:UltiSnipsSnippetsDir = $HOME . '/.vim/mysnippets'
 let g:UltiSnipsSnippetDirectories=['UltiSnips', 'mysnippets']
@@ -626,6 +627,7 @@ noremap <Leader>pc :PlugClean<CR>
 
 " /* for startify */
 let g:startify_update_oldfiles = 1
+let g:startify_files_number = 7
 let g:startify_change_to_dir = 0
 let g:startify_session_persistence = 1
 let g:startify_session_before_save = [ 'silent! NERDTreeClose' ]
@@ -647,6 +649,7 @@ endfunction
 
 let g:startify_lists = [
       \ { 'header': ['   » SESSIONS    '], 'type': 'sessions' },
+      \ { 'header': ['   » RECENT FILES @ '. getcwd()], 'type': 'dir' },
       \ { 'header': ['   » RECENT FILES'],   'type': 'files' },
       \ { 'header': ['   » GIT HISTORY '],  'type': function('s:list_commits') },
       \ ]
