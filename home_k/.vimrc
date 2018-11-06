@@ -55,6 +55,7 @@ Plug 'Shougo/echodoc.vim'
 Plug 'w0rp/ale' " Asynchronous Lint Engine
 Plug 'Valloric/YouCompleteMe', { 'do': './install.py --clang-completer --system-libclang --go-completer --js-completer --java-completer' }
 Plug 'terryma/vim-multiple-cursors'
+Plug 'tenfyzhong/CompleteParameter.vim'
 " Plug 'junegunn/rainbow_parentheses.vim'
 " Plug 'Valloric/MatchTagAlways'
 
@@ -371,6 +372,10 @@ let g:ycm_collect_identifiers_from_tags_files = 1
 " let g:ycm_max_num_candidates = 14
 " let g:ycm_max_num_identifier_candidates = 7
 
+let g:ycm_semantic_triggers = {
+ \   'python': [ 're!(import\s+|from\s+(\w+\s+(import\s+(\w+,\s+)*)?)?)'  ]
+ \ }
+
 nnoremap <silent> <Leader>gt  :YcmCompleter GoTo<CR>
 nnoremap <silent> <Leader>dd  :YcmCompleter GoToDefinitionElseDeclaration<CR>
 nnoremap <silent> <Leader>rf  :YcmCompleter GoToReferences<CR>
@@ -675,6 +680,9 @@ if executable('svn')
   map <silent> <leader>vbf :VCBrowseBuffer<CR>
   map <silent> <leader>vq :diffoff! <CR> :q<CR>
 endif
+
+" /* for CompleteParameter */
+let g:complete_parameter_use_ultisnips_mappings = 1
 
 " --------------------------------------------
 " Functions
