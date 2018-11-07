@@ -55,7 +55,7 @@ Plug 'Shougo/echodoc.vim'
 Plug 'w0rp/ale' " Asynchronous Lint Engine
 Plug 'Valloric/YouCompleteMe', { 'do': './install.py --clang-completer --system-libclang --go-completer --js-completer --java-completer' }
 Plug 'terryma/vim-multiple-cursors'
-Plug 'tenfyzhong/CompleteParameter.vim'
+" Plug 'tenfyzhong/CompleteParameter.vim'
 " Plug 'junegunn/rainbow_parentheses.vim'
 " Plug 'Valloric/MatchTagAlways'
 
@@ -681,9 +681,6 @@ if executable('svn')
   map <silent> <leader>vq :diffoff! <CR> :q<CR>
 endif
 
-" /* for CompleteParameter */
-let g:complete_parameter_use_ultisnips_mappings = 1
-
 " --------------------------------------------
 " Functions
 " --------------------------------------------
@@ -834,7 +831,7 @@ function! SetColorScheme(cname)
     endif
   endif
   execute 'colorscheme ' . a:cname
-  if a:cname =~ '\vseoul'
+  if a:cname =~ '\v(seoul|gruvbox)'
     augroup ColoAirlineAug
       au!
       au BufReadPre,BufWinEnter,WinEnter * let w:airline_disabled = 1

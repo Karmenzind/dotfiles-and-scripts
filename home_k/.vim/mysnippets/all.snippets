@@ -22,6 +22,10 @@ snippet 192 ".168.0.1"
 192.168.0.${1:1}
 endsnippet
 
+snippet lh "localhost"
+http://localhost${1::80}
+endsnippet
+
 snippet 127 "localhost"
 127.0.0.1
 endsnippet
@@ -30,11 +34,11 @@ endsnippet
 #  commentary  #
 ################
 
-snippet 44 "line" 
+snippet 44 "line"
 --------------------------------------------
 endsnippet
 
-snippet 77 "line" 
+snippet 77 "line"
 -----------------------------------------------------------------------------
 endsnippet
 
@@ -50,11 +54,15 @@ snippet gmail "valesail7" w
 valesail7@gmail.com
 endsnippet
 
-snippet ghub "my github" w
+snippet gh "my github" w
 https://github.com/Karmenzind/
 endsnippet
 
-snippet kmz "my github" w
+snippet ghr "github raw url" w
+https://raw.githubusercontent.com/Karmenzind/
+endsnippet
+
+snippet kmz "my nickname" w
 Karmenzind
 endsnippet
 
@@ -64,25 +72,30 @@ endsnippet
 
 global !p
 def create_seq(snip):
-    ph = snip.buffer[snip.line].strip()[3:]
-    s, e, l = re.match('(\d+)-(\d+)\|(.*)', ph).groups()
+    ph = snip.buffer[snip.line].strip()[1:]
+    s, e, l = re.match('(\d+)[,-](\d+)[| ](.*)', ph).groups()
     body = snip.buffer[snip.line] = ''
-    for i in range(int(s), int(e)):
+    s, e = int(s), int(e)
+    step = 1
+    if e < s:
+        e, s = s, e
+        step = -1
+    for i in range(s, e):
         body += l.format(N=i) + '\n'
     snip.expand_anon(body)
 endglobal
 
 pre_expand "create_seq(snip)"
-snippet "seq(\d+-\d+\|.*\{N\}.*)" "create a seq" br
+snippet "s(\d+[,-]\d+[| ].*\{N\}.*)" "create a seq" br
 endsnippet
 
 ##########
 #  test  #
 ##########
 
-snippet t
-<tag>${VISUAL:inside text/should/is/g}</tag>
-endsnippet
+# snippet t
+# <tag>${VISUAL:inside text/should/is/g}</tag>
+# endsnippet
 
 # snippet dt
 # `date +%d.%m.%y`
@@ -92,14 +105,20 @@ endsnippet
 #  mark  #
 ##########
 
+# TODO: <2018-10-24, k> 增加自动注释 #
 snippet td "todo"
-# TODO: <`date +%Y-%m-%d`, ${1:`echo $USER`}> $0 #
+TODO: <`date +%Y-%m-%d`, ${1:`echo $USER`}> ${0:${VISUAL}}
 endsnippet
 
 snippet fixme "fixme"
-# FIXME: <`date +%Y-%m-%d`, ${1:`echo $USER`}> $0 #
+FIXME: <`date +%Y-%m-%d`, ${1:`echo $USER`}> ${0:${VISUAL}}
 endsnippet
 
-snippet xxx "XXX"
-# XXX: <`date +%Y-%m-%d`, ${1:`echo $USER`}> $0 #
+snippet xxx "xxx"
+XXX: <`date +%Y-%m-%d`, ${1:`echo $USER`}> ${0:${VISUAL}}
+endsnippet
+
+snippet trm "to delete" b
+These code has been modified or refactored and waiting to be deleted after testing.
+此处已经修改或重构，测试稳定后删除原代码
 endsnippet

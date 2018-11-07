@@ -18,8 +18,9 @@ alias toboard='xclip -selection clipboard'
 alias acp='source acpyve'
 
 # /* others apps */
-export VISUAL=vim
 export EDITOR=vim
+export VISUAL=$EDITOR
+export SVN_EDITOR=$EDITOR
 
 for _tmp_terminal in alacritty xfce4-terminal urxvt; do
   export TERMINAL=`command -v $_tmp_terminal`
