@@ -55,6 +55,7 @@ Plug 'Shougo/echodoc.vim'
 Plug 'w0rp/ale' " Asynchronous Lint Engine
 Plug 'Valloric/YouCompleteMe', { 'do': './install.py --clang-completer --system-libclang --go-completer --js-completer --java-completer' }
 Plug 'terryma/vim-multiple-cursors'
+" Plug 'zxqfl/tabnine-vim'
 " Plug 'tenfyzhong/CompleteParameter.vim'
 " Plug 'junegunn/rainbow_parentheses.vim'
 " Plug 'Valloric/MatchTagAlways'
@@ -754,10 +755,10 @@ endfunction
 function! InitTermguicolors()
   if has('termguicolors')
     if &termguicolors == 0
-      set termguicolors
       " enhance termguicolors
       let &t_8f = "\<Esc>[38;2;%lu;%lu;%lum"
       let &t_8b = "\<Esc>[48;2;%lu;%lu;%lum"
+      set termguicolors
     endif
     return &termguicolors
   endif
