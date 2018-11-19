@@ -62,7 +62,7 @@ _cli=(
     python2-pip
     python3
     python-pip
-    rabbitmq
+    # rabbitmq
     # screenfetch
     scrot
     shadowsocks
@@ -98,11 +98,11 @@ _aur=(
     # bmenu
     # electronic-wechat
     # apvlv
+    # alacritty-scrollback-git
     emojify
     sqlint
     acroread
     acroread-fonts
-    alacritty-scrollback-git
     crossover
     oh-my-zsh-git
     teamviewer

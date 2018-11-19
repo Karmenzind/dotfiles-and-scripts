@@ -2,7 +2,11 @@
 # export PATH=$HOME/bin:/usr/local/bin:$PATH
 
 # Path to your oh-my-zsh installation.
-export ZSH=$HOME/.oh-my-zsh
+if [[ -d "/usr/share/oh-my-zsh/" ]]; then
+    export ZSH=/usr/share/oh-my-zsh/
+else
+    export ZSH=$HOME/.oh-my-zsh
+fi
 
 # Set name of the theme to load. Optionally, if you set this to "random"
 # it'll load a random theme each time that oh-my-zsh is loaded.
@@ -116,3 +120,5 @@ source $ZSH/oh-my-zsh.sh
 
 # Custom here
 [[ -e ~/.config/shrc.ext ]] && source ~/.config/shrc.ext
+
+[ -f ~/.fzf.zsh ] && source ~/.fzf.zsh
