@@ -2,8 +2,8 @@
 # export PATH=$HOME/bin:/usr/local/bin:$PATH
 
 # Path to your oh-my-zsh installation.
-if [[ -d "/usr/share/oh-my-zsh/" ]]; then
-    export ZSH=/usr/share/oh-my-zsh/
+if [[ -d "/usr/share/oh-my-zsh" ]]; then
+    export ZSH=/usr/share/oh-my-zsh
 else
     export ZSH=$HOME/.oh-my-zsh
 fi
