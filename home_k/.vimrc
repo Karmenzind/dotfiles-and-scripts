@@ -391,6 +391,10 @@ augroup END
 " /* for NERDTree */
 nnoremap <silent> <Leader>n :NERDTreeToggle<CR>
 let g:NERDTreeIgnore = ['\.pyc$', '\~$', '__pycache__[[dir]]']
+let g:NERDTreeShowBookmarks = 1
+let g:NERDTreeNaturalSort = 1
+let g:NERDTreeShowLineNumbers = 1
+let g:NERDTreeShowHidden = 1
 
 augroup nerd_behaviours
   au!
@@ -399,10 +403,6 @@ augroup nerd_behaviours
   autocmd bufenter * if (winnr("$") == 1 && exists("b:NERDTree") && b:NERDTree.isTabTree()) | q | endif
   autocmd tableave * if exists('g:loaded_nerd_tree') | execute 'NERDTreeClose' | endif
 augroup END
-
-let g:NERDTreeNaturalSort = 1
-let g:NERDTreeShowLineNumbers = 1
-let g:NERDTreeShowHidden = 1
 
 " /* For vim-airline */
 nnoremap <Leader>A :AirlineToggle<CR>:AirlineRefresh<CR>
@@ -527,7 +527,7 @@ let g:UltiSnipsListSnippets = '<F9>'
 let g:UltiSnipsEditSplit = 'tabdo'
 let g:UltiSnipsUsePythonVersion = 3
 let g:UltiSnipsSnippetsDir = $HOME . '/.vim/mysnippets'
-let g:UltiSnipsSnippetDirectories=['UltiSnips', 'mysnippets']
+let g:UltiSnipsSnippetDirectories = ['UltiSnips', 'mysnippets']
 let g:UltiSnipsEnableSnipMate = 1
 let g:snips_author = 'k'
 let g:snips_email = 'valesail7@gmail.com'
@@ -539,6 +539,7 @@ nmap <silent> <C-j> <Plug>(ale_next)
 nmap <silent> <Leader>al <Plug>(ale_lint)
 nmap <silent> <Leader>af <Plug>(ale_fix)
 nmap <silent> <Leader>at <Plug>(ale_toggle)
+cabbrev AF ALEFix
 
 let g:ale_linters = {
       \  'vim': ['vint'],
@@ -650,14 +651,14 @@ function! s:list_commits()
   if executable('emojify') | let list_cmd .= ' | emojify' | endif
   let commits = systemlist(list_cmd)
   return map(commits, '{"line": matchstr(v:val, "\\s\\zs.*"), "cmd": "Git show ". matchstr(v:val, "^\\x\\+") }')
-  return map(commits, '{"line": {matchstr(v:val, "^\\x\\+"): matchstr(v:val, "\\s\\zs.*")}, "cmd": "Git show ". matchstr(v:val, "^\\x\\+") }')
+  " return map(commits, '{"line": {matchstr(v:val, "^\\x\\+"): matchstr(v:val, "\\s\\zs.*")}, "cmd": "Git show ". matchstr(v:val, "^\\x\\+") }')
 endfunction
 
 let g:startify_lists = [
       \ { 'header': ['   » SESSIONS    '], 'type': 'sessions' },
       \ { 'header': ['   » RECENT FILES @ '. getcwd()], 'type': 'dir' },
       \ { 'header': ['   » RECENT FILES'],   'type': 'files' },
-      \ { 'header': ['   » GIT HISTORY '],  'type': function('s:list_commits') },
+      \ { 'header': ['   » REPO HISTORY '],  'type': function('s:list_commits') },
       \ ]
 
 " /* for vc */
@@ -824,6 +825,12 @@ augroup fit_colorscheme
   au ColorScheme * call AfterChangeColorscheme()
 augroup END
 
+function! FitAirlineTheme(cname)
+  if a:cname ==? 'NeoSolarized'
+    let g:airline_theme='solarized'
+  endif
+endfunction
+
 function! SetColorScheme(cname)
   if v:version < 801
     call SetTermguiColors('no') | call LetBgFitClock()
@@ -832,6 +839,7 @@ function! SetColorScheme(cname)
     endif
   endif
   execute 'colorscheme ' . a:cname
+  call FitAirlineTheme(a:cname)
   if a:cname =~ '\v(seoul|gruvbox)'
     augroup ColoAirlineAug
       au!

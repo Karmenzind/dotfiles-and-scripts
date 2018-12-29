@@ -1,0 +1,148 @@
+
+snippet impconf "import conf" b
+from django.conf import settings
+endsnippet
+
+snippet impcache "import cache" b
+from django.core.cache import cache
+endsnippet
+
+snippet impQ "import Q" b
+from django.db.models.query import Q
+endsnippet
+
+snippet qs "queryset"
+${1/./\l$0/}s = ${1:M}.objects.filter(${2:})
+endsnippet
+
+# /* signals */
+
+snippet receiv "Description" b
+from django.db.models.signals import $1
+from django.dispatch import receiver
+
+@receiver(${1:post_save}, sender=${2:model})
+def signal_$1_${2/./\l$0/}(sender, instance, **kwargs):
+    """ signal for $1 $2"""
+    ${0:pass}
+
+endsnippet
+
+
+
+# /* Middleware */
+
+snippet mw "Middleware" b
+from django.utils.deprecation import MiddlewareMixin
+
+class ${1}Middleware:
+    """ Middleware for $1
+    """
+
+    def __init__(self, get_response=None):
+        self.get_response = get_response
+        super().__init__()
+
+    def process_response(self, request, response):
+        """ process the response
+        """
+        return response
+
+    def process_request(self, request):
+        """ process the request
+        """
+        return request
+
+endsnippet
+
+# --------------------------------------------
+# DRF
+# --------------------------------------------
+
+# sr ==> Serializer
+
+snippet srm "model serializer" b
+from rest_framework import serializers
+
+class ${1}Serializer(serializers.ModelSerializer):
+    """ ModelSerializer for $1
+    """
+
+    class Meta:
+        """ Meta for $1
+        """
+        model = $1
+        fields = '__all__'
+
+endsnippet
+
+# --------------------------------------------
+# Django Filter
+# --------------------------------------------
+
+snippet fts "django filterset" b
+from django_filters import rest_framework as filters
+
+class ${1}FilterSet(filters.FilterSet):
+    """ FilterSet for $1
+    """
+
+    class Meta:
+        """ Meta for $1
+        """
+        model = $1
+        fields = [$2]
+
+endsnippet
+
+
+snippet ftsm "django filterset method field" b
+${1:field} = filters.${2:CharFilter}(method='filter_$1')
+
+def filter_$1(self, qs, name, value):
+    """ method for $1
+    return filtered QuerySet
+    """
+    $0
+    return qs
+
+endsnippet
+
+# --------------------------------------------
+# migrations
+# --------------------------------------------
+
+snippet migrunpy "Description" b
+"""
+Custom migration
+created at `date +%d.%m.%y`
+"""
+
+from __future__ import unicode_literals
+from django.db import migrations
+
+
+def ${3:forwards_func}(apps, schema_editor):
+    """ ${3/_/ /g}"""
+    ${2:model} = apps.get_model("${1:app}", "$2")
+    db_alias = schema_editor.connection.alias
+    manager = $2.objects.using(db_alias)
+    
+
+def ${4:reverse_func}(apps, schema_editor):
+    """ ${4/_/ /g}"""
+    $2 = apps.get_model("$1", "$2")
+    db_alias = schema_editor.connection.alias
+    manager = $2.objects.using(db_alias)
+
+
+class Migration(migrations.Migration):
+    """custom migration"""
+
+    dependencies = []
+
+    operations = [
+        migrations.RunPython($3, $4),
+    ]
+
+endsnippet
