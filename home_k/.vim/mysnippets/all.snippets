@@ -106,16 +106,8 @@ endsnippet
 ##########
 
 # TODO: <2018-10-24, k> 增加自动注释 #
-snippet td "todo"
-TODO: <`date +%Y-%m-%d`, ${1:`echo $USER`}> ${0:${VISUAL}}
-endsnippet
-
-snippet fixme "fixme"
-FIXME: <`date +%Y-%m-%d`, ${1:`echo $USER`}> ${0:${VISUAL}}
-endsnippet
-
-snippet xxx "xxx"
-XXX: <`date +%Y-%m-%d`, ${1:`echo $USER`}> ${0:${VISUAL}}
+snippet td "todo or other special comments"
+${2:TODO}(${1:`echo $USER`}): <`date +%Y-%m-%d`> ${0:${VISUAL}}
 endsnippet
 
 snippet trm "to delete" b

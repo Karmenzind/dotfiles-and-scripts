@@ -1,6 +1,13 @@
 #! /usr/bin/env python3
 # https://github.com/Karmenzind/
 
+# -----------------------------------------------------------------------------
+# This script is no longer recommended.
+# Use symlink.py instead.
+# -----------------------------------------------------------------------------
+
+# 这个脚本写的很烂，后续有空重写
+
 import collections
 import os
 import re

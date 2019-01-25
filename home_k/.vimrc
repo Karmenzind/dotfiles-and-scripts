@@ -98,7 +98,7 @@ Plug 'tweekmonster/django-plus.vim'
 Plug 'godlygeek/tabular'
 Plug 'mzlogin/vim-markdown-toc'
 Plug 'plasticboy/vim-markdown'
-Plug 'iamcco/markdown-preview.vim'
+Plug 'iamcco/markdown-preview.nvim', { 'do': { -> mkdp#util#install() }}
 Plug 'nelstrom/vim-markdown-folding'
 Plug 'mklabs/vim-markdown-helpfile'
 Plug 'Traap/vim-helptags'
@@ -595,13 +595,25 @@ let g:vim_markdown_no_default_key_mappings = 1
 let g:vim_markdown_json_frontmatter = 1
 
 " markdown-preview
-let g:mkdp_path_to_chrome = '/usr/bin/chromium'
-let g:mkdp_browserfunc = 'MKDP_browserfunc_default'
+let g:mkdp_path_to_chrome = system("which chromium")
+" let g:mkdp_browserfunc = 'MKDP_browserfunc_default'
+let g:mkdp_open_to_the_world = 0
+let g:mkdp_open_ip = ''
+
 let g:mkdp_auto_start = 0
 let g:mkdp_auto_open = 0
 let g:mkdp_auto_close = 1
 let g:mkdp_refresh_slow = 0
 let g:mkdp_command_for_global = 0
+let g:mkdp_echo_preview_url = 1
+let g:mkdp_preview_options = {
+    \ 'mkit': {},
+    \ 'katex': {},
+    \ 'uml': {},
+    \ 'maid': {},
+    \ 'disable_sync_scroll': 0,
+    \ 'sync_scroll_type': 'middle'
+    \ }
 
 " particular keymaps
 augroup for_markdown_ft

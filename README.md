@@ -246,7 +246,10 @@ $
 
 ## 创建你自己的DotFile仓库
 
-[do_synch.py](./do_synch.py)提供了把本地配置文件同步到repo项目下的功能
+以下两个脚本用来在系统中直接应用本repo中的配置文件
 
-你可以fork这个项目，然后借助`python3 do_synch.py update`来同步你自己的配置文件
+[symlink.py](./symlink.py) 以创建软连接的方式（推荐）
+[do_synch.py](./do_synch.py) 以复制（支持双向）的方式来更新、应用配置文件
+
+你可以fork这个项目，然后借助上述两种方式来同步你自己的配置文件
 

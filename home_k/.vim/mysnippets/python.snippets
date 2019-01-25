@@ -161,3 +161,45 @@ endsnippet
 snippet ret "return in doc" b
 :return: $0
 endsnippet
+
+
+# --------------------------------------------
+# func
+# --------------------------------------------
+
+snippet ldef "lazy def with lazy doc" b
+def ${1:func_name}():
+    """ ${1/_/ /g} """
+    ${0:pass}
+
+endsnippet
+
+# --------------------------------------------
+# class
+# --------------------------------------------
+
+snippet _str "__str__ and __repr__" b
+def __str__(self):
+    return f"<{self.__class__.__name__}>"
+
+__repr__ = __str__
+endsnippet
+
+# --------------------------------------------
+# others
+# --------------------------------------------
+
+snippet singletonnew "Singleton via __new__" b
+def __new__(cls, *args, **kw):
+    if not hasattr(cls, '_instance'):
+        cls._instance = super().__new__(cls, *args, **kw)
+    return cls._instance
+endsnippet
+
+# snippet singletonnew2 "another Singleton via __new__" b
+#     _state = {}
+#     def __new__(cls, *args, **kw):
+#         ob = super().__new__(cls, *args, **kw)
+#         ob.__dict__ = cls._state
+#         return ob
+# endsnippet
