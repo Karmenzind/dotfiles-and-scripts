@@ -170,7 +170,7 @@ aurdl() {
 #                             for python                              #
 #######################################################################
 
-# export VIRTUAL_ENV_DISABLE_PROMPT=
+export VIRTUAL_ENV_DISABLE_PROMPT=
 
 #######################################################################
 #                            for alacritty                            #
