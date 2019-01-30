@@ -28,6 +28,7 @@ ArchLinux安装脚本  | 2018-09-20 自测成功安装，机械硬盘
     * [软件批量安装](#软件批量安装)
     * [Vim及插件安装](#vim及插件安装)
     * [YouCompleteMe编译安装](#youcompleteme编译安装)
+    * [Vim插件涉及依赖安装](#vim插件涉及依赖安装)
 * [工具脚本部分](#工具脚本部分)
     * [Python虚拟环境快速切换](#python虚拟环境快速切换)
     * [Aria2管理&自动更新bt-tracker](#aria2管理自动更新bt-tracker)
@@ -183,6 +184,15 @@ Vim比较特殊，尤其是YCM经常安装失败，所以单独列出来
 3.  如果为Arch系统，直接选择任意一种方式安装；如果非Arch系统，选择`official way`可以直接安装，如果选择`my way`方式，需要手动安装python、cmake和clang，然后修改ycm.sh中的`libclang.so`地址
 
 > `official way`是采用ycm自带安装脚本编译安装，`my way`是用我写的命令编译安装。如果用`my way`安装时`git clone`速度太慢，可以手动修改ycm.sh中的git repo地址（脚本注释中提供了国内源）
+
+### Vim插件涉及依赖安装
+
+部分插件依赖外部工具（比如`fzf`、`ctags`、`ag`等）。按照上述步骤安装Vim以及插件之后，打开Vim，在命令行模式运行：
+```
+# 依赖系统中的`pip`和`npm`，需自行安装
+call InstallRequirements()
+```
+安装过程中注意观察窗口日志提示。
 
 ## 工具脚本部分
 
