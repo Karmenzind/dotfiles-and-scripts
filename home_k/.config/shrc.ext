@@ -34,6 +34,9 @@ done
 
 export CATALINA_HOME=/usr/share/tomcat8 # tomcat
 
+# /* bat */
+alias bat='bat --theme="OneHalfDark" --style="auto"'
+
 #######################################################################
 #                             appearance                              #
 #######################################################################
