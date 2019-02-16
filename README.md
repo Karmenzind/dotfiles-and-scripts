@@ -258,8 +258,8 @@ $
 
 以下两个脚本用来在系统中直接应用本repo中的配置文件
 
-[symlink.py](./symlink.py) 以创建软连接的方式（推荐）
-[do_synch.py](./do_synch.py) 以复制（支持双向）的方式来更新、应用配置文件
+- [symlink.py](./symlink.py) 以创建软连接的方式（推荐）
+- [do_synch.py](./do_synch.py) 以复制（支持双向）的方式来更新、应用配置文件
 
 你可以fork这个项目，然后借助上述两种方式来同步你自己的配置文件
 
