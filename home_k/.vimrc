@@ -495,7 +495,7 @@ nnoremap <Leader>fh :History/<CR>
 "       \  'gv': '<C-W><CR><C-W>L<C-W>p<C-W>J' }
 
 " /* for tagbar */
-noremap <Leader>t :TagbarToggle<CR>
+noremap <Leader>t :call TToggle()<CR>
 let g:tagbar_autofocus = 1
 let g:tagbar_show_linenumbers = 1
 let g:tagbar_sort = 0
@@ -615,15 +615,16 @@ let g:mkdp_preview_options = {
     \ 'sync_scroll_type': 'middle'
     \ }
 
+
 " particular keymaps
 augroup for_markdown_ft
   au!
   au FileType markdown
-        \ nnoremap <buffer> <silent> <Leader>t :Toc<CR>                  |
         \ nnoremap <buffer> <silent> <Leader>mp :MarkdownPreview<CR>     |
         \ let  b:AutoPairs = {'(':')', '[':']', '{':'}',"'":"'",'"':'"'} |
         \ cabbrev <buffer> TF TableFormat
 augroup END
+"\ nnoremap <buffer> <silent> <Leader>t :Toc<CR>                  |
 
 " /* for SimpylFold */
 let g:SimpylFold_docstring_preview = 1
@@ -698,6 +699,23 @@ endif
 " --------------------------------------------
 " Functions
 " --------------------------------------------
+
+" toggle tagbar and toc
+function! TToggle()
+  if exists("t:opened_md_winid")
+    call win_gotoid(t:opened_md_winid)
+    execute("q")
+    unlet t:opened_md_winid
+  else
+    if &ft == 'markdown'
+      execute("Toc")
+      let t:opened_md_winid = win_getid()
+    else
+      execute("TagbarToggle")
+    endif
+  endif
+endfunction
+
 
 function! s:EchoWarn(msg)
     echohl WarningMsg
