@@ -495,7 +495,7 @@ nnoremap <Leader>fh :History/<CR>
 "       \  'gv': '<C-W><CR><C-W>L<C-W>p<C-W>J' }
 
 " /* for tagbar */
-noremap <Leader>t :TagbarToggle<CR>
+noremap <Leader>t :call TToggle()<CR>
 let g:tagbar_autofocus = 1
 let g:tagbar_show_linenumbers = 1
 let g:tagbar_sort = 0
@@ -615,15 +615,16 @@ let g:mkdp_preview_options = {
     \ 'sync_scroll_type': 'middle'
     \ }
 
+
 " particular keymaps
 augroup for_markdown_ft
   au!
   au FileType markdown
-        \ nnoremap <buffer> <silent> <Leader>t :Toc<CR>                  |
         \ nnoremap <buffer> <silent> <Leader>mp :MarkdownPreview<CR>     |
         \ let  b:AutoPairs = {'(':')', '[':']', '{':'}',"'":"'",'"':'"'} |
         \ cabbrev <buffer> TF TableFormat
 augroup END
+"\ nnoremap <buffer> <silent> <Leader>t :Toc<CR>                  |
 
 " /* for SimpylFold */
 let g:SimpylFold_docstring_preview = 1
@@ -698,6 +699,83 @@ endif
 " --------------------------------------------
 " Functions
 " --------------------------------------------
+
+" toggle tagbar and toc
+function! TToggle()
+  if exists("t:opened_md_winid")
+    call win_gotoid(t:opened_md_winid)
+    execute("q")
+    unlet t:opened_md_winid
+  else
+    if &ft == 'markdown'
+      execute("Toc")
+      let t:opened_md_winid = win_getid()
+    else
+      execute("TagbarToggle")
+    endif
+  endif
+endfunction
+
+
+function! s:EchoWarn(msg)
+    echohl WarningMsg
+    echom a:msg
+    echohl None
+endfunction
+
+
+function! InstallRequirements()
+  let req = {"pip": ['black', 'autopep8', 'isort', 'vint', 'proselint', 'gitlint'],
+        \ "npm": ['prettier', 'fixjson', 'importjs'],
+        \ "other": ['ag', 'fzf', 'ctags', 'clang-format']
+        \ }
+  let cmd_map = {"pip": "sudo pip install",
+        \ "npm": "sudo npm install -g"}
+  let pkg_map = {}
+
+  " determine by system
+  if executable("pacman")
+    let cmd_map["other"] = "sudo pacman -S --noconfirm"
+    let pkg_map["ag"] = "the_silver_searcher"
+  elseif executable("apt")
+    let cmd_map["other"] = "sudo apt install -y"
+    let pkg_map["ag"] = "silversearcher-ag"
+  else
+    call s:EchoWarn("You must install " . string(req["other"]) . " by yourself.")
+  endif
+
+  function! s:IsInstalled(s, p)
+    if a:s == 'other'
+      return executable(a:p)
+    else
+      if a:s == 'pip'
+        execute "!pip show " . a:p
+      elseif a:s == 'npm'
+        execute "!npm ls -g " . a:p
+      endif
+        return v:shell_error == 0
+    endif
+  endfunction
+
+  for [src, pkgs] in items(req)
+    for pkg in pkgs
+      echom ">>> checking " . pkg . "..."
+      if s:IsInstalled(src, pkg)
+        echom pkg . " has been already installed."
+      else
+        if has_key(pkg_map, pkg)
+          let cmd = cmd_map[src] . " " . pkg_map[pkg]
+        else
+          let cmd = cmd_map[src] . " " . pkg
+        endif
+        execute "!" . cmd
+        if !s:IsInstalled(src, pkg)
+          call s:EchoWarn("Failed to install " . pkg . ". Fix it by yourself.")
+        endif
+      endif
+    endfor
+  endfor
+endfunction
 
 " edit rc files
 let s:vimrc_path = glob('~/.vimrc')

@@ -1,4 +1,9 @@
 #! /usr/bin/env bash
+
+#######################################################################
+#        No longer maintained. Use virtualenvwrapper instead.         #
+#######################################################################
+
 # activate python virtual environment
 # github: https://github.com/Karmenzind/
 

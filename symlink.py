@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
 """
@@ -28,6 +28,7 @@ path_map = {
 }
 
 TO_SYNC = (
+    "home_k/.Xresources",
     "home_k/.agignore",
     "home_k/.config/alacritty/alacritty.yml",
     "home_k/.config/aria2/aria2.conf",
@@ -35,7 +36,6 @@ TO_SYNC = (
     "home_k/.config/conky/conky.conf",
     "home_k/.config/dunst/dunstrc,",
     "home_k/.config/fcitx/data/punc.mb.zh_CN",
-    "home_k/.config/fcitx/data/README.md",
     "home_k/.config/i3/config",
     "home_k/.config/i3/conky_status.sh",
     "home_k/.config/i3/screenshot.sh",
@@ -51,7 +51,6 @@ TO_SYNC = (
     "home_k/.vim/mysnippets",
     "home_k/.vimrc",
     "home_k/.xinitrc",
-    "home_k/.Xresources",
     "home_k/.zshrc",
     # "local_bin/acpyve",
     # "local_bin/docker_manager",

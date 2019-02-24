@@ -34,6 +34,9 @@ done
 
 export CATALINA_HOME=/usr/share/tomcat8 # tomcat
 
+# /* bat */
+alias bat='bat --theme="OneHalfDark" --style="auto"'
+
 #######################################################################
 #                             appearance                              #
 #######################################################################
@@ -170,7 +173,7 @@ aurdl() {
 #                             for python                              #
 #######################################################################
 
-# export VIRTUAL_ENV_DISABLE_PROMPT=
+export VIRTUAL_ENV_DISABLE_PROMPT=
 
 #######################################################################
 #                            for alacritty                            #
@@ -233,6 +236,7 @@ svna() {
     while read _f ; do
         [[ -n "$_f" ]] && svn add $_f
     done <<< `svn status | grep '?' | awk '{print $2}'`
+    svn st | grep '^!' | awk '{print $2}' | xargs -n 1 svn delete
 }
 
 #######################################################################
