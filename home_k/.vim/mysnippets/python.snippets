@@ -101,24 +101,29 @@ endsnippet
 # requests
 # --------------------------------------------
 
-snippet req "requests"
+snippet r "requests"
 import requests
 ${0:r} = requests.request(${1:method}, ${2:url}, *args, **kwargs)
 endsnippet
 
-snippet reqget "requests"
+snippet rget "requests"
 import requests
 ${0:r} = requests.get(${1:url}, params=${2:None})
 endsnippet
 
-snippet reqpost "requests"
+snippet rpost "requests"
 import requests
-${0:r} = requests.post(${1:url}, data=${2:None}, json=${3:None})
+${0:r} = requests.post(${1:url}, json=${3:None})
 endsnippet
 
-snippet reqpatch "requests"
+snippet rpat "requests patch"
 import requests
-${0:r} = requests.patch(${1:url}, data=${2:None})
+${0:r} = requests.patch(${1:url}, json=${2:None})
+endsnippet
+
+snippet rdel "requests delete"
+import requests
+${0:r} = requests.delete(${1:url})
 endsnippet
 
 # --------------------------------------------

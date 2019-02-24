@@ -148,7 +148,7 @@ recommended table:
     方案二，获取livecd_part.sh文件。手动输入:smiling_imp:如下命令：
     ```bash
     wget https://raw.githubusercontent.com/Karmenzind/dotfiles-and-scripts/master/scripts/install_arch/livecd_part.sh
-    ./livecd_part.sh
+    bash ./livecd_part.sh
     ```
     进入arch-chroot后，按照[Usage](#usage)介绍clone整个项目，执行`chrooted part`。
 3. `chrooted part`执行结束后，重启，取出存储介质，从系统盘进入Arch。

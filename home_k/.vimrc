@@ -53,7 +53,7 @@ Plug 'Shougo/context_filetype.vim'
 Plug 'majutsushi/tagbar'
 Plug 'Shougo/echodoc.vim'
 Plug 'w0rp/ale' " Asynchronous Lint Engine
-Plug 'Valloric/YouCompleteMe', { 'do': './install.py --clang-completer --system-libclang --go-completer --js-completer --java-completer' }
+Plug 'Valloric/YouCompleteMe', { 'do': './install.py --clang-completer --clangd-completer --system-libclang --go-completer --js-completer --java-completer' }
 Plug 'terryma/vim-multiple-cursors'
 " Plug 'zxqfl/tabnine-vim'
 " Plug 'tenfyzhong/CompleteParameter.vim'
