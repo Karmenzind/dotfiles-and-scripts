@@ -2,10 +2,10 @@
 # export PATH=$HOME/bin:/usr/local/bin:$PATH
 
 # Path to your oh-my-zsh installation.
-if [[ -d "/usr/share/oh-my-zsh" ]]; then
-    export ZSH=/usr/share/oh-my-zsh
-else
+if [[ -d "$HOME/.oh-my-zsh" ]]; then
     export ZSH=$HOME/.oh-my-zsh
+elif [[ -d "/usr/share/oh-my-zsh" ]]; then
+    export ZSH=/usr/share/oh-my-zsh
 fi
 
 # Set name of the theme to load. Optionally, if you set this to "random"
@@ -36,7 +36,7 @@ HYPHEN_INSENSITIVE="true"
 # DISABLE_AUTO_UPDATE="true"
 
 # Uncomment the following line to change how often to auto-update (in days).
-export UPDATE_ZSH_DAYS=3
+UPDATE_ZSH_DAYS=3
 
 # Uncomment the following line to disable colors in ls.
 # DISABLE_LS_COLORS="true"
