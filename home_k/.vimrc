@@ -117,6 +117,7 @@ Plug 'junegunn/vim-emoji', { 'for': 'markdown,gitcommit' }
 " Plug 'vim-scripts/TeTrIs.vim'
 
 " /* Syntax | Fold */
+Plug 'cespare/vim-toml'
 " Plug 'demophoon/bash-fold-expr', { 'for': 'sh' }
 " Plug 'vim-scripts/txt.vim', { 'for': 'txt' }
 
@@ -286,7 +287,7 @@ augroup filetype_formats
   " \ set listchars+=precedes:<,extends:>
   " \ set textwidth=79 |
 
-  au BufNewFile,BufRead *.js,*.html,*.css,*.yml
+  au BufNewFile,BufRead *.js,*.html,*.css,*.yml,*.toml
         \ setlocal tabstop=2     |
         \ setlocal softtabstop=2 |
         \ setlocal shiftwidth=2
