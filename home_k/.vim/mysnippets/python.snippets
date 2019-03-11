@@ -139,8 +139,9 @@ endsnippet
 # import
 # --------------------------------------------
 
-snippet impurljoin "import urljoin" b
+snippet urlj "import urljoin; urljoin(a, b)" b
 from urllib.parse import urljoin
+${0:url} = urljoin(${1:arg1}, ${2:url2})
 endsnippet
 
 # --------------------------------------------

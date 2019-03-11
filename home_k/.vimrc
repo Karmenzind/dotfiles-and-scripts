@@ -39,6 +39,13 @@ if empty(glob('~/.vim/autoload/plug.vim')) && !has('win32')
   autocmd VimEnter * PlugInstall --sync | source $MYVIMRC
 endif
 
+function! BuildYCM(info)
+  if a:info.status == 'installed' || a:info.force
+     !./install.py --clang-completer --clangd-completer --system-libclang --go-completer --js-completer --java-completer
+  endif
+endfunction
+
+
 call plug#begin()
 Plug 'junegunn/vim-plug'
 
@@ -53,7 +60,7 @@ Plug 'Shougo/context_filetype.vim'
 Plug 'majutsushi/tagbar'
 Plug 'Shougo/echodoc.vim'
 Plug 'w0rp/ale' " Asynchronous Lint Engine
-Plug 'Valloric/YouCompleteMe', { 'do': './install.py --clang-completer --clangd-completer --system-libclang --go-completer --js-completer --java-completer' }
+Plug 'Valloric/YouCompleteMe', { 'do': function('BuildYCM') }
 Plug 'terryma/vim-multiple-cursors'
 " Plug 'zxqfl/tabnine-vim'
 " Plug 'tenfyzhong/CompleteParameter.vim'
