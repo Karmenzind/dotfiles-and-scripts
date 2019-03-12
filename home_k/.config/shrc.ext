@@ -224,9 +224,9 @@ export PYTHON_CONFIGURE_OPTS="--enable-shared"
 #                                ruby                                 #
 #######################################################################
 
-# if [[ -d "$HOME/.gem" ]]; then
-#     export PATH=$PATH:$(find $HOME/.gem -regex '.*ruby/[^/]+/bin' | head -n 1)
-# fi
+if [[ -d "$HOME/.gem" ]]; then
+    export PATH=$PATH:$(find $HOME/.gem -regex '.*ruby/[^/]+/bin' | head -n 1 | tr -d '\r')
+fi
 
 #######################################################################
 #                                 svn                                 #

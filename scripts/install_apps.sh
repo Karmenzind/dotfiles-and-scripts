@@ -214,6 +214,8 @@ install_wudao_dict() {
     # sudo pip install bs4 lxml requests
     local target_dir="$HOME/.local/wudao-dict"
     if [[ -d "$target_dir" ]]; then
+        echo "Delete ${target_dir} and continue?"
+        [[ ! $ans = 'y' ]] && return
         rm -rf $target_dir
     fi
     git clone https://github.com/chestnutheng/wudao-dict $target_dir --depth=1

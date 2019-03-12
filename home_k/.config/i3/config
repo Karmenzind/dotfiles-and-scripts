@@ -100,6 +100,8 @@ bindsym $mod+Shift+0 move container to workspace 10
 # change workspace
 bindsym $mod+comma workspace prev
 bindsym $mod+period workspace next
+bindsym $mod+Shift+comma  move container to workspace prev; workspace prev
+bindsym $mod+Shift+period move container to workspace next; workspace next
 
 # workspace back and forth (with/without active container)
 workspace_auto_back_and_forth yes
@@ -316,7 +318,7 @@ bindsym $mod+Ctrl+l exec --no-startup-id i3lock -t -i `[ -d $wallpaper_dir ] && 
 
 # basic
 exec --no-startup-id i3-msg "workspace 3; exec chromium; workspace 2; exec i3-sensible-terminal; workspace 1; exec i3-sensible-terminal" &
-exec --no-startup-id electronic-wechat &
+# exec --no-startup-id electronic-wechat &
 
 # /* system tools */
 # screenshot
