@@ -236,7 +236,9 @@ svna() {
     while read _f ; do
         [[ -n "$_f" ]] && svn add $_f
     done <<< `svn status | grep '?' | awk '{print $2}'`
-    svn st | grep '^!' | awk '{print $2}' | xargs -n 1 svn delete
+    while read _f ; do
+        [[ -n "$_f" ]] && svn delete $_f
+    done <<< `svn st | grep '^!' | awk '{print $2}'`
 }
 
 #######################################################################
