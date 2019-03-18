@@ -198,6 +198,8 @@ call InstallRequirements()
 
 ### Python虚拟环境快速切换
 
+> 已经停止维护，请使用virtualenvwrapper
+
 - [acpyve](./local_bin/acpyve)
 
 方便一堆虚拟环境需要切换的场景<br>
