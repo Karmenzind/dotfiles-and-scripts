@@ -214,3 +214,53 @@ endsnippet
 #         ob.__dict__ = cls._state
 #         return ob
 # endsnippet
+
+
+# mysql
+snippet mysqlexec "exec mysql with pymysql" b
+import pymysql
+import logging
+
+LOGGER = logging.getLogger(__name__)
+
+conn = pymysql.connect(
+    host="${1:localhost}",
+    port=${2:3306},
+    user="${3:root}",
+    password="${4}",
+    db="${5:mysql}",
+    charset='utf8',
+    cursorclass=pymysql.cursors.DictCursor,
+)
+
+sql = """
+${0}
+"""
+
+args = None
+
+try:
+    with conn.cursor() as cursor:
+        cursor.execute(sql, args)
+        LOGGER.debug("Executed %s", cursor._last_executed)
+        ret = cursor.fetchall()
+    conn.commit()
+except:
+    LOGGER.warning("Failed when trying sql: %s with args: %s.", sql, args)
+finally:
+    conn.close
+endsnippet
+
+
+snippet djangoscriptheader "header code for script" b
+import os
+import sys
+
+import django
+
+project_dir = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+# print(project_dir)
+sys.path.append(project_dir)
+os.environ.setdefault('DJANGO_SETTINGS_MODULE', '${0:projectname}.settings')
+django.setup()
+endsnippet

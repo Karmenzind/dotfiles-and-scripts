@@ -17,7 +17,7 @@ endsnippet
 
 # /* signals */
 
-snippet receiv "Description" b
+snippet recv "Description" b
 from django.db.models.signals import $1
 from django.dispatch import receiver
 
@@ -146,3 +146,39 @@ class Migration(migrations.Migration):
     ]
 
 endsnippet
+
+# --------------------------------------------
+# DB
+# --------------------------------------------
+snippet dbexecdict "Description" b
+from django.db import connection
+
+def dictfetchall(cursor):
+    """ add a fake dictcursor method to django db conn """
+    columns = [_[0] for _ in cursor.description]
+    return [dict(zip(columns, _)) for _ in cursor.fetchall()]
+
+with connection.cursor() as cursor:
+    cursor.execute(sql, args)
+    # LOGGER.debug("Executed %s", cursor._last_executed)
+    if not use_pymysql and as_dict:
+        ret = dictfetchall(cursor)
+    else:
+        ret = cursor.fetchall()
+connection.commit()
+endsnippet
+
+snippet dbexec "Description" b
+from django.db import connection
+
+with connection.cursor() as cursor:
+    cursor.execute(sql, args)
+    # LOGGER.debug("Executed %s", cursor._last_executed)
+    ret = cursor.fetchall()
+connection.commit()
+endsnippet
+
+# --------------------------------------------
+# others
+# --------------------------------------------
+
