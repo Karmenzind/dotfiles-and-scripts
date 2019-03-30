@@ -566,6 +566,7 @@ let g:ale_fixers = {
       \  'sh': ['shfmt'],
       \  'python': ['autopep8', 'isort'],
       \  'json': ['fixjson', 'prettier'],
+      \  'sql': ['sqlfmt'],
       \ }
 
 let g:ale_warn_about_trailing_whitespace = 0
@@ -580,6 +581,9 @@ let g:ale_python_mypy_options = '--incremental'
 let g:ale_python_pylint_options = '--max-line-length=120'
 let g:ale_python_autopep8_options = '--max-line-length=120'
 let g:ale_python_flake8_options = '--max-line-length=120'
+
+" executable
+let g:ale_sql_sqlfmt_executable = system("which sqlfmt")
 
 " format
 let g:ale_echo_msg_format = '(%severity% %linter%) %code:% %s'
