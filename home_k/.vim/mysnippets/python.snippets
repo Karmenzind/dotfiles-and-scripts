@@ -16,31 +16,31 @@ endsnippet
 # --------------------------------------------
 
 snippet L
-${2:LOGGER}.log("${1}")
+${2:LOGGER}.log("${1:${VISUAL}}")
 endsnippet
 
 snippet Ld
-${2:LOGGER}.debug("${1}")
+${2:LOGGER}.debug("${1:${VISUAL}}")
 endsnippet
 
 snippet Li
-${2:LOGGER}.info("${1}")
+${2:LOGGER}.info("${1:${VISUAL}}")
 endsnippet
 
 snippet Lw
-${2:LOGGER}.warning("${1}")
+${2:LOGGER}.warning("${1:${VISUAL}}")
 endsnippet
 
 snippet Le
-${2:LOGGER}.error("${1}")
+${2:LOGGER}.error("${1:${VISUAL}}")
 endsnippet
 
 snippet Lex
-${2:LOGGER}.exception("${1}")
+${2:LOGGER}.exception("${1:${VISUAL}}")
 endsnippet
 
 snippet Lc
-${2:LOGGER}.critical("${1}")
+${2:LOGGER}.critical("${1:${VISUAL}}")
 endsnippet
 
 # --------------------------------------------
@@ -158,6 +158,11 @@ from pprint import pprint
 pprint($1)
 endsnippet
 
+snippet pfm "import pprint and print" b
+from pprint import pformat
+pformat($1)
+endsnippet
+
 # --------------------------------------------
 # doc
 # --------------------------------------------
@@ -248,7 +253,7 @@ try:
 except:
     LOGGER.warning("Failed when trying sql: %s with args: %s.", sql, args)
 finally:
-    conn.close
+    conn.close()
 endsnippet
 
 
