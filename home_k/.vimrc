@@ -715,8 +715,9 @@ endif
 " toggle tagbar and toc
 function! TToggle()
   if exists("t:opened_md_winid")
-    call win_gotoid(t:opened_md_winid)
-    execute("q")
+    if win_gotoid(t:opened_md_winid)
+      execute("q")
+    endif
     unlet t:opened_md_winid
   else
     if &ft == 'markdown'
