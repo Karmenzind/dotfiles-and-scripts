@@ -76,6 +76,24 @@ class ${1}Serializer(serializers.ModelSerializer):
 
 endsnippet
 
+snippet validatesrz "validate for serializer" b
+def validate${1}(self, attrs):
+    """ validate ${1/_//} """
+    return attrs
+endsnippet
+
+snippet createsrz "create for serializer" b
+def create(self, validated_data):
+    obj = super().create(validated_data)
+    return obj
+endsnippet
+
+snippet updatesrz "update for serializer" b
+def update(self, instance, validated_data):
+    obj = super().update(instance, validated_data)
+    return obj
+endsnippet
+
 # --------------------------------------------
 # Django Filter
 # --------------------------------------------
