@@ -43,6 +43,12 @@ snippet Lc
 ${2:LOGGER}.critical("${1:${VISUAL}}")
 endsnippet
 
+snippet Lip
+from pprint import pformat
+${2:LOGGER}.info(pformat(${1:${VISUAL}}))
+endsnippet
+
+
 # --------------------------------------------
 # dict
 # --------------------------------------------
