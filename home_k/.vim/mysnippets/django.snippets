@@ -22,7 +22,7 @@ from django.db.models.signals import $1
 from django.dispatch import receiver
 
 @receiver(${1:post_save}, sender=${2:model})
-def signal_$1_${2/./\l$0/}(sender, instance, **kwargs):
+def signal_$1_${2/.+/\L$0\E/}(sender, instance, **kwargs):
     """ signal for $1 $2"""
     ${0:pass}
 
