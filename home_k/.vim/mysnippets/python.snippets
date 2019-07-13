@@ -1,5 +1,5 @@
 
-snippet ak "override akw"
+snippet ak "override akw" i
 *args, **kwargs
 endsnippet
 
@@ -146,6 +146,11 @@ import os
 os.path.dirname(os.path.abspath(__file__))
 endsnippet
 
+snippet curdir "dir abspath" b
+import os
+os.path.dirname(os.path.abspath(__file__))
+endsnippet
+
 # --------------------------------------------
 # import
 # --------------------------------------------
@@ -270,7 +275,7 @@ import sys
 import django
 
 project_dir = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-# print(project_dir)
+print(project_dir)
 sys.path.append(project_dir)
 os.environ.setdefault('DJANGO_SETTINGS_MODULE', '${0:projectname}.settings')
 django.setup()

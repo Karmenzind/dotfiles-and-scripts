@@ -124,6 +124,7 @@ Plug 'junegunn/vim-emoji', { 'for': 'markdown,gitcommit' }
 " Plug 'vim-scripts/TeTrIs.vim'
 
 " /* Syntax | Fold */
+Plug 'posva/vim-vue'
 Plug 'cespare/vim-toml'
 " Plug 'demophoon/bash-fold-expr', { 'for': 'sh' }
 " Plug 'vim-scripts/txt.vim', { 'for': 'txt' }
