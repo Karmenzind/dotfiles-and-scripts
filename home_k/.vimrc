@@ -562,7 +562,7 @@ endfunction
 
 let g:ale_linters = {
       \  'vim': ['vint'],
-      \  'python': ['pydocstyle'],
+      \  'python': ['pydocstyle', 'flake8', 'pylint'],
       \  'markdown': ['mdl', 'prettier', 'proselint', 'alex'],
       \  'text': ['proselint', 'alex', 'redpen'],
       \  'javascript': ['prettier', 'importjs'],
@@ -593,7 +593,7 @@ let g:ale_python_mypy_options = '--incremental'
 let g:ale_python_pylint_options = '--max-line-length=120 --rcfile $HOME/.config/pylintrc'
 let g:ale_python_autopep8_options = '--max-line-length=120'
 let g:ale_python_flake8_options = '--max-line-length=120'
-let g:ale_python_pydocstyle_options = '--ignore=D205,D212,D400,D403,D415,D211,D203,D213'
+let g:ale_python_pydocstyle_options = '--ignore=D200,D203,D204,D205,D211,D212,D213,D400,D403,D415'
 
 " executable
 let g:ale_sql_sqlfmt_executable = system("which sqlfmt")
