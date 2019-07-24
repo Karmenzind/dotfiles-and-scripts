@@ -5,6 +5,9 @@
 create symlink
 instead of sync by do_synch.py
 """
+
+# TODO(k): <2019-07-24> check existed symlinks
+
 import os
 import pprint
 import re
@@ -27,9 +30,11 @@ path_map = {
     "local_bin": "/usr/local/bin",
 }
 
+
 TO_SYNC = (
     "home_k/.Xresources",
     "home_k/.agignore",
+    "home_k/.config/pylintrc",
     "home_k/.config/alacritty/alacritty.yml",
     "home_k/.config/aria2/aria2.conf",
     "home_k/.config/compton.conf",
@@ -44,6 +49,7 @@ TO_SYNC = (
     "home_k/.config/shrc.ext",
     "home_k/.config/volumeicon/volumeicon",
     "home_k/.config/xfce4/terminal/terminalrc",
+    "home_k/.config/mypy/config",
     "home_k/.gitconfig",
     "home_k/.tmux.conf",
     "home_k/.tmuxinator/k.yml",

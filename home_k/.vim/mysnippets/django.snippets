@@ -23,7 +23,7 @@ from django.dispatch import receiver
 
 @receiver(${1:post_save}, sender=${2:model})
 def signal_$1_${2/.+/\L$0\E/}(sender, instance, **kwargs):
-    """ signal for $1 $2"""
+    """signal for $1 $2"""
     ${0:pass}
 
 endsnippet
@@ -36,21 +36,18 @@ snippet mw "Middleware" b
 from django.utils.deprecation import MiddlewareMixin
 
 class ${1}Middleware:
-    """ Middleware for $1
-    """
+    """Middleware for $1"""
 
     def __init__(self, get_response=None):
         self.get_response = get_response
         super().__init__()
 
     def process_response(self, request, response):
-        """ process the response
-        """
+        """process the response"""
         return response
 
     def process_request(self, request):
-        """ process the request
-        """
+        """process the request"""
         return request
 
 endsnippet
@@ -65,12 +62,10 @@ snippet srm "model serializer" b
 from rest_framework import serializers
 
 class ${1}Serializer(serializers.ModelSerializer):
-    """ ModelSerializer for $1
-    """
+    """ModelSerializer for $1"""
 
     class Meta:
-        """ Meta for $1
-        """
+        """Meta for $1"""
         model = $1
         fields = '__all__'
 
@@ -78,18 +73,20 @@ endsnippet
 
 snippet validatesrz "validate for serializer" b
 def validate${1}(self, attrs):
-    """ validate ${1/_//} """
+    """validate ${1/_//}"""
     return attrs
 endsnippet
 
 snippet createsrz "create for serializer" b
 def create(self, validated_data):
+    """create"""
     obj = super().create(validated_data)
     return obj
 endsnippet
 
 snippet updatesrz "update for serializer" b
 def update(self, instance, validated_data):
+    """update"""
     obj = super().update(instance, validated_data)
     return obj
 endsnippet
@@ -102,12 +99,10 @@ snippet fts "django filterset" b
 from django_filters import rest_framework as filters
 
 class ${1}FilterSet(filters.FilterSet):
-    """ FilterSet for $1
-    """
+    """FilterSet for $1"""
 
     class Meta:
-        """ Meta for $1
-        """
+        """Meta for $1"""
         model = $1
         fields = [$2]
 
@@ -118,7 +113,7 @@ snippet ftsm "django filterset method field" b
 ${1:field} = filters.${2:CharFilter}(method='filter_$1')
 
 def filter_$1(self, qs, name, value):
-    """ method for $1
+    """method for $1
     return filtered QuerySet
     """
     $0
@@ -141,14 +136,14 @@ from django.db import migrations
 
 
 def ${3:forwards_func}(apps, schema_editor):
-    """ ${3/_/ /g}"""
+    """${3/_/ /g}"""
     ${2:model} = apps.get_model("${1:app}", "$2")
     db_alias = schema_editor.connection.alias
     manager = $2.objects.using(db_alias)
     
 
 def ${4:reverse_func}(apps, schema_editor):
-    """ ${4/_/ /g}"""
+    """${4/_/ /g}"""
     $2 = apps.get_model("$1", "$2")
     db_alias = schema_editor.connection.alias
     manager = $2.objects.using(db_alias)
@@ -172,7 +167,7 @@ snippet dbexecdict "Description" b
 from django.db import connection
 
 def dictfetchall(cursor):
-    """ add a fake dictcursor method to django db conn """
+    """add a fake dictcursor method to django db conn"""
     columns = [_[0] for _ in cursor.description]
     return [dict(zip(columns, _)) for _ in cursor.fetchall()]
 

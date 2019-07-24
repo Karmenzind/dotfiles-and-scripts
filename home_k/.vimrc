@@ -383,7 +383,7 @@ let g:ycm_collect_identifiers_from_tags_files = 1
 " let g:ycm_max_num_identifier_candidates = 7
 
 let g:ycm_semantic_triggers = {
- \   'python': [ 're!(import\s+|from\s+(\w+\s+(import\s+(\w+,\s+)*)?)?)'  ]
+ \   'python': [ 're!(import\s+|from\s+(\w+\s+(import\s+(\w+,\s+)*)?)?)' ]
  \ }
 
 nnoremap <silent> <Leader>gt  :YcmCompleter GoTo<CR>
@@ -550,8 +550,19 @@ nmap <silent> <Leader>af <Plug>(ale_fix)
 nmap <silent> <Leader>at <Plug>(ale_toggle)
 cabbrev AF ALEFix
 
+" trim whitespaces surrounded in docstrings
+function FixSurroundedWhiteSpaces(buffer)
+  normal! mF
+  silent! execute '%s/\v^(\s*""")\s+(.+)\s+(""")$/\1\2\3'
+  normal! 'F
+  execute 'delmarks F'
+  " using map, more decent
+  " return map(a:lines, {idx, line -> substitute(line, '\v^(\s*""")\s+(.+)\s+(""")', '\1\2\3', '')})
+endfunction
+
 let g:ale_linters = {
       \  'vim': ['vint'],
+      \  'python': ['pydocstyle'],
       \  'markdown': ['mdl', 'prettier', 'proselint', 'alex'],
       \  'text': ['proselint', 'alex', 'redpen'],
       \  'javascript': ['prettier', 'importjs'],
@@ -565,7 +576,7 @@ let g:ale_fixers = {
       \  'c': ['clang-format'],
       \  'javascript': ['prettier', 'importjs'],
       \  'sh': ['shfmt'],
-      \  'python': ['autopep8', 'isort'],
+      \  'python': ['autopep8', 'isort', 'FixSurroundedWhiteSpaces'],
       \  'json': ['fixjson', 'prettier'],
       \  'sql': ['sqlfmt'],
       \ }
@@ -579,9 +590,10 @@ let g:ale_lint_on_insert_leave = 1
 " for python
 let g:ale_python_mypy_ignore_invalid_syntax = 1
 let g:ale_python_mypy_options = '--incremental'
-let g:ale_python_pylint_options = '--max-line-length=120'
+let g:ale_python_pylint_options = '--max-line-length=120 --rcfile $HOME/.config/pylintrc'
 let g:ale_python_autopep8_options = '--max-line-length=120'
 let g:ale_python_flake8_options = '--max-line-length=120'
+let g:ale_python_pydocstyle_options = '--ignore=D205,D212,D400,D403,D415,D211,D203,D213'
 
 " executable
 let g:ale_sql_sqlfmt_executable = system("which sqlfmt")
