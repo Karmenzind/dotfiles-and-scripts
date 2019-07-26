@@ -126,6 +126,7 @@ Plug 'junegunn/vim-emoji', { 'for': 'markdown,gitcommit' }
 " /* Syntax | Fold */
 Plug 'posva/vim-vue'
 Plug 'cespare/vim-toml'
+Plug 'Yggdroot/indentLine'
 " Plug 'demophoon/bash-fold-expr', { 'for': 'sh' }
 " Plug 'vim-scripts/txt.vim', { 'for': 'txt' }
 
@@ -506,6 +507,7 @@ nnoremap <Leader>fh :History/<CR>
 " /* for tagbar */
 noremap <Leader>t :call TToggle()<CR>
 let g:tagbar_autofocus = 1
+let g:tagbar_autoclose = 1
 let g:tagbar_show_linenumbers = 1
 let g:tagbar_sort = 0
 
@@ -593,7 +595,7 @@ let g:ale_python_mypy_options = '--incremental'
 let g:ale_python_pylint_options = '--max-line-length=120 --rcfile $HOME/.config/pylintrc'
 let g:ale_python_autopep8_options = '--max-line-length=120'
 let g:ale_python_flake8_options = '--max-line-length=120'
-let g:ale_python_pydocstyle_options = '--ignore=D200,D203,D204,D205,D211,D212,D213,D400,D403,D415'
+let g:ale_python_pydocstyle_options = '--ignore=D200,D203,D204,D205,D211,D212,D213,D400,D401,D403,D415'
 
 " executable
 let g:ale_sql_sqlfmt_executable = system("which sqlfmt")
@@ -677,6 +679,11 @@ let g:startify_change_to_dir = 0
 let g:startify_session_persistence = 1
 let g:startify_session_before_save = [ 'silent! NERDTreeClose' ]
 
+augroup startify_aug
+  au!
+  au FileType startify IndentLinesDisable
+augroup END
+
 " with devicons
 " function! StartifyEntryFormat()
 "   return 'WebDevIconsGetFileTypeSymbol(absolute_path) ." ". entry_path'
@@ -720,6 +727,10 @@ if executable('svn')
   map <silent> <leader>vbf :VCBrowseBuffer<CR>
   map <silent> <leader>vq :diffoff! <CR> :q<CR>
 endif
+
+" /* for indentline */
+nnoremap <silent> <Leader>it :IndentLinesToggle<CR>
+" let g:indentLine_char_list = ['|', '¦', '┆', '┊']
 
 " --------------------------------------------
 " Functions
@@ -944,6 +955,8 @@ augroup END
 function! FitAirlineTheme(cname)
   if a:cname ==? 'NeoSolarized'
     let g:airline_theme='solarized'
+  elseif a:cname ==? 'github'
+    let g:airline_theme = 'minimalist'
   endif
 endfunction
 
