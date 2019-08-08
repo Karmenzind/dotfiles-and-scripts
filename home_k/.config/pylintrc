@@ -147,7 +147,9 @@ disable=print-statement,
         broad-except,
         arguments-differ,
         unused-argument,
-        bare-except
+        bare-except,
+        too-many-arguments,
+        attribute-defined-outside-init
 
 # Enable the message, report, category or checker with the given id(s). You can
 # either give multiple identifier separated by comma (,) or put this option

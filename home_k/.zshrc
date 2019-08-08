@@ -114,6 +114,7 @@ plugins=(
   'tmux'
   'tmuxinator'
   'pyenv'
+  'pipenv'
 )
 
 source $ZSH/oh-my-zsh.sh

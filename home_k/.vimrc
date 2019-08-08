@@ -62,6 +62,7 @@ Plug 'Shougo/echodoc.vim'
 Plug 'w0rp/ale' " Asynchronous Lint Engine
 Plug 'Valloric/YouCompleteMe', { 'do': function('BuildYCM') }
 Plug 'terryma/vim-multiple-cursors'
+Plug 'mattn/emmet-vim'
 " Plug 'zxqfl/tabnine-vim'
 " Plug 'tenfyzhong/CompleteParameter.vim'
 " Plug 'junegunn/rainbow_parentheses.vim'
@@ -109,6 +110,7 @@ Plug 'iamcco/markdown-preview.nvim', { 'do': { -> mkdp#util#install() }}
 Plug 'nelstrom/vim-markdown-folding'
 Plug 'mklabs/vim-markdown-helpfile'
 Plug 'Traap/vim-helptags'
+" Plug 'gabrielelana/vim-markdown'
 " Plug 'iamcco/mathjax-support-for-mkdp'  " before markdown-preview
 " Plug 'scrooloose/vim-slumlord'
 
@@ -127,6 +129,7 @@ Plug 'junegunn/vim-emoji', { 'for': 'markdown,gitcommit' }
 Plug 'posva/vim-vue'
 Plug 'cespare/vim-toml'
 Plug 'Yggdroot/indentLine'
+Plug 'chr4/nginx.vim'
 " Plug 'demophoon/bash-fold-expr', { 'for': 'sh' }
 " Plug 'vim-scripts/txt.vim', { 'for': 'txt' }
 
@@ -384,7 +387,10 @@ let g:ycm_collect_identifiers_from_tags_files = 1
 " let g:ycm_max_num_identifier_candidates = 7
 
 let g:ycm_semantic_triggers = {
- \   'python': [ 're!(import\s+|from\s+(\w+\s+(import\s+(\w+,\s+)*)?)?)' ]
+ \   'python': [ 're!(import\s+|from\s+(\w+\s+(import\s+(\w+,\s+)*)?)?)' ],
+ \   'javascript': ['.', 're!(?=[a-zA-Z]{3,4})'],
+ \   'html': ['<', '"', '</', ' '],
+ \   'scss,css': [ 're!^\s{2,4}', 're!:\s+' ]
  \ }
 
 nnoremap <silent> <Leader>gt  :YcmCompleter GoTo<CR>
@@ -553,13 +559,13 @@ nmap <silent> <Leader>at <Plug>(ale_toggle)
 cabbrev AF ALEFix
 
 " trim whitespaces surrounded in docstrings
-function FixSurroundedWhiteSpaces(buffer)
-  normal! mF
-  silent! execute '%s/\v^(\s*""")\s+(.+)\s+(""")$/\1\2\3'
-  normal! 'F
-  execute 'delmarks F'
+function FixSurroundedWhiteSpaces(buffer, lines)
+  " normal! mF
+  " silent! execute '%s/\v^(\s*""")\s+(.+)\s+(""")$/\1\2\3'
+  " normal! 'F
+  " execute 'delmarks F'
   " using map, more decent
-  " return map(a:lines, {idx, line -> substitute(line, '\v^(\s*""")\s+(.+)\s+(""")', '\1\2\3', '')})
+  return map(a:lines, {idx, line -> substitute(line, '\v^(\s*""")\s+(.+)\s+(""")', '\1\2\3', '')})
 endfunction
 
 let g:ale_linters = {
