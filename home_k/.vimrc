@@ -388,7 +388,6 @@ let g:ycm_collect_identifiers_from_tags_files = 1
 
 let g:ycm_semantic_triggers = {
  \   'python': [ 're!(import\s+|from\s+(\w+\s+(import\s+(\w+,\s+)*)?)?)' ],
- \   'javascript,vue': ['.', 're!(?=[a-zA-Z]{3,4})'],
  \   'html': ['<', '"', '</', ' '],
  \   'scss,css': [ 're!^\s{2,4}', 're!:\s+' ]
  \ }
