@@ -15,6 +15,11 @@ let g:python_host_prog = '/usr/bin/python2'
 let g:python3_host_prog = '/usr/bin/python3'
 let g:ruby_host_prog = system("find $HOME/.gem -regex '.*ruby/[^/]+/bin/neovim-ruby-host'")
 
+" language server
+let g:LanguageClient_serverCommands = {
+      \ 'vue': ['vls']
+      \ }
+
 if s:valid_extra_init_vim
   execute 'source ' . g:extra_init_vim_path
 endif
