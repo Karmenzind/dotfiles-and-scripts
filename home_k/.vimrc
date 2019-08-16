@@ -563,24 +563,24 @@ cabbrev AF ALEFix
 
 " trim whitespaces surrounded in docstrings
 function FixSurroundedWhiteSpaces(buffer, lines)
-  " normal! mF
-  " silent! execute '%s/\v^(\s*""")\s+(.+)\s+(""")$/\1\2\3'
-  " normal! 'F
-  " execute 'delmarks F'
-  " using map, more decent
   return map(a:lines, {idx, line -> substitute(line, '\v^(\s*""")\s+(.+)\s+(""")', '\1\2\3', '')})
 endfunction
 
+let g:ale_linter_aliases = {
+      \ 'vue': ['vue', 'javascript', 'html']
+      \ }
 let g:ale_linters = {
-      \  'vim': ['vint'],
-      \  'python': ['pydocstyle', 'flake8', 'pylint'],
-      \  'markdown': ['mdl', 'prettier', 'proselint', 'alex'],
-      \  'text': ['proselint', 'alex', 'redpen'],
-      \  'javascript': ['prettier', 'importjs'],
-      \  'gitcommit': ['gitlint'],
-      \  'dockerfile': ['hadolint'],
-      \  'sql': ['sqlint'],
-      \  'cpp': ['gcc'],
+      \ 'vim': ['vint'],
+      \ 'python': ['pydocstyle', 'flake8', 'pylint'],
+      \ 'markdown': ['mdl', 'prettier', 'proselint', 'alex'],
+      \ 'text': ['proselint', 'alex', 'redpen'],
+      \ 'vue': ['htmlhint', 'jshint', 'stylelint'],
+      \ 'javascript': ['eslint', 'prettier', 'importjs'],
+      \ 'gitcommit': ['gitlint'],
+      \ 'dockerfile': ['hadolint'],
+      \ 'sql': ['sqlint'],
+      \ 'cpp': ['gcc'],
+      \ 'html': ['prettier', 'htmlhint'],
       \ }
 let g:ale_fixers = {
       \  '*': ['trim_whitespace'],
@@ -590,6 +590,7 @@ let g:ale_fixers = {
       \  'python': ['autopep8', 'isort', 'FixSurroundedWhiteSpaces'],
       \  'json': ['fixjson', 'prettier'],
       \  'sql': ['sqlfmt'],
+      \  'vue': ['eslint', 'prettier']
       \ }
 
 let g:ale_warn_about_trailing_whitespace = 0
@@ -598,13 +599,15 @@ let g:ale_set_balloons_legacy_echo = 1
 let g:ale_lint_on_text_changed = 'normal'
 let g:ale_lint_on_insert_leave = 1
 
-" for python
+" options
 let g:ale_python_mypy_ignore_invalid_syntax = 1
 let g:ale_python_mypy_options = '--incremental'
 let g:ale_python_pylint_options = '--max-line-length=120 --rcfile $HOME/.config/pylintrc'
 let g:ale_python_autopep8_options = '--max-line-length=120'
 let g:ale_python_flake8_options = '--max-line-length=120'
 let g:ale_python_pydocstyle_options = '--ignore=D200,D203,D204,D205,D211,D212,D213,D400,D401,D403,D415'
+" let g:ale_javascript_prettier_options = '-c'
+" let g:ale_javascript_eslint_options = '--ext .js,.vue'
 
 " executable
 let g:ale_sql_sqlfmt_executable = system("which sqlfmt")
@@ -744,7 +747,7 @@ endif
 nnoremap <silent> <Leader>it :IndentLinesToggle<CR>
 " let g:indentLine_char_list = ['|', '¦', '┆', '┊']
 
-" /* for emmit */
+" /* for emmet */
 let g:user_emmet_leader_key = '<leader>y'
 
 " /* for indentLine */
