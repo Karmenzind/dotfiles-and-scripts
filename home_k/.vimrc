@@ -41,7 +41,7 @@ endif
 
 function! BuildYCM(info)
   if a:info.status == 'installed' || a:info.force
-     !./install.py --clang-completer --clangd-completer --system-libclang --go-completer --js-completer --java-completer
+     !./install.py --clang-completer --clangd-completer --system-libclang --go-completer --ts-completer --java-completer
   endif
 endfunction
 
@@ -299,7 +299,7 @@ augroup filetype_formats
   " \ set listchars+=precedes:<,extends:>
   " \ set textwidth=79 |
 
-  au BufNewFile,BufRead *.js,*.html,*.css,*.yml,*.toml
+  au BufNewFile,BufRead *.js,*.html,*.css,*.yml,*.toml,*.vue
         \ setlocal tabstop=2     |
         \ setlocal softtabstop=2 |
         \ setlocal shiftwidth=2
@@ -376,7 +376,7 @@ let g:ycm_autoclose_preview_window_after_completion = 1
 let g:ycm_global_ycm_extra_conf = '~/.vim/.ycm_extra_conf.py'
 let g:ycm_complete_in_comments = 1
 let g:ycm_complete_in_strings = 1
-let g:ycm_server_python_interpreter = '/usr/bin/python3'
+let g:ycm_server_python_interpreter = system("which python")
 let g:ycm_python_binary_path = 'python3'
 let g:ycm_goto_buffer_command = 'horizontal-split'
 
@@ -388,7 +388,6 @@ let g:ycm_collect_identifiers_from_tags_files = 1
 
 let g:ycm_semantic_triggers = {
  \   'python': [ 're!(import\s+|from\s+(\w+\s+(import\s+(\w+,\s+)*)?)?)' ],
- \   'javascript': ['.', 're!(?=[a-zA-Z]{3,4})'],
  \   'html': ['<', '"', '</', ' '],
  \   'scss,css': [ 're!^\s{2,4}', 're!:\s+' ]
  \ }
@@ -403,6 +402,10 @@ augroup ycm_autos
   au FileType python
         \ nnoremap <buffer> <silent> <C-]> :YcmCompleter GoTo<CR>
 augroup END
+
+let g:ycm_language_server = [
+      \ {"name": "vue", "filetypes": ["vue"], "cmdline": ["vls"] },
+      \ ]
 
 " /* for NERDTree */
 nnoremap <silent> <Leader>n :NERDTreeToggle<CR>
@@ -628,6 +631,7 @@ let g:vim_markdown_no_default_key_mappings = 1
 let g:vim_markdown_json_frontmatter = 1
 let g:vim_markdown_conceal = 0
 let g:vim_markdown_conceal_code_blocks = 0
+let g:tex_conceal = "" | let g:vim_markdown_math = 1
 
 " markdown-preview
 let g:mkdp_path_to_chrome = system("which chromium")
@@ -740,6 +744,12 @@ endif
 nnoremap <silent> <Leader>it :IndentLinesToggle<CR>
 " let g:indentLine_char_list = ['|', '¦', '┆', '┊']
 
+" /* for emmit */
+let g:user_emmet_leader_key = '<leader>y'
+
+" /* for indentLine */
+let g:indentLine_setConceal = 0
+
 " --------------------------------------------
 " Functions
 " --------------------------------------------
@@ -771,7 +781,7 @@ endfunction
 
 function! InstallRequirements()
   let req = {"pip": ['black', 'autopep8', 'isort', 'vint', 'proselint', 'gitlint'],
-        \ "npm": ['prettier', 'fixjson', 'importjs'],
+        \ "npm": ['prettier', 'fixjson', 'importjs', 'vue-language-server'],
         \ "other": ['ag', 'fzf', 'ctags', 'clang-format']
         \ }
   let cmd_map = {"pip": "sudo pip install",

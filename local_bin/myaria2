@@ -139,7 +139,7 @@ process_raw_trackerlist() {
     python -c "
 import sys 
 urls = (_.strip() for _ in sys.stdin if _.strip())
-result = ';'.join(urls)
+result = ','.join(urls)
 print(result)
 "
 }
