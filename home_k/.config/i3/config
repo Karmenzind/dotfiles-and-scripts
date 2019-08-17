@@ -317,7 +317,8 @@ bindsym $mod+Ctrl+l exec --no-startup-id i3lock -t -i `[ -d $wallpaper_dir ] && 
 # -----------------------------------------------------------------------------
 
 # basic
-exec --no-startup-id i3-msg "workspace 3; exec chromium; workspace 2; exec i3-sensible-terminal; workspace 1; exec i3-sensible-terminal" &
+exec --no-startup-id i3-msg "workspace 1; exec i3-sensible-terminal" &
+# exec --no-startup-id i3-msg "workspace 3; exec chromium; workspace 2; exec i3-sensible-terminal; workspace 1; exec i3-sensible-terminal" &
 # exec --no-startup-id electronic-wechat &
 
 # /* system tools */
