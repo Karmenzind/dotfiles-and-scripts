@@ -335,7 +335,7 @@ exec_always --no-startup-id killall -9 xflux; xflux -l '30.2443314184' -g '120.1
 # exec_always xrandr --output HDMI3 --off --output HDMI2 --off --output HDMI1 --mode 1920x1080 --pos 1920x0 --rotate normal --output VIRTUAL1 --off --output DP1 --primary --mode 1920x1080 --pos 0x0 --rotate normal
 
 # a cat chasing the mouse
-exec_always --no-startup-id killall -9 oneko; oneko -tofocus &
+exec_always --no-startup-id bash $HOME/.config/i3/run_oneko.sh &
 
 # /* with tray icons */
 exec --no-startup-id pamac-tray &
