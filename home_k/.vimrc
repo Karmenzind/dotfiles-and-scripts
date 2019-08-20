@@ -392,16 +392,16 @@ let g:ycm_semantic_triggers = {
  \   'scss,css': [ 're!^\s{2,4}', 're!:\s+' ]
  \ }
 
-nnoremap <silent> <Leader>gt  :YcmCompleter GoTo<CR>
+nnoremap <silent> <Leader>g   :YcmCompleter GoTo<CR>
 nnoremap <silent> <Leader>dd  :YcmCompleter GoToDefinitionElseDeclaration<CR>
 nnoremap <silent> <Leader>rf  :YcmCompleter GoToReferences<CR>
 nnoremap <silent> <Leader>doc :YcmCompleter GetDoc<CR>
 
-augroup ycm_autos
-  au!
-  au FileType python
-        \ nnoremap <buffer> <silent> <C-]> :YcmCompleter GoTo<CR>
-augroup END
+" augroup ycm_autos
+"   au!
+"   au FileType python,vue,html,javascript,xml
+"         \ nnoremap <buffer> <silent> <C-]> :YcmCompleter GoTo<CR>
+" augroup END
 
 let g:ycm_language_server = [
       \ {"name": "vue", "filetypes": ["vue"], "cmdline": ["vls"] },
