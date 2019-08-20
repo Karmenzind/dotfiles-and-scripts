@@ -83,7 +83,7 @@ bash ./install.sh
 
 ## 配置文件目录
 
-文件跳转目录，[为避免杂乱，挪到底部]
+文件跳转目录，[为避免杂乱，挪到底部](#文件目录)
 
 > 我使用的字体: [Monaco Nerd](https://github.com/Karmenzind/monaco-nerd-fonts)
 
