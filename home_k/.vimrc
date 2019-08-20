@@ -376,7 +376,7 @@ let g:ycm_autoclose_preview_window_after_completion = 1
 let g:ycm_global_ycm_extra_conf = '~/.vim/.ycm_extra_conf.py'
 let g:ycm_complete_in_comments = 1
 let g:ycm_complete_in_strings = 1
-let g:ycm_server_python_interpreter = system("which python")
+let g:ycm_server_python_interpreter = 'python'
 let g:ycm_python_binary_path = 'python3'
 let g:ycm_goto_buffer_command = 'horizontal-split'
 
