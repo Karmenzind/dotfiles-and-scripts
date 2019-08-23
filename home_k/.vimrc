@@ -575,7 +575,7 @@ let g:ale_linters = {
       \ 'markdown': ['mdl', 'prettier', 'proselint', 'alex'],
       \ 'text': ['proselint', 'alex', 'redpen'],
       \ 'vue': ['htmlhint', 'jshint', 'stylelint'],
-      \ 'javascript': ['eslint', 'prettier', 'importjs'],
+      \ 'javascript': ['jshint', 'prettier', 'importjs'],
       \ 'gitcommit': ['gitlint'],
       \ 'dockerfile': ['hadolint'],
       \ 'sql': ['sqlint'],

@@ -115,6 +115,7 @@ plugins=(
   'tmuxinator'
   'pyenv'
   'pipenv'
+  'zsh-autosuggestions'
 )
 
 source $ZSH/oh-my-zsh.sh
