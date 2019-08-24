@@ -58,6 +58,7 @@ Plug 'junegunn/vim-easy-align'
 Plug 'SirVer/ultisnips' | Plug 'honza/vim-snippets'
 Plug 'Shougo/context_filetype.vim'
 Plug 'majutsushi/tagbar'
+Plug 'liuchengxu/vista.vim'
 Plug 'Shougo/echodoc.vim'
 Plug 'w0rp/ale' " Asynchronous Lint Engine
 Plug 'Valloric/YouCompleteMe', { 'do': function('BuildYCM') }
@@ -666,7 +667,6 @@ augroup for_markdown_ft
         \ let  b:AutoPairs = {'(':')', '[':']', '{':'}',"'":"'",'"':'"'} |
         \ cabbrev <buffer> TF TableFormat
 augroup END
-"\ nnoremap <buffer> <silent> <Leader>t :Toc<CR>                  |
 
 " /* for SimpylFold */
 let g:SimpylFold_docstring_preview = 1
@@ -746,12 +746,18 @@ endif
 " /* for indentline */
 nnoremap <silent> <Leader>it :IndentLinesToggle<CR>
 " let g:indentLine_char_list = ['|', '¦', '┆', '┊']
+let g:indentLine_setConceal = 0
+let g:indentLine_enabled = 1
 
 " /* for emmet */
 let g:user_emmet_leader_key = '<leader>y'
 
-" /* for indentLine */
-let g:indentLine_setConceal = 0
+" /* for vista.vim */
+noremap <Leader>V :Vista!!<CR>
+noremap <Leader>fc :Vista finder<CR>
+let g:vista_echo_cursor = 0
+let g:vista_sidebar_width = 40
+" TODO(k): <2019-08-24> g:vista_echo_cursor_strategy -> floating_win
 
 " --------------------------------------------
 " Functions
