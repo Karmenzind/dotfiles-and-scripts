@@ -57,7 +57,6 @@ Plug 'tpope/vim-commentary'
 Plug 'junegunn/vim-easy-align'
 Plug 'SirVer/ultisnips' | Plug 'honza/vim-snippets'
 Plug 'Shougo/context_filetype.vim'
-Plug 'majutsushi/tagbar'
 Plug 'liuchengxu/vista.vim'
 Plug 'Shougo/echodoc.vim'
 Plug 'w0rp/ale' " Asynchronous Lint Engine
@@ -514,13 +513,6 @@ nnoremap <Leader>fh :History/<CR>
 "       \  'v':  '<C-W><CR><C-W>L<C-W>p<C-W>J<C-W>p',
 "       \  'gv': '<C-W><CR><C-W>L<C-W>p<C-W>J' }
 
-" /* for tagbar */
-noremap <Leader>t :call TToggle()<CR>
-let g:tagbar_autofocus = 1
-let g:tagbar_autoclose = 1
-let g:tagbar_show_linenumbers = 1
-let g:tagbar_sort = 0
-
 " /* for devicons */
 let g:WebDevIconsUnicodeDecorateFolderNodes = 1
 let g:DevIconsEnableFoldersOpenClose = 1
@@ -759,27 +751,14 @@ let g:vista_echo_cursor = 0
 let g:vista_sidebar_width = 40
 " TODO(k): <2019-08-24> g:vista_echo_cursor_strategy -> floating_win
 
+augroup vista_aug
+  au!
+  au FileType vista set nu rnu
+augroup END
+
 " --------------------------------------------
 " Functions
 " --------------------------------------------
-
-" toggle tagbar and toc
-function! TToggle()
-  if exists("t:opened_md_winid")
-    if win_gotoid(t:opened_md_winid)
-      execute("q")
-    endif
-    unlet t:opened_md_winid
-  else
-    if &ft == 'markdown'
-      execute("Toc")
-      let t:opened_md_winid = win_getid()
-    else
-      execute("TagbarToggle")
-    endif
-  endif
-endfunction
-
 
 function! s:EchoWarn(msg)
     echohl WarningMsg
