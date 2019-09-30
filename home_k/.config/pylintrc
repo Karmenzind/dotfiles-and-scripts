@@ -151,7 +151,10 @@ disable=print-statement,
         too-many-arguments,
         attribute-defined-outside-init,
         no-name-in-module,
-        ungrouped-imports
+        ungrouped-imports,
+        logging-fstring-interpolation,
+        unused-wildcard-import
+
 
 # Enable the message, report, category or checker with the given id(s). You can
 # either give multiple identifier separated by comma (,) or put this option

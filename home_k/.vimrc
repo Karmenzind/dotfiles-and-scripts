@@ -582,8 +582,9 @@ let g:ale_fixers = {
       \  'sh': ['shfmt'],
       \  'python': ['autopep8', 'isort', 'FixSurroundedWhiteSpaces'],
       \  'json': ['fixjson', 'prettier'],
-      \  'sql': ['sqlfmt'],
-      \  'vue': ['eslint', 'prettier']
+      \  'sql': ['pgformatter'],
+      \  'vue': ['eslint', 'prettier'],
+      \  'yaml': ['prettier']
       \ }
 
 let g:ale_warn_about_trailing_whitespace = 0
@@ -603,7 +604,8 @@ let g:ale_python_pydocstyle_options = '--ignore=D200,D203,D204,D205,D211,D212,D2
 " let g:ale_javascript_eslint_options = '--ext .js,.vue'
 
 " executable
-let g:ale_sql_sqlfmt_executable = system("which sqlfmt")
+let g:ale_sql_sqlfmt_executable = trim(system("which sqlfmt"))
+let g:ale_sql_sqlfmt_options = '-u'
 
 " format
 let g:ale_echo_msg_format = '(%severity% %linter%) %code:% %s'
@@ -630,7 +632,7 @@ let g:vim_markdown_conceal_code_blocks = 0
 let g:tex_conceal = "" | let g:vim_markdown_math = 1
 
 " markdown-preview
-let g:mkdp_path_to_chrome = system("which chromium")
+let g:mkdp_path_to_chrome = trim(system("which chromium"))
 " let g:mkdp_browserfunc = 'MKDP_browserfunc_default'
 let g:mkdp_open_to_the_world = 0
 let g:mkdp_open_ip = ''
@@ -975,7 +977,7 @@ function! SetColorScheme(cname)
   endif
   execute 'colorscheme ' . a:cname
   call FitAirlineTheme(a:cname)
-  if a:cname =~ '\v(seoul|gruvbox)'
+  if a:cname =~ '\v(default|blackbeauty|seoul|gruvbox)'
     augroup ColoAirlineAug
       au!
       au BufReadPre,BufWinEnter,WinEnter * let w:airline_disabled = 1
