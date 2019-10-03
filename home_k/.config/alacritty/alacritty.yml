@@ -125,7 +125,7 @@ font:
   use_thin_strokes: true
 
 # Should display the render timer
-render_timer: false
+# render_timer: false
 
 # Colors (Solarized Dark)
 colors:
