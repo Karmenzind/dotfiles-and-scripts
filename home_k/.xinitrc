@@ -1,5 +1,5 @@
 #!/bin/sh
-# vim:ts=4:sw=4:expandtab
+# vim:ts=4:sw=4:expandtab:ft=sh
 
 export GTK_IM_MODULE=fcitx
 export QT_IM_MODULE=fcitx

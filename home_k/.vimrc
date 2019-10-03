@@ -41,7 +41,7 @@ endif
 
 function! BuildYCM(info)
   if a:info.status == 'installed' || a:info.force
-     !./install.py --clang-completer --clangd-completer --system-libclang --go-completer --js-completer --java-completer
+     !./install.py --clang-completer --clangd-completer --system-libclang --go-completer --ts-completer --java-completer
   endif
 endfunction
 
@@ -57,11 +57,12 @@ Plug 'tpope/vim-commentary'
 Plug 'junegunn/vim-easy-align'
 Plug 'SirVer/ultisnips' | Plug 'honza/vim-snippets'
 Plug 'Shougo/context_filetype.vim'
-Plug 'majutsushi/tagbar'
+Plug 'liuchengxu/vista.vim'
 Plug 'Shougo/echodoc.vim'
 Plug 'w0rp/ale' " Asynchronous Lint Engine
 Plug 'Valloric/YouCompleteMe', { 'do': function('BuildYCM') }
 Plug 'terryma/vim-multiple-cursors'
+Plug 'mattn/emmet-vim'
 " Plug 'zxqfl/tabnine-vim'
 " Plug 'tenfyzhong/CompleteParameter.vim'
 " Plug 'junegunn/rainbow_parentheses.vim'
@@ -109,6 +110,7 @@ Plug 'iamcco/markdown-preview.nvim', { 'do': { -> mkdp#util#install() }}
 Plug 'nelstrom/vim-markdown-folding'
 Plug 'mklabs/vim-markdown-helpfile'
 Plug 'Traap/vim-helptags'
+" Plug 'gabrielelana/vim-markdown'
 " Plug 'iamcco/mathjax-support-for-mkdp'  " before markdown-preview
 " Plug 'scrooloose/vim-slumlord'
 
@@ -124,7 +126,10 @@ Plug 'junegunn/vim-emoji', { 'for': 'markdown,gitcommit' }
 " Plug 'vim-scripts/TeTrIs.vim'
 
 " /* Syntax | Fold */
+Plug 'posva/vim-vue'
 Plug 'cespare/vim-toml'
+Plug 'Yggdroot/indentLine'
+Plug 'chr4/nginx.vim'
 " Plug 'demophoon/bash-fold-expr', { 'for': 'sh' }
 " Plug 'vim-scripts/txt.vim', { 'for': 'txt' }
 
@@ -294,7 +299,7 @@ augroup filetype_formats
   " \ set listchars+=precedes:<,extends:>
   " \ set textwidth=79 |
 
-  au BufNewFile,BufRead *.js,*.html,*.css,*.yml,*.toml
+  au BufNewFile,BufRead *.js,*.html,*.css,*.yml,*.toml,*.vue
         \ setlocal tabstop=2     |
         \ setlocal softtabstop=2 |
         \ setlocal shiftwidth=2
@@ -371,7 +376,7 @@ let g:ycm_autoclose_preview_window_after_completion = 1
 let g:ycm_global_ycm_extra_conf = '~/.vim/.ycm_extra_conf.py'
 let g:ycm_complete_in_comments = 1
 let g:ycm_complete_in_strings = 1
-let g:ycm_server_python_interpreter = '/usr/bin/python3'
+let g:ycm_server_python_interpreter = 'python'
 let g:ycm_python_binary_path = 'python3'
 let g:ycm_goto_buffer_command = 'horizontal-split'
 
@@ -382,19 +387,25 @@ let g:ycm_collect_identifiers_from_tags_files = 1
 " let g:ycm_max_num_identifier_candidates = 7
 
 let g:ycm_semantic_triggers = {
- \   'python': [ 're!(import\s+|from\s+(\w+\s+(import\s+(\w+,\s+)*)?)?)'  ]
+ \   'python': [ 're!(import\s+|from\s+(\w+\s+(import\s+(\w+,\s+)*)?)?)' ],
+ \   'html': ['<', '"', '</', ' '],
+ \   'scss,css': [ 're!^\s{2,4}', 're!:\s+' ]
  \ }
 
-nnoremap <silent> <Leader>gt  :YcmCompleter GoTo<CR>
+nnoremap <silent> <Leader>g   :YcmCompleter GoTo<CR>
 nnoremap <silent> <Leader>dd  :YcmCompleter GoToDefinitionElseDeclaration<CR>
 nnoremap <silent> <Leader>rf  :YcmCompleter GoToReferences<CR>
 nnoremap <silent> <Leader>doc :YcmCompleter GetDoc<CR>
 
-augroup ycm_autos
-  au!
-  au FileType python
-        \ nnoremap <buffer> <silent> <C-]> :YcmCompleter GoTo<CR>
-augroup END
+" augroup ycm_autos
+"   au!
+"   au FileType python,vue,html,javascript,xml
+"         \ nnoremap <buffer> <silent> <C-]> :YcmCompleter GoTo<CR>
+" augroup END
+
+let g:ycm_language_server = [
+      \ {"name": "vue", "filetypes": ["vue"], "cmdline": ["vls"] },
+      \ ]
 
 " /* for NERDTree */
 nnoremap <silent> <Leader>n :NERDTreeToggle<CR>
@@ -502,12 +513,6 @@ nnoremap <Leader>fh :History/<CR>
 "       \  'v':  '<C-W><CR><C-W>L<C-W>p<C-W>J<C-W>p',
 "       \  'gv': '<C-W><CR><C-W>L<C-W>p<C-W>J' }
 
-" /* for tagbar */
-noremap <Leader>t :call TToggle()<CR>
-let g:tagbar_autofocus = 1
-let g:tagbar_show_linenumbers = 1
-let g:tagbar_sort = 0
-
 " /* for devicons */
 let g:WebDevIconsUnicodeDecorateFolderNodes = 1
 let g:DevIconsEnableFoldersOpenClose = 1
@@ -549,23 +554,37 @@ nmap <silent> <Leader>af <Plug>(ale_fix)
 nmap <silent> <Leader>at <Plug>(ale_toggle)
 cabbrev AF ALEFix
 
+" trim whitespaces surrounded in docstrings
+function FixSurroundedWhiteSpaces(buffer, lines)
+  return map(a:lines, {idx, line -> substitute(line, '\v^(\s*""")\s+(.+)\s+(""")', '\1\2\3', '')})
+endfunction
+
+let g:ale_linter_aliases = {
+      \ 'vue': ['vue', 'javascript', 'html']
+      \ }
 let g:ale_linters = {
-      \  'vim': ['vint'],
-      \  'markdown': ['mdl', 'prettier', 'proselint', 'alex'],
-      \  'text': ['proselint', 'alex', 'redpen'],
-      \  'javascript': ['prettier', 'importjs'],
-      \  'gitcommit': ['gitlint'],
-      \  'dockerfile': ['hadolint'],
-      \  'sql': ['sqlint'],
-      \  'cpp': ['gcc'],
+      \ 'vim': ['vint'],
+      \ 'python': ['pydocstyle', 'flake8', 'pylint'],
+      \ 'markdown': ['mdl', 'prettier', 'proselint', 'alex'],
+      \ 'text': ['proselint', 'alex', 'redpen'],
+      \ 'vue': ['htmlhint', 'jshint', 'stylelint'],
+      \ 'javascript': ['jshint', 'prettier', 'importjs'],
+      \ 'gitcommit': ['gitlint'],
+      \ 'dockerfile': ['hadolint'],
+      \ 'sql': ['sqlint'],
+      \ 'cpp': ['gcc'],
+      \ 'html': ['prettier', 'htmlhint'],
       \ }
 let g:ale_fixers = {
       \  '*': ['trim_whitespace'],
       \  'c': ['clang-format'],
       \  'javascript': ['prettier', 'importjs'],
       \  'sh': ['shfmt'],
-      \  'python': ['autopep8', 'isort'],
+      \  'python': ['autopep8', 'isort', 'FixSurroundedWhiteSpaces'],
       \  'json': ['fixjson', 'prettier'],
+      \  'sql': ['pgformatter'],
+      \  'vue': ['eslint', 'prettier'],
+      \  'yaml': ['prettier']
       \ }
 
 let g:ale_warn_about_trailing_whitespace = 0
@@ -574,12 +593,19 @@ let g:ale_set_balloons_legacy_echo = 1
 let g:ale_lint_on_text_changed = 'normal'
 let g:ale_lint_on_insert_leave = 1
 
-" for python
+" options
 let g:ale_python_mypy_ignore_invalid_syntax = 1
 let g:ale_python_mypy_options = '--incremental'
-let g:ale_python_pylint_options = '--max-line-length=120'
+let g:ale_python_pylint_options = '--max-line-length=120 --rcfile $HOME/.config/pylintrc'
 let g:ale_python_autopep8_options = '--max-line-length=120'
 let g:ale_python_flake8_options = '--max-line-length=120'
+let g:ale_python_pydocstyle_options = '--ignore=D200,D203,D204,D205,D211,D212,D213,D400,D401,D403,D415'
+" let g:ale_javascript_prettier_options = '-c'
+" let g:ale_javascript_eslint_options = '--ext .js,.vue'
+
+" executable
+let g:ale_sql_sqlfmt_executable = trim(system("which sqlfmt"))
+let g:ale_sql_sqlfmt_options = '-u'
 
 " format
 let g:ale_echo_msg_format = '(%severity% %linter%) %code:% %s'
@@ -601,9 +627,12 @@ endif
 let g:vim_markdown_toc_autofit = 1
 let g:vim_markdown_no_default_key_mappings = 1
 let g:vim_markdown_json_frontmatter = 1
+let g:vim_markdown_conceal = 0
+let g:vim_markdown_conceal_code_blocks = 0
+let g:tex_conceal = "" | let g:vim_markdown_math = 1
 
 " markdown-preview
-let g:mkdp_path_to_chrome = system("which chromium")
+let g:mkdp_path_to_chrome = trim(system("which chromium"))
 " let g:mkdp_browserfunc = 'MKDP_browserfunc_default'
 let g:mkdp_open_to_the_world = 0
 let g:mkdp_open_ip = ''
@@ -632,7 +661,6 @@ augroup for_markdown_ft
         \ let  b:AutoPairs = {'(':')', '[':']', '{':'}',"'":"'",'"':'"'} |
         \ cabbrev <buffer> TF TableFormat
 augroup END
-"\ nnoremap <buffer> <silent> <Leader>t :Toc<CR>                  |
 
 " /* for SimpylFold */
 let g:SimpylFold_docstring_preview = 1
@@ -659,6 +687,11 @@ let g:startify_files_number = 7
 let g:startify_change_to_dir = 0
 let g:startify_session_persistence = 1
 let g:startify_session_before_save = [ 'silent! NERDTreeClose' ]
+
+augroup startify_aug
+  au!
+  au FileType startify IndentLinesDisable
+augroup END
 
 " with devicons
 " function! StartifyEntryFormat()
@@ -704,6 +737,7 @@ if executable('svn')
   map <silent> <leader>vq :diffoff! <CR> :q<CR>
 endif
 
+
 " /* for goyo */
 function! s:goyo_enter()
   silent !tmux set status off
@@ -730,26 +764,30 @@ endfunction
 autocmd! User GoyoEnter nested call <SID>goyo_enter()
 autocmd! User GoyoLeave nested call <SID>goyo_leave()
 
+" /* for indentline */
+nnoremap <silent> <Leader>it :IndentLinesToggle<CR>
+" let g:indentLine_char_list = ['|', '¦', '┆', '┊']
+let g:indentLine_setConceal = 0
+let g:indentLine_enabled = 1
+
+" /* for emmet */
+let g:user_emmet_leader_key = '<leader>y'
+
+" /* for vista.vim */
+noremap <Leader>V :Vista!!<CR>
+noremap <Leader>fc :Vista finder<CR>
+let g:vista_echo_cursor = 0
+let g:vista_sidebar_width = 40
+" TODO(k): <2019-08-24> g:vista_echo_cursor_strategy -> floating_win
+
+augroup vista_aug
+  au!
+  au FileType vista set nu rnu
+augroup END
+
 " --------------------------------------------
 " Functions
 " --------------------------------------------
-
-" toggle tagbar and toc
-function! TToggle()
-  if exists("t:opened_md_winid")
-    call win_gotoid(t:opened_md_winid)
-    execute("q")
-    unlet t:opened_md_winid
-  else
-    if &ft == 'markdown'
-      execute("Toc")
-      let t:opened_md_winid = win_getid()
-    else
-      execute("TagbarToggle")
-    endif
-  endif
-endfunction
-
 
 function! s:EchoWarn(msg)
     echohl WarningMsg
@@ -760,7 +798,7 @@ endfunction
 
 function! InstallRequirements()
   let req = {"pip": ['black', 'autopep8', 'isort', 'vint', 'proselint', 'gitlint'],
-        \ "npm": ['prettier', 'fixjson', 'importjs'],
+        \ "npm": ['prettier', 'fixjson', 'importjs', 'vue-language-server'],
         \ "other": ['ag', 'fzf', 'ctags', 'clang-format']
         \ }
   let cmd_map = {"pip": "sudo pip install",
@@ -952,6 +990,8 @@ augroup END
 function! FitAirlineTheme(cname)
   if a:cname ==? 'NeoSolarized'
     let g:airline_theme='solarized'
+  elseif a:cname ==? 'github'
+    let g:airline_theme = 'minimalist'
   endif
 endfunction
 
@@ -964,7 +1004,7 @@ function! SetColorScheme(cname)
   endif
   execute 'colorscheme ' . a:cname
   call FitAirlineTheme(a:cname)
-  if a:cname =~ '\v(seoul|gruvbox)'
+  if a:cname =~ '\v(default|blackbeauty|seoul|gruvbox)'
     augroup ColoAirlineAug
       au!
       au BufReadPre,BufWinEnter,WinEnter * let w:airline_disabled = 1

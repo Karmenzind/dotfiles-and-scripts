@@ -35,7 +35,7 @@ done
 export CATALINA_HOME=/usr/share/tomcat8 # tomcat
 
 # /* bat */
-alias bat='bat --theme="OneHalfDark" --style="auto"'
+alias bat='bat --theme="GitHub" --style="auto"'
 
 #######################################################################
 #                             appearance                              #
@@ -176,6 +176,12 @@ aurdl() {
 export VIRTUAL_ENV_DISABLE_PROMPT=
 
 #######################################################################
+#                               for git                               #
+#######################################################################
+
+alias yolo='git commit -m "$(curl -s https://whatthecommit.com/index.txt)"'
+
+#######################################################################
 #                            for alacritty                            #
 #######################################################################
 
@@ -225,8 +231,19 @@ export PYTHON_CONFIGURE_OPTS="--enable-shared"
 #######################################################################
 
 if [[ -d "$HOME/.gem" ]]; then
-    export PATH=$PATH:$(find $HOME/.gem -regex '.*ruby/[^/]+/bin' | head -n 1 | tr -d '\r')
+    _MY_RUBY_BIN=$(find $HOME/.gem -regex '.*ruby/[^/]+/bin' | head -n 1 | tr -d '\r')
+    [[ -d $_MY_RUBY_BIN ]] && export PATH=$PATH:$_MY_RUBY_BIN
 fi
+
+#######################################################################
+#                                 go                                  #
+#######################################################################
+
+if command -V go && [[ -z $GOPATH ]]; then
+    GOPATH=$(go env GOPATH | tr -d '\r')
+fi
+
+[[ -n $GOPATH ]] && export PATH=$PATH:$GOPATH/bin
 
 #######################################################################
 #                                 svn                                 #
@@ -240,6 +257,16 @@ svna() {
         [[ -n "$_f" ]] && svn delete $_f
     done <<< `svn st | grep '^!' | awk '{print $2}'`
 }
+
+#######################################################################
+#                                axel                                 #
+#######################################################################
+
+keep_axel() {
+    [[ -z "$1" ]] && echo 'Invalid parameter.' && return
+    while true; do axel "$1" -o "$2" && break; date; sleep 1; done
+}
+
 
 #######################################################################
 #                               others                                #

@@ -1,6 +1,8 @@
 #!/usr/bin/env bash
 
 pic_dir=$HOME/Pictures
+mkdir -p $pic_dir
+
 # screenshot_dir=${pic_dir}/ScreenShots
 screenshot_png=${pic_dir}/SCREENSHOT.png
 flameshot_dir=${pic_dir}/FlameShots

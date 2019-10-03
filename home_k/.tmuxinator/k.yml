@@ -25,7 +25,7 @@ root: ~/
 # startup_pane: 1
 
 # Controls whether the tmux session should be attached to automatically. Defaults to true.
-attach: false
+attach: true
 
 # Runs after everything. Use it to attach to tmux with custom options etc.
 # post: tmux -CC attach -t dev
