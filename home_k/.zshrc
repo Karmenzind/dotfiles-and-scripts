@@ -81,6 +81,8 @@ plugins=(
   #'command-not-found'
   # 'go'
   'vi-mode'
+  'fzf'
+  'systemd'
   # 'svn'
   'svn-fast-info'
   'virtualenv'
