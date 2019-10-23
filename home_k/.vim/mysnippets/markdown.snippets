@@ -9,3 +9,22 @@ endsnippet
 snippet \u "<underline>" b
 <u>${0:${VISUAL}}</u>
 endsnippet
+
+
+snippet mf "markdown fold" b
+<details>
+<summary>${1:click to unfold}</summary>
+
+${0:${VISUAL}}
+</details>
+endsnippet
+
+snippet mfcode "markdown fold: code" b
+<details>
+<summary>${1:click to unfold}</summary>
+
+<pre><code>
+${0:${VISUAL}}
+</code></pre>
+</details>
+endsnippet

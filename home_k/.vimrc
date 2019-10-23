@@ -175,6 +175,7 @@ else
   set guifont=Hack\ Nerd\ Font\ 12
 endif
 set cursorline
+set cursorcolumn
 set showmode
 set cmdheight=2
 set laststatus=2
@@ -291,6 +292,7 @@ augroup filetype_formats
   au BufNewFile,BufRead *.py
         \ setlocal autoindent            |
         \ setlocal sidescroll=5          |
+        \ setlocal cc=120                |
         \ let b:python_highlight_all = 1 |
         \ setlocal complete+=t           |
         \ setlocal formatoptions-=t      |
@@ -632,10 +634,11 @@ let g:vim_markdown_conceal_code_blocks = 0
 let g:tex_conceal = "" | let g:vim_markdown_math = 1
 
 " markdown-preview
-let g:mkdp_path_to_chrome = trim(system("which chromium"))
 " let g:mkdp_browserfunc = 'MKDP_browserfunc_default'
-let g:mkdp_open_to_the_world = 0
-let g:mkdp_open_ip = ''
+" let g:mkdp_browser = 'chromium-browser'
+let g:mkdp_open_to_the_world = 1
+let g:mkdp_open_ip = '0.0.0.0'
+let g:mkdp_port = '13333'
 
 let g:mkdp_auto_start = 0
 let g:mkdp_auto_open = 0
