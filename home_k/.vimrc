@@ -1,6 +1,13 @@
 " Github: https://github.com/Karmenzind/dotfiles-and-scripts
 
 " --------------------------------------------
+" init
+" --------------------------------------------
+
+let b:current_hour = strftime('%H')
+let s:bg_light = b:current_hour >=8 && b:current_hour < 13
+
+" --------------------------------------------
 " general keymaps and abbreviations
 " --------------------------------------------
 
@@ -909,8 +916,7 @@ endfunction
 
 " let background fit the clock
 function! LetBgFitClock()
-  let b:current_hour = strftime('%H')
-  if b:current_hour >=8 && b:current_hour < 13
+  if s:bg_light
     set background=light
   else
     set background=dark
@@ -983,7 +989,7 @@ endfunction
 " au when change colo
 augroup fit_colorscheme
   au!
-  if v:version >= 801
+  if v:version >= 801 || has('nvim')
     au ColorSchemePre * call BeforeChangeColorscheme()
     au ColorSchemePre atomic,NeoSolarized,ayu,palenight call SetTermguiColors('yes')
   endif
@@ -999,18 +1005,25 @@ function! FitAirlineTheme(cname)
 endfunction
 
 function! SetColorScheme(cname)
-  if v:version < 801
+  " fake cs pre
+  if s:bg_light && a:cname == 'seoul256'
+    let s:cname = 'seoul256-light'
+  else
+    let s:cname = a:cname
+  endif
+  if v:version < 801 && !has('nvim')
     call SetTermguiColors('no') | call LetBgFitClock()
-    if a:cname =~ '\vatomic|NeoSolarized|ayu|palenight'
+    if s:cname =~ '\vatomic|NeoSolarized|ayu|palenight'
       call SetTermguiColors('yes')
     endif
   endif
-  execute 'colorscheme ' . a:cname
-  call FitAirlineTheme(a:cname)
-  if a:cname =~ '\v(default|blackbeauty|seoul|gruvbox)'
+  execute 'colorscheme ' . s:cname
+  call FitAirlineTheme(s:cname)
+  if s:cname =~ '\v(default|blackbeauty|gruvbox|seoul)'
     augroup ColoAirlineAug
       au!
-      au BufReadPre,BufWinEnter,WinEnter * let w:airline_disabled = 1
+      au User AirlineToggledOn let w:airline_disabled = 1
+      au WinEnter,WinNew,BufRead,BufEnter,BufNewFile,FileReadPre,BufWinEnter * if exists("#airline") | let w:airline_disabled = 1 | endif
     augroup END
   else
     augroup ColoAirlineAug
