@@ -22,6 +22,7 @@ cabbrev th tab<SPACE>help
 cabbrev sss s/\v(,)\s*/\1\r/g
 
 " /* workspace, layout, format and others */
+" XXX: <2019-11-28> didn't work in vim8
 nnoremap <silent> <A-a> gT
 nnoremap <silent> <A-d> gt
 
@@ -51,7 +52,6 @@ function! BuildYCM(info)
      !./install.py --clang-completer --clangd-completer --system-libclang --go-completer --ts-completer --java-completer
   endif
 endfunction
-
 
 call plug#begin()
 Plug 'junegunn/vim-plug'
@@ -142,6 +142,9 @@ Plug 'chr4/nginx.vim'
 
 " /* Enhancement */
 Plug 'karmenzind/vim-tmuxlike'
+if has('nvim')
+  Plug 'norcalli/nvim-colorizer.lua'
+endif
 
 " /* Appearance */
 Plug 'flazz/vim-colorschemes'
@@ -181,8 +184,7 @@ if has('win32')
 else
   set guifont=Hack\ Nerd\ Font\ 12
 endif
-set cursorline
-set cursorcolumn
+set cursorline cursorcolumn
 set showmode
 set cmdheight=2
 set laststatus=2
@@ -377,9 +379,8 @@ let g:ycm_filetype_blacklist = {
       \ 'mail': 1,
       \ }
 
-set completeopt-=preview
-set completeopt+=longest,menu
-let g:ycm_add_preview_to_completeopt = 0
+let g:ycm_confirm_extra_conf = 0
+let g:ycm_add_preview_to_completeopt = 1
 let g:ycm_autoclose_preview_window_after_completion = 1
 
 let g:ycm_global_ycm_extra_conf = '~/.vim/.ycm_extra_conf.py'
@@ -401,6 +402,17 @@ let g:ycm_semantic_triggers = {
  \   'scss,css': [ 're!^\s{2,4}', 're!:\s+' ]
  \ }
 
+let g:__rtp = &rtp
+let g:ycm_extra_conf_vim_data = ['g:__rtp']
+
+" set completeopt-=preview
+set completeopt+=longest,menu
+if has('patch-8.1.1902')
+    set completeopt+=popup
+    set completepopup=height:10,width:60,highlight:Pmenu,border:off
+    set pumwidth=10
+endif
+
 nnoremap <silent> <Leader>g   :YcmCompleter GoTo<CR>
 nnoremap <silent> <Leader>dd  :YcmCompleter GoToDefinitionElseDeclaration<CR>
 nnoremap <silent> <Leader>rf  :YcmCompleter GoToReferences<CR>
@@ -414,6 +426,7 @@ nnoremap <silent> <Leader>doc :YcmCompleter GetDoc<CR>
 
 let g:ycm_language_server = [
       \ {"name": "vue", "filetypes": ["vue"], "cmdline": ["vls"] },
+      \ {"name": "vim", "filetypes": ["vim"], "cmdline": ["vim-language-server", '--stdio'] },
       \ ]
 
 " /* for NERDTree */

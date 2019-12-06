@@ -162,3 +162,76 @@ def FlagsForFile(filename, **kwargs):
         final_flags = MakeRelativePathsInFlagsAbsolute(flags, relative_to)
 
     return {'flags': final_flags}
+
+
+def Settings(**kwargs):
+    lang = kwargs.get('language')
+    client_data = kwargs['client_data']
+    if lang == 'vim':
+        ret = {
+            "ls": {
+                "iskeyword": "@,48-57,_,192-255,-#",
+                "vimruntime": os.environ.get("VIMRUNTIME"),
+                "runtimepath": client_data['g:__rtp'],
+                "diagnostic": {
+                    "enable": True
+                },
+                "indexes": {
+                    "runtimepath": True,
+                    "gap": 100,
+                    "count": 3,
+                    "projectRootPatterns": ["strange-root-pattern", ".git", "autoload", "plugin"]
+                },
+                "suggest": {
+                    "fromVimruntime": True,
+                    "fromRuntimepath": False
+                }
+            }
+        }
+    elif lang == 'vue':
+        ret = {
+            "ls": {
+                "vetur": {
+                    "validation": {
+                        "template": True,
+                        "style": True,
+                        "script": True,
+                    },
+                    "completion": {
+                        "autoImport": False,
+                        "useScaffoldSnippets": False,
+                    },
+                    "format": {
+                        "defaultFormatter": {
+                            "js": "prettier",
+                            "ts": "prettier"
+                        },
+                        "defaultFormatterOptions": {},
+                        "scriptInitialIndent": False,
+                        "styleInitialIndent": False,
+                        "options": {
+                            "tabSize": 4,
+                        }
+                    }
+                },
+                "css": {},
+                "html": {
+                    "suggest": {},
+                },
+                "javascript": {
+                    "format": {
+                        "options": {
+                            "tabSize": 4,
+                        }
+                    },
+                },
+                "typescript": {
+                    "format": {}
+                },
+                "emmet": {},
+                "stylusSupremacy": {},
+            }
+        }
+    else:
+        ret = {}
+    return ret

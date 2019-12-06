@@ -155,7 +155,8 @@ disable=print-statement,
         logging-fstring-interpolation,
         unused-wildcard-import,
         no-member,
-        bad-continuation
+        bad-continuation,
+        too-many-branches
 
 
 # Enable the message, report, category or checker with the given id(s). You can
