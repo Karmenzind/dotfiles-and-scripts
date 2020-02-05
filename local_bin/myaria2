@@ -8,7 +8,8 @@ download_dir=${HOME}/Downloads/aria2
 # /* custom variables */
 
 # follow your aria2 config
-log_path=${HOME}/Downloads/aria2/_log
+log_path=/tmp/myaria2.log
+![[ -f "$log_path" ]] && echo >> $log_path
 
 # url to fetch bt-tracker list
 # if your have no idea what it is
