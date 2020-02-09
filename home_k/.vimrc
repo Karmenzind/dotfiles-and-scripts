@@ -1,6 +1,13 @@
 " Github: https://github.com/Karmenzind/dotfiles-and-scripts
 
 " --------------------------------------------
+" init
+" --------------------------------------------
+
+let b:current_hour = strftime('%H')
+let s:bg_light = b:current_hour >=8 && b:current_hour < 13
+
+" --------------------------------------------
 " general keymaps and abbreviations
 " --------------------------------------------
 
@@ -15,6 +22,7 @@ cabbrev th tab<SPACE>help
 cabbrev sss s/\v(,)\s*/\1\r/g
 
 " /* workspace, layout, format and others */
+" XXX: <2019-11-28> didn't work in vim8
 nnoremap <silent> <A-a> gT
 nnoremap <silent> <A-d> gt
 
@@ -44,7 +52,6 @@ function! BuildYCM(info)
      !./install.py --clang-completer --clangd-completer --system-libclang --go-completer --ts-completer --java-completer
   endif
 endfunction
-
 
 call plug#begin()
 Plug 'junegunn/vim-plug'
@@ -135,6 +142,9 @@ Plug 'chr4/nginx.vim'
 
 " /* Enhancement */
 Plug 'karmenzind/vim-tmuxlike'
+if has('nvim')
+  Plug 'norcalli/nvim-colorizer.lua'
+endif
 
 " /* Appearance */
 Plug 'flazz/vim-colorschemes'
@@ -174,7 +184,7 @@ if has('win32')
 else
   set guifont=Hack\ Nerd\ Font\ 12
 endif
-set cursorline
+set cursorline cursorcolumn
 set showmode
 set cmdheight=2
 set laststatus=2
@@ -291,6 +301,7 @@ augroup filetype_formats
   au BufNewFile,BufRead *.py
         \ setlocal autoindent            |
         \ setlocal sidescroll=5          |
+        \ setlocal cc=120                |
         \ let b:python_highlight_all = 1 |
         \ setlocal complete+=t           |
         \ setlocal formatoptions-=t      |
@@ -368,9 +379,8 @@ let g:ycm_filetype_blacklist = {
       \ 'mail': 1,
       \ }
 
-set completeopt-=preview
-set completeopt+=longest,menu
-let g:ycm_add_preview_to_completeopt = 0
+let g:ycm_confirm_extra_conf = 0
+let g:ycm_add_preview_to_completeopt = 1
 let g:ycm_autoclose_preview_window_after_completion = 1
 
 let g:ycm_global_ycm_extra_conf = '~/.vim/.ycm_extra_conf.py'
@@ -392,6 +402,17 @@ let g:ycm_semantic_triggers = {
  \   'scss,css': [ 're!^\s{2,4}', 're!:\s+' ]
  \ }
 
+let g:__rtp = &rtp
+let g:ycm_extra_conf_vim_data = ['g:__rtp']
+
+" set completeopt-=preview
+set completeopt+=longest,menu
+if has('patch-8.1.1902')
+    set completeopt+=popup
+    set completepopup=height:10,width:60,highlight:Pmenu,border:off
+    set pumwidth=10
+endif
+
 nnoremap <silent> <Leader>g   :YcmCompleter GoTo<CR>
 nnoremap <silent> <Leader>dd  :YcmCompleter GoToDefinitionElseDeclaration<CR>
 nnoremap <silent> <Leader>rf  :YcmCompleter GoToReferences<CR>
@@ -405,6 +426,7 @@ nnoremap <silent> <Leader>doc :YcmCompleter GetDoc<CR>
 
 let g:ycm_language_server = [
       \ {"name": "vue", "filetypes": ["vue"], "cmdline": ["vls"] },
+      \ {"name": "vim", "filetypes": ["vim"], "cmdline": ["vim-language-server", '--stdio'] },
       \ ]
 
 " /* for NERDTree */
@@ -582,8 +604,9 @@ let g:ale_fixers = {
       \  'sh': ['shfmt'],
       \  'python': ['autopep8', 'isort', 'FixSurroundedWhiteSpaces'],
       \  'json': ['fixjson', 'prettier'],
-      \  'sql': ['sqlfmt'],
-      \  'vue': ['eslint', 'prettier']
+      \  'sql': ['pgformatter'],
+      \  'vue': ['eslint', 'prettier'],
+      \  'yaml': ['prettier']
       \ }
 
 let g:ale_warn_about_trailing_whitespace = 0
@@ -603,7 +626,8 @@ let g:ale_python_pydocstyle_options = '--ignore=D200,D203,D204,D205,D211,D212,D2
 " let g:ale_javascript_eslint_options = '--ext .js,.vue'
 
 " executable
-let g:ale_sql_sqlfmt_executable = system("which sqlfmt")
+let g:ale_sql_sqlfmt_executable = trim(system("which sqlfmt"))
+let g:ale_sql_sqlfmt_options = '-u'
 
 " format
 let g:ale_echo_msg_format = '(%severity% %linter%) %code:% %s'
@@ -630,10 +654,11 @@ let g:vim_markdown_conceal_code_blocks = 0
 let g:tex_conceal = "" | let g:vim_markdown_math = 1
 
 " markdown-preview
-let g:mkdp_path_to_chrome = system("which chromium")
 " let g:mkdp_browserfunc = 'MKDP_browserfunc_default'
-let g:mkdp_open_to_the_world = 0
-let g:mkdp_open_ip = ''
+" let g:mkdp_browser = 'chromium-browser'
+let g:mkdp_open_to_the_world = 1
+let g:mkdp_open_ip = '0.0.0.0'
+let g:mkdp_port = '13333'
 
 let g:mkdp_auto_start = 0
 let g:mkdp_auto_open = 0
@@ -734,6 +759,33 @@ if executable('svn')
   map <silent> <leader>vbf :VCBrowseBuffer<CR>
   map <silent> <leader>vq :diffoff! <CR> :q<CR>
 endif
+
+
+" /* for goyo */
+function! s:goyo_enter()
+  silent !tmux set status off
+  silent !tmux list-panes -F '\#F' | grep -q Z || tmux resize-pane -Z
+  set nonu
+  set nornu
+  set noshowmode
+  set noshowcmd
+  set scrolloff=999
+  " Limelight
+endfunction
+
+function! s:goyo_leave()
+  silent !tmux set status on
+  silent !tmux list-panes -F '\#F' | grep -q Z && tmux resize-pane -Z
+  set nu
+  set rnu
+  set showmode
+  set showcmd
+  set scrolloff=5
+  " Limelight!
+endfunction
+
+autocmd! User GoyoEnter nested call <SID>goyo_enter()
+autocmd! User GoyoLeave nested call <SID>goyo_leave()
 
 " /* for indentline */
 nnoremap <silent> <Leader>it :IndentLinesToggle<CR>
@@ -877,8 +929,7 @@ endfunction
 
 " let background fit the clock
 function! LetBgFitClock()
-  let b:current_hour = strftime('%H')
-  if b:current_hour >=8 && b:current_hour < 13
+  if s:bg_light
     set background=light
   else
     set background=dark
@@ -951,7 +1002,7 @@ endfunction
 " au when change colo
 augroup fit_colorscheme
   au!
-  if v:version >= 801
+  if v:version >= 801 || has('nvim')
     au ColorSchemePre * call BeforeChangeColorscheme()
     au ColorSchemePre atomic,NeoSolarized,ayu,palenight call SetTermguiColors('yes')
   endif
@@ -967,18 +1018,25 @@ function! FitAirlineTheme(cname)
 endfunction
 
 function! SetColorScheme(cname)
-  if v:version < 801
+  " fake cs pre
+  if s:bg_light && a:cname == 'seoul256'
+    let s:cname = 'seoul256-light'
+  else
+    let s:cname = a:cname
+  endif
+  if v:version < 801 && !has('nvim')
     call SetTermguiColors('no') | call LetBgFitClock()
-    if a:cname =~ '\vatomic|NeoSolarized|ayu|palenight'
+    if s:cname =~ '\vatomic|NeoSolarized|ayu|palenight'
       call SetTermguiColors('yes')
     endif
   endif
-  execute 'colorscheme ' . a:cname
-  call FitAirlineTheme(a:cname)
-  if a:cname =~ '\v(seoul|gruvbox)'
+  execute 'colorscheme ' . s:cname
+  call FitAirlineTheme(s:cname)
+  if s:cname =~ '\v(default|blackbeauty|gruvbox|seoul)'
     augroup ColoAirlineAug
       au!
-      au BufReadPre,BufWinEnter,WinEnter * let w:airline_disabled = 1
+      au User AirlineToggledOn let w:airline_disabled = 1
+      au WinEnter,WinNew,BufRead,BufEnter,BufNewFile,FileReadPre,BufWinEnter * if exists("#airline") | let w:airline_disabled = 1 | endif
     augroup END
   else
     augroup ColoAirlineAug

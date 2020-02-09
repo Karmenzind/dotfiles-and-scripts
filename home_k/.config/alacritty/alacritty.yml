@@ -50,7 +50,7 @@ scrolling:
   # scrolling for applications like `man`.
   #
   # To disable this completely, set `faux_multiplier` to 0.
-  faux_multiplier: 3
+  #faux_multiplier: 3
 
   # Automatically scroll to the bottom when new text is written
   # to the terminal.
