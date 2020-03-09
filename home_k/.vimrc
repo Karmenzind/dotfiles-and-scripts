@@ -57,6 +57,7 @@ call plug#begin()
 Plug 'junegunn/vim-plug'
 
 " /* coding tools */
+Plug 'metakirby5/codi.vim'
 Plug 'tpope/vim-endwise'
 Plug 'tpope/vim-surround'
 Plug 'jiangmiao/auto-pairs'
@@ -137,6 +138,8 @@ Plug 'posva/vim-vue'
 Plug 'cespare/vim-toml'
 Plug 'Yggdroot/indentLine'
 Plug 'chr4/nginx.vim'
+Plug 'pangloss/vim-javascript'
+Plug 'mtdl9/vim-log-highlighting'
 " Plug 'demophoon/bash-fold-expr', { 'for': 'sh' }
 " Plug 'vim-scripts/txt.vim', { 'for': 'txt' }
 
@@ -577,7 +580,7 @@ nmap <silent> <Leader>at <Plug>(ale_toggle)
 cabbrev AF ALEFix
 
 " trim whitespaces surrounded in docstrings
-function FixSurroundedWhiteSpaces(buffer, lines)
+function! FixSurroundedWhiteSpaces(buffer, lines)
   return map(a:lines, {idx, line -> substitute(line, '\v^(\s*""")\s+(.+)\s+(""")', '\1\2\3', '')})
 endfunction
 
@@ -806,6 +809,16 @@ let g:vista_sidebar_width = 40
 augroup vista_aug
   au!
   au FileType vista set nu rnu
+augroup END
+
+" /* for vim-vue */
+let g:vue_pre_processors = []
+
+" /* for vim-javascript */
+
+augroup javascript_folding
+    au!
+    au FileType javascript setlocal foldmethod=syntax
 augroup END
 
 " --------------------------------------------
