@@ -47,3 +47,45 @@ nnoremap <A-k> <C-w>k
 nnoremap <A-l> <C-w>l
 
 noremap <Leader>T  :sp<CR>:terminal<CR>A
+
+" fzf
+" --------------------------------------------
+
+if has('nvim')
+  let $FZF_DEFAULT_OPTS .= ' --layout=reverse'
+
+  function! FloatingFZF()
+    let buf = nvim_create_buf(v:false, v:true)
+
+    " here be dragoons
+    let wh = &lines " window height
+    let ww = &columns " window width
+    let g = 0.618
+    " let col_offset = float2nr(&columns / 10)
+    let opts = {
+          \ 'relative': 'editor',
+          \ 'row': float2nr(wh * (1 - g)),
+          \ 'col': float2nr(ww * pow((1 - g), 3)),
+          \ 'width': float2nr(ww * g),
+          \ 'height': float2nr(wh * g),
+          \ 'style': 'minimal',
+          \ }
+
+    let win = nvim_open_win(buf, v:true, opts)
+    " uncomment this if you want a normal background color for the fzf window
+    " call setwinvar(win, '&winhighlight', 'NormalFloat:Normal')
+    call setwinvar(win, '&winhl', 'NormalFloat:TabLine')
+
+    " this is to remove all line numbers and so on from the window
+    setlocal
+          \ buftype=nofile
+          \ bufhidden=hide
+          \ nonumber
+          \ norelativenumber
+          \ signcolumn=no
+  endfunction
+
+  let g:fzf_layout = { 'window': 'call FloatingFZF()' }
+endif
+
+highlight NormalFloat cterm=NONE ctermfg=14 ctermbg=0 gui=NONE guifg=#93a1a1 guibg=#002931

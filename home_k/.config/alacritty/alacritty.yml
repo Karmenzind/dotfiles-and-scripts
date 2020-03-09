@@ -50,7 +50,7 @@ scrolling:
   # scrolling for applications like `man`.
   #
   # To disable this completely, set `faux_multiplier` to 0.
-  faux_multiplier: 3
+  # faux_multiplier: 3
 
   # Automatically scroll to the bottom when new text is written
   # to the terminal.
@@ -104,7 +104,7 @@ font:
     style: Italic
 
   # Point size of the font
-  size: 12
+  size: 11
 
   # Offset is the extra space around each character. offset.y can be thought of
   # as modifying the linespacing, and offset.x as modifying the letter spacing.

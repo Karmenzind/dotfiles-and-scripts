@@ -11,6 +11,7 @@ fi
 # Set name of the theme to load. Optionally, if you set this to "random"
 # it'll load a random theme each time that oh-my-zsh is loaded.
 # See https://github.com/robbyrussell/oh-my-zsh/wiki/Themes
+# ZSH_THEME="robbyrussell"
 # ZSH_THEME="bureau"
 if [[ "root" == "$USER" ]]; then
     ZSH_THEME="half-life"
@@ -23,7 +24,11 @@ fi
 # cause zsh load theme from this variable instead of
 # looking in ~/.oh-my-zsh/themes/
 # An empty array have no effect
-# ZSH_THEME_RANDOM_CANDIDATES=( )
+# ZSH_THEME_RANDOM_CANDIDATES=(
+#     "af-magic"
+#     "jreese"
+#     "agnoster"
+# )
 
 # Uncomment the following line to use case-sensitive completion.
 # CASE_SENSITIVE="true"

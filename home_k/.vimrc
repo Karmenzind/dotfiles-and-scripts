@@ -318,6 +318,12 @@ augroup filetype_formats
         \ setlocal softtabstop=2 |
         \ setlocal shiftwidth=2
 
+  au BufNewFile,BufRead *.json
+        \ setlocal tabstop=2     |
+        \ setlocal softtabstop=2 |
+        \ setlocal shiftwidth=2  |
+        \ setlocal foldmethod=syntax
+
   " autocmd BufNewFile,BufRead *.{md,mkd,mkdn,mark*}
   "   \ set filetype=markdown
 
@@ -674,7 +680,7 @@ let g:mkdp_preview_options = {
     \ 'katex': {},
     \ 'uml': {},
     \ 'maid': {},
-    \ 'disable_sync_scroll': 0,
+    \ 'disable_sync_scroll': 1,
     \ 'sync_scroll_type': 'middle'
     \ }
 
@@ -691,6 +697,7 @@ augroup END
 " /* for SimpylFold */
 let g:SimpylFold_docstring_preview = 1
 let g:SimpylFold_fold_docstring = 0
+let g:SimpylFold_fold_import = 1
 
 " /* for choosewin */
 " invoke with '-'
@@ -1032,10 +1039,13 @@ endfunction
 
 function! SetColorScheme(cname)
   " fake cs pre
-  if s:bg_light && a:cname == 'seoul256'
-    let s:cname = 'seoul256-light'
-  else
-    let s:cname = a:cname
+  let s:cname = a:cname
+  if s:bg_light
+    if a:cname == 'seoul256'
+      let s:cname = 'seoul256-light'
+    elseif a:cname == 'atomic'
+      let g:atomic_mode = 9  " light soft
+    endif
   endif
   if v:version < 801 && !has('nvim')
     call SetTermguiColors('no') | call LetBgFitClock()

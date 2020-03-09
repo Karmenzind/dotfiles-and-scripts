@@ -58,7 +58,7 @@ TO_SYNC = (
     "home_k/.stylelintrc",
     # "local_bin/acpyve",
     # "local_bin/docker_manager",
-    # "local_bin/myaria2",
+    "local_bin/myaria2",
 )
 
 

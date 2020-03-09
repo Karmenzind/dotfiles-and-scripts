@@ -147,7 +147,7 @@ fkill() {
 # and detach other connections bound to it
 stmux() {
 	if [[ -z "$TMUX" ]]; then
-		default_tmux_sname=k
+		local default_tmux_sname=k
 		tmuxinator $default_tmux_sname
 		# tmux new -s $default_tmux_sname -d
 		tmux choose-tree -t $default_tmux_sname -Zs
