@@ -17,6 +17,8 @@ alias mux=tmuxinator
 alias toboard='xclip -selection clipboard'
 alias acp='source acpyve'
 
+alias xy=proxychains4
+
 # /* others apps */
 export EDITOR=vim
 export VISUAL=$EDITOR
