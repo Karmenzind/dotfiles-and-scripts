@@ -4,14 +4,11 @@
 
 download_dir=${HOME}/Downloads/aria2
 
-![[ -d "$download_dir" ]] && mkdir -p $download_dir && echo "Created $download_dir"
-
 # -----------------------------------------------------------------------------
 # /* custom variables */
 
 # follow your aria2 config
 log_path=/tmp/_myaria2.log
-![[ -f "$log_path" ]] && echo >> $log_path
 
 # url to fetch bt-tracker list
 # if your have no idea what it is
@@ -24,7 +21,15 @@ update_interval_hours=4
 # no need to change
 config_dir=${HOME}/.config/aria2 # trackerlist
 
-![[ -d "$config_dir" ]] && mkdir -p $config_dir && echo "Created $config_dir"
+# init dirs and files
+! [[ -d "$download_dir" ]] && mkdir -p $download_dir && echo "Created $download_dir"
+! [[ -e "$log_path" ]] && touch $log_path
+! [[ -d "$config_dir" ]] && mkdir -p $config_dir && echo "Created $config_dir"
+
+local_dir=${HOME}/.local/aria2
+dat_file=${local_dir}/session.dat
+! [[ -d "$local_dir" ]] && mkdir -p $local_dir && echo "Created $local_dir"
+! [[ -e "$dat_file" ]] && touch $dat_file
 
 # \ Leave open_browser/save_history to 0 
 # \ if you don't need functions as follows

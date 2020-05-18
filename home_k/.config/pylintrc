@@ -156,7 +156,10 @@ disable=print-statement,
         unused-wildcard-import,
         no-member,
         bad-continuation,
-        too-many-branches
+        too-many-branches,
+        function-redefined,
+        cell-var-from-loop,
+        redefined-argument-from-local
 
 
 # Enable the message, report, category or checker with the given id(s). You can

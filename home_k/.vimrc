@@ -69,11 +69,10 @@ Plug 'liuchengxu/vista.vim'
 Plug 'Shougo/echodoc.vim'
 Plug 'w0rp/ale' " Asynchronous Lint Engine
 Plug 'Valloric/YouCompleteMe', { 'do': function('BuildYCM') }
+Plug 'rdnetto/YCM-Generator', { 'branch': 'stable'}
 Plug 'terryma/vim-multiple-cursors'
 Plug 'mattn/emmet-vim'
-" Plug 'zxqfl/tabnine-vim'
-" Plug 'tenfyzhong/CompleteParameter.vim'
-" Plug 'junegunn/rainbow_parentheses.vim'
+Plug 'puremourning/vimspector'
 " Plug 'Valloric/MatchTagAlways'
 
 " /* version control | workspace */
@@ -87,7 +86,6 @@ Plug 'mhinz/vim-startify'
 if executable('svn')
   Plug 'juneedahamed/vc.vim'
 endif
-" Plug 'junegunn/gv.vim'
 " Plug 'bagrat/vim-workspace' " tab bar
 
 " /* Search */
@@ -427,12 +425,6 @@ nnoremap <silent> <Leader>dd  :YcmCompleter GoToDefinitionElseDeclaration<CR>
 nnoremap <silent> <Leader>rf  :YcmCompleter GoToReferences<CR>
 nnoremap <silent> <Leader>doc :YcmCompleter GetDoc<CR>
 
-" augroup ycm_autos
-"   au!
-"   au FileType python,vue,html,javascript,xml
-"         \ nnoremap <buffer> <silent> <C-]> :YcmCompleter GoTo<CR>
-" augroup END
-
 let g:ycm_language_server = [
       \ {"name": "vue", "filetypes": ["vue"], "cmdline": ["vls"] },
       \ {"name": "vim", "filetypes": ["vim"], "cmdline": ["vim-language-server", '--stdio'] },
@@ -440,7 +432,7 @@ let g:ycm_language_server = [
 
 " /* for NERDTree */
 nnoremap <silent> <Leader>n :NERDTreeToggle<CR>
-let g:NERDTreeIgnore = ['\.pyc$', '\~$', '__pycache__[[dir]]']
+let g:NERDTreeIgnore = ['\.pyc$', '\~$', '__pycache__[[dir]]', '\.swp$']
 let g:NERDTreeShowBookmarks = 1
 let g:NERDTreeNaturalSort = 1
 let g:NERDTreeShowLineNumbers = 1
@@ -482,6 +474,37 @@ let g:airline#extensions#whitespace#enabled = 0
 let g:airline#extensions#fugitiveline#enabled = 0
 let g:airline#extensions#hunks#enabled = 0
 " let g:airline#extensions#hunks#non_zero_only = 1
+let g:airline#extensions#tabline#enabled = 1
+let g:airline#extensions#tabline#show_splits = 0
+
+let g:airline#extensions#tabline#buffer_idx_mode = 1
+nmap <leader>1 <Plug>AirlineSelectTab1
+nmap <leader>2 <Plug>AirlineSelectTab2
+nmap <leader>3 <Plug>AirlineSelectTab3
+nmap <leader>4 <Plug>AirlineSelectTab4
+nmap <leader>5 <Plug>AirlineSelectTab5
+nmap <leader>6 <Plug>AirlineSelectTab6
+nmap <leader>7 <Plug>AirlineSelectTab7
+nmap <leader>8 <Plug>AirlineSelectTab8
+nmap <leader>9 <Plug>AirlineSelectTab9
+nmap <leader>- <Plug>AirlineSelectPrevTab
+nmap <leader>+ <Plug>AirlineSelectNextTab
+
+let g:airline#extensions#tabline#show_close_button = 0
+let g:airline#extensions#tabline#buffer_idx_format = {
+      \ '0': '0 ',
+      \ '1': '1 ',
+      \ '2': '2 ',
+      \ '3': '3 ',
+      \ '4': '4 ',
+      \ '5': '5 ',
+      \ '6': '6 ',
+      \ '7': '7 ',
+      \ '8': '8 ',
+      \ '9': '9 '
+      \}
+
+let g:airline#extensions#tabline#tab_nr_type = 2
 
 " /* for fzf */
 function! s:build_quickfix_list(lines)
@@ -496,6 +519,8 @@ let g:fzf_action = {
       \ 'ctrl-v': 'vsplit',
       \ 'ctrl-q': function('s:build_quickfix_list') }
 let g:fzf_layout = { 'down': '~50%' }
+" let g:fzf_layout = { 'window': { 'width': 0.9, 'height': 0.6 } }
+let g:fzf_preview_window = 'right:60%'
 let g:fzf_buffers_jump = 1
 let g:fzf_tags_command = 'ctags -R'
 let g:fzf_history_dir = '~/.local/share/fzf-history'
@@ -507,7 +532,7 @@ command! -bang -nargs=* Ag
       \                 <bang>0)
 
 command! -bang -nargs=? -complete=dir Files
-      \ call fzf#vim#files(<q-args>, fzf#vim#with_preview(), <bang>0)
+      \ call fzf#vim#files(<q-args>, fzf#vim#with_preview('right:60%'), <bang>0)
 
 nnoremap <Leader>ff :Files<CR>
 nnoremap <Leader>fa :Ag<SPACE>
@@ -518,31 +543,6 @@ nnoremap <Leader>fb :Buffers<CR>
 nnoremap <Leader>fw :Windows<CR>
 nnoremap <Leader>fs :Snippets<CR>
 nnoremap <Leader>fh :History/<CR>
-
-" /* for LeaderF */
-" let g:Lf_ShortcurF = '<Leader>n'
-" nnoremap <Leader>ff :LeaderfFile<CR>
-" highlight Lf_hl_match gui=bold guifg=Blue cterm=bold ctermfg=21
-" highlight Lf_hl_matchRefine  gui=bold guifg=Magenta cterm=bold ctermfg=201
-" let g:Lf_WindowPosition = 'bottom'
-" let g:Lf_DefaultMode = 'FullPath'
-" let g:Lf_StlColorscheme = 'powerline'
-" let g:Lf_ShowHidden = 1
-" let g:Lf_WildIgnore = {
-"       \  'dir': ['.svn', '.git', '.hg', '.idea', '__pycache__', '.scrapy'],
-"       \  'file': ['*.sw?', '~$*', '*.exe', '*.o', '*.so', '*.py[co]'] }
-" let g:Lf_MruFileExclude = ['*.so']
-" let g:Lf_UseVersionControlTool = 0
-
-" /* for Ack */
-" nnoremap <Leader>fc :Ack!<space>
-" if executable('ag')
-"   let g:ackprg = 'ag --vimgrep'
-" endif
-" let g:ackhighlight = 1
-" let g:ack_mappings = {
-"       \  'v':  '<C-W><CR><C-W>L<C-W>p<C-W>J<C-W>p',
-"       \  'gv': '<C-W><CR><C-W>L<C-W>p<C-W>J' }
 
 " /* for devicons */
 let g:WebDevIconsUnicodeDecorateFolderNodes = 1

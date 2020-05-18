@@ -9,7 +9,8 @@ set $i3_config_dir $HOME/.config/i3/
 
 # Font for window titles. Also as a fallback for bar
 # font -misc-fixed-medium-r-normal--13-120-75-75-C-70-iso10646-1
-font pango:MV Boli Regular 10
+# font pango:MV Boli Regular 10
+font pango:Tahoma Regular 10
 
 # Use Mouse+$mod to drag floating windows to their wanted position
 floating_modifier $mod
@@ -100,8 +101,6 @@ bindsym $mod+Shift+0 move container to workspace 10
 # change workspace
 bindsym $mod+comma workspace prev
 bindsym $mod+period workspace next
-bindsym $mod+Shift+comma  move container to workspace prev; workspace prev
-bindsym $mod+Shift+period move container to workspace next; workspace next
 
 # workspace back and forth (with/without active container)
 workspace_auto_back_and_forth yes
@@ -156,15 +155,16 @@ set $transparent #00000000
 
 # /* borders */
 # border style <normal|1pixel|pixel xx|none|pixel>
-set $local_pixel 2
-default_border pixel $local_pixel
-default_floating_border none
+set $local_pixel 3
+new_window pixel $local_pixel
+# default_border pixel $local_pixel
+# default_floating_border none
 # Hide borders
-hide_edge_borders vertical
+# hide_edge_borders vertical
 # change borders
-bindsym $mod+u border none
-bindsym $mod+y border pixel $local_pixel
-# bindsym $mod+n border normal
+# bindsym $mod+u border none
+# bindsym $mod+y border pixel $local_pixel
+# # bindsym $mod+n border normal
 
 # /* apps specification */
 # for_window [class="netease-cloud-music"] floating enable
@@ -209,7 +209,7 @@ bindsym $mod+Shift+m bar mode toggle
 
 # Start i3bar to display a workspace bar
 bar {
-  # status_command i3status
+    # status_command i3status
     status_command bash $i3_config_dir/conky_status.sh
     i3bar_command i3bar
     # separator_symbol " "
@@ -218,7 +218,7 @@ bar {
     position top
     # font -misc-fixed-medium-r-normal--13-120-75-75-C-70-iso10646-1
     # font pango:WenQuanYi WenQuanYi Bitmap Song 10
-    font pango:Hack Nerd Font Bold 9
+    font pango:Monaco Nerd Font 9
     colors {
       separator #586e75
       background #002b36
@@ -308,7 +308,9 @@ bindsym $mod+Shift+b exec --no-startup-id feh --bg-max `[[ -d $wallpaper_dir ]] 
 exec_always --no-startup-id xautolock -time 20 -locker i3lock -t -i $wallpaper_png &
 # bindsym $mod+Ctrl+l exec --no-startup-id i3lock -t -i $wallpaper_png
 # lock with random pic of specific dir
-bindsym $mod+Ctrl+l exec --no-startup-id i3lock -t -i `[ -d $wallpaper_dir ] && (find $wallpaper_dir -type f -name '*png' | sort -R | head -1) || echo $wallpaper_png` &
+# bindsym $mod+Ctrl+l exec --no-startup-id i3lock -t -i `[ -d $wallpaper_dir ] && (find $wallpaper_dir -type f -name '*png' | sort -R | head -1) || echo $wallpaper_png` &
+# bindsym $mod+Ctrl+l exec --no-startup-id i3lock -t -i `[ -d $wallpaper_dir ] && (find $wallpaper_dir -type f -name '*png' | sort -R | head -1) || echo $wallpaper_png` &
+bindsym $mod+Ctrl+l exec --no-startup-id i3lock -t -i /home/qk/Pictures/LOCKSCREEN.png
 # lock with random pic from internet (random picture source: https://www.zhihu.com/question/21168322)
 # ...todo
 
@@ -317,7 +319,6 @@ bindsym $mod+Ctrl+l exec --no-startup-id i3lock -t -i `[ -d $wallpaper_dir ] && 
 # -----------------------------------------------------------------------------
 
 # basic
-exec --no-startup-id i3-msg "workspace 1; exec i3-sensible-terminal" &
 # exec --no-startup-id i3-msg "workspace 3; exec chromium; workspace 2; exec i3-sensible-terminal; workspace 1; exec i3-sensible-terminal" &
 # exec --no-startup-id electronic-wechat &
 
@@ -327,16 +328,17 @@ exec --no-startup-id flameshot &
 # notifier
 exec_always dunst &
 # transparency controller
-exec_always --no-startup-id killall compton; compton -b &
+# exec_always --no-startup-id killall compton; compton -b &
 # popup input box for authentication
 exec --no-startup-id /usr/lib/polkit-gnome/polkit-gnome-authentication-agent-1 & eval $(gnome-keyring-daemon -s --components=pkcs11,secrets,ssh,gpg) &
 # xflux
 exec_always --no-startup-id killall -9 xflux; xflux -l '30.2443314184' -g '120.1665687561' &
 # arrange monitors
 # exec_always xrandr --output HDMI3 --off --output HDMI2 --off --output HDMI1 --mode 1920x1080 --pos 1920x0 --rotate normal --output VIRTUAL1 --off --output DP1 --primary --mode 1920x1080 --pos 0x0 --rotate normal
+exec_always bash /home/qk/.screenlayout/default.sh
 
 # a cat chasing the mouse
-exec_always --no-startup-id bash $HOME/.config/i3/run_oneko.sh &
+# exec_always --no-startup-id bash $HOME/.config/i3/run_oneko.sh
 
 # /* with tray icons */
 exec --no-startup-id pamac-tray &

@@ -110,6 +110,11 @@ snippet td "todo or other special comments"
 ${2:TODO}(${1:`echo $USER`}): <`date +%Y-%m-%d`> ${0:${VISUAL}}
 endsnippet
 
+# TODO: <2018-10-24, k> 增加自动注释 #
+snippet fm "FIXME or other special comments"
+${2:FIXME}(${1:`echo $USER`}): <`date +%Y-%m-%d`> ${0:${VISUAL}}
+endsnippet
+
 snippet trm "to delete" b
 These code has been modified or refactored and waiting to be deleted after testing.
 此处已经修改或重构，测试稳定后删除原代码

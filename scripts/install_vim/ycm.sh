@@ -16,7 +16,11 @@ plug_dir=${HOME}/.vim/plugged/YouCompleteMe
 # IF YOU WANNA COMPILE YCM WITH THIS SCRIPT 
 
 # You need to mannual set the path to libclang.so
-libclang_so_path=/usr/lib/libclang.so
+if [[ -n "$1" ]]; then
+    libclang_so_path=$1
+else
+    libclang_so_path=/usr/lib/libclang.so
+fi
 
 # not important, you can delete this dir after installation
 build_dir=${HOME}/ycm_build

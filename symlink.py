@@ -40,6 +40,7 @@ TO_SYNC = (
     "home_k/.config/i3/conky_status.sh",
     "home_k/.config/i3/screenshot.sh",
     "home_k/.config/i3/run_oneko.sh",
+    "home_k/.config/i3status/config",
     "home_k/.config/nvim/init.vim",
     "home_k/.config/rofi/config",
     "home_k/.config/shrc.ext",
