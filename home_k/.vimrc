@@ -66,22 +66,22 @@ Plug 'junegunn/vim-easy-align'
 Plug 'SirVer/ultisnips' | Plug 'honza/vim-snippets'
 Plug 'Shougo/context_filetype.vim'
 Plug 'liuchengxu/vista.vim'
-Plug 'Shougo/echodoc.vim'
+" Plug 'Shougo/echodoc.vim'
 Plug 'w0rp/ale' " Asynchronous Lint Engine
-Plug 'Valloric/YouCompleteMe', { 'do': function('BuildYCM') }
-Plug 'rdnetto/YCM-Generator', { 'branch': 'stable'}
+Plug 'Valloric/YouCompleteMe', { 'do': function('BuildYCM'), 'frozen': v:true }
+" Plug 'rdnetto/YCM-Generator', { 'branch': 'stable'}
 Plug 'terryma/vim-multiple-cursors'
-Plug 'mattn/emmet-vim'
-Plug 'puremourning/vimspector'
+" Plug 'mattn/emmet-vim'
+" Plug 'puremourning/vimspector'
 " Plug 'Valloric/MatchTagAlways'
 
 " /* version control | workspace */
-Plug 'scrooloose/nerdtree'
-Plug 'Xuyuanp/nerdtree-git-plugin'
+Plug 'scrooloose/nerdtree', { 'on': 'NERDTreeToggle' }
+" Plug 'Xuyuanp/nerdtree-git-plugin', { 'on': 'NERDTreeToggle' }
 Plug 'tiagofumo/vim-nerdtree-syntax-highlight'
-Plug 'airblade/vim-gitgutter'
-Plug 'tpope/vim-fugitive'
-Plug 't9md/vim-choosewin'
+" Plug 'airblade/vim-gitgutter'
+" Plug 'tpope/vim-fugitive'
+" Plug 't9md/vim-choosewin'
 Plug 'mhinz/vim-startify'
 if executable('svn')
   Plug 'juneedahamed/vc.vim'
@@ -104,7 +104,7 @@ Plug 'junegunn/fzf.vim'
 " /* Python */
 Plug 'tmhedberg/SimpylFold' " code folding
 Plug 'vim-scripts/indentpython.vim'
-Plug 'tweekmonster/django-plus.vim'
+Plug 'tweekmonster/django-plus.vim', { 'for': 'python' }
 " Plug 'plytophogy/vim-virtualenv'
 " Plug 'python-mode/python-mode'
 
@@ -121,14 +121,14 @@ Plug 'Traap/vim-helptags'
 " Plug 'scrooloose/vim-slumlord'
 
 " /* Experience | Enhancement */
-if !has('clipboard') | Plug 'kana/vim-fakeclip' | endif
-if executable('fcitx') | Plug 'vim-scripts/fcitx.vim' | endif
-Plug 'junegunn/goyo.vim'
+" if !has('clipboard') | Plug 'kana/vim-fakeclip' | endif
+" if executable('fcitx') | Plug 'vim-scripts/fcitx.vim' | endif
+" Plug 'junegunn/goyo.vim'
 " Plug 'junegunn/limelight.vim'
 " Plug 'terryma/vim-smooth-scroll'
 
 " /* Funny Stuff */
-Plug 'junegunn/vim-emoji', { 'for': 'markdown,gitcommit' }
+" Plug 'junegunn/vim-emoji', { 'for': 'markdown,gitcommit' }
 " Plug 'vim-scripts/TeTrIs.vim'
 
 " /* Syntax | Fold */
@@ -153,15 +153,15 @@ Plug 'vim-airline/vim-airline'
 Plug 'vim-airline/vim-airline-themes'
 Plug 'gerardbm/vim-atomic'
 Plug 'icymind/NeoSolarized'
+Plug 'KKPMW/sacredforest-vim'
 Plug 'junegunn/seoul256.vim'
 Plug 'ryanoasis/vim-devicons' " load after other plugins
-" Plug 'chxuan/change-colorscheme', { 'on': 'NextColorScheme' }
 
 call plug#end()
 
 " internal plugins
 runtime macros/matchit.vim
-runtime! ftplugin/man.vim
+" runtime! ftplugin/man.vim
 
 " --------------------------------------------
 " basic
@@ -629,7 +629,7 @@ let g:ale_python_mypy_ignore_invalid_syntax = 1
 let g:ale_python_mypy_options = '--incremental'
 let g:ale_python_pylint_options = '--max-line-length=120 --rcfile $HOME/.config/pylintrc'
 let g:ale_python_autopep8_options = '--max-line-length=120'
-let g:ale_python_flake8_options = '--max-line-length=120'
+let g:ale_python_flake8_options = '--max-line-length=120 --extend-ignore=E722'
 let g:ale_python_pydocstyle_options = '--ignore=D200,D203,D204,D205,D211,D212,D213,D400,D401,D403,D415'
 " let g:ale_javascript_prettier_options = '-c'
 " let g:ale_javascript_eslint_options = '--ext .js,.vue'
@@ -1024,7 +1024,7 @@ augroup fit_colorscheme
   au!
   if v:version >= 801 || has('nvim')
     au ColorSchemePre * call BeforeChangeColorscheme()
-    au ColorSchemePre atomic,NeoSolarized,ayu,palenight call SetTermguiColors('yes')
+    au ColorSchemePre atomic,NeoSolarized,ayu,palenight,sacredforest call SetTermguiColors('yes')
   endif
   au ColorScheme * call AfterChangeColorscheme()
 augroup END
@@ -1055,7 +1055,7 @@ function! SetColorScheme(cname)
   endif
   execute 'colorscheme ' . s:cname
   call FitAirlineTheme(s:cname)
-  if s:cname =~ '\v(default|blackbeauty|gruvbox|seoul)'
+  if s:cname =~ '\v(default|blackbeauty|gruvbox|seoul|sacred)'
     augroup ColoAirlineAug
       au!
       au User AirlineToggledOn let w:airline_disabled = 1

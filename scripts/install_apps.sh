@@ -260,6 +260,17 @@ install_fcitx() {
     do_install fcitx fcitx-im fcitx-configtool fcitx-sunpinyin fcitx-cloudpinyin
 }
 
+
+install_zsh_autosuggestions() {
+    if command -v zsh; then
+        echo "Install fcitx and Chinese input method? (Y/n)"
+        check_input yn
+        [[ ! $ans = 'y' ]] && return
+
+        git clone https://github.com/zsh-users/zsh-autosuggestions ${ZSH_CUSTOM:-~/.oh-my-zsh/custom}/plugins/zsh-autosuggestions
+    fi
+}
+
 # --------------------------------------------
 
 # official
@@ -271,4 +282,5 @@ install_ranger_and_plugins
 install_wudao_dict
 install_nerd_fonts
 install_fcitx
+install_zsh_autosuggestions
 

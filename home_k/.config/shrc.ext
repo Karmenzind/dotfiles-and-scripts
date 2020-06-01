@@ -224,9 +224,10 @@ export WORKON_HOME=~/.venvs
 #######################################################################
 
 if [[ -d "$HOME/.pyenv" ]]; then
-    export PATH="$PATH:$HOME/.pyenv/bin"
-    eval "$(pyenv init -)"
-    eval "$(pyenv virtualenv-init -)"
+    export PYENV_ROOT="$HOME/.pyenv"
+    export PATH="$PYENV_ROOT/bin:$PATH"
+    # eval "$(pyenv init -)"
+    # eval "$(pyenv virtualenv-init -)"
 fi
 
 export PYTHON_CONFIGURE_OPTS="--enable-shared"

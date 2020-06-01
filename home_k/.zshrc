@@ -118,11 +118,11 @@ plugins=(
   'taskwarrior'
   'urltools'
   'web-search'
-  'zsh-syntax-highlighting'
+  # 'zsh-syntax-highlighting'
   'tmux'
   'tmuxinator'
-  'pyenv'
-  'pipenv'
+  # 'pyenv'
+  # 'pipenv'
   'zsh-autosuggestions'
 )
 

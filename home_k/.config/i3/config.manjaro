@@ -7,6 +7,7 @@
 
 # Set mod key (Mod1=<Alt>, Mod4=<Super>)
 set $mod Mod4
+set $i3_config_dir $HOME/.config/i3/
 
 # set default desktop layout (default is tiling)
 # workspace_layout tabbed <stacking|tabbed>
@@ -74,9 +75,19 @@ bindsym $mod+F5 exec terminal -e 'mocp'
 bindsym $mod+t exec --no-startup-id pkill compton
 bindsym $mod+Ctrl+t exec --no-startup-id compton -b
 bindsym $mod+Shift+d --release exec "killall dunst; exec notify-send 'restart dunst'"
-bindsym Print exec --no-startup-id i3-scrot
-bindsym $mod+Print --release exec --no-startup-id i3-scrot -w
-bindsym $mod+Shift+Print --release exec --no-startup-id i3-scrot -s
+
+# bindsym Print exec --no-startup-id i3-scrot
+# bindsym $mod+Print --release exec --no-startup-id i3-scrot -w
+# bindsym $mod+Shift+Print --release exec --no-startup-id i3-scrot -s
+
+# /* screenshot */
+# full
+bindsym --release Print exec bash $i3_config_dir/screenshot.sh full
+# area
+bindsym --release Shift+Print exec bash $i3_config_dir/screenshot.sh area
+# area with flameshot
+bindsym --release $mod+Shift+Print exec bash $i3_config_dir/screenshot.sh area_fs
+
 bindsym $mod+Shift+h exec xdg-open /usr/share/doc/manjaro/i3_help.pdf
 bindsym $mod+Ctrl+x --release exec --no-startup-id xkill
 
@@ -291,6 +302,7 @@ mode "resize" {
 # bindsym $mod+Ctrl+l exec --no-startup-id blurlock
 
 # Autostart applications
+exec_always --no-startup-id $HOME/.config/i3/post_start.sh &
 exec --no-startup-id /usr/lib/polkit-gnome/polkit-gnome-authentication-agent-1
 exec --no-startup-id compton -b
 # exec --no-startup-id nitrogen --restore; sleep 1; compton -b
