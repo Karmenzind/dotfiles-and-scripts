@@ -40,6 +40,7 @@ TO_SYNC = (
     "home_k/.config/i3/conky_status.sh",
     "home_k/.config/i3/screenshot.sh",
     "home_k/.config/i3/run_oneko.sh",
+    "home_k/.config/i3status/config",
     "home_k/.config/nvim/init.vim",
     "home_k/.config/rofi/config",
     "home_k/.config/shrc.ext",
@@ -70,12 +71,25 @@ def ask(choices, msg='Continue?'):
     return ans
 
 
+def proc_src(src):
+    ret = src
+    if 'i3/config' in src:
+        # manjaro
+        with open('/proc/version', 'r') as f:
+            version_info = f.read().lower()
+            if 'manjaro' in version_info:
+                ret = src + '.manjaro'
+    return ret
+
+
 backup_pat = f"*_backup_{CUR_TS}"
 
 if __name__ == "__main__":
     for src in TO_SYNC:
         pref, post = re.match(r"([^/]+)/(.*)", src).groups()
         dest = os.path.join(path_map[pref], post)
+
+        src = proc_src(src)
         print(f"\n>>> processing: {src} -> {dest}")
 
         src = os.path.join(REPO_DIR, src)

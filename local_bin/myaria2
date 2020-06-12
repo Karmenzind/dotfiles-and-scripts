@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Github: https://github.com/Karmenzind/MyConfig/tree/master/others/aria2
+# Github: https://github.com/Karmenzind/dotfiles-and-scripts/tree/master/others/aria2
 # a script to manage aria2
 
 download_dir=${HOME}/Downloads/aria2
@@ -8,8 +8,7 @@ download_dir=${HOME}/Downloads/aria2
 # /* custom variables */
 
 # follow your aria2 config
-log_path=/tmp/myaria2.log
-![[ -f "$log_path" ]] && echo >> $log_path
+log_path=/tmp/_myaria2.log
 
 # url to fetch bt-tracker list
 # if your have no idea what it is
@@ -21,6 +20,16 @@ update_interval_hours=4
 # to save your trackerlist
 # no need to change
 config_dir=${HOME}/.config/aria2 # trackerlist
+
+# init dirs and files
+! [[ -d "$download_dir" ]] && mkdir -p $download_dir && echo "Created $download_dir"
+! [[ -e "$log_path" ]] && touch $log_path
+! [[ -d "$config_dir" ]] && mkdir -p $config_dir && echo "Created $config_dir"
+
+local_dir=${HOME}/.local/aria2
+dat_file=${local_dir}/session.dat
+! [[ -d "$local_dir" ]] && mkdir -p $local_dir && echo "Created $local_dir"
+! [[ -e "$dat_file" ]] && touch $dat_file
 
 # \ Leave open_browser/save_history to 0 
 # \ if you don't need functions as follows
@@ -34,6 +43,7 @@ browser=chromium
 # move log file to specific dir when restart
 save_history=0
 history_dir=${HOME}/Downloads/aria2/logs # leave it to '' if you don't need it
+![[ -d "$history_dir" ]] && mkdir -p $history_dir && echo "Created $history_dir"
 
 # aria2c running paramters. See aria2c's man page
 aria2c_params="--rpc-listen-all --enable-rpc $@"
@@ -104,14 +114,19 @@ start() {
         aria2c_params="--rpc-listen-all --enable-rpc $@"
         [[ -n ${trackers} ]] && aria2c_params="--bt-tracker=$trackers $aria2c_params"
         echo '[PARAMETERS]' $aria2c_params
-        aria2c $aria2c_params
+        if aria2c $aria2c_params; then
+            echo "Started"
+        else
+            echo "Starting failed. Return code $?"
+            log
+        fi
         psinfo
     fi
 }
 
 log() {
     echo -e  '\nLOG:'
-    tail $log_path $1
+    tail $log_path $1 
 }
 
 # return 1: need update

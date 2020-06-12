@@ -17,6 +17,8 @@ alias mux=tmuxinator
 alias toboard='xclip -selection clipboard'
 alias acp='source acpyve'
 
+alias xy=proxychains4
+
 # /* others apps */
 export EDITOR=vim
 export VISUAL=$EDITOR
@@ -109,12 +111,15 @@ ex() {
 # for fzf
 export FZF_DEFAULT_OPTS="--preview '[ -f {} ] && file {} && head -30 {} '
                          --height 50% --reverse --border
-                         --preview-window=down:30%"
+                         --preview-window=down:50%"
 # use fd
 # export FZF_DEFAULT_COMMAND="fd --type f --hidden --follow --ignore-file ~/.config/search_ignore"
 # use the silver searcher
-# command -v 'ag' || echo "The silver search needs to be installed"
-export FZF_DEFAULT_COMMAND="ag --hidden --nocolor -U -g ''"
+if command -v 'ag'; then
+    export FZF_DEFAULT_COMMAND="ag --hidden --nocolor -U -g ''"
+else
+    echo "The silver search needs to be installed"
+fi
 
 # - The first argument to the function ($1) is the base path to start traversal
 # - See the source code (completion.{bash,zsh}) for the details.
@@ -147,7 +152,7 @@ fkill() {
 # and detach other connections bound to it
 stmux() {
 	if [[ -z "$TMUX" ]]; then
-		default_tmux_sname=k
+		local default_tmux_sname=k
 		tmuxinator $default_tmux_sname
 		# tmux new -s $default_tmux_sname -d
 		tmux choose-tree -t $default_tmux_sname -Zs
@@ -219,9 +224,10 @@ export WORKON_HOME=~/.venvs
 #######################################################################
 
 if [[ -d "$HOME/.pyenv" ]]; then
-    export PATH="$PATH:$HOME/.pyenv/bin"
-    eval "$(pyenv init -)"
-    eval "$(pyenv virtualenv-init -)"
+    export PYENV_ROOT="$HOME/.pyenv"
+    export PATH="$PYENV_ROOT/bin:$PATH"
+    # eval "$(pyenv init -)"
+    # eval "$(pyenv virtualenv-init -)"
 fi
 
 export PYTHON_CONFIGURE_OPTS="--enable-shared"

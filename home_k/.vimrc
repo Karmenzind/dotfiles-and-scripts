@@ -57,6 +57,7 @@ call plug#begin()
 Plug 'junegunn/vim-plug'
 
 " /* coding tools */
+Plug 'metakirby5/codi.vim'
 Plug 'tpope/vim-endwise'
 Plug 'tpope/vim-surround'
 Plug 'jiangmiao/auto-pairs'
@@ -65,28 +66,26 @@ Plug 'junegunn/vim-easy-align'
 Plug 'SirVer/ultisnips' | Plug 'honza/vim-snippets'
 Plug 'Shougo/context_filetype.vim'
 Plug 'liuchengxu/vista.vim'
-Plug 'Shougo/echodoc.vim'
+" Plug 'Shougo/echodoc.vim'
 Plug 'w0rp/ale' " Asynchronous Lint Engine
-Plug 'Valloric/YouCompleteMe', { 'do': function('BuildYCM') }
+Plug 'Valloric/YouCompleteMe', { 'do': function('BuildYCM'), 'frozen': v:true }
+" Plug 'rdnetto/YCM-Generator', { 'branch': 'stable'}
 Plug 'terryma/vim-multiple-cursors'
-Plug 'mattn/emmet-vim'
-" Plug 'zxqfl/tabnine-vim'
-" Plug 'tenfyzhong/CompleteParameter.vim'
-" Plug 'junegunn/rainbow_parentheses.vim'
+" Plug 'mattn/emmet-vim'
+" Plug 'puremourning/vimspector'
 " Plug 'Valloric/MatchTagAlways'
 
 " /* version control | workspace */
-Plug 'scrooloose/nerdtree'
-Plug 'Xuyuanp/nerdtree-git-plugin'
+Plug 'scrooloose/nerdtree', { 'on': 'NERDTreeToggle' }
+" Plug 'Xuyuanp/nerdtree-git-plugin', { 'on': 'NERDTreeToggle' }
 Plug 'tiagofumo/vim-nerdtree-syntax-highlight'
-Plug 'airblade/vim-gitgutter'
-Plug 'tpope/vim-fugitive'
-Plug 't9md/vim-choosewin'
+" Plug 'airblade/vim-gitgutter'
+" Plug 'tpope/vim-fugitive'
+" Plug 't9md/vim-choosewin'
 Plug 'mhinz/vim-startify'
 if executable('svn')
   Plug 'juneedahamed/vc.vim'
 endif
-" Plug 'junegunn/gv.vim'
 " Plug 'bagrat/vim-workspace' " tab bar
 
 " /* Search */
@@ -105,7 +104,7 @@ Plug 'junegunn/fzf.vim'
 " /* Python */
 Plug 'tmhedberg/SimpylFold' " code folding
 Plug 'vim-scripts/indentpython.vim'
-Plug 'tweekmonster/django-plus.vim'
+Plug 'tweekmonster/django-plus.vim', { 'for': 'python' }
 " Plug 'plytophogy/vim-virtualenv'
 " Plug 'python-mode/python-mode'
 
@@ -122,14 +121,14 @@ Plug 'Traap/vim-helptags'
 " Plug 'scrooloose/vim-slumlord'
 
 " /* Experience | Enhancement */
-if !has('clipboard') | Plug 'kana/vim-fakeclip' | endif
-if executable('fcitx') | Plug 'vim-scripts/fcitx.vim' | endif
-Plug 'junegunn/goyo.vim'
+" if !has('clipboard') | Plug 'kana/vim-fakeclip' | endif
+" if executable('fcitx') | Plug 'vim-scripts/fcitx.vim' | endif
+" Plug 'junegunn/goyo.vim'
 " Plug 'junegunn/limelight.vim'
 " Plug 'terryma/vim-smooth-scroll'
 
 " /* Funny Stuff */
-Plug 'junegunn/vim-emoji', { 'for': 'markdown,gitcommit' }
+" Plug 'junegunn/vim-emoji', { 'for': 'markdown,gitcommit' }
 " Plug 'vim-scripts/TeTrIs.vim'
 
 " /* Syntax | Fold */
@@ -137,6 +136,8 @@ Plug 'posva/vim-vue'
 Plug 'cespare/vim-toml'
 Plug 'Yggdroot/indentLine'
 Plug 'chr4/nginx.vim'
+Plug 'pangloss/vim-javascript'
+Plug 'mtdl9/vim-log-highlighting'
 " Plug 'demophoon/bash-fold-expr', { 'for': 'sh' }
 " Plug 'vim-scripts/txt.vim', { 'for': 'txt' }
 
@@ -152,15 +153,15 @@ Plug 'vim-airline/vim-airline'
 Plug 'vim-airline/vim-airline-themes'
 Plug 'gerardbm/vim-atomic'
 Plug 'icymind/NeoSolarized'
+Plug 'KKPMW/sacredforest-vim'
 Plug 'junegunn/seoul256.vim'
 Plug 'ryanoasis/vim-devicons' " load after other plugins
-" Plug 'chxuan/change-colorscheme', { 'on': 'NextColorScheme' }
 
 call plug#end()
 
 " internal plugins
 runtime macros/matchit.vim
-runtime! ftplugin/man.vim
+" runtime! ftplugin/man.vim
 
 " --------------------------------------------
 " basic
@@ -315,6 +316,12 @@ augroup filetype_formats
         \ setlocal softtabstop=2 |
         \ setlocal shiftwidth=2
 
+  au BufNewFile,BufRead *.json
+        \ setlocal tabstop=2     |
+        \ setlocal softtabstop=2 |
+        \ setlocal shiftwidth=2  |
+        \ setlocal foldmethod=syntax
+
   " autocmd BufNewFile,BufRead *.{md,mkd,mkdn,mark*}
   "   \ set filetype=markdown
 
@@ -418,12 +425,6 @@ nnoremap <silent> <Leader>dd  :YcmCompleter GoToDefinitionElseDeclaration<CR>
 nnoremap <silent> <Leader>rf  :YcmCompleter GoToReferences<CR>
 nnoremap <silent> <Leader>doc :YcmCompleter GetDoc<CR>
 
-" augroup ycm_autos
-"   au!
-"   au FileType python,vue,html,javascript,xml
-"         \ nnoremap <buffer> <silent> <C-]> :YcmCompleter GoTo<CR>
-" augroup END
-
 let g:ycm_language_server = [
       \ {"name": "vue", "filetypes": ["vue"], "cmdline": ["vls"] },
       \ {"name": "vim", "filetypes": ["vim"], "cmdline": ["vim-language-server", '--stdio'] },
@@ -431,7 +432,7 @@ let g:ycm_language_server = [
 
 " /* for NERDTree */
 nnoremap <silent> <Leader>n :NERDTreeToggle<CR>
-let g:NERDTreeIgnore = ['\.pyc$', '\~$', '__pycache__[[dir]]']
+let g:NERDTreeIgnore = ['\.pyc$', '\~$', '__pycache__[[dir]]', '\.swp$']
 let g:NERDTreeShowBookmarks = 1
 let g:NERDTreeNaturalSort = 1
 let g:NERDTreeShowLineNumbers = 1
@@ -473,6 +474,37 @@ let g:airline#extensions#whitespace#enabled = 0
 let g:airline#extensions#fugitiveline#enabled = 0
 let g:airline#extensions#hunks#enabled = 0
 " let g:airline#extensions#hunks#non_zero_only = 1
+let g:airline#extensions#tabline#enabled = 1
+let g:airline#extensions#tabline#show_splits = 0
+
+let g:airline#extensions#tabline#buffer_idx_mode = 1
+nmap <leader>1 <Plug>AirlineSelectTab1
+nmap <leader>2 <Plug>AirlineSelectTab2
+nmap <leader>3 <Plug>AirlineSelectTab3
+nmap <leader>4 <Plug>AirlineSelectTab4
+nmap <leader>5 <Plug>AirlineSelectTab5
+nmap <leader>6 <Plug>AirlineSelectTab6
+nmap <leader>7 <Plug>AirlineSelectTab7
+nmap <leader>8 <Plug>AirlineSelectTab8
+nmap <leader>9 <Plug>AirlineSelectTab9
+nmap <leader>- <Plug>AirlineSelectPrevTab
+nmap <leader>+ <Plug>AirlineSelectNextTab
+
+let g:airline#extensions#tabline#show_close_button = 0
+let g:airline#extensions#tabline#buffer_idx_format = {
+      \ '0': '0 ',
+      \ '1': '1 ',
+      \ '2': '2 ',
+      \ '3': '3 ',
+      \ '4': '4 ',
+      \ '5': '5 ',
+      \ '6': '6 ',
+      \ '7': '7 ',
+      \ '8': '8 ',
+      \ '9': '9 '
+      \}
+
+let g:airline#extensions#tabline#tab_nr_type = 2
 
 " /* for fzf */
 function! s:build_quickfix_list(lines)
@@ -487,6 +519,8 @@ let g:fzf_action = {
       \ 'ctrl-v': 'vsplit',
       \ 'ctrl-q': function('s:build_quickfix_list') }
 let g:fzf_layout = { 'down': '~50%' }
+" let g:fzf_layout = { 'window': { 'width': 0.9, 'height': 0.6 } }
+let g:fzf_preview_window = 'right:60%'
 let g:fzf_buffers_jump = 1
 let g:fzf_tags_command = 'ctags -R'
 let g:fzf_history_dir = '~/.local/share/fzf-history'
@@ -498,7 +532,7 @@ command! -bang -nargs=* Ag
       \                 <bang>0)
 
 command! -bang -nargs=? -complete=dir Files
-      \ call fzf#vim#files(<q-args>, fzf#vim#with_preview(), <bang>0)
+      \ call fzf#vim#files(<q-args>, fzf#vim#with_preview('right:60%'), <bang>0)
 
 nnoremap <Leader>ff :Files<CR>
 nnoremap <Leader>fa :Ag<SPACE>
@@ -509,31 +543,6 @@ nnoremap <Leader>fb :Buffers<CR>
 nnoremap <Leader>fw :Windows<CR>
 nnoremap <Leader>fs :Snippets<CR>
 nnoremap <Leader>fh :History/<CR>
-
-" /* for LeaderF */
-" let g:Lf_ShortcurF = '<Leader>n'
-" nnoremap <Leader>ff :LeaderfFile<CR>
-" highlight Lf_hl_match gui=bold guifg=Blue cterm=bold ctermfg=21
-" highlight Lf_hl_matchRefine  gui=bold guifg=Magenta cterm=bold ctermfg=201
-" let g:Lf_WindowPosition = 'bottom'
-" let g:Lf_DefaultMode = 'FullPath'
-" let g:Lf_StlColorscheme = 'powerline'
-" let g:Lf_ShowHidden = 1
-" let g:Lf_WildIgnore = {
-"       \  'dir': ['.svn', '.git', '.hg', '.idea', '__pycache__', '.scrapy'],
-"       \  'file': ['*.sw?', '~$*', '*.exe', '*.o', '*.so', '*.py[co]'] }
-" let g:Lf_MruFileExclude = ['*.so']
-" let g:Lf_UseVersionControlTool = 0
-
-" /* for Ack */
-" nnoremap <Leader>fc :Ack!<space>
-" if executable('ag')
-"   let g:ackprg = 'ag --vimgrep'
-" endif
-" let g:ackhighlight = 1
-" let g:ack_mappings = {
-"       \  'v':  '<C-W><CR><C-W>L<C-W>p<C-W>J<C-W>p',
-"       \  'gv': '<C-W><CR><C-W>L<C-W>p<C-W>J' }
 
 " /* for devicons */
 let g:WebDevIconsUnicodeDecorateFolderNodes = 1
@@ -577,7 +586,7 @@ nmap <silent> <Leader>at <Plug>(ale_toggle)
 cabbrev AF ALEFix
 
 " trim whitespaces surrounded in docstrings
-function FixSurroundedWhiteSpaces(buffer, lines)
+function! FixSurroundedWhiteSpaces(buffer, lines)
   return map(a:lines, {idx, line -> substitute(line, '\v^(\s*""")\s+(.+)\s+(""")', '\1\2\3', '')})
 endfunction
 
@@ -620,7 +629,7 @@ let g:ale_python_mypy_ignore_invalid_syntax = 1
 let g:ale_python_mypy_options = '--incremental'
 let g:ale_python_pylint_options = '--max-line-length=120 --rcfile $HOME/.config/pylintrc'
 let g:ale_python_autopep8_options = '--max-line-length=120'
-let g:ale_python_flake8_options = '--max-line-length=120'
+let g:ale_python_flake8_options = '--max-line-length=120 --extend-ignore=E722'
 let g:ale_python_pydocstyle_options = '--ignore=D200,D203,D204,D205,D211,D212,D213,D400,D401,D403,D415'
 " let g:ale_javascript_prettier_options = '-c'
 " let g:ale_javascript_eslint_options = '--ext .js,.vue'
@@ -671,7 +680,7 @@ let g:mkdp_preview_options = {
     \ 'katex': {},
     \ 'uml': {},
     \ 'maid': {},
-    \ 'disable_sync_scroll': 0,
+    \ 'disable_sync_scroll': 1,
     \ 'sync_scroll_type': 'middle'
     \ }
 
@@ -688,6 +697,7 @@ augroup END
 " /* for SimpylFold */
 let g:SimpylFold_docstring_preview = 1
 let g:SimpylFold_fold_docstring = 0
+let g:SimpylFold_fold_import = 1
 
 " /* for choosewin */
 " invoke with '-'
@@ -806,6 +816,16 @@ let g:vista_sidebar_width = 40
 augroup vista_aug
   au!
   au FileType vista set nu rnu
+augroup END
+
+" /* for vim-vue */
+let g:vue_pre_processors = []
+
+" /* for vim-javascript */
+
+augroup javascript_folding
+    au!
+    au FileType javascript setlocal foldmethod=syntax
 augroup END
 
 " --------------------------------------------
@@ -1004,7 +1024,7 @@ augroup fit_colorscheme
   au!
   if v:version >= 801 || has('nvim')
     au ColorSchemePre * call BeforeChangeColorscheme()
-    au ColorSchemePre atomic,NeoSolarized,ayu,palenight call SetTermguiColors('yes')
+    au ColorSchemePre atomic,NeoSolarized,ayu,palenight,sacredforest call SetTermguiColors('yes')
   endif
   au ColorScheme * call AfterChangeColorscheme()
 augroup END
@@ -1019,10 +1039,13 @@ endfunction
 
 function! SetColorScheme(cname)
   " fake cs pre
-  if s:bg_light && a:cname == 'seoul256'
-    let s:cname = 'seoul256-light'
-  else
-    let s:cname = a:cname
+  let s:cname = a:cname
+  if s:bg_light
+    if a:cname == 'seoul256'
+      let s:cname = 'seoul256-light'
+    elseif a:cname == 'atomic'
+      let g:atomic_mode = 9  " light soft
+    endif
   endif
   if v:version < 801 && !has('nvim')
     call SetTermguiColors('no') | call LetBgFitClock()
@@ -1032,7 +1055,7 @@ function! SetColorScheme(cname)
   endif
   execute 'colorscheme ' . s:cname
   call FitAirlineTheme(s:cname)
-  if s:cname =~ '\v(default|blackbeauty|gruvbox|seoul)'
+  if s:cname =~ '\v(default|blackbeauty|gruvbox|seoul|sacred)'
     augroup ColoAirlineAug
       au!
       au User AirlineToggledOn let w:airline_disabled = 1
