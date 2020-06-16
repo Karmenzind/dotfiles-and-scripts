@@ -32,7 +32,7 @@ TO_SYNC = (
     "home_k/.config/pylintrc",
     "home_k/.config/alacritty/alacritty.yml",
     "home_k/.config/aria2/aria2.conf",
-    "home_k/.config/compton.conf",
+    "home_k/.config/picom.conf",
     "home_k/.config/conky/conky.conf",
     "home_k/.config/dunst/dunstrc",
     "home_k/.config/fcitx/data/punc.mb.zh_CN",

@@ -302,7 +302,7 @@ mode "resize" {
 # bindsym $mod+Ctrl+l exec --no-startup-id blurlock
 
 # Autostart applications
-exec_always --no-startup-id $HOME/.config/i3/post_start.sh &
+exec_always --no-startup-id bash $HOME/.config/i3/post_start.sh &
 exec --no-startup-id /usr/lib/polkit-gnome/polkit-gnome-authentication-agent-1
 exec --no-startup-id compton -b
 # exec --no-startup-id nitrogen --restore; sleep 1; compton -b
@@ -322,7 +322,7 @@ exec --no-startup-id nm-applet
 # *
 exec --no-startup-id fcitx &
 exec --no-startup-id flameshot &
-exec_always --no-startup-id killall -9 oneko && oneko -tofocus &
+exec_always --no-startup-id command -v oneko && killall -9 oneko && oneko -tofocus &
 
 # /* background and screen lock*/
 set $wallpaper_png $HOME/Pictures/LOCKSCREEN.png
@@ -335,7 +335,7 @@ bindsym $mod+Shift+w exec --no-startup-id feh --bg-max `[[ -d $wallpaper_dir ]] 
 # exec_always --no-startup-id xautolock -time 20 -locker i3lock -t -i $wallpaper_png &
 # bindsym $mod+Ctrl+l exec --no-startup-id i3lock -t -i $wallpaper_png
 # lock with random pic of specific dir
-bindsym $mod+Ctrl+l exec --no-startup-id i3lock -t -i `[ -d $wallpaper_dir ] && (find $wallpaper_dir -type f -name '*png' | sort -R | head -1) || echo $wallpaper_png` &
+bindsym $mod+Ctrl+l exec --no-startup-id i3lock -t -i `[ -d $wallpaper_dir ] && (find $wallpaper_dir -type f -name '*png' | shuf -n 1) || echo $wallpaper_png` &
 # lock with random pic from internet (random picture source: https://www.zhihu.com/question/21168322)
 # ...todo
 
