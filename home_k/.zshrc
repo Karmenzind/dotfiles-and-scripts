@@ -131,3 +131,6 @@ source $ZSH/oh-my-zsh.sh
 [[ -e ~/.config/shrc.ext ]] && source ~/.config/shrc.ext
 
 [ -f ~/.fzf.zsh ] && source ~/.fzf.zsh
+
+autoload -U +X bashcompinit && bashcompinit
+complete -o nospace -C /usr/local/bin/mc mc

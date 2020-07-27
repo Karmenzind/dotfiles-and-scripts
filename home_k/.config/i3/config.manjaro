@@ -13,7 +13,7 @@ set $i3_config_dir $HOME/.config/i3/
 # workspace_layout tabbed <stacking|tabbed>
 
 # Configure border style <normal|1pixel|pixel xx|none|pixel>
-new_window pixel 1
+new_window pixel 3
 new_float normal
 
 # Hide borders
@@ -314,10 +314,13 @@ exec --no-startup-id clipit
 # exec_always --no-startup-id sbxkb
 exec --no-startup-id start_conky_maia
 # exec --no-startup-id start_conky_green
-exec --no-startup-id xautolock -time 10 -locker blurlock
+exec --no-startup-id xautolock -time 15 -locker blurlock
 exec_always --no-startup-id ff-theme-util
 exec_always --no-startup-id fix_xcursor
 exec --no-startup-id nm-applet
+
+# xflux
+exec_always --no-startup-id killall -9 xflux; xflux -l '30.2443314184' -g '120.1665687561' &
 
 # *
 exec --no-startup-id fcitx &
