@@ -15,7 +15,6 @@ alias nv=nvim
 alias mux=tmuxinator
 
 alias toboard='xclip -selection clipboard'
-alias acp='source acpyve'
 
 alias xy=proxychains4
 
@@ -283,3 +282,6 @@ command -v chuck_cow >/dev/null && chuck_cow
 
 # load local config
 [[ -e ~/.config/shrc.ext.local ]] && source ~/.config/shrc.ext.local
+
+
+alias weather='curl -4 http://wttr.in'
