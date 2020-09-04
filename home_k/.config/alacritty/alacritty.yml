@@ -22,6 +22,8 @@ window:
     columns: 0
     lines: 0
 
+  dynamic_title: true
+
   # Adds this many blank pixels of padding around the window
   # Units are physical pixels; this is not DPI aware.
   # (change requires restart)
@@ -220,9 +222,10 @@ colors: *dark
 #
 # To completely disable the visual bell, set its duration to 0.
 #
-visual_bell:
-  animation: EaseOutExpo
-  duration: 0
+# FIXME(k): <2020-08-25> 
+# visual_bell:
+#   animation: EaseOutExpo
+#   duration: 0
 
 # Background opacity
 background_opacity: 0.92
@@ -269,7 +272,6 @@ mouse:
 selection:
   semantic_escape_chars: ",│`|:\"' ()[]{}<>"
 
-dynamic_title: true
 
 # Style of the cursor
 #

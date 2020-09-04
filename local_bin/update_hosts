@@ -1,0 +1,76 @@
+#!/usr/bin/env bash
+# Github: https://github.com/Karmenzind/dotfiles-and-scripts
+
+# url=https://raw.githubusercontent.com/googlehosts/hosts/master/hosts-files/hosts
+# url=https://raw.githubusercontent.com/StevenBlack/hosts/master/alternates/fakenews-gambling-porn-social/hosts
+url=http://sbc.io/hosts/alternates/fakenews-gambling-porn-social/hosts
+update_interval_hours=8
+download_max_retry=7
+
+bak_dir=~/Downloads/hosts_backup
+tmp_path=/tmp/hosts_$(date +%s)
+
+internal_update_condition() {
+    if [[ ! -e /etc/hosts ]]; then
+        return 0
+    else
+        last_modify=$(stat /etc/hosts | grep -i Modify)
+        last_modify_stamp=$(date +%s -d "${last_modify#*:}")
+        now_ts=$(date +%s)
+        # echo $last_modify
+        # echo $last_modify_stamp $now_ts
+        time_dist=$(($now_ts - $last_modify_stamp))
+        echo "It's been $time_dist sec since last update."
+        interval_second=$(($update_interval_hours * 3600))
+        if (($time_dist < $interval_second)); then
+            echo -e "Last updated at $last_modify.\nNo need to update."
+        else
+            return 0
+        fi
+    fi
+    return 1
+}
+
+download() {
+    for i in $(seq ${download_max_retry}); do
+        echo trying $i time...
+        curl $url -o $tmp_path
+        # if command -v proxychains; then
+        #     proxychains curl ${url} -o $tmp_path
+        #     # curl $url -o $tmp_path
+        # else
+        #     curl $url -o $tmp_path
+        # fi
+        result=$?
+        echo download result: $result
+        (($result == 0)) && break
+        sleep 1
+    done
+    return $result
+}
+
+update() {
+    if download; then
+        mkdir -p $bak_dir
+
+        if [[ -e $tmp_path ]]; then
+
+            base_path=/etc/hosts.base
+            cp -v /etc/hosts $bak_dir/hosts_$(date -I)
+
+            if [[ -e $base_path ]]; then
+                cat $base_path >/etc/hosts
+            fi
+
+            cat $tmp_path >>/etc/hosts
+            stat /etc/hosts
+        fi
+    else
+        echo Downloading failed.
+    fi
+}
+
+internal_update_condition && update
+
+# echo --------------------------------------------
+# stat /etc/hosts
