@@ -38,10 +38,10 @@ fi
 HYPHEN_INSENSITIVE="true"
 
 # Uncomment the following line to disable bi-weekly auto-update checks.
-# DISABLE_AUTO_UPDATE="true"
+DISABLE_AUTO_UPDATE="true"
 
 # Uncomment the following line to change how often to auto-update (in days).
-UPDATE_ZSH_DAYS=3
+UPDATE_ZSH_DAYS=7
 
 # Uncomment the following line to disable colors in ls.
 # DISABLE_LS_COLORS="true"
@@ -83,7 +83,7 @@ plugins=(
   #'emoji-clock'
   #'rand-quote'
   #'command-not-found'
-  # 'go'
+  'golang'
   'vi-mode'
   'fzf'
   'systemd'

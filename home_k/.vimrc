@@ -101,6 +101,9 @@ Plug 'junegunn/fzf.vim'
 " Plug 'Yggdroot/LeaderF'
 " Plug 'haya14busa/vim-signjk-motion'
 
+" /* Go */
+Plug 'fatih/vim-go', { 'do': ':GoUpdateBinaries' }
+
 " /* Python */
 Plug 'tmhedberg/SimpylFold' " code folding
 Plug 'vim-scripts/indentpython.vim'
@@ -298,6 +301,9 @@ augroup filetype_formats
         \ setlocal foldmethod=expr   |
         \ setlocal foldlevel=2       |
         \ setlocal foldexpr=VimScriptFold(v:lnum)
+
+  au BufNewFile,BufRead *.go
+        \ setlocal foldmethod=syntax
 
   au BufNewFile,BufRead *.py
         \ setlocal autoindent            |
@@ -605,12 +611,14 @@ let g:ale_linters = {
       \ 'sql': ['sqlint'],
       \ 'cpp': ['gcc'],
       \ 'html': ['prettier', 'htmlhint'],
+      \ 'go': ['golangci-lint'],
       \ }
 let g:ale_fixers = {
       \  '*': ['trim_whitespace'],
       \  'c': ['clang-format'],
       \  'javascript': ['prettier', 'importjs'],
       \  'sh': ['shfmt'],
+      \  'go': ['gofmt', 'goimports'],
       \  'python': ['autopep8', 'isort', 'FixSurroundedWhiteSpaces'],
       \  'json': ['fixjson', 'prettier'],
       \  'sql': ['pgformatter'],
@@ -826,6 +834,29 @@ let g:vue_pre_processors = []
 augroup javascript_folding
     au!
     au FileType javascript setlocal foldmethod=syntax
+augroup END
+
+" /* for vim-go */
+
+let g:go_term_mode = "split"
+let g:go_term_enabled = 1
+let g:go_term_reuse = 1
+let g:go_term_close_on_exit = 0
+let g:go_term_height = 20
+let g:go_term_width = 30
+
+let g:go_code_completion_enabled = 1
+
+let g:go_fmt_autosave = 0
+let g:go_mod_fmt_autosave = 0
+
+augroup go_map
+    au!
+    au FileType go nmap <leader>rt <Plug>(go-run-tab)
+    au FileType go nmap <leader>rs <Plug>(go-run-split)
+    au FileType go nmap <leader>rv <Plug>(go-run-vertical)
+    au FileType go cabbrev GI GoImport
+    au FileType go cabbrev GR GoRun
 augroup END
 
 " --------------------------------------------

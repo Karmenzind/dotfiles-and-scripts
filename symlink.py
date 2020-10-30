@@ -29,6 +29,7 @@ path_map = {
 TO_SYNC = (
     "home_k/.Xresources",
     "home_k/.agignore",
+    "home_k/.golangci.yml",
     "home_k/.config/pylintrc",
     "home_k/.config/alacritty/alacritty.yml",
     "home_k/.config/aria2/aria2.conf",
