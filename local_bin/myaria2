@@ -2,65 +2,72 @@
 # Github: https://github.com/Karmenzind/dotfiles-and-scripts/tree/master/others/aria2
 # a script to manage aria2
 
-download_dir=${HOME}/Downloads/aria2
-
 # -----------------------------------------------------------------------------
 # /* custom variables */
-
-# follow your aria2 config
-log_path=/tmp/_myaria2.log
 
 # url to fetch bt-tracker list
 # if your have no idea what it is
 # see http://www.senra.me/solutions-to-aria2-bt-metalink-download-slowly/
 trackerlist_url="https://raw.githubusercontent.com/ngosang/trackerslist/master/trackers_best_ip.txt"
+
+if command -v proxychains >/dev/null && [[ ${USE_PROXYCHAINS_FIRST:=false} == "true" ]]; then
+    use_pc=true
+else
+    use_pc=false
+fi
+# command -v proxychains && [[ ${USE_PROXYCHAINS_FIRST:=false} == "true" ]] && trackerlist_url="proxychains $"
+
 # update frequency
 update_interval_hours=4
 
 # to save your trackerlist
 # no need to change
 config_dir=${HOME}/.config/aria2 # trackerlist
+conffile=${config_dir}/aria2.conf
+conffileworking=${conffile}.working
 
-# init dirs and files
-! [[ -d "$download_dir" ]] && mkdir -p $download_dir && echo "Created $download_dir"
-! [[ -e "$log_path" ]] && touch $log_path
-! [[ -d "$config_dir" ]] && mkdir -p $config_dir && echo "Created $config_dir"
+# parse from configuration
+log_path=$(sed -n 's/^log=//p' $conffile)
+eval download_dir=$(sed -n 's/^dir=//p' $conffile)
+# echo $download_dir
 
+# TODO(k): <2020-12-29>
 local_dir=${HOME}/.local/aria2
 dat_file=${local_dir}/session.dat
-! [[ -d "$local_dir" ]] && mkdir -p $local_dir && echo "Created $local_dir"
-! [[ -e "$dat_file" ]] && touch $dat_file
-
-# \ Leave open_browser/save_history to 0 
-# \ if you don't need functions as follows
 
 # open a web manage page while running this script
-open_browser=0
 web_url='http://aria2c.com/'
-# shoud be found by `which`
-browser=chromium
+browser=$(which chromium)
 
 # move log file to specific dir when restart
-save_history=0
-history_dir=${HOME}/Downloads/aria2/logs # leave it to '' if you don't need it
-![[ -d "$history_dir" ]] && mkdir -p $history_dir && echo "Created $history_dir"
+history_dir=${HOME}/Downloads/aria2/logs
 
-# aria2c running paramters. See aria2c's man page
-aria2c_params="--rpc-listen-all --enable-rpc $@"
+# init dirs and files
+init_files() {
+    ! [[ -d "$config_dir" ]] && mkdir -p $config_dir && echo "Created $config_dir"
+    ! [[ -d "$download_dir" ]] && mkdir -p $download_dir && echo "Created $download_dir"
+
+    if [[ -n "$log_path" ]]; then
+        local log_dir=$(dirname $log_path)
+        ! [[ -d "$log_dir" ]] && mkdir -p $log_dir
+        ! [[ -e "$log_path" ]] && touch $log_path
+    fi
+
+    ! [[ -d "$local_dir" ]] && mkdir -p $local_dir && echo "Created $local_dir"
+    ! [[ -e "$dat_file" ]] && touch $dat_file
+
+    ! [[ -d "$history_dir" ]] && mkdir -p $history_dir && echo "Created $history_dir"
+}
 
 # -----------------------------------------------------------------------------
 
-mkdir -p $config_dir
-
 cut_off='--------------------------------------------'
-is_running=0
 save_trackerlist_path=${config_dir}/trackerlist
-trackers=`cat $save_trackerlist_path`
+trackers=$(cat $save_trackerlist_path)
 
 help() {
     echo $cut_off
-    cat << EOF
-
+    cat <<EOF
 This is a script to manage your aria2.
 
 Usage:
@@ -72,9 +79,12 @@ Options:
     restart [params]    
     stop        
 
-    update              Force-update bt-tracker list
+    update              Force-update bt-tracker list and restart service
     log                 Output appended log as the file grows
     status              Check running status
+
+    web                 Open web ui
+    rotate              Backup log files
 
     ...(to be continued)
 
@@ -86,47 +96,79 @@ Feedback:
 EOF
 }
 
+install_service_if_not_exists() {
+    [[ -n "$(systemctl --user list-unit-files | grep aria2cd)" ]] && return
+    echo "Installing service..."
+    cat >~/.config/systemd/user/aria2cd.service <<EOF
+[Unit]
+Description=Aria2 Daemon
+
+[Service]
+Type=forking
+ExecStart=/usr/bin/aria2c --conf-path=${conffileworking}
+
+[Install]
+WantedBy=default.target
+EOF
+    systemctl --user enable aria2cd
+}
+
+status_service() {
+    echo "Current status:"
+    systemctl --no-pager --user status aria2cd
+}
+
+start_service() {
+    systemctl --user start aria2cd
+}
+
+restart_service() {
+    systemctl --user restart aria2cd
+}
+
+stop_service() {
+    systemctl --user stop aria2cd
+}
+
 try_exec() {
-    which $1 > /dev/null 2>&1
-    (( $? == 0 )) && $@
+    which $1 >/dev/null 2>&1
+    (($? == 0)) && $@
+}
+
+confirm_configration() {
+    ! [[ -e $conffileworking ]] && cp $conffile $conffileworking
 }
 
 stop() {
-    if ((!is_running)); then
-        echo -e 'No need to stop.'
-    else
-        echo -e  '\nStopping...'
-        ps -aux | grep aria2c | grep -v 'grep' | awk '{ print $2 }' | xargs -n 1 kill -9 --verbose
-        psinfo
-    fi
+    stop_service
+}
+
+status() {
+    status_service
+    log
+}
+
+restart() {
+    install_service_if_not_exists
+    update_config
+    restart_service
+    status_service
 }
 
 start() {
-    if (( is_running )); then
-        echo -e 'No need to start.'
+    install_service_if_not_exists
+    update_config
+    if is_running; then
+        echo "Service has been already started."
     else
-        internal_update_condition && update
-        if (( $save_history )) && [[ -e $log_path ]]; then
-            mkdir -p $history_dir
-            mv -v $log_path "${history_dir}/until_`date +%s`.log"
-        fi
-        echo -e  '\nStarting...'
-        aria2c_params="--rpc-listen-all --enable-rpc $@"
-        [[ -n ${trackers} ]] && aria2c_params="--bt-tracker=$trackers $aria2c_params"
-        echo '[PARAMETERS]' $aria2c_params
-        if aria2c $aria2c_params; then
-            echo "Started"
-        else
-            echo "Starting failed. Return code $?"
-            log
-        fi
-        psinfo
+        start_service
     fi
+    status_service
 }
 
 log() {
-    echo -e  '\nLOG:'
-    tail $log_path $1 
+    echo -e '\nLOG:'
+    tail $log_path $1
 }
 
 # return 1: need update
@@ -134,15 +176,13 @@ internal_update_condition() {
     if [[ ! -e $save_trackerlist_path ]]; then
         return 0
     else
-        last_modify=`stat $save_trackerlist_path | grep -i Modify`
-        last_modify_stamp=`date +%s -d "${last_modify#*:}"`
-        now_ts=`date +%s`
-        # echo $last_modify
-        # echo $last_modify_stamp $now_ts
-        time_dist=$(( $now_ts - $last_modify_stamp )) 
+        last_modify=$(stat $save_trackerlist_path | grep -i Modify)
+        last_modify_stamp=$(date +%s -d "${last_modify#*:}")
+        now_ts=$(date +%s)
+        time_dist=$(($now_ts - $last_modify_stamp))
         echo "It's been $time_dist sec since last update."
-        interval_second=$(( $update_interval_hours * 3600 ))
-        if (( $time_dist < $interval_second )); then
+        interval_second=$(($update_interval_hours * 3600))
+        if (($time_dist < $interval_second)); then
             echo -e "Last updated at $last_modify.\nNo need to update."
         else
             return 0
@@ -162,8 +202,14 @@ print(result)
 
 update_bt_tracker() {
     echo "Feching tracker-list from $trackerlist_url ..."
-    trackers=`curl $trackerlist_url | process_raw_trackerlist `
-    if (( $? == 0 )) && [[ -n $trackers ]]; then
+
+    if ${use_pc}; then
+        trackers=$(proxychains curl $trackerlist_url | process_raw_trackerlist)
+    else
+        trackers=$(curl $trackerlist_url | process_raw_trackerlist)
+    fi
+
+    if (($? == 0)) && [[ -n $trackers ]]; then
         echo -e '\nGot new tracker-list:'
         echo $trackers | tee $save_trackerlist_path
     else
@@ -171,39 +217,59 @@ update_bt_tracker() {
     fi
 }
 
-# to be continued
-update() {
-    update_bt_tracker
-}
-
-
-clear
-try_exec figlet aria2
-
-psinfo() {
-    msg=`ps -aux | grep aria2c | grep -v 'grep'`
-    if [[ -n "$msg" ]]; then
-        is_running=1
-        echo -e  '\nPS:\n' $msg
-    else
-        is_running=0
+rotate_log() {
+    if (($save_history)) && [[ -e $log_path ]]; then
+        mkdir -p $history_dir
+        mv -v $log_path "${history_dir}/until_$(date +%s).log"
     fi
-    echo -e  '\nCurrent status:' `((is_running)) && echo -e 'RUNNING' || echo -e 'STOPPED'`
 }
+
+update_config() {
+    if [[ "$1" == "-f" ]] || [[ -z ${trackers} ]] || internal_update_condition; then
+        update_bt_tracker
+    fi
+    if [[ "$1" == "-f" ]] || ! [[ -e ${conffileworking} ]] ; then
+        [[ -e ${conffileworking} ]] && mv -v $conffileworking ${conffileworking}.backup
+        cp $conffile $conffileworking
+        if [[ -n ${trackers} ]]; then
+            sed -i 's/^bt-tracker=/# \0/' $conffileworking
+            echo "bt-tracker=$trackers" >>$conffileworking
+            echo "Using trackers: $trackers"
+        fi
+        echo "Recreated configuration file."
+    fi
+
+}
+
+update() {
+    update_config -f
+    restart
+}
+
+is_running() {
+    systemctl --user is-active aria2cd
+}
+
+open_browser() {
+    try_exec $browser 'http://aria2c.com/'
+}
+
+# main
+# --------------------------------------------
+# clear
+try_exec figlet aria2
+init_files
 
 case $1 in
-    start)      psinfo; shift; start $@             ;;
-    stop)       psinfo; stop                        ;;
-    restart)    psinfo; stop; shift; start $@       ;;
-    status)     psinfo; log                         ;;
-    update)     psinfo; update force                ;;
-    log)        psinfo; log -f                      ;;
-    *)          help                        ;;
+start) start ;;
+stop) stop ;;
+restart) restart ;;
+status) status ;;
+update) update ;;
+log) log -f ;;
+web) open_browser ;;
+*) help ;;
 esac
-
-if (( open_browser )); then
-    try_exec $browser 'http://aria2c.com/' > /dev/null
-fi
 
 echo -e $cut_off
 echo -e '\nDONE :)'

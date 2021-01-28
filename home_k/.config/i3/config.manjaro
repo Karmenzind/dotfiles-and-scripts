@@ -220,6 +220,9 @@ bindsym $mod+Shift+period move container to workspace next; workspace next
 # Open specific applications in floating mode
 for_window [title="alsamixer"] floating enable border pixel 1
 for_window [class="calamares"] floating enable border normal
+# for_window [class="libreoffice-.*"] floating enable
+for_window [class="Viewnior"] floating enable
+# for_window [class="libreoffice-.*"] resize set 1360 720
 for_window [class="Clipgrab"] floating enable
 for_window [title="(File Transfer*|DevTools.*)"] floating enable
 for_window [class="Galculator"] floating enable border pixel 1
@@ -241,6 +244,7 @@ for_window [class="Simple-scan"] floating enable border normal
 for_window [class="(?i)System-config-printer.py"] floating enable border normal
 for_window [class="Timeset-gui"] floating enable border normal
 for_window [class="(?i)virtualbox"] floating enable border normal
+for_window [class="(?i)Pacman-mirrors"] floating enable border normal
 for_window [class="Xfburn"] floating enable
 # for_window [title="About Pale Moon"] floating enable
 # for_window [class="Skype"] floating enable border normal

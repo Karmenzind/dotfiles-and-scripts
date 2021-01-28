@@ -26,6 +26,8 @@ setxkbmap -option ctrl:nocaps
 xmodmap -e 'clear lock'
 xmodmap -e 'keycode 66 = Hyper_L'
 
+[[ -f ~/.Xmodmap ]] && xmodmap ~/.Xmodmap
+
 log_dir=~/Logs
 mkdir -p $log_dir
 log_file=$log_dir/i3log-$(date -Id)

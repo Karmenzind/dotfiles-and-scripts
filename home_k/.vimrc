@@ -18,6 +18,7 @@ noremap <Leader>T  :terminal<CR>
 
 " /* command */
 cabbrev w!! w !sudo tee %
+cabbrev GI GoImport
 cabbrev th tab<SPACE>help
 cabbrev sss s/\v(,)\s*/\1\r/g
 
@@ -25,6 +26,10 @@ cabbrev sss s/\v(,)\s*/\1\r/g
 " XXX: <2019-11-28> didn't work in vim8
 nnoremap <silent> <A-a> gT
 nnoremap <silent> <A-d> gt
+map <M-a> <A-a>
+map <M-d> <A-d>
+nnoremap <silent> <C-p> gT
+nnoremap <silent> <C-n> gt
 
 " use <Leader>s as 'set' prefix
 nnoremap <silent> <Leader>sw :set wrap!<CR> :set wrap?<CR>
@@ -186,7 +191,8 @@ set showtabline=1
 if has('win32')
   set guifont=consolas:h13
 else
-  set guifont=Hack\ Nerd\ Font\ 12
+  " set guifont=Hack\ Nerd\ Font\ 12
+  set guifont=Monaco\ Nerd\ Font\ 12
 endif
 set cursorline cursorcolumn
 set showmode
@@ -1086,7 +1092,7 @@ function! SetColorScheme(cname)
   endif
   execute 'colorscheme ' . s:cname
   call FitAirlineTheme(s:cname)
-  if s:cname =~ '\v(default|blackbeauty|gruvbox|seoul|sacred)'
+  if s:cname =~ '\v(default|blackbeauty|gruvbox|sacred)'
     augroup ColoAirlineAug
       au!
       au User AirlineToggledOn let w:airline_disabled = 1
