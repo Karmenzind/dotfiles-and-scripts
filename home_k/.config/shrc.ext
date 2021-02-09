@@ -24,13 +24,13 @@ export VISUAL=$EDITOR
 export SVN_EDITOR=$EDITOR
 
 for _tmp_terminal in alacritty xfce4-terminal urxvt; do
-  export TERMINAL=`command -v $_tmp_terminal`
-  [[ -n $TERMINAL ]] && unset _tmp_terminal && break
+    export TERMINAL=$(command -v $_tmp_terminal)
+    [[ -n $TERMINAL ]] && unset _tmp_terminal && break
 done
 
 for _tmp_browser in chromium chrome firefox elinks; do
-  export BROWSER=`command -v $_tmp_browser`
-  [[ -n $BROWSER ]] && unset _tmp_browser && break
+    export BROWSER=$(command -v $_tmp_browser)
+    [[ -n $BROWSER ]] && unset _tmp_browser && break
 done
 
 export CATALINA_HOME=/usr/share/tomcat8 # tomcat
@@ -83,24 +83,24 @@ alias sdcv='sdcv --color ' # stardict
 # ex - archive extractor
 # usage: ex <file>
 ex() {
-	if [ -f "$1" ]; then
-		case $1 in
-		*.tar.bz2) tar xjf "$1" ;;
-		*.tar.gz) tar xzf "$1" ;;
-		*.bz2) bunzip2 "$1" ;;
-		*.rar) unrar x "$1" ;;
-		*.gz) gunzip "$1" ;;
-		*.tar) tar xf "$1" ;;
-		*.tbz2) tar xjf "$1" ;;
-		*.tgz) tar xzf "$1" ;;
-		*.zip) unzip "$1" ;;
-		*.Z) uncompress "$1" ;;
-		*.7z) 7z x "$1" ;;
-		*) echo "'$1' cannot be extracted via ex()" ;;
-		esac
-	else
-		echo "'$1' is not a valid file"
-	fi
+    if [ -f "$1" ]; then
+        case $1 in
+        *.tar.bz2) tar xjf "$1" ;;
+        *.tar.gz) tar xzf "$1" ;;
+        *.bz2) bunzip2 "$1" ;;
+        *.rar) unrar x "$1" ;;
+        *.gz) gunzip "$1" ;;
+        *.tar) tar xf "$1" ;;
+        *.tbz2) tar xjf "$1" ;;
+        *.tgz) tar xzf "$1" ;;
+        *.zip) unzip "$1" ;;
+        *.Z) uncompress "$1" ;;
+        *.7z) 7z x "$1" ;;
+        *) echo "'$1' cannot be extracted via ex()" ;;
+        esac
+    else
+        echo "'$1' is not a valid file"
+    fi
 }
 
 #######################################################################
@@ -133,12 +133,115 @@ fi
 
 # fkill - kill process with fzf
 fkill() {
-	local pid
-	pid=$(ps -ef | sed 1d | fzf -m | awk '{print $2}')
+    local pid
+    pid=$(ps -ef | sed 1d | fzf -m | awk '{print $2}')
 
-	if [ "x$pid" != "x" ]; then
-		echo "$pid" | xargs kill -${1:-9}
-	fi
+    if [ "x$pid" != "x" ]; then
+        echo "$pid" | xargs kill -${1:-9}
+    fi
+}
+
+__fzf_parse_and_preview_ip() {
+    local ip infofile
+    infofile=~/.ssh/fssh/info
+    ip=$(echo $1 | grep '[0-9]\{1,3\}\.[0-9]\{1,3\}\.[0-9]\{1,3\}\.[0-9]\{1,3\}' -o)
+    if [[ -n $ip ]]; then
+        grep $ip $infofile
+    else
+        echo "No info"
+    fi
+}
+
+fssh() {
+    mkdir -p ~/.ssh/fssh
+    local cmd
+    cmd=$( ([ -n "$ZSH_NAME" ] && fc -l 1 || history) | sed -E 's/ *[0-9]*\*? *//' | grep '^ssh \+[^ ]\+' | sort -r | uniq | sed -E 's/\\/\\\\/g' |
+        fzf +s --tac --preview='ip=$(echo {} | grep "[0-9]\{1,3\}\.[0-9]\{1,3\}\.[0-9]\{1,3\}\.[0-9]\{1,3\}" -o);
+    echo "IP: $ip";
+    if [[ -n $ip ]]; then
+        grep $ip ~/.ssh/fssh/info
+    else
+        echo "No info"
+    fi
+')
+    if [[ -n $cmd ]]; then
+        echo "[$cmd]"
+        eval $cmd
+    fi
+}
+
+# Run command/application and choose paths/files with fzf.
+# Always return control of the terminal to user (e.g. when opening GUIs).
+# The full command that was used will appear in your history just like any
+# other (N.B. to achieve this I write the shell's active history to
+# ~/.bash_history)
+#
+# Usage:
+# f cd (hit enter, choose path)
+# f cat (hit enter, choose files)
+# f vim (hit enter, choose files)
+# f vlc (hit enter, choose files)
+
+f() {
+    # Store the arguments from fzf
+    IFS=$'\n' arguments=($(fzf --query="$2" --multi))
+
+    # If no arguments passed (e.g. if Esc pressed), return to terminal
+    if [ -z "${arguments}" ]; then
+        return 1
+    fi
+
+    # We want the command to show up in our bash history, so write the shell's
+    # active history to ~/.bash_history. Then we'll also add the command from
+    # fzf, then we'll load it all back into the shell's active history
+    history -w
+
+    # RUN THE COMMANDS ########################################################
+    # The cd command has no effect when run as background, and doesn't show up
+    # as a job the can be brought to the foreground. So we make sure not to add
+    # a '&' (more programs can be added separated by a '|')
+    if ! [[ $1 =~ ^(cd)$ ]]; then
+        $1 "${arguments[@]}" &
+    else
+        $1 "${arguments[@]}"
+    fi
+
+    # If the program is not on the list of GUIs (e.g. vim, cat, etc.) bring it
+    # to foreground so we can see the output. Also put cd on this list
+    # otherwise there will be errors)
+    if ! [[ $1 =~ ^(cd|zathura|vlc|eog|kolourpaint)$ ]]; then
+        fg %%
+    fi
+
+    # ADD A REPEATABLE COMMAND TO THE BASH HISTORY ############################
+    # Store the arguments in a temporary file for sanitising before being
+    # entered into bash history
+    : >/tmp/fzf_tmp
+    for file in ${arguments[@]}; do
+        echo $file >>/tmp/fzf_tmp
+    done
+
+    # Put all input arguments on one line and sanitise the command such that
+    # spaces and parentheses are properly escaped. More sanitisation
+    # substitutions can be added if needed
+    sed -i 's/\n//g; s/ /\\ /g; s/(/\\(/; s/)/\\)/' /tmp/fzf_tmp
+
+    # If the program is on the GUI list add a '&' to the command history
+    if [[ $1 =~ ^(zathura|vlc|eog|kolourpaint)$ ]]; then
+        sed -i '${s/$/ \&/}' /tmp/fzf_tmp
+    fi
+
+    # Grab the sanitised arguments
+    arguments=$(cat /tmp/fzf_tmp)
+
+    # Add the command with the sanitised arguments to our .bash_history
+    echo ${1} ${arguments} >>~/.bash_history
+
+    # Reload the ~/.bash_history into the shell's active history
+    # history -r
+
+    # Clean up temporary variables
+    echo >/tmp/fzf_tmp
 }
 
 #######################################################################
@@ -150,15 +253,15 @@ fkill() {
 # attach a default session (create it if not existed)
 # and detach other connections bound to it
 stmux() {
-	if [[ -z "$TMUX" ]]; then
-		local default_tmux_sname=k
-		tmuxinator $default_tmux_sname
-		# tmux new -s $default_tmux_sname -d
-		tmux choose-tree -t $default_tmux_sname -Zs
-		tmux attach-session -t $default_tmux_sname -d
-	else
-		tmux choose-tree -Zs
-	fi
+    if [[ -z "$TMUX" ]]; then
+        local default_tmux_sname=k
+        tmuxinator $default_tmux_sname
+        # tmux new -s $default_tmux_sname -d
+        tmux choose-tree -t $default_tmux_sname -Zs
+        tmux attach-session -t $default_tmux_sname -d
+    else
+        tmux choose-tree -Zs
+    fi
 }
 
 #######################################################################
@@ -168,9 +271,9 @@ stmux() {
 export aurpref='https://aur.archlinux.org'
 
 aurdl() {
-	local url=${aurpref}/${1}.git
-	echo "url: $url"
-	git clone $url ~/Downloads/aurdl/$1
+    local url=${aurpref}/${1}.git
+    echo "url: $url"
+    git clone $url ~/Downloads/aurdl/$1
 }
 
 #######################################################################
@@ -190,20 +293,20 @@ alias yolo='git commit -m "$(curl -s https://whatthecommit.com/index.txt)"'
 #######################################################################
 
 _init_alarcrity() {
-	command -v alacritty >/dev/null || return
+    command -v alacritty >/dev/null || return
 
-	local _shell=$(ps -ef | grep "^\w\+ \+$$" | sed 's/.* \+//')
-	[[ $_shell == *zsh* ]] && _shell=zsh
-	case $_shell in
-	bash)
-		local bash_complete_file=~/.config/alacritty/alacritty-completions.bash
-		if [[ ! -e $bash_complete_file ]]; then
-			local _url_for_bash=https://raw.githubusercontent.com/jwilm/alacritty/master/alacritty-completions.bash
-			wget $_url_for_bash -o $bash_complete_file
-		fi
-		source $bash_complete_file
-		;;
-	esac
+    local _shell=$(ps -ef | grep "^\w\+ \+$$" | sed 's/.* \+//')
+    [[ $_shell == *zsh* ]] && _shell=zsh
+    case $_shell in
+    bash)
+        local bash_complete_file=~/.config/alacritty/alacritty-completions.bash
+        if [[ ! -e $bash_complete_file ]]; then
+            local _url_for_bash=https://raw.githubusercontent.com/jwilm/alacritty/master/alacritty-completions.bash
+            wget $_url_for_bash -o $bash_complete_file
+        fi
+        source $bash_complete_file
+        ;;
+    esac
 }
 
 _init_alarcrity
@@ -255,12 +358,12 @@ fi
 #######################################################################
 
 svna() {
-    while read _f ; do
+    while read _f; do
         [[ -n "$_f" ]] && svn add $_f
-    done <<< `svn status | grep '?' | awk '{print $2}'`
-    while read _f ; do
+    done <<<$(svn status | grep '?' | awk '{print $2}')
+    while read _f; do
         [[ -n "$_f" ]] && svn delete $_f
-    done <<< `svn st | grep '^!' | awk '{print $2}'`
+    done <<<$(svn st | grep '^!' | awk '{print $2}')
 }
 
 #######################################################################
@@ -269,9 +372,12 @@ svna() {
 
 keep_axel() {
     [[ -z "$1" ]] && echo 'Invalid parameter.' && return
-    while true; do axel "$1" -o "$2" && break; date; sleep 1; done
+    while true; do
+        axel "$1" -o "$2" && break
+        date
+        sleep 1
+    done
 }
-
 
 #######################################################################
 #                                task                                 #
@@ -287,7 +393,6 @@ rt() {
     done
 }
 
-
 #######################################################################
 #                               others                                #
 #######################################################################
@@ -297,6 +402,5 @@ command -v chuck_cow >/dev/null && chuck_cow
 
 # load local config
 [[ -e ~/.config/shrc.ext.local ]] && source ~/.config/shrc.ext.local
-
 
 alias weather='curl -4 http://wttr.in'

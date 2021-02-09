@@ -1,7 +1,7 @@
 [user]
 	email = valesail7@gmail.com
 	name = K
-    
+
 [core]
 	editor = vim
 
@@ -9,6 +9,7 @@
     a = add --all
     c = commit
     st = status
+	di = diff
     co = checkout
     up = pull --rebase=preserve
     g = grep --break --heading --line-number
