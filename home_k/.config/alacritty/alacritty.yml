@@ -33,6 +33,8 @@ window:
   # Setting this to false will result in window without borders and title bar.
   decorations: full
 
+  dynamic_title: true
+
 scrolling:
   # How many lines of scrollback to keep,
   # '0' will disable scrolling.
@@ -220,7 +222,7 @@ colors: *dark
 #
 # To completely disable the visual bell, set its duration to 0.
 #
-visual_bell:
+bell:
   animation: EaseOutExpo
   duration: 0
 
@@ -269,7 +271,6 @@ mouse:
 selection:
   semantic_escape_chars: ",│`|:\"' ()[]{}<>"
 
-dynamic_title: true
 
 # Style of the cursor
 #
@@ -340,7 +341,7 @@ key_bindings:
   - { key: Insert,   mods: Shift,            action: PasteSelection      }
   - { key: Key0,     mods: Control,          action: ResetFontSize       }
   - { key: Equals,   mods: Control,          action: IncreaseFontSize    }
-  - { key: Subtract, mods: Control,          action: DecreaseFontSize    }
+    # - { key: Subtract, mods: Control,          action: DecreaseFontSize    }
     # - { key: Up,       mods: Control|Shift,    action: ScrollUp            }
     # - { key: Down,     mods: Control|Shift,    action: ScrollDown          }
   - { key: Home,     mods: Shift,            action: ScrollToTop         }
