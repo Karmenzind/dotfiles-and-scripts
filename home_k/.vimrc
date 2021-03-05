@@ -18,6 +18,7 @@ noremap <Leader>T  :terminal<CR>
 
 " /* command */
 cabbrev w!! w !sudo tee %
+cabbrev GI GoImport
 cabbrev th tab<SPACE>help
 cabbrev sss s/\v(,)\s*/\1\r/g
 
@@ -25,6 +26,10 @@ cabbrev sss s/\v(,)\s*/\1\r/g
 " XXX: <2019-11-28> didn't work in vim8
 nnoremap <silent> <A-a> gT
 nnoremap <silent> <A-d> gt
+map <M-a> <A-a>
+map <M-d> <A-d>
+nnoremap <silent> <C-p> gT
+nnoremap <silent> <C-n> gt
 
 " use <Leader>s as 'set' prefix
 nnoremap <silent> <Leader>sw :set wrap!<CR> :set wrap?<CR>
@@ -100,6 +105,9 @@ Plug 'junegunn/fzf.vim'
 " Plug 'mileszs/ack.vim'
 " Plug 'Yggdroot/LeaderF'
 " Plug 'haya14busa/vim-signjk-motion'
+
+" /* Go */
+Plug 'fatih/vim-go', { 'do': ':GoUpdateBinaries' }
 
 " /* Python */
 Plug 'tmhedberg/SimpylFold' " code folding
@@ -183,7 +191,8 @@ set showtabline=1
 if has('win32')
   set guifont=consolas:h13
 else
-  set guifont=Hack\ Nerd\ Font\ 12
+  " set guifont=Hack\ Nerd\ Font\ 12
+  set guifont=Monaco\ Nerd\ Font\ 12
 endif
 set cursorline cursorcolumn
 set showmode
@@ -298,6 +307,9 @@ augroup filetype_formats
         \ setlocal foldmethod=expr   |
         \ setlocal foldlevel=2       |
         \ setlocal foldexpr=VimScriptFold(v:lnum)
+
+  au BufNewFile,BufRead *.go
+        \ setlocal foldmethod=syntax
 
   au BufNewFile,BufRead *.py
         \ setlocal autoindent            |
@@ -605,12 +617,14 @@ let g:ale_linters = {
       \ 'sql': ['sqlint'],
       \ 'cpp': ['gcc'],
       \ 'html': ['prettier', 'htmlhint'],
+      \ 'go': ['golangci-lint'],
       \ }
 let g:ale_fixers = {
       \  '*': ['trim_whitespace'],
       \  'c': ['clang-format'],
       \  'javascript': ['prettier', 'importjs'],
       \  'sh': ['shfmt'],
+      \  'go': ['gofmt', 'goimports'],
       \  'python': ['autopep8', 'isort', 'FixSurroundedWhiteSpaces'],
       \  'json': ['fixjson', 'prettier'],
       \  'sql': ['pgformatter'],
@@ -628,8 +642,8 @@ let g:ale_lint_on_insert_leave = 1
 let g:ale_python_mypy_ignore_invalid_syntax = 1
 let g:ale_python_mypy_options = '--incremental'
 let g:ale_python_pylint_options = '--max-line-length=120 --rcfile $HOME/.config/pylintrc'
-let g:ale_python_autopep8_options = '--max-line-length=120'
-let g:ale_python_flake8_options = '--max-line-length=120 --extend-ignore=E722,E741'
+" let g:ale_python_autopep8_options = '--max-line-length=120'
+let g:ale_python_flake8_options = '--max-line-length=120 --extend-ignore=E722,E741,E402'
 let g:ale_python_pydocstyle_options = '--ignore=D200,D203,D204,D205,D211,D212,D213,D400,D401,D403,D415'
 " let g:ale_javascript_prettier_options = '-c'
 " let g:ale_javascript_eslint_options = '--ext .js,.vue'
@@ -826,6 +840,29 @@ let g:vue_pre_processors = []
 augroup javascript_folding
     au!
     au FileType javascript setlocal foldmethod=syntax
+augroup END
+
+" /* for vim-go */
+
+let g:go_term_mode = "split"
+let g:go_term_enabled = 1
+let g:go_term_reuse = 1
+let g:go_term_close_on_exit = 0
+let g:go_term_height = 20
+let g:go_term_width = 30
+
+let g:go_code_completion_enabled = 1
+
+let g:go_fmt_autosave = 0
+let g:go_mod_fmt_autosave = 0
+
+augroup go_map
+    au!
+    au FileType go nmap <leader>rt <Plug>(go-run-tab)
+    au FileType go nmap <leader>rs <Plug>(go-run-split)
+    au FileType go nmap <leader>rv <Plug>(go-run-vertical)
+    au FileType go cabbrev GI GoImport
+    au FileType go cabbrev GR GoRun
 augroup END
 
 " --------------------------------------------
@@ -1055,7 +1092,7 @@ function! SetColorScheme(cname)
   endif
   execute 'colorscheme ' . s:cname
   call FitAirlineTheme(s:cname)
-  if s:cname =~ '\v(default|blackbeauty|gruvbox|seoul|sacred)'
+  if s:cname =~ '\v(default|blackbeauty|gruvbox|sacred)'
     augroup ColoAirlineAug
       au!
       au User AirlineToggledOn let w:airline_disabled = 1

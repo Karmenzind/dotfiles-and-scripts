@@ -29,6 +29,7 @@ path_map = {
 TO_SYNC = (
     "home_k/.Xresources",
     "home_k/.agignore",
+    "home_k/.golangci.yml",
     "home_k/.config/pylintrc",
     "home_k/.config/alacritty/alacritty.yml",
     "home_k/.config/aria2/aria2.conf",
@@ -47,6 +48,7 @@ TO_SYNC = (
     "home_k/.config/volumeicon/volumeicon",
     "home_k/.config/xfce4/terminal/terminalrc",
     "home_k/.config/mypy/config",
+    "home_k/.config/pycodestyle",
     "home_k/.gitconfig",
     "home_k/.tmux.conf",
     "home_k/.tmuxinator/k.yml",
@@ -60,6 +62,7 @@ TO_SYNC = (
     # "local_bin/acpyve",
     # "local_bin/docker_manager",
     "local_bin/myaria2",
+    "local_bin/update_hosts",
 )
 
 

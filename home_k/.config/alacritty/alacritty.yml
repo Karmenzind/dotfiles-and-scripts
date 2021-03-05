@@ -22,6 +22,8 @@ window:
     columns: 0
     lines: 0
 
+  dynamic_title: true
+
   # Adds this many blank pixels of padding around the window
   # Units are physical pixels; this is not DPI aware.
   # (change requires restart)
@@ -105,7 +107,7 @@ font:
     style: Italic
 
   # Point size of the font
-  size: 13
+  size: 10.5
 
   # Offset is the extra space around each character. offset.y can be thought of
   # as modifying the linespacing, and offset.x as modifying the letter spacing.
@@ -222,9 +224,13 @@ colors: *dark
 #
 # To completely disable the visual bell, set its duration to 0.
 #
+# FIXME(k): <2020-08-25> 
 bell:
   animation: EaseOutExpo
   duration: 0
+# visual_bell:
+#   animation: EaseOutExpo
+#   duration: 0
 
 # Background opacity
 background_opacity: 0.92
@@ -342,6 +348,7 @@ key_bindings:
   - { key: Key0,     mods: Control,          action: ResetFontSize       }
   - { key: Equals,   mods: Control,          action: IncreaseFontSize    }
     # - { key: Subtract, mods: Control,          action: DecreaseFontSize    }
+  - { key: Minus, mods: Control,          action: DecreaseFontSize    }
     # - { key: Up,       mods: Control|Shift,    action: ScrollUp            }
     # - { key: Down,     mods: Control|Shift,    action: ScrollDown          }
   - { key: Home,     mods: Shift,            action: ScrollToTop         }

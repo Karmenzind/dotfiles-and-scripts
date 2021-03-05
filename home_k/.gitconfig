@@ -1,7 +1,7 @@
 [user]
 	email = valesail7@gmail.com
 	name = K
-    
+
 [core]
 	editor = vim
 
@@ -9,6 +9,7 @@
     a = add --all
     c = commit
     st = status
+	di = diff
     co = checkout
     up = pull --rebase=preserve
     g = grep --break --heading --line-number
@@ -16,6 +17,7 @@
     p = push
     pf = push -f
     hst = !git --no-pager log --color --pretty=format:'%C(yellow)%h%C(reset)%C(bold red)%d%C(reset) %s %C(black)— %an (%ad)%C(reset)' --relative-date | emojify | bat
+	d = difftool
 
 [http]
 
@@ -38,3 +40,7 @@
 [gui]
 	fontui = -family Hack -size 11 -weight normal -slant roman -underline 0 -overstrike 0
 	fontdiff = -family Hack -size 11 -weight normal -slant roman -underline 0 -overstrike 0
+[diff]
+	tool = vimdiff
+[difftool]
+	prompt = false
