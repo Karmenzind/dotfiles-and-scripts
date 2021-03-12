@@ -209,8 +209,8 @@ bindsym $mod+Shift+m bar mode toggle
 
 # Start i3bar to display a workspace bar
 bar {
-    # status_command i3status
-    status_command bash $i3_config_dir/conky_status.sh
+    status_command i3status
+    # status_command bash $i3_config_dir/conky_status.sh
     i3bar_command i3bar
     # separator_symbol " "
     # strip_workspace_numbers yes
