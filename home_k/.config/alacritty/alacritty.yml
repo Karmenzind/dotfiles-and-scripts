@@ -85,27 +85,35 @@ draw_bold_text_with_bright_colors: true
 font:
   # The normal (roman) font face to use.
   normal:
-    # family: Hack Nerd Font
-    family: Monaco Nerd Font
+    # family: Hack NF
+    family: CaskaydiaCove Nerd Font
+    # family: FiraCode Nerd Font
+    # family: DejavuSansMono NF
+    # family: DejavuSansMono NF
     # Style can be specified to pick a specific face.
     style: Regular
 
   # The bold font face
   bold:
     # family: Hack Nerd Font # should be "Menlo" or something on macOS.
-    family: Monaco Nerd Font
+    # family: Hack NF
+    # family: DejavuSansMono NF
+    family: CaskaydiaCove Nerd Font Mono
     # Style can be specified to pick a specific face.
-    style: Bold
+    # style: Bold
 
   # The italic font face
   italic:
     # family: Hack Nerd Font # should be "Menlo" or something on macOS.
-    family: Monaco Nerd Font
+    # family: Monaco Nerd Font
+    family: CaskaydiaCove Nerd Font Mono
+    # family: Hack NF
+    # family: DejavuSansMono NF
     # Style can be specified to pick a specific face.
-    style: Italic
+    # style: Italic
 
   # Point size of the font
-  size: 10.5
+  size: 12
 
   # Offset is the extra space around each character. offset.y can be thought of
   # as modifying the linespacing, and offset.x as modifying the letter spacing.

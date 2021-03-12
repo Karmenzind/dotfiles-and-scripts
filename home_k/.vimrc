@@ -75,7 +75,7 @@ Plug 'liuchengxu/vista.vim'
 Plug 'w0rp/ale' " Asynchronous Lint Engine
 Plug 'Valloric/YouCompleteMe', { 'do': function('BuildYCM'), 'frozen': v:true }
 " Plug 'rdnetto/YCM-Generator', { 'branch': 'stable'}
-Plug 'terryma/vim-multiple-cursors'
+Plug 'mg979/vim-visual-multi', {'branch': 'master'}
 " Plug 'mattn/emmet-vim'
 " Plug 'puremourning/vimspector'
 " Plug 'Valloric/MatchTagAlways'
@@ -662,7 +662,7 @@ let g:ale_echo_msg_warning_str = 'W'
 let g:ale_c_parse_compile_commands = 1
 let g:ale_typescript_tslint_ignore_empty_files = 1
 
-" /* for vim-multiple-cursors */
+" /* for vim-visual-multi */
 if !has('gui_running')
   map <M-n> <A-n>
 endif
