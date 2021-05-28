@@ -111,8 +111,8 @@ ex() {
 # export FZF_DEFAULT_OPTS="--preview '[ -f {} ] && file {} && head -30 {} '
 # export FZF_DEFAULT_OPTS="--preview 'bat --style=numbers --color=always --line-range :50 {}'
                          # --color 'fg:#bbccdd,fg+:#ddeeff,bg:#334455,preview-bg:#223344,border:#778899'
-export FZF_DEFAULT_OPTS="--height 50% --reverse --border
-                         --preview-window=down:50%"
+export FZF_DEFAULT_OPTS="--height 50% --reverse --border --preview-window=down:50%"
+
 # use fd
 # export FZF_DEFAULT_COMMAND="fd --type f --hidden --follow --ignore-file ~/.config/search_ignore"
 # use the silver searcher

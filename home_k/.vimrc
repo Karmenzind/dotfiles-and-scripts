@@ -134,6 +134,12 @@ Plug 'Traap/vim-helptags'
 " Plug 'junegunn/goyo.vim'
 " Plug 'junegunn/limelight.vim'
 " Plug 'terryma/vim-smooth-scroll'
+if has('nvim')
+  Plug 'nvim-lua/plenary.nvim'
+  Plug 'folke/todo-comments.nvim', {'branch': 'main'}
+  " Plug 'gennaro-tedesco/nvim-peekup'
+  Plug 'tversteeg/registers.nvim', {'branch': 'main'}
+endif
 
 " /* Funny Stuff */
 " Plug 'junegunn/vim-emoji', { 'for': 'markdown,gitcommit' }
@@ -151,9 +157,9 @@ Plug 'mtdl9/vim-log-highlighting'
 
 " /* Enhancement */
 Plug 'karmenzind/vim-tmuxlike'
-if has('nvim')
-  Plug 'norcalli/nvim-colorizer.lua'
-endif
+" if has('nvim')
+"   Plug 'norcalli/nvim-colorizer.lua'
+" endif
 
 " /* Appearance */
 Plug 'flazz/vim-colorschemes'
@@ -530,7 +536,7 @@ let g:fzf_action = {
       \ 'ctrl-x': 'split',
       \ 'ctrl-v': 'vsplit',
       \ 'ctrl-q': function('s:build_quickfix_list') }
-let g:fzf_layout = { 'down': '~50%' }
+let g:fzf_layout = { 'down': '~51%' }
 " let g:fzf_layout = { 'window': { 'width': 0.9, 'height': 0.6 } }
 let g:fzf_preview_window = 'right:60%'
 let g:fzf_buffers_jump = 1
@@ -1092,7 +1098,7 @@ function! SetColorScheme(cname)
   endif
   execute 'colorscheme ' . s:cname
   call FitAirlineTheme(s:cname)
-  if s:cname =~ '\v(default|blackbeauty|gruvbox|sacred)'
+  if s:cname =~ '\v(default|blackbeauty|gruvbox)'
     augroup ColoAirlineAug
       au!
       au User AirlineToggledOn let w:airline_disabled = 1
