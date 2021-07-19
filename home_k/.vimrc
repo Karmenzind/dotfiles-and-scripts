@@ -546,11 +546,14 @@ let g:fzf_history_dir = '~/.local/share/fzf-history'
 command! -bang -nargs=* Ag
       \ call fzf#vim#ag(<q-args>,
       \                 <bang>0 ? fzf#vim#with_preview('up:60%')
-      \                         : fzf#vim#with_preview('right:50%:hidden', '?'),
+      \                         : fzf#vim#with_preview('right:40%', '?'),
       \                 <bang>0)
 
 command! -bang -nargs=? -complete=dir Files
       \ call fzf#vim#files(<q-args>, fzf#vim#with_preview('right:60%'), <bang>0)
+
+command! -bar -nargs=? -bang Maps
+      \ call fzf#vim#maps(<q-args>, <bang>0)
 
 nnoremap <Leader>ff :Files<CR>
 nnoremap <Leader>fa :Ag<SPACE>
@@ -1077,6 +1080,12 @@ function! FitAirlineTheme(cname)
     let g:airline_theme='solarized'
   elseif a:cname ==? 'github'
     let g:airline_theme = 'minimalist'
+  elseif a:cname ==? 'gruvbox'
+    if s:bg_light
+      let g:airline_theme = 'base16_gruvbox_light_soft'
+    else
+      let g:airline_theme = 'base16_gruvbox_dark_hard'
+    endif
   endif
 endfunction
 
@@ -1152,7 +1161,8 @@ endif
 " let g:solarized_termtrans=1
 
 " /* for vim-atomic */
-let g:atomic_mode = 3
+" let g:atomic_mode = 3 " Cyan soft
+let g:atomic_mode = 7  " night soft
 let g:atomic_italic = 1
 let g:atomic_bold = 1
 let g:atomic_underline = 1
