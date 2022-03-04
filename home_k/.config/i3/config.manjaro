@@ -74,7 +74,7 @@ bindsym $mod+Shift+F3 exec gksu pcmanfm
 bindsym $mod+F5 exec terminal -e 'mocp'
 # bindsym $mod+t exec --no-startup-id pkill compton
 bindsym $mod+Ctrl+t exec --no-startup-id compton -b
-bindsym $mod+Shift+d --release exec "killall dunst; exec notify-send 'restart dunst'"
+# bindsym $mod+Shift+d --release exec "killall dunst; exec notify-send 'restart dunst'"
 
 # bindsym Print exec --no-startup-id i3-scrot
 # bindsym $mod+Print --release exec --no-startup-id i3-scrot -w
@@ -171,6 +171,7 @@ set $ws6 6
 set $ws7 7
 set $ws8 8
 set $ws9 9
+set $ws0 0
 
 # switch to workspace
 bindsym $mod+1 workspace $ws1
@@ -182,6 +183,7 @@ bindsym $mod+6 workspace $ws6
 bindsym $mod+7 workspace $ws7
 bindsym $mod+8 workspace $ws8
 bindsym $mod+9 workspace $ws9
+bindsym $mod+0 workspace $ws0
 
 # Move focused container to workspace
 bindsym $mod+Ctrl+1 move container to workspace $ws1
@@ -193,6 +195,7 @@ bindsym $mod+Ctrl+6 move container to workspace $ws6
 bindsym $mod+Ctrl+7 move container to workspace $ws7
 bindsym $mod+Ctrl+8 move container to workspace $ws8
 bindsym $mod+Ctrl+9 move container to workspace $ws9
+bindsym $mod+Ctrl+0 move container to workspace $ws0
 
 # Move to workspace with focused container
 bindsym $mod+Shift+1 move container to workspace $ws1; workspace $ws1
@@ -204,6 +207,7 @@ bindsym $mod+Shift+6 move container to workspace $ws6; workspace $ws6
 bindsym $mod+Shift+7 move container to workspace $ws7; workspace $ws7
 bindsym $mod+Shift+8 move container to workspace $ws8; workspace $ws8
 bindsym $mod+Shift+9 move container to workspace $ws9; workspace $ws9
+bindsym $mod+Shift+0 move container to workspace $ws0; workspace $ws0
 
 # change workspace *
 bindsym $mod+comma workspace prev
@@ -219,7 +223,7 @@ bindsym $mod+Shift+period move container to workspace next; workspace next
 
 # Open specific applications in floating mode
 for_window [title="alsamixer"] floating enable border pixel 1
-for_window [class="calamares"] floating enable border normal
+# for_window [class="calamares"] floating enable border normal
 # for_window [class="libreoffice-.*"] floating enable
 for_window [class="Viewnior"] floating enable
 # for_window [class="libreoffice-.*"] resize set 1360 720
@@ -242,10 +246,11 @@ for_window [class="qt5ct"] floating enable sticky enable border normal
 for_window [class="Qtconfig-qt4"] floating enable sticky enable border normal
 for_window [class="Simple-scan"] floating enable border normal
 for_window [class="(?i)System-config-printer.py"] floating enable border normal
-for_window [class="Timeset-gui"] floating enable border normal
 for_window [class="(?i)virtualbox"] floating enable border normal
 for_window [class="(?i)Pacman-mirrors"] floating enable border normal
-for_window [class="Xfburn"] floating enable
+for_window [class="netease-cloud-music"] floating enable resize set 1360 720
+for_window [class="Timeset-gui"] floating enable border normal
+# for_window [class="Xfburn"] floating enable
 # for_window [title="About Pale Moon"] floating enable
 # for_window [class="Skype"] floating enable border normal
 
@@ -262,7 +267,7 @@ bindsym $mod+Shift+r restart
 bindsym $mod+Shift+e exec "i3-nagbar -t warning -m 'You pressed the exit shortcut. Do you really want to exit i3? This will end your X session.' -b 'Yes, exit i3' 'i3-msg exit'"
 
 # Set shut down, restart and locking features
-bindsym $mod+0 mode "$mode_system"
+# bindsym $mod+0 mode "$mode_system"
 set $mode_system (l)ock, (e)xit, switch_(u)ser, (s)uspend, (h)ibernate, (r)eboot, (Shift+s)hutdown
 mode "$mode_system" {
     bindsym l exec --no-startup-id i3exit lock, mode "default"
@@ -310,13 +315,13 @@ exec_always --no-startup-id bash $HOME/.config/i3/post_start.sh &
 exec --no-startup-id /usr/lib/polkit-gnome/polkit-gnome-authentication-agent-1
 exec --no-startup-id compton -b
 # exec --no-startup-id nitrogen --restore; sleep 1; compton -b
-exec --no-startup-id manjaro-hello
+# exec --no-startup-id manjaro-hello
 exec --no-startup-id xfce4-power-manager
 exec --no-startup-id pamac-tray
 exec --no-startup-id clipit
 # exec --no-startup-id blueman-applet
 # exec_always --no-startup-id sbxkb
-exec --no-startup-id start_conky_maia
+# exec --no-startup-id start_conky_maia
 # exec --no-startup-id start_conky_green
 exec --no-startup-id xautolock -time 15 -locker blurlock
 exec_always --no-startup-id ff-theme-util
@@ -330,6 +335,10 @@ exec_always --no-startup-id killall -9 xflux; xflux -l '30.2443314184' -g '120.1
 exec --no-startup-id fcitx &
 exec --no-startup-id flameshot &
 exec_always --no-startup-id command -v oneko && killall -9 oneko && oneko -tofocus &
+
+# deadd
+exec --no-startup-id deadd-notification-center &
+bindsym $mod+Shift+n --release exec "kill -s USR1 $(pidof deadd-notification-center)"
 
 # /* background and screen lock*/
 set $wallpaper_png $HOME/Pictures/LOCKSCREEN.png
@@ -378,35 +387,36 @@ set_from_resource $term_color14    color14
 set_from_resource $term_color15    color15
 
 # Start i3bar to display a workspace bar (plus the system information i3status if available)
-bar {
-	i3bar_command i3bar
-	status_command i3status
-	position top
-	# position bottom
+#bar {
+#	i3bar_command i3bar
+#	status_command i3status
+#	position top
+#	# position bottom
 
-## please set your primary output first. Example: 'xrandr --output eDP1 --primary'
-#	tray_output primary
-#	tray_output eDP1
+### please set your primary output first. Example: 'xrandr --output eDP1 --primary'
+##	tray_output primary
+##	tray_output eDP1
 
-	bindsym button4 nop
-	bindsym button5 nop
-    font xft:URWGothic-Book 10
-    # font xft:TerminessTTFNerdFontMono 12
-	strip_workspace_numbers yes
+#	bindsym button4 nop
+#	bindsym button5 nop
+#    font xft:URWGothic-Book 10
+#    # font xft:TerminessTTFNerdFontMono 12
+#	strip_workspace_numbers yes
 
-    colors {
-        background #222D31
-        statusline #F9FAF9
-        separator  #454947
+#    colors {
+#        background #222D31
+#        statusline #F9FAF9
+#        separator  #454947
 
-#                      border  backgr. text
-        focused_workspace  #F9FAF9 #16a085 #292F34
-        active_workspace   #595B5B #353836 #FDF6E3
-        inactive_workspace #595B5B #222D31 #EEE8D5
-        binding_mode       #16a085 #2C2C2C #F9FAF9
-        urgent_workspace   #16a085 #FDF6E3 #E5201D
-    }
-}
+##                          border  backgr. text
+#        focused_workspace  #F9FAF9 #16a085 #292F34
+#        active_workspace   #595B5B #353836 #FDF6E3
+#        inactive_workspace #595B5B #222D31 #EEE8D5
+#        binding_mode       #16a085 #2C2C2C #F9FAF9
+#        urgent_workspace   #16a085 #FDF6E3 #E5201D
+#    }
+#}
+exec_always --no-startup-id $HOME/.config/polybar/launch.sh
 
 # hide/unhide i3status bar
 bindsym $mod+m bar mode toggle

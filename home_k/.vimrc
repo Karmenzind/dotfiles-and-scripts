@@ -111,6 +111,7 @@ Plug 'fatih/vim-go', { 'do': ':GoUpdateBinaries' }
 
 " /* Python */
 Plug 'tmhedberg/SimpylFold' " code folding
+Plug 'raimon49/requirements.txt.vim'
 Plug 'vim-scripts/indentpython.vim'
 Plug 'tweekmonster/django-plus.vim', { 'for': 'python' }
 " Plug 'plytophogy/vim-virtualenv'
@@ -134,11 +135,13 @@ Plug 'Traap/vim-helptags'
 " Plug 'junegunn/goyo.vim'
 " Plug 'junegunn/limelight.vim'
 " Plug 'terryma/vim-smooth-scroll'
+" Plug 'vipul-sharma20/vim-registers'
+Plug 'dahu/vim-lotr'
 if has('nvim')
   Plug 'nvim-lua/plenary.nvim'
   Plug 'folke/todo-comments.nvim', {'branch': 'main'}
   " Plug 'gennaro-tedesco/nvim-peekup'
-  Plug 'tversteeg/registers.nvim', {'branch': 'main'}
+  " Plug 'tversteeg/registers.nvim', {'branch': 'main'}
 endif
 
 " /* Funny Stuff */
@@ -157,6 +160,8 @@ Plug 'mtdl9/vim-log-highlighting'
 
 " /* Enhancement */
 Plug 'karmenzind/vim-tmuxlike'
+Plug 'karmenzind/registers.vim', {'branch': 'dev'}
+Plug 'skywind3000/vim-quickui'
 " if has('nvim')
 "   Plug 'norcalli/nvim-colorizer.lua'
 " endif
@@ -169,6 +174,7 @@ Plug 'gerardbm/vim-atomic'
 Plug 'icymind/NeoSolarized'
 Plug 'KKPMW/sacredforest-vim'
 Plug 'junegunn/seoul256.vim'
+Plug 'arcticicestudio/nord-vim'
 Plug 'ryanoasis/vim-devicons' " load after other plugins
 
 call plug#end()
@@ -176,6 +182,7 @@ call plug#end()
 " internal plugins
 runtime macros/matchit.vim
 " runtime! ftplugin/man.vim
+runtime! ftplugin/qf.vim
 
 " --------------------------------------------
 " basic
@@ -226,10 +233,22 @@ endif
 
 " /* line number */
 set number
+function! s:RelNoToggle(mode)
+  if &ft =~? '\v(startify|registers)'
+    return
+  endif
+  if a:mode == "in"
+    if &nu | set rnu | else | set nu rnu | endif
+  endif
+  if a:mode == "out"
+    if &nu | set nornu | else | set nu rnu | endif
+  endif
+endfunction
+
 augroup relative_number_toggle
   autocmd!
-  autocmd BufEnter,FocusGained,InsertLeave,WinEnter * if &nu | set rnu | else | set nu rnu | endif
-  autocmd BufLeave,FocusLost,InsertEnter,WinLeave   * if &nu | set nornu | else | set nu rnu | endif
+  autocmd BufEnter,FocusGained,InsertLeave,WinEnter * call s:RelNoToggle("in")
+  autocmd BufLeave,FocusLost,InsertEnter,WinLeave   * call s:RelNoToggle("out")
 augroup END
 
 " /* layout */
@@ -1086,6 +1105,8 @@ function! FitAirlineTheme(cname)
     else
       let g:airline_theme = 'base16_gruvbox_dark_hard'
     endif
+  elseif a:cname =~ 'seoul256'
+    let g:airline_theme = 'seoul256'
   endif
 endfunction
 

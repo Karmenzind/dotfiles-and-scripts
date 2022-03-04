@@ -1,11 +1,13 @@
 # dotfiles and scripts 
 
-> ArchLinux安装脚本[已经迁移至此处](https://github.com/Karmenzind/arch-installation-scripts)，暂不再维护
+> ArchLinux安装脚本[已经迁移至此处](https://github.com/Karmenzind/arch-installation-scripts)，不再维护
 
 创建这个repo是为了减少重复工作，内容包含：
+
 1.  系统/软件配置，如Vim、i3wm、tmux等
 2.  安装脚本
-    *   软件编译/安装脚本，如Vim-YCM插件
+    *   软件编译/安装脚本，Vim-YCM插件
+    *   ArchLinux软件批量安装
 3.  工具脚本
     *   工具脚本，如Docker、Aria2管理
 
@@ -46,7 +48,7 @@
 **创建软连接（推荐）**
 
 ```bash
-git clone https://github.com/Karmenzind/dotfiles-and-scripts --depth=1
+git clone https://github.com/Karmenzind/dotfiles-and-scripts
 cd ./dotfiles-and-scripts
 python3 symlink.py
 ```
@@ -54,7 +56,7 @@ python3 symlink.py
 **复制文件**
 
 ```bash
-git clone https://github.com/Karmenzind/dotfiles-and-scripts --depth=1
+git clone https://github.com/Karmenzind/dotfiles-and-scripts
 cd ./dotfiles-and-scripts
 python3 do_synch.py apply
 ```

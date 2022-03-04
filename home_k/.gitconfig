@@ -20,8 +20,14 @@
 	d = difftool
 
 [http]
+    proxy = http://172.7.17.222:12708
+    # proxy = http://localhost:12708
+    # proxy = http://10.42.64.1:10809
 
 [https]
+    # proxy = http://localhost:12708
+    proxy = http://172.7.17.222:12708
+    # proxy = http://10.42.64.1:10809
 
 [color]
     diff = auto

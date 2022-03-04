@@ -110,7 +110,7 @@ ex() {
 # for fzf
 # export FZF_DEFAULT_OPTS="--preview '[ -f {} ] && file {} && head -30 {} '
 # export FZF_DEFAULT_OPTS="--preview 'bat --style=numbers --color=always --line-range :50 {}'
-                         # --color 'fg:#bbccdd,fg+:#ddeeff,bg:#334455,preview-bg:#223344,border:#778899'
+# --color 'fg:#bbccdd,fg+:#ddeeff,bg:#334455,preview-bg:#223344,border:#778899'
 export FZF_DEFAULT_OPTS="--height 50% --reverse --border --preview-window=down:50%"
 
 # use fd
@@ -387,6 +387,12 @@ fi
 [[ -n $GOPATH ]] && export PATH=$PATH:$GOPATH/bin
 
 #######################################################################
+#                                rust                                 #
+#######################################################################
+
+[[ -d "$HOME/.cargo/bin" ]] && export PATH=$PATH:$HOME/.cargo/bin
+
+#######################################################################
 #                                 svn                                 #
 #######################################################################
 
@@ -437,3 +443,20 @@ command -v chuck_cow >/dev/null && chuck_cow
 [[ -e ~/.config/shrc.ext.local ]] && source ~/.config/shrc.ext.local
 
 alias weather='curl -4 http://wttr.in'
+
+export USE_PROXYCHAINS_FIRST=true
+ZSH_AUTOSUGGEST_HIGHLIGHT_STYLE="fg=#ff00ff,bg=cyan,bold,underline"
+
+
+pkg_by_missing() {
+    local q=$(pacman -F $1)
+    echo -e "Found:\n${q}\n"
+    # TODO (k): <2022-03-03>  use fzf to choose
+    if [[ -n "$q" ]]; then
+        local chosen=$(echo $q | grep '^\w' | head -n 1 | cut -d' ' -f 1)
+        echo "Installing the first one: $chosen"
+        sudo pacman -S $chosen --noconfirm
+    else
+        echo "No result."
+    fi
+}

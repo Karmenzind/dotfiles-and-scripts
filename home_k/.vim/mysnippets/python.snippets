@@ -15,6 +15,10 @@ endsnippet
 # print
 # --------------------------------------------
 
+snippet pr
+print(${1:${VISUAL}})
+endsnippet
+
 snippet prhl
 $2("%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%")
 ${2:print}("${1:${VISUAL}}")
@@ -67,8 +71,11 @@ ${2:LOGGER}.critical("${1:${VISUAL}}")
 endsnippet
 
 snippet Lip
-from pprint import pformat
-${2:LOGGER}.info(pformat(${1:${VISUAL}}))
+${2:LOGGER}.info(__import__("pprint").pformat(${1:${VISUAL}}))
+endsnippet
+
+snippet Lif
+${2:LOGGER}.info(__import__("pprint").pformat(${1:${VISUAL}}))
 endsnippet
 
 
@@ -188,13 +195,11 @@ endsnippet
 # --------------------------------------------
 
 snippet ppr "import pprint and print" b
-from pprint import pprint
-pprint($1)
+__import__('pprint').pprint(${1:${VISUAL}})
 endsnippet
 
 snippet pfm "import pprint and print" b
-from pprint import pformat
-pformat($1)
+__import__('pprint').pformat(${1:${VISUAL}})
 endsnippet
 
 # --------------------------------------------
@@ -238,6 +243,17 @@ endsnippet
 # --------------------------------------------
 # others
 # --------------------------------------------
+
+snippet ifm "if __main__" b
+def main():
+    """main function"""
+    pass
+
+
+if __name__ == "__main__":
+    main()
+endsnippet
+
 
 snippet singletonnew "Singleton via __new__" b
 def __new__(cls, *args, **kw):
