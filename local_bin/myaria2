@@ -8,7 +8,8 @@
 # url to fetch bt-tracker list
 # if your have no idea what it is
 # see http://www.senra.me/solutions-to-aria2-bt-metalink-download-slowly/
-trackerlist_url="https://raw.githubusercontent.com/ngosang/trackerslist/master/trackers_best_ip.txt"
+# trackerlist_url="https://raw.githubusercontent.com/ngosang/trackerslist/master/trackers_best_ip.txt"
+trackerlist_url="https://raw.githubusercontent.com/ngosang/trackerslist/master/trackers_all_ip.txt"
 
 if command -v proxychains >/dev/null && [[ ${USE_PROXYCHAINS_FIRST:=false} == "true" ]]; then
     use_pc=true
@@ -24,10 +25,12 @@ update_interval_hours=4
 # no need to change
 config_dir=${HOME}/.config/aria2 # trackerlist
 conffile=${config_dir}/aria2.conf
-conffileworking=${conffile}.working
+conffileworking=${conffile}.lock
 
 # parse from configuration
-log_path=$(sed -n 's/^log=//p' $conffile)
+eval log_path=$(sed -n 's/^log=//p' $conffile)
+# log_path=${log_path/\$\{HOME\}/$HOME}
+
 eval download_dir=$(sed -n 's/^dir=//p' $conffile)
 # echo $download_dir
 
@@ -47,10 +50,12 @@ init_files() {
     ! [[ -d "$config_dir" ]] && mkdir -p $config_dir && echo "Created $config_dir"
     ! [[ -d "$download_dir" ]] && mkdir -p $download_dir && echo "Created $download_dir"
 
-    if [[ -n "$log_path" ]]; then
-        local log_dir=$(dirname $log_path)
-        ! [[ -d "$log_dir" ]] && mkdir -p $log_dir
-        ! [[ -e "$log_path" ]] && touch $log_path
+    if ! [[ "$log_path" == "-" ]]; then
+        if [[ -n "$log_path" ]]; then
+            local log_dir=$(dirname $log_path)
+            ! [[ -d "$log_dir" ]] && mkdir -p $log_dir
+            ! [[ -e "$log_path" ]] && touch $log_path
+        fi
     fi
 
     ! [[ -d "$local_dir" ]] && mkdir -p $local_dir && echo "Created $local_dir"
@@ -99,6 +104,7 @@ EOF
 install_service_if_not_exists() {
     [[ -n "$(systemctl --user list-unit-files | grep aria2cd)" ]] && return
     echo "Installing service..."
+    mkdir -p ~/.config/systemd/user
     cat >~/.config/systemd/user/aria2cd.service <<EOF
 [Unit]
 Description=Aria2 Daemon
@@ -167,8 +173,12 @@ start() {
 }
 
 log() {
-    echo -e '\nLOG:'
-    tail $log_path $1
+    if [[ "$log_path" == "-" ]]; then
+        journalctl --user -fu aria2cd.service
+    else
+        echo -e '\nLOG:'
+        tail $log_path $1
+    fi
 }
 
 # return 1: need update
@@ -203,7 +213,9 @@ print(result)
 update_bt_tracker() {
     echo "Feching tracker-list from $trackerlist_url ..."
 
-    if ${use_pc}; then
+    echo "[use proxychains: ${use_pc}]"
+
+    if [[ "${use_pc}" == "true" ]]; then
         trackers=$(proxychains curl $trackerlist_url | process_raw_trackerlist)
     else
         trackers=$(curl $trackerlist_url | process_raw_trackerlist)
@@ -228,16 +240,16 @@ update_config() {
     if [[ "$1" == "-f" ]] || [[ -z ${trackers} ]] || internal_update_condition; then
         update_bt_tracker
     fi
-    if [[ "$1" == "-f" ]] || ! [[ -e ${conffileworking} ]] ; then
-        [[ -e ${conffileworking} ]] && mv -v $conffileworking ${conffileworking}.backup
-        cp $conffile $conffileworking
-        if [[ -n ${trackers} ]]; then
-            sed -i 's/^bt-tracker=/# \0/' $conffileworking
-            echo "bt-tracker=$trackers" >>$conffileworking
-            echo "Using trackers: $trackers"
-        fi
-        echo "Recreated configuration file."
+    # if [[ "$1" == "-f" ]] || ! [[ -e ${conffileworking} ]] ; then
+    [[ -e ${conffileworking} ]] && mv -v $conffileworking ${conffileworking}.backup
+    cp $conffile $conffileworking
+    if [[ -n ${trackers} ]]; then
+        sed -i 's/^bt-tracker=/# \0/' $conffileworking
+        echo "bt-tracker=$trackers" >>$conffileworking
+        echo "Using trackers: $trackers"
     fi
+    echo "Recreated locked configuration file."
+    # fi
 
 }
 

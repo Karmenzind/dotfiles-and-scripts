@@ -19,15 +19,15 @@
     hst = !git --no-pager log --color --pretty=format:'%C(yellow)%h%C(reset)%C(bold red)%d%C(reset) %s %C(black)— %an (%ad)%C(reset)' --relative-date | emojify | bat
 	d = difftool
 
-[http]
-    proxy = http://172.7.17.222:12708
-    # proxy = http://localhost:12708
-    # proxy = http://10.42.64.1:10809
+; [http]
+;     # proxy = http://172.7.17.222:12708
+;     # proxy = http://localhost:12708
+;     # proxy = http://10.42.64.1:10809
 
-[https]
-    # proxy = http://localhost:12708
-    proxy = http://172.7.17.222:12708
-    # proxy = http://10.42.64.1:10809
+; [https]
+;     # proxy = http://localhost:12708
+;     #proxy = http://172.7.17.222:12708
+;     # proxy = http://10.42.64.1:10809
 
 [color]
     diff = auto
@@ -55,3 +55,6 @@
 	smudge = git-lfs smudge -- %f
 	process = git-lfs filter-process
 	required = true
+
+[influde]
+    path =

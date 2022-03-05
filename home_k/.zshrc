@@ -84,7 +84,6 @@ plugins=(
   #'rand-quote'
   #'command-not-found'
   'golang'
-  'vi-mode'
   'fzf'
   # 'systemd'
   # 'svn'
@@ -123,6 +122,7 @@ plugins=(
   # 'pyenv'
   # 'pipenv'
   'zsh-autosuggestions'
+  'vi-mode'
 )
 
 source $ZSH/oh-my-zsh.sh

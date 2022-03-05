@@ -9,8 +9,12 @@ instead of copying files with do_synch.py
 import os
 import re
 import time
+import datetime
 
 CUR_TS = int(time.time())
+CUR_TIME = datetime.datetime.now().strftime("%Y%m%d_%H%M")
+print("Current time: ", CUR_TIME)
+
 REPO_DIR = os.path.dirname(os.path.abspath(__file__))
 HOME_DIR = os.path.expanduser('~')
 os.chdir(REPO_DIR)
@@ -25,45 +29,20 @@ path_map = {
     "local_bin": "/usr/local/bin",
 }
 
-
+# dirs
 TO_SYNC = (
-    "home_k/.Xresources",
-    "home_k/.agignore",
-    "home_k/.golangci.yml",
-    "home_k/.config/pylintrc",
-    "home_k/.config/alacritty/alacritty.yml",
-    "home_k/.config/aria2/aria2.conf",
-    "home_k/.config/picom.conf",
-    "home_k/.config/conky/conky.conf",
-    "home_k/.config/dunst/dunstrc",
-    "home_k/.config/fcitx/data/punc.mb.zh_CN",
-    "home_k/.config/i3/config",
-    "home_k/.config/i3/conky_status.sh",
-    "home_k/.config/i3/screenshot.sh",
-    "home_k/.config/i3/run_oneko.sh",
-    "home_k/.config/i3status/config",
-    "home_k/.config/nvim/init.vim",
-    "home_k/.config/rofi/config",
-    "home_k/.config/shrc.ext",
-    "home_k/.config/volumeicon/volumeicon",
-    "home_k/.config/xfce4/terminal/terminalrc",
-    "home_k/.config/mypy/config",
-    "home_k/.config/pycodestyle",
-    "home_k/.gitconfig",
-    "home_k/.tmux.conf",
-    "home_k/.tmuxinator/k.yml",
-    "home_k/.vim/.ycm_extra_conf.py",
-    "home_k/.vim/mysnippets",
-    "home_k/.vimrc",
-    "home_k/.xinitrc",
-    "home_k/.zshrc",
-    "home_k/.eslintrc.js",
-    "home_k/.stylelintrc",
-    # "local_bin/acpyve",
-    # "local_bin/docker_manager",
-    "local_bin/myaria2",
-    "local_bin/update_hosts",
+    "home_k",
+    "local_bin",
 )
+
+SYMLINK_AS_DIR = [
+    "home_k/.vim/mysnippets",
+]
+
+EXCLUDED = [
+    "local_bin/acpyve",
+    "local_bin/docker_manager",
+]
 
 
 def ask(choices, msg='Continue?'):
@@ -74,44 +53,85 @@ def ask(choices, msg='Continue?'):
     return ans
 
 
-def proc_src(src):
-    ret = src
+with open('/proc/version', 'r') as f:
+    VERSION_INFO = f.read().lower()
+
+
+def validate(src):
+    ret = True
+    if src in EXCLUDED:
+        return False
+
     if 'i3/config' in src:
-        # manjaro
-        with open('/proc/version', 'r') as f:
-            version_info = f.read().lower()
-            if 'manjaro' in version_info:
-                ret = src + '.manjaro'
+        if 'manjaro' in VERSION_INFO:
+            ret = src.endswith(".manjaro")
+        else:
+            ret = not src.endswith(".manjaro")
+
     return ret
 
 
-backup_pat = f"*_backup_{CUR_TS}"
+backup_pat = f"*.backup_{CUR_TIME}"
+
+
+def do_symlink(from_, to_):
+    from_ = os.path.join(REPO_DIR, from_)
+    if os.path.exists(to_):
+        if os.path.islink(to_):
+            print(os.readlink(to_))
+            if os.readlink(to_) == from_:
+                print(
+                    f"{to_} is already symlinked to {from_}. Ignored.")
+                return
+
+            override_msg = f"{to_} exists and is a symlink. Override it? (file will be mv to {backup_pat})"
+        else:
+            override_msg = f"{to_} exists and is not a symlink. Override it? (file will be mv to {backup_pat})"
+        ans = ask(YN, override_msg)
+        if ans == 'n':
+            return
+
+        os.rename(to_, to_ + f'.backup_{CUR_TIME}')
+
+    os.symlink(from_, to_)
+    print(f"created symlink for {from_}")
+
+
+def main():
+    """TODO: Docstring for main.
+    :returns: TODO
+
+    """
+    import getpass
+    for d in TO_SYNC:
+        to_d = path_map[d]
+        if not to_d.startswith("/home") and not getpass.getuser() == "root":
+            print("[Warn] root or sudo is required to symlink %s" % d)
+            continue
+
+        for (from_dir, _, subfiles) in os.walk(d):
+            if from_dir.count("/"):
+                to_dir = os.path.join(to_d, from_dir.split("/", 1)[1])
+                os.makedirs(to_dir, exist_ok=True)
+            else:
+                to_dir = path_map[d]
+
+            if from_dir in SYMLINK_AS_DIR:
+                do_symlink(from_dir, to_dir)
+                continue
+
+            for filename in subfiles:
+                src = os.path.join(from_dir, filename)
+                dest = os.path.join(to_dir, filename)
+
+                if not validate(src):
+                    print("\n>>> Ignored invalid: %s" % src)
+                    continue
+
+                print(f"\n>>> processing: {src} -> {dest}")
+
+                do_symlink(src, dest)
+
 
 if __name__ == "__main__":
-    for src in TO_SYNC:
-        pref, post = re.match(r"([^/]+)/(.*)", src).groups()
-        dest = os.path.join(path_map[pref], post)
-
-        src = proc_src(src)
-        print(f"\n>>> processing: {src} -> {dest}")
-
-        src = os.path.join(REPO_DIR, src)
-        if os.path.exists(dest):
-            if os.path.islink(dest):
-                print(os.readlink(dest))
-                if os.readlink(dest) == src:
-                    print(f"{dest} exists and is already symlinked to {src}. Ignored.")
-                    continue
-                override_msg = f"{dest} exists and is a symlink. Override it? (file will be mv to {backup_pat})"
-            else:
-                override_msg = f"{dest} exists and is not a symlink. Override it? (file will be mv to {backup_pat})"
-            ans = ask(YN, override_msg)
-            if ans == 'n':
-                continue
-            os.rename(dest, dest + '_backup_{CUR_TS})')
-        else:
-            prdir = os.path.dirname(dest)
-            if not os.path.isdir(prdir):
-                os.makedirs(prdir)
-        os.symlink(src, dest)
-        print(f"created symlink for {src}")
+    main()
