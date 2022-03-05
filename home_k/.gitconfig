@@ -46,15 +46,18 @@
 [gui]
 	fontui = -family Hack -size 11 -weight normal -slant roman -underline 0 -overstrike 0
 	fontdiff = -family Hack -size 11 -weight normal -slant roman -underline 0 -overstrike 0
+
 [diff]
 	tool = vimdiff
+
 [difftool]
 	prompt = false
+
 [filter "lfs"]
 	clean = git-lfs clean -- %f
 	smudge = git-lfs smudge -- %f
 	process = git-lfs filter-process
 	required = true
 
-[influde]
-    path =
+[include]
+    path = ~/.gitconfig.local
