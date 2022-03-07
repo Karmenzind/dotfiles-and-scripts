@@ -467,6 +467,39 @@ let g:ycm_language_server = [
       \ {"name": "vim", "filetypes": ["vim"], "cmdline": ["vim-language-server", '--stdio'] },
       \ ]
 
+if !has('nvim')
+    let g:ycm_auto_hover = ''
+endif
+
+augroup ycm_behaviours
+    au!
+    au FileType python,go,sh,vim
+        \ nmap K <plug>(YCMHover)
+augroup END
+
+nnoremap <silent> <leader>N :NERDTreeFind<CR>
+
+function! s:FzfToNERDTree(lines)
+    if len(a:lines) == 0
+        return
+    endif
+    let path = glob(a:lines[0])
+    if empty(path)
+        echoerr "Invalid path: " .. a:lines[0]
+        return
+    endif
+    if get(g:, "loaded_nerd_tree", 0) == 0
+        execute 'NERDTree'
+    endif
+    execute 'NERDTreeFind ' .. path
+endfunction
+
+let g:fzf_action = {
+  \ 'ctrl-n': function('s:FzfToNERDTree'),
+  \ 'ctrl-t': 'tab split',
+  \ 'ctrl-x': 'split',
+  \ 'ctrl-v': 'vsplit' }
+
 " /* for NERDTree */
 nnoremap <silent> <Leader>n :NERDTreeToggle<CR>
 let g:NERDTreeIgnore = ['\.pyc$', '\~$', '__pycache__[[dir]]', '\.swp$']
@@ -543,6 +576,10 @@ let g:airline#extensions#tabline#buffer_idx_format = {
 
 let g:airline#extensions#tabline#tab_nr_type = 2
 
+let g:airline#extensions#tabline#show_buffers = 0
+let g:airline#extensions#tabline#tabs_label = 't'
+let g:airline#extensions#tabline#buffers_label = 'b'
+
 " /* for fzf */
 function! s:build_quickfix_list(lines)
   call setqflist(map(copy(a:lines), '{ "filename": v:val }'))
@@ -555,12 +592,33 @@ let g:fzf_action = {
       \ 'ctrl-x': 'split',
       \ 'ctrl-v': 'vsplit',
       \ 'ctrl-q': function('s:build_quickfix_list') }
-let g:fzf_layout = { 'down': '~51%' }
+" let g:fzf_layout = { 'down': '~51%' }
 " let g:fzf_layout = { 'window': { 'width': 0.9, 'height': 0.6 } }
 let g:fzf_preview_window = 'right:60%'
 let g:fzf_buffers_jump = 1
 let g:fzf_tags_command = 'ctags -R'
 let g:fzf_history_dir = '~/.local/share/fzf-history'
+
+if exists('$TMUX')
+    let g:fzf_layout = { 'tmux': '-p90%,60%' }
+else
+    let g:fzf_layout = { 'down': '~51%' }
+    let g:fzf_colors = { 
+      \ 'fg':      ['fg', 'Normal'],
+      \ 'bg':      ['bg', 'Normal'],
+      \ 'hl':      ['fg', 'Comment'],
+      \ 'fg+':     ['fg', 'CursorLine', 'CursorColumn', 'Normal'],
+      \ 'bg+':     ['bg', 'CursorLine', 'CursorColumn'],
+      \ 'hl+':     ['fg', 'Statement'],
+      \ 'info':    ['fg', 'PreProc'],
+      \ 'border':  ['fg', 'Ignore'],
+      \ 'prompt':  ['fg', 'Conditional'],
+      \ 'pointer': ['fg', 'Exception'],
+      \ 'marker':  ['fg', 'Keyword'],
+      \ 'spinner': ['fg', 'Label'],
+      \ 'header':  ['fg', 'Comment'] }
+endif
+
 
 command! -bang -nargs=* Ag
       \ call fzf#vim#ag(<q-args>,
