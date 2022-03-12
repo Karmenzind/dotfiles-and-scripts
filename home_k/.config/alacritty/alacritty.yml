@@ -89,6 +89,7 @@ font:
   # The normal (roman) font face to use.
   normal:
     # family: Hack NF
+    # family: Monaco Nerd Font
     family: CaskaydiaCove Nerd Font
     # family: FiraCode Nerd Font
     # family: DejavuSansMono NF

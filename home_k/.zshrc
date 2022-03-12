@@ -128,7 +128,7 @@ plugins=(
 source $ZSH/oh-my-zsh.sh
 
 # Custom here
-[[ -e ~/.config/shrc.ext ]] && source ~/.config/shrc.ext
+[[ -e ~/.config/shrc.ext ]] && source ~/.config/shrc.ext && echo "Loaded ~/.config/shrc.ext"
 
 [ -f ~/.fzf.zsh ] && source ~/.fzf.zsh
 

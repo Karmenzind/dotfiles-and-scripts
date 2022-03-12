@@ -112,11 +112,15 @@ ex() {
 # export FZF_DEFAULT_OPTS="--preview 'bat --style=numbers --color=always --line-range :50 {}'
 # --color 'fg:#bbccdd,fg+:#ddeeff,bg:#334455,preview-bg:#223344,border:#778899'
 export FZF_DEFAULT_OPTS="--height 50% --reverse --border --preview-window=down:50%"
+export FZF_TMUX=1
+export FZF_TMUX_OPTS="-p 80%,60%"
+export FZF_CTRL_T_OPTS="--preview '(highlight -O ansi -l {} 2> /dev/null || cat {} || tree -C {}) 2> /dev/null | head -200'"
+export FZF_CTRL_R_OPTS="--preview 'echo {}' --preview-window down:3:hidden:wrap --bind '?:toggle-preview'"
 
 # use fd
 # export FZF_DEFAULT_COMMAND="fd --type f --hidden --follow --ignore-file ~/.config/search_ignore"
 # use the silver searcher
-if command -v 'ag'; then
+if command -v 'ag' >/dev/null; then
     export FZF_DEFAULT_COMMAND="ag --hidden --nocolor -U -g ''"
 else
     echo "The silver search needs to be installed"
@@ -380,7 +384,7 @@ fi
 #                                 go                                  #
 #######################################################################
 
-if command -V go && [[ -z $GOPATH ]]; then
+if command -v go >/dev/null && [[ -z $GOPATH ]]; then
     GOPATH=$(go env GOPATH | tr -d '\r')
 fi
 
@@ -440,7 +444,7 @@ rt() {
 command -v chuck_cow >/dev/null && chuck_cow
 
 # load local config
-[[ -e ~/.config/shrc.ext.local ]] && source ~/.config/shrc.ext.local
+[[ -e ~/.config/shrc.ext.local ]] && source ~/.config/shrc.ext.local && echo "Loaded ~/.config/shrc.ext.local"
 
 alias weather='curl -4 http://wttr.in'
 
@@ -459,4 +463,15 @@ pkg_by_missing() {
     else
         echo "No result."
     fi
+}
+
+#######################################################################
+#                                test                                 #
+#######################################################################
+
+emoji-fzf() {
+    # TODO (k): <2022-03-07> cache
+    emojis=$(curl -sSL 'https://git.io/JXXO7')
+    selected_emoji=$(echo $emojis | fzf)
+    echo $selected_emoji
 }
