@@ -1,9 +1,13 @@
 #!/bin/sh
 # vim:ts=4:sw=4:expandtab:ft=sh
 
+export GLFW_IM_MODULE=ibus
 export GTK_IM_MODULE=fcitx
+export INPUT_METHOD=fcitx
 export QT_IM_MODULE=fcitx
+export SDL_IM_MODULE=fcitx
 export XMODIFIERS=@im=fcitx
+
 
 if [ -d /etc/X11/xinit/xinitrc.d ]; then
     for f in /etc/X11/xinit/xinitrc.d/*; do
