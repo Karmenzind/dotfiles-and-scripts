@@ -160,7 +160,9 @@ disable=print-statement,
         function-redefined,
         cell-var-from-loop,
         redefined-argument-from-local,
-        consider-using-f-string
+        consider-using-f-string,
+        too-many-locals
+
 
 
 # Enable the message, report, category or checker with the given id(s). You can
