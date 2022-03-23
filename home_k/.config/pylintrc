@@ -161,7 +161,10 @@ disable=print-statement,
         cell-var-from-loop,
         redefined-argument-from-local,
         consider-using-f-string,
-        too-many-locals
+        too-many-locals,
+        mising-function-docstring,
+        wrong-import-order,
+        unused-import
 
 
 

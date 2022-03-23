@@ -11,16 +11,22 @@ let s:bg_light = b:current_hour >=8 && b:current_hour < 13
 " general keymaps and abbreviations
 " --------------------------------------------
 
+function! NoSearchCabbrev(abbr, expanded)
+  execute printf("cabbrev <expr> %s (getcmdtype() == ':') ? \"%s\" : \"%s\"", a:abbr, a:expanded, a:abbr)
+endfunction
+
+call NoSearchCabbrev("abc", "12354")
+
 noremap <Leader>e  :call EditRcFiles()<CR>
 noremap <Leader>R  :source $MYVIMRC<CR> :echom 'Vimrc reloaded :)'<CR>
 noremap <Leader>S  :source %<CR> :echom expand('%') . ' sourced :)'<CR>
 noremap <Leader>T  :terminal<CR>
 
 " /* command */
-cabbrev w!! w !sudo tee %
-cabbrev GI GoImport
-cabbrev th tab<SPACE>help
-cabbrev sss s/\v(,)\s*/\1\r/g
+call NoSearchCabbrev("w!!", "w !sudo tee %")
+call NoSearchCabbrev("GI", "GoImport")
+call NoSearchCabbrev("th", "tab<SPACE>help")
+call NoSearchCabbrev("sss", "s/\v(,)\s*/\1\r/g")
 
 " /* workspace, layout, format and others */
 " XXX: <2019-11-28> didn't work in vim8
@@ -113,7 +119,7 @@ Plug 'fatih/vim-go', { 'do': ':GoUpdateBinaries' }
 Plug 'tmhedberg/SimpylFold' " code folding
 Plug 'raimon49/requirements.txt.vim'
 Plug 'vim-scripts/indentpython.vim'
-Plug 'tweekmonster/django-plus.vim', { 'for': 'python' }
+" Plug 'tweekmonster/django-plus.vim', { 'for': 'python' }
 " Plug 'plytophogy/vim-virtualenv'
 " Plug 'python-mode/python-mode'
 
@@ -461,6 +467,7 @@ nnoremap <silent> <Leader>g   :YcmCompleter GoTo<CR>
 nnoremap <silent> <Leader>dd  :YcmCompleter GoToDefinitionElseDeclaration<CR>
 nnoremap <silent> <Leader>rf  :YcmCompleter GoToReferences<CR>
 nnoremap <silent> <Leader>doc :YcmCompleter GetDoc<CR>
+nnoremap <Leader>rr  :YcmCompleter RefactorRename<SPACE>
 
 let g:ycm_language_server = [
       \ {"name": "vue", "filetypes": ["vue"], "cmdline": ["vls"] },
@@ -603,7 +610,7 @@ if exists('$TMUX')
     let g:fzf_layout = { 'tmux': '-p90%,60%' }
 else
     let g:fzf_layout = { 'down': '~51%' }
-    let g:fzf_colors = { 
+    let g:fzf_colors = {
       \ 'fg':      ['fg', 'Normal'],
       \ 'bg':      ['bg', 'Normal'],
       \ 'hl':      ['fg', 'Comment'],
@@ -663,12 +670,14 @@ map  <Leader>w <Plug>(easymotion-bd-w)
 nmap <Leader>w <Plug>(easymotion-overwin-w)
 
 " /* for ultisnips */
-cabbrev UE UltiSnipsEdit
+call NoSearchCabbrev("UE", "UltiSnipsEdit")
 let g:UltiSnipsExpandTrigger = '<c-j>'
+" FIXME (k): <2022-03-23> doesn't work any more
 let g:UltiSnipsListSnippets = '<F9>'
-let g:UltiSnipsEditSplit = 'tabdo'
+" let g:UltiSnipsEditSplit = 'tabdo'
+let g:UltiSnipsEditSplit = 'context'
 let g:UltiSnipsUsePythonVersion = 3
-let g:UltiSnipsSnippetsDir = $HOME . '/.vim/mysnippets'
+let g:UltiSnipsSnippetStorageDirectoryForUltiSnipsEdit = $HOME . '/.vim/mysnippets'
 let g:UltiSnipsSnippetDirectories = ['UltiSnips', 'mysnippets']
 let g:UltiSnipsEnableSnipMate = 1
 let g:snips_author = 'k'
@@ -681,7 +690,7 @@ nmap <silent> <C-j> <Plug>(ale_next)
 nmap <silent> <Leader>al <Plug>(ale_lint)
 nmap <silent> <Leader>af <Plug>(ale_fix)
 nmap <silent> <Leader>at <Plug>(ale_toggle)
-cabbrev AF ALEFix
+call NoSearchCabbrev("AF", "ALEFix")
 
 " trim whitespaces surrounded in docstrings
 function! FixSurroundedWhiteSpaces(buffer, lines)
@@ -693,7 +702,7 @@ let g:ale_linter_aliases = {
       \ }
 let g:ale_linters = {
       \ 'vim': ['vint'],
-      \ 'python': ['pydocstyle', 'flake8', 'pylint'],
+      \ 'python': ['pydocstyle', 'flake8', 'pyright'],
       \ 'markdown': ['mdl', 'prettier', 'proselint', 'alex'],
       \ 'text': ['proselint', 'alex', 'redpen'],
       \ 'vue': ['htmlhint', 'jshint', 'stylelint'],
@@ -705,13 +714,14 @@ let g:ale_linters = {
       \ 'html': ['prettier', 'htmlhint'],
       \ 'go': ['golangci-lint'],
       \ }
+" FIXME (k): <2022-03-21> unimport
 let g:ale_fixers = {
       \  '*': ['trim_whitespace'],
       \  'c': ['clang-format'],
       \  'javascript': ['prettier', 'importjs'],
       \  'sh': ['shfmt'],
       \  'go': ['gofmt', 'goimports'],
-      \  'python': ['autopep8', 'isort', 'FixSurroundedWhiteSpaces'],
+      \  'python': ['isort', 'autopep8', 'FixSurroundedWhiteSpaces', 'autoflake'],
       \  'json': ['fixjson', 'prettier'],
       \  'sql': ['pgformatter'],
       \  'vue': ['eslint', 'prettier'],
@@ -792,6 +802,7 @@ augroup for_markdown_ft
         \ nnoremap <buffer> <silent> <Leader>mp :MarkdownPreview<CR>     |
         \ let  b:AutoPairs = {'(':')', '[':']', '{':'}',"'":"'",'"':'"'} |
         \ cabbrev <buffer> TF TableFormat
+  " FIXME (k): <2022-03-23> no search
 augroup END
 
 " /* for SimpylFold */
@@ -947,8 +958,8 @@ augroup go_map
     au FileType go nmap <leader>rt <Plug>(go-run-tab)
     au FileType go nmap <leader>rs <Plug>(go-run-split)
     au FileType go nmap <leader>rv <Plug>(go-run-vertical)
-    au FileType go cabbrev GI GoImport
-    au FileType go cabbrev GR GoRun
+    au FileType go call NoSearchCabbrev("GI", "GoImport")
+    au FileType go call NoSearchCabbrev("GR", "GoRun")
 augroup END
 
 " --------------------------------------------
