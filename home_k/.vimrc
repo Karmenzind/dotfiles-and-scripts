@@ -331,6 +331,8 @@ augroup filetype_formats
 
   au FileType help setlocal nu
 
+  au FileType make setlocal noexpandtab
+
   au BufNewFile,BufRead *.{vim},*vimrc
         \ setlocal tabstop=2         |
         \ setlocal softtabstop=2     |
@@ -648,6 +650,7 @@ nnoremap <Leader>fb :Buffers<CR>
 nnoremap <Leader>fw :Windows<CR>
 nnoremap <Leader>fs :Snippets<CR>
 nnoremap <Leader>fh :History/<CR>
+nnoremap <Leader>fq :FzfQF<CR>
 
 " /* for devicons */
 let g:WebDevIconsUnicodeDecorateFolderNodes = 1
