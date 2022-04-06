@@ -5,6 +5,15 @@ snippet ak "override akw" i
 endsnippet
 
 # --------------------------------------------
+# exceptions
+# --------------------------------------------
+
+snippet ex "except Exception as e" b
+except ${1:Exception} as ${2:e}:
+    LOGGER.exception("Error occurred: %s", e)
+endsnippet
+
+# --------------------------------------------
 # typing
 # --------------------------------------------
 
@@ -13,12 +22,12 @@ import typing as t
 endsnippet
 
 
-snippet tun "typing Union" b
-t.Union[$1, ${2:None}]
+snippet tun "typing Union"
+t.Union[${1:${VISUAL}}, ${2:None}]
 endsnippet
 
-snippet ttu "typing Union" b
-t.Tuple[$1, $2]
+snippet ttu "typing Union"
+t.Tuple[${1:${VISUAL}}, $2]
 endsnippet
 
 # --------------------------------------------

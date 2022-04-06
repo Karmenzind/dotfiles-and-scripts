@@ -17,12 +17,12 @@ endsnippet
 
 # /* signals */
 
-snippet recv "Description" b
+snippet recv "django signal" b
 from django.db.models.signals import $1
 from django.dispatch import receiver
 
 @receiver(${1:post_save}, sender=${2:model})
-def signal_$1_${2/.+/\L$0\E/}(sender, instance, **kwargs):
+def signal_$1_${2/.+/\L$0\E/}(sender, instance: $2, **kwargs):
     """signal for $1 $2"""
     ${0:pass}
 
@@ -58,10 +58,22 @@ endsnippet
 
 # sr ==> Serializer
 
-snippet srm "model serializer" b
-from rest_framework import serializers
+snippet srz "normal serializer" b
+from rest_framework import serializers as srz
 
-class ${1}Serializer(serializers.ModelSerializer):
+class ${1}Serializer(srz.Serializer):
+    """Serializer for $1"""
+    ${2:field1} = srz.CharField(required=False)
+
+    def validate(self, d):
+        return d
+
+endsnippet
+
+snippet srm "model serializer" b
+from rest_framework import serializers as srz
+
+class ${1}Serializer(srz.ModelSerializer):
     """ModelSerializer for $1"""
 
     class Meta:
@@ -71,20 +83,23 @@ class ${1}Serializer(serializers.ModelSerializer):
 
 endsnippet
 
-snippet validatesrz "validate for serializer" b
-def validate${1}(self, attrs):
-    """validate ${1/_//}"""
-    return attrs
+snippet srzv "validate for serializer" b
+def validate${1}(self, ${2:val}):
+    """validate method${1/^_(.+)/ for field `$1`/}
+
+    :return: (validated) $2
+    """
+    return $2
 endsnippet
 
-snippet createsrz "create for serializer" b
+snippet srzc "create for serializer" b
 def create(self, validated_data):
     """create"""
     obj = super().create(validated_data)
     return obj
 endsnippet
 
-snippet updatesrz "update for serializer" b
+snippet srzu "update for serializer" b
 def update(self, instance, validated_data):
     """update"""
     obj = super().update(instance, validated_data)

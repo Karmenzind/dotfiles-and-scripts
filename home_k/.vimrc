@@ -11,11 +11,11 @@ let s:bg_light = b:current_hour >=8 && b:current_hour < 13
 " general keymaps and abbreviations
 " --------------------------------------------
 
-function! NoSearchCabbrev(abbr, expanded)
+function! s:NoSearchCabbrev(abbr, expanded)
   execute printf("cabbrev <expr> %s (getcmdtype() == ':') ? \"%s\" : \"%s\"", a:abbr, a:expanded, a:abbr)
 endfunction
 
-call NoSearchCabbrev("abc", "12354")
+call s:NoSearchCabbrev("abc", "12354")
 
 noremap <Leader>e  :call EditRcFiles()<CR>
 noremap <Leader>R  :source $MYVIMRC<CR> :echom 'Vimrc reloaded :)'<CR>
@@ -23,10 +23,10 @@ noremap <Leader>S  :source %<CR> :echom expand('%') . ' sourced :)'<CR>
 noremap <Leader>T  :terminal<CR>
 
 " /* command */
-call NoSearchCabbrev("w!!", "w !sudo tee %")
-call NoSearchCabbrev("GI", "GoImport")
-call NoSearchCabbrev("th", "tab<SPACE>help")
-call NoSearchCabbrev("sss", "s/\v(,)\s*/\1\r/g")
+call s:NoSearchCabbrev("w!!", "w !sudo tee %")
+call s:NoSearchCabbrev("GI", "GoImport")
+call s:NoSearchCabbrev("th", "tab<SPACE>help")
+call s:NoSearchCabbrev("sss", "s/\v(,)\s*/\1\r/g")
 
 " /* workspace, layout, format and others */
 " XXX: <2019-11-28> didn't work in vim8
@@ -87,8 +87,8 @@ Plug 'mg979/vim-visual-multi', {'branch': 'master'}
 " Plug 'Valloric/MatchTagAlways'
 
 " /* version control | workspace */
-Plug 'scrooloose/nerdtree', { 'on': 'NERDTreeToggle' }
-" Plug 'Xuyuanp/nerdtree-git-plugin', { 'on': 'NERDTreeToggle' }
+Plug 'scrooloose/nerdtree', { 'on': ['NERDTreeToggle', 'NERDTreeFind'] }
+" Plug 'Xuyuanp/nerdtree-git-plugin', { 'on': ['NERDTreeToggle'] }
 Plug 'tiagofumo/vim-nerdtree-syntax-highlight'
 " Plug 'airblade/vim-gitgutter'
 " Plug 'tpope/vim-fugitive'
@@ -119,7 +119,7 @@ Plug 'fatih/vim-go', { 'do': ':GoUpdateBinaries' }
 Plug 'tmhedberg/SimpylFold' " code folding
 Plug 'raimon49/requirements.txt.vim'
 Plug 'vim-scripts/indentpython.vim'
-" Plug 'tweekmonster/django-plus.vim', { 'for': 'python' }
+Plug 'tweekmonster/django-plus.vim', { 'for': 'python' }
 " Plug 'plytophogy/vim-virtualenv'
 " Plug 'python-mode/python-mode'
 
@@ -608,7 +608,9 @@ let g:fzf_buffers_jump = 1
 let g:fzf_tags_command = 'ctags -R'
 let g:fzf_history_dir = '~/.local/share/fzf-history'
 
-if exists('$TMUX')
+let g:__tmux_version = str2float(matchstr(system('tmux -V'), '\v[0-9]+\.[0-9]+'))
+
+if exists('$TMUX') && g:__tmux_version >= 3.2
     let g:fzf_layout = { 'tmux': '-p90%,60%' }
 else
     let g:fzf_layout = { 'down': '~51%' }
@@ -673,7 +675,7 @@ map  <Leader>w <Plug>(easymotion-bd-w)
 nmap <Leader>w <Plug>(easymotion-overwin-w)
 
 " /* for ultisnips */
-call NoSearchCabbrev("UE", "UltiSnipsEdit")
+call s:NoSearchCabbrev("UE", "UltiSnipsEdit")
 let g:UltiSnipsExpandTrigger = '<c-j>'
 " FIXME (k): <2022-03-23> doesn't work any more
 let g:UltiSnipsListSnippets = '<F9>'
@@ -693,7 +695,7 @@ nmap <silent> <C-j> <Plug>(ale_next)
 nmap <silent> <Leader>al <Plug>(ale_lint)
 nmap <silent> <Leader>af <Plug>(ale_fix)
 nmap <silent> <Leader>at <Plug>(ale_toggle)
-call NoSearchCabbrev("AF", "ALEFix")
+call s:NoSearchCabbrev("AF", "ALEFix")
 
 " trim whitespaces surrounded in docstrings
 function! FixSurroundedWhiteSpaces(buffer, lines)
@@ -705,7 +707,7 @@ let g:ale_linter_aliases = {
       \ }
 let g:ale_linters = {
       \ 'vim': ['vint'],
-      \ 'python': ['pydocstyle', 'flake8', 'pyright'],
+      \ 'python': ['pydocstyle', 'flake8'],
       \ 'markdown': ['mdl', 'prettier', 'proselint', 'alex'],
       \ 'text': ['proselint', 'alex', 'redpen'],
       \ 'vue': ['htmlhint', 'jshint', 'stylelint'],
@@ -961,8 +963,8 @@ augroup go_map
     au FileType go nmap <leader>rt <Plug>(go-run-tab)
     au FileType go nmap <leader>rs <Plug>(go-run-split)
     au FileType go nmap <leader>rv <Plug>(go-run-vertical)
-    au FileType go call NoSearchCabbrev("GI", "GoImport")
-    au FileType go call NoSearchCabbrev("GR", "GoRun")
+    au FileType go call s:NoSearchCabbrev("GI", "GoImport")
+    au FileType go call s:NoSearchCabbrev("GR", "GoRun")
 augroup END
 
 " --------------------------------------------
