@@ -211,7 +211,8 @@ if has('win32')
   set guifont=consolas:h13
 else
   " set guifont=Hack\ Nerd\ Font\ 12
-  set guifont=Monaco\ Nerd\ Font\ 12
+  " set guifont=Monaco\ Nerd\ Font\ Mono\ 12
+  set guifont=MonacoB\ Nerd\ Font\ Mono\ 12
 endif
 set cursorline cursorcolumn
 set showmode

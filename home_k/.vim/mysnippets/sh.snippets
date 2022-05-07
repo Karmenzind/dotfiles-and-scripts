@@ -6,3 +6,17 @@ endsnippet
 snippet sb "bash shebang" b
 #!/usr/bin/env bash
 endsnippet
+
+snippet ford "for k v in dict" b
+for ${2:k} in "${!${1:d}[@]}"; do
+    # echo "$2 ${$1[$$2]}"
+done
+endsnippet
+
+snippet dictz "[dict] key whose value is empty string or missing" b
+[[ -z ${${1:d}[$${2:k}]} ]]
+endsnippet
+
+snippet dictz "[dict] key whose value is not empty" b
+[[ -n ${${1:d}[$${2:k}]} ]]
+endsnippet

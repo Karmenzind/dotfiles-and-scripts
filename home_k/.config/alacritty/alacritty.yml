@@ -89,25 +89,28 @@ font:
   # The normal (roman) font face to use.
   normal:
     # family: Hack NF
-    # family: Monaco Nerd Font
+    # family: MonacoB Nerd Font Mono
+    # family: Monaco Nerd Font Mono
     family: CaskaydiaCove Nerd Font
     # family: FiraCode Nerd Font
     # family: DejavuSansMono NF
     # family: DejavuSansMono NF
     # Style can be specified to pick a specific face.
-    style: Regular
+    # style: Regular
 
   # The bold font face
   bold:
+    # family: MonacoB Nerd Font Mono
     # family: Hack Nerd Font # should be "Menlo" or something on macOS.
     # family: Hack NF
-    # family: DejavuSansMono NF
-    family: CaskaydiaCove Nerd Font Mono
+    family: DejavuSansMono NF
+    # family: CaskaydiaCove Nerd Font Mono
     # Style can be specified to pick a specific face.
     # style: Bold
 
   # The italic font face
   italic:
+    # family: MonacoBItalic Nerd Font Mono
     # family: Hack Nerd Font # should be "Menlo" or something on macOS.
     # family: Monaco Nerd Font
     family: CaskaydiaCove Nerd Font Mono

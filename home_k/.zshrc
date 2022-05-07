@@ -85,7 +85,7 @@ plugins=(
   #'command-not-found'
   'golang'
   'fzf'
-  # 'systemd'
+  'systemd'
   # 'svn'
   'svn-fast-info'
   'virtualenv'
@@ -112,6 +112,7 @@ plugins=(
   # 'redis-cli'
   'rsync'
   'safe-paste'
+  'timer'
   # 'ssh-agent'
   'taskwarrior'
   'urltools'
@@ -134,3 +135,7 @@ source $ZSH/oh-my-zsh.sh
 
 autoload -U +X bashcompinit && bashcompinit
 complete -o nospace -C /usr/local/bin/mc mc
+
+export NVM_DIR="$HOME/.nvm"
+[ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"  # This loads nvm
+[ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"  # This loads nvm bash_completion
