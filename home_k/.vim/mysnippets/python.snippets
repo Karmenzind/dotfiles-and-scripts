@@ -13,6 +13,11 @@ except ${1:Exception} as ${2:e}:
     LOGGER.exception("Error occurred: %s", e)
 endsnippet
 
+snippet except "except Exception as e" b
+except ${1:Exception} as ${2:e}:
+    LOGGER.exception("Error occurred: %s", e)
+endsnippet
+
 # --------------------------------------------
 # typing
 # --------------------------------------------

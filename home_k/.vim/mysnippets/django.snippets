@@ -214,6 +214,40 @@ snippet now "import now" b
 from django.utils.timezone import now
 endsnippet
 
+# -----------------------------------------------------------------------------
+# drf_yasg swagger utils
+# -----------------------------------------------------------------------------
+
+snippet swagget "description"
+from drf_yasg.utils import swagger_auto_schema
+from .serializers import ${1:MySerializer}
+
+@swagger_auto_schema(
+    methods=['get'],
+    query_serializer=$1,
+    responses={'200': """
+```json
+$2
+```
+"""})
+endsnippet
+
+
+snippet swagpost "description"
+from drf_yasg.utils import swagger_auto_schema
+from .serializers import ${1:MySerializer}
+
+@swagger_auto_schema(
+    methods=['post'],
+    request_body=$1,
+    responses={'200': """
+```json
+$2
+```
+"""}
+endsnippet
+    
+
 # --------------------------------------------
 # others
 # --------------------------------------------
