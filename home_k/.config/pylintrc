@@ -154,7 +154,6 @@ disable=print-statement,
         ungrouped-imports,
         logging-fstring-interpolation,
         unused-wildcard-import,
-        no-member,
         bad-continuation,
         too-many-branches,
         function-redefined,
@@ -165,6 +164,7 @@ disable=print-statement,
         mising-function-docstring,
         wrong-import-order,
         unused-import
+        # no-member,
 
 
 

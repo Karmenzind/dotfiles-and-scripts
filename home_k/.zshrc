@@ -1,5 +1,6 @@
 # If you come from bash you might have to change your $PATH.
-# export PATH=$HOME/bin:/usr/local/bin:$PATH
+export PATH=$HOME/bin:/usr/bin:/usr/local/bin:$PATH
+# FIXME (qk): <2022-06-16> dirty path
 
 # Path to your oh-my-zsh installation.
 if [[ -d "$HOME/.oh-my-zsh" ]]; then
@@ -88,7 +89,7 @@ plugins=(
   'systemd'
   # 'svn'
   'svn-fast-info'
-  'virtualenv'
+  # 'virtualenv'
   'virtualenvwrapper'
   'archlinux'
   # 'autojump'
@@ -133,7 +134,7 @@ source $ZSH/oh-my-zsh.sh
 
 [ -f ~/.fzf.zsh ] && source ~/.fzf.zsh
 
-autoload -U +X bashcompinit && bashcompinit
+# autoload -U +X bashcompinit && bashcompinit
 complete -o nospace -C /usr/local/bin/mc mc
 
 export NVM_DIR="$HOME/.nvm"

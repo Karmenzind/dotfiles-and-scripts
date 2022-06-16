@@ -708,7 +708,7 @@ let g:ale_linter_aliases = {
       \ }
 let g:ale_linters = {
       \ 'vim': ['vint'],
-      \ 'python': ['pydocstyle', 'flake8'],
+      \ 'python': ['pylint', 'pydocstyle', 'flake8'],
       \ 'markdown': ['mdl', 'prettier', 'proselint', 'alex'],
       \ 'text': ['proselint', 'alex', 'redpen'],
       \ 'vue': ['htmlhint', 'jshint', 'stylelint'],
