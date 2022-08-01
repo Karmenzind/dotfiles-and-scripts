@@ -4,6 +4,13 @@
 " init
 " --------------------------------------------
 
+" let maplocalleader = " "
+" let mapleader = " "
+if $__MYKEYBOARD == "hhkb"
+  noremap <BACKSPACE> <NOP>
+  map <BACKSPACE> <Leader>
+endif
+
 let b:current_hour = strftime('%H')
 let s:bg_light = b:current_hour >=8 && b:current_hour < 13
 
@@ -34,6 +41,9 @@ nnoremap <silent> <A-a> gT
 nnoremap <silent> <A-d> gt
 map <M-a> <A-a>
 map <M-d> <A-d>
+nnoremap n gt
+nnoremap p gT
+
 nnoremap <silent> <C-p> gT
 nnoremap <silent> <C-n> gt
 
@@ -745,7 +755,7 @@ let g:ale_python_mypy_ignore_invalid_syntax = 1
 let g:ale_python_mypy_options = '--incremental'
 let g:ale_python_pylint_options = '--max-line-length=120 --rcfile $HOME/.config/pylintrc'
 " let g:ale_python_autopep8_options = '--max-line-length=120'
-let g:ale_python_flake8_options = '--max-line-length=120 --extend-ignore=E722,E741,E402'
+let g:ale_python_flake8_options = '--max-line-length=120 --extend-ignore=E722,E741,E402,E501'
 let g:ale_python_pydocstyle_options = '--ignore=D200,D203,D204,D205,D211,D212,D213,D400,D401,D403,D415'
 " let g:ale_javascript_prettier_options = '-c'
 " let g:ale_javascript_eslint_options = '--ext .js,.vue'
@@ -823,7 +833,12 @@ let g:SimpylFold_fold_import = 1
 " let g:choosewin_overlay_enable = 1
 
 " /* for vim-tmuxlike */
-nmap <silent> <c-\> <Plug>(tmuxlike-prefix)
+" nmap <silent> <c-\> <Plug>(tmuxlike-prefix)
+nmap <c-\> <Plug>(tmuxlike-prefix)
+if $__MYKEYBOARD == "hhkb"
+  " XXX (k): <2022-06-23> <C-BS> didn't work
+  nmap  <Plug>(tmuxlike-prefix)
+endif
 
 " /* for vim-plug */
 noremap <Leader>pi :PlugInstall<CR>

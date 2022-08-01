@@ -1,16 +1,18 @@
 #!/usr/bin/env bash
 
-pic_dir=$HOME/Pictures
-mkdir -p $pic_dir
+pic_dir=$HOME/Pictures/ScreenShot
 
 # screenshot_dir=${pic_dir}/ScreenShots
 screenshot_png=${pic_dir}/SCREENSHOT.png
-flameshot_dir=${pic_dir}/FlameShots
+# flameshot_dir=${pic_dir}/FlameShots
+flameshot_dir=${pic_dir}
 flameshot_png=${pic_dir}/SCREENSHOT_FLAME.png
 
+mkdir -p $pic_dir
+mkdir -p $flameshot_dir
+
 after() {
-    xclip -selection clipboard -t image/png -i "$screenshot_png"
-    prompt
+    xclip -selection clipboard -t image/png -i "$screenshot_png" && prompt
 }
 
 flameshot_before() {
@@ -25,7 +27,7 @@ do_scrot() {
 
 flameshot_area() {
     flameshot_before 
-    flameshot gui -p $pic_dir
+    flameshot gui -p $flameshot_dir -c
 }
 
 prompt() {

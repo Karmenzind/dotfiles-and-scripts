@@ -1,5 +1,7 @@
 # vim:set et ft=sh sw=4 ts=4:
 
+export __MYKEYBOARD=${__MYKEYBOARD:-common}
+
 # [[ -n $__LOADED_SHRC_EXT ]] && echo "[WARNING] shrc.ext already loaded. Stopped." && return
 export __LOADED_SHRC_EXT=true
 

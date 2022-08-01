@@ -6,8 +6,10 @@
 # *: custom
 
 # Set mod key (Mod1=<Alt>, Mod4=<Super>)
-set $mod Mod4
+set $mod Mod1
 set $i3_config_dir $HOME/.config/i3/
+
+# include ~/.config/i3/local.conf
 
 # set default desktop layout (default is tiling)
 # workspace_layout tabbed <stacking|tabbed>
@@ -82,11 +84,12 @@ bindsym $mod+Ctrl+t exec --no-startup-id compton -b
 
 # /* screenshot */
 # full
-bindsym --release Print exec bash $i3_config_dir/screenshot.sh full
+bindsym --release Print exec bash $i3_config_dir/screenshot.sh area_fs
 # area
-bindsym --release Shift+Print exec bash $i3_config_dir/screenshot.sh area
+# bindsym --release Shift+Print exec bash $i3_config_dir/screenshot.sh area
+bindsym --release Shift+Print exec bash $i3_config_dir/screenshot.sh full
 # area with flameshot
-bindsym --release $mod+Shift+Print exec bash $i3_config_dir/screenshot.sh area_fs
+# bindsym --release $mod+Shift+Print exec bash $i3_config_dir/screenshot.sh area_fs
 
 bindsym $mod+Shift+h exec xdg-open /usr/share/doc/manjaro/i3_help.pdf
 bindsym $mod+Ctrl+x --release exec --no-startup-id xkill
