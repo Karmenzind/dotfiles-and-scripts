@@ -42,32 +42,45 @@ _fonts=(
 )
 
 _cli=(
+    # rabbitmq
+    # screenfetch
+    w3m
+    github-cli
+    the_silver_searcher
+    tig
+    clash
+    trojan
     arandr
     aria2
     bat
     conky
+    cowsay
     cronie
     docker
-    fortune-mod
-    cowsay
+    docker-compose
+    dos2unix
     dunst
     feh
+    fortune-mod
+    fzf
     go
     mlocate
     neofetch
     nginx
+    nodejs
     npm
     p7zip
+    python-isort
+    python-pip
+    python-pylint
+    python-pynvim
+    python-rope
     python2
     python2-pip
     python3
-    python-pip
-    # rabbitmq
-    # screenfetch
     scrot
     shadowsocks
     tig
-    fzf
     unrar
     xclip
     xsel
@@ -85,11 +98,19 @@ _desktop=(
     # thunderbird
     compton
     rofi
+    geeqie
     chromium
     lxappearance
     pcmanfm
     volumeicon
+    polybar
     xfce4-terminal
+    flameshot
+    github-desktop-bin
+    alacritty
+    pycharm-community-edition
+    remmina
+    typora
 )
 
 _aur=(
@@ -98,14 +119,14 @@ _aur=(
     # bmenu
     # electronic-wechat
     # apvlv
-    # alacritty-scrollback-git
+    # crossover
+    # teamviewer
+    # oh-my-zsh-git
     emojify
     sqlint
     acroread
     acroread-fonts
-    crossover
-    oh-my-zsh-git
-    teamviewer
+    netease-cloud-music
 )
 
 # appearance
@@ -257,7 +278,10 @@ install_fcitx() {
     check_input yn
     [[ ! $ans = 'y' ]] && return
 
-    do_install fcitx fcitx-im fcitx-configtool fcitx-sunpinyin fcitx-cloudpinyin
+    # fcitx4
+    # do_install fcitx fcitx-im fcitx-configtool fcitx-sunpinyin fcitx-cloudpinyin
+
+    do_install fcitx5 fcitx5-chinese-addons fcitx5-configtool fcitx5-gtk fcitx5-material-color fcitx5-nord fcitx5-pinyin-zhwiki fcitx5-qt
 }
 
 
