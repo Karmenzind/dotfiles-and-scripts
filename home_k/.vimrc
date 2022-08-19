@@ -126,7 +126,7 @@ Plug 'junegunn/fzf.vim'
 Plug 'fatih/vim-go', { 'do': ':GoUpdateBinaries' }
 
 " /* Python */
-Plug 'tmhedberg/SimpylFold' " code folding
+Plug 'tmhedberg/SimpylFold', { 'for': 'python' } " code folding
 Plug 'raimon49/requirements.txt.vim'
 Plug 'vim-scripts/indentpython.vim'
 Plug 'tweekmonster/django-plus.vim', { 'for': 'python' }
@@ -825,6 +825,8 @@ augroup END
 let g:SimpylFold_docstring_preview = 1
 let g:SimpylFold_fold_docstring = 0
 let g:SimpylFold_fold_import = 1
+" let g:SimpylFold_fold_blank = 1
+
 
 " /* for choosewin */
 " invoke with '-'
