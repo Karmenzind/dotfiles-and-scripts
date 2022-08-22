@@ -22,9 +22,10 @@ new_float normal
 hide_edge_borders none
 
 # change borders
-bindsym $mod+u border none
-bindsym $mod+y border pixel 1
-bindsym $mod+n border normal
+# bindsym $mod+u border none
+# bindsym $mod+y border pixel 1
+# bindsym $mod+n border normal
+bindsym $mod+u border toggle
 
 # Font for window titles. Will also be used by the bar unless a different font
 # is used in the bar {} block below.

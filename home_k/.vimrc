@@ -1295,6 +1295,8 @@ if s:valid_extra_vimrc
   execute 'source ' . s:extra_vimrc_path
 endif
 
+" command -nargs=1 Colo :call SetColorScheme('<args>')
+
 " fallback
 if !exists('g:colors_name')
   call SetColorScheme('molokai')

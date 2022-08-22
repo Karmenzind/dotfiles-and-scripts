@@ -5,6 +5,8 @@ export __MYKEYBOARD=${__MYKEYBOARD:-common}
 # [[ -n $__LOADED_SHRC_EXT ]] && echo "[WARNING] shrc.ext already loaded. Stopped." && return
 export __LOADED_SHRC_EXT=true
 
+alias pacman='pacman --disable-download-timeout'
+
 alias py=python
 alias py3=python3
 alias py2=python2
@@ -476,8 +478,11 @@ pkg_by_missing() {
 
 emoji-fzf() {
     # TODO (k): <2022-03-07> cache
-    emojis=$(curl -sSL 'https://git.io/JXXO7')
-    selected_emoji=$(echo $emojis | fzf)
+    local cache_file=~/.cache/emoji-fzf-cache
+    if ! [[ -s $cache_file ]]; then
+        wget 'https://git.io/JXXO7' -O $cache_file
+    fi
+    selected_emoji=$(cat $cache_file | fzf)
     echo $selected_emoji
 }
 

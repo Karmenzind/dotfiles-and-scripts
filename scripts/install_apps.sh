@@ -287,7 +287,7 @@ install_fcitx() {
 
 install_zsh_autosuggestions() {
     if command -v zsh; then
-        echo "Install fcitx and Chinese input method? (Y/n)"
+        echo "Install zsh zsh_autosuggestions? (Y/n)"
         check_input yn
         [[ ! $ans = 'y' ]] && return
 
