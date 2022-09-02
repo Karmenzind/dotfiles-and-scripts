@@ -40,6 +40,7 @@ SYMLINK_AS_DIR = [
 ]
 
 EXCLUDED = [
+    "home_k/README.md",
     "local_bin/acpyve",
     "local_bin/docker_manager",
 ]

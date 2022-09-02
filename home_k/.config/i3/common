@@ -1,0 +1,139 @@
+# vim:set noet ft=i3config:
+
+# -----------------------------------------------------------------------------
+# apps
+# -----------------------------------------------------------------------------
+
+# basic
+# exec --no-startup-id i3-msg "workspace 3; exec chromium; workspace 2; exec i3-sensible-terminal; workspace 1; exec i3-sensible-terminal" &
+# exec --no-startup-id electronic-wechat &
+
+# /* system tools */
+# notifier
+# exec_always --no-startup-id "command -v deadd-notification-center && deadd-notification-center & || dunst &"
+exec_always --no-startup-id "killall -9 dunst; dunst &"
+
+exec_always --no-startup-id killall -9 pcmanfm; pcmanfm -d &
+exec_always --no-startup-id killall -9 udiskie; udiskie --tray &
+exec_always --no-startup-id pamac-tray &
+
+# screenshot
+exec --no-startup-id flameshot &
+# transparency controller
+exec_always --no-startup-id killall picom; picom -b &
+# popup input box for authentication
+exec --no-startup-id /usr/lib/polkit-gnome/polkit-gnome-authentication-agent-1 & eval $(gnome-keyring-daemon -s --components=pkcs11,secrets,ssh,gpg) &
+# xflux
+exec_always --no-startup-id killall -9 xflux; xflux -l '30.2443314184' -g '120.1665687561' &
+# arrange monitors
+# exec_always xrandr --output HDMI3 --off --output HDMI2 --off --output HDMI1 --mode 1920x1080 --pos 1920x0 --rotate normal --output VIRTUAL1 --off --output DP1 --primary --mode 1920x1080 --pos 0x0 --rotate normal
+exec_always bash $HOME/.screenlayout/default.sh
+
+# a cat chasing the mouse
+# exec_always --no-startup-id bash $HOME/.config/i3/run_oneko.sh &
+# exec_always --no-startup-id command -v oneko && killall -9 oneko && oneko -tofocus &
+
+# /* with tray icons */
+exec --no-startup-id volumeicon &
+exec --no-startup-id fcitx5 &
+
+
+exec_always --no-startup-id $HOME/.config/polybar/launch.sh
+
+# start program launcher
+# bindsym $mod+d exec --no-startup-id dmenu_recency
+# bindsym $mod+Shift+d exec dmenu_run
+# bindsym $mod+d exec --no-startup-id i3-dmenu-desktop
+bindsym $mod+d exec --no-startup-id rofi \
+    -show combi -modi combi              \
+    -combi-modi "drun#run#window#ssh"    \
+    -font "MV Boli Regular 11" &
+# bindsym $mod+p exec --no-startup-id ~/.config/rofi/launchers/type-2/launcher.sh
+# bindsym $mod+x exec --no-startup-id powermenu_t2
+
+
+# -----------------------------------------------------------------------------
+# Window specs
+# -----------------------------------------------------------------------------
+
+# Open specific applications in floating mode
+# for_window [class="libreoffice-.*"] floating enable
+# for_window [class="libreoffice-.*"] resize set 1360 720
+for_window [title="Remmina Remote Desktop Client"] floating enable
+for_window [class="Lxappearance"] floating enable sticky enable border normal
+for_window [class="netease-cloud-music"] floating enable resize set 1360 720
+for_window [class="Pamac-manager"]     floating enable
+
+# for_window [class="(?i)virtualbox"]    floating enable border normal
+# for_window [class="Wine"]              floating enable border none
+# for_window [class="fontforge"]         floating enable
+# for_window [class="Xiami.Music"]       floating enable border none
+# for_window [class="TeamViewer"]        floating enable border none
+for_window [class="Pcmanfm"]           floating enable border none
+# for_window [class="Crossover"]         floating enable border none
+# for_window [class="electronic-wechat"] floating enable border none
+# for_window [class="Gitter"]            floating enable border none
+
+for_window [window_role="pop-up"]      floating enable
+for_window [window_role="bubble"]      floating enable
+for_window [window_role="task_dialog"] floating enable
+for_window [window_role="Preferences"] floating enable
+
+for_window [window_type="dialog"]      floating enable
+for_window [window_type="menu"]        floating enable
+
+
+# assign [title="QQ"]                10
+# assign [class="Gitter"]            10
+# assign [class="electronic-wechat"] 10
+
+# /* notice in fullscreen */
+popup_during_fullscreen smart
+
+# /* colorscheme */
+
+# /* focus follows mouse */
+focus_follows_mouse no
+
+# -----------------------------------------------------------------------------
+# general functions
+# -----------------------------------------------------------------------------
+
+bindsym $mod+u border toggle
+
+# /* screenshot */
+# full
+bindsym --release Print exec bash $i3_config_dir/screenshot.sh area_fs
+# area
+# bindsym --release Shift+Print exec bash $i3_config_dir/screenshot.sh area
+bindsym --release Shift+Print exec bash $i3_config_dir/screenshot.sh full
+# area with flameshot
+# bindsym --release $mod+Shift+Print exec bash $i3_config_dir/screenshot.sh area_fs
+
+# /* background and screen lock*/
+set $wallpaper_png $HOME/Pictures/LOCKSCREEN.png
+set $wallpaper_dir $HOME/Pictures/LOCKSCREENS
+# background
+exec_always --no-startup-id ls $HOME/Pictures/BACKGROUND.* && feh --bg-max `ls $HOME/Pictures/BACKGROUND.*` &
+# change background
+bindsym $mod+Shift+w exec --no-startup-id feh --bg-max `[[ -d $wallpaper_dir ]] && (find $wallpaper_dir -type f | sort -R | head -1) || echo $wallpaper_png` &
+# auto lock
+# exec_always --no-startup-id xautolock -time 20 -locker i3lock -t -i $wallpaper_png &
+exec_always --no-startup-id xautolock -time 15 -locker blurlock &
+# bindsym $mod+Ctrl+l exec --no-startup-id i3lock -t -i $wallpaper_png
+# lock with random pic of specific dir
+# bindsym $mod+Ctrl+l exec --no-startup-id i3lock -t -i `[ -d $wallpaper_dir ] && (find $wallpaper_dir -type f -name '*png' | sort -R | head -1) || echo $wallpaper_png` &
+# bindsym $mod+Ctrl+l exec --no-startup-id i3lock -t -i `[ -d $wallpaper_dir ] && (find $wallpaper_dir -type f -name '*png' | sort -R | head -1) || echo $wallpaper_png` &
+bindsym $mod+Ctrl+l exec --no-startup-id i3lock -t -i `[ -d $wallpaper_dir ] && (find $wallpaper_dir -type f -name '*png' | shuf -n 1) || echo $wallpaper_png` &
+# lock with random pic from internet (random picture source: https://www.zhihu.com/question/21168322)
+# ...todo
+
+# generated with i3-style
+client.focused #586e75 #586e75 #fdf6e3 #268bd2
+client.focused_inactive #073642 #073642 #93a1a1 #002b36
+client.unfocused #002b36 #002b36 #586e75 #002b36
+client.urgent #dc322f #dc322f #fdf6e3 #dc322f
+
+exec_always --no-startup-id "notify-send 'Loaded common config'"
+# scripts
+exec_always --no-startup-id bash $HOME/.config/i3/post_start.sh &

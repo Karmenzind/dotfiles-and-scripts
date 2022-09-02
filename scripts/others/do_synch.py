@@ -1,12 +1,15 @@
 #! /usr/bin/env python3
 # https://github.com/Karmenzind/
-
 # -----------------------------------------------------------------------------
 # This script is no longer recommended.
 # Use symlink.py instead.
 # -----------------------------------------------------------------------------
 
 # 这个脚本写的很烂，后续有空重写
+
+import warnings
+
+warnings.warn("This script is no longer recommended. Use symlink.py instead.")
 
 import collections
 import os
@@ -216,7 +219,7 @@ def main(action):
         for e in es:
             if isinstance(e, (tuple, list)):
                 e = '\t'.join(e)
-            print(TAB*2, e)
+            print(TAB * 2, e)
 
     if sync_queue:
         print('\nTo be synchronized:')

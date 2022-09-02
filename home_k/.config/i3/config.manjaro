@@ -1,3 +1,4 @@
+# vim:set noet ft=i3config:
 # https://github.com/Karmenzind/
 #
 # i3 config file (v4)
@@ -25,7 +26,6 @@ hide_edge_borders none
 # bindsym $mod+u border none
 # bindsym $mod+y border pixel 1
 # bindsym $mod+n border normal
-bindsym $mod+u border toggle
 
 # Font for window titles. Will also be used by the bar unless a different font
 # is used in the bar {} block below.
@@ -40,13 +40,6 @@ bindsym $mod+Return exec alacritty
 
 # kill focused window
 bindsym $mod+Shift+q kill
-
-# start program launcher
-# bindsym $mod+d exec --no-startup-id dmenu_recency
-bindsym $mod+d exec --no-startup-id rofi \
-    -show combi -modi combi              \
-    -combi-modi "drun#run#window#ssh"    \
-    -font "MV Boli Regular 11" &
 
 # launch categorized menu
 bindsym $mod+z exec --no-startup-id morc_menu
@@ -82,15 +75,6 @@ bindsym $mod+Ctrl+t exec --no-startup-id compton -b
 # bindsym Print exec --no-startup-id i3-scrot
 # bindsym $mod+Print --release exec --no-startup-id i3-scrot -w
 # bindsym $mod+Shift+Print --release exec --no-startup-id i3-scrot -s
-
-# /* screenshot */
-# full
-bindsym --release Print exec bash $i3_config_dir/screenshot.sh area_fs
-# area
-# bindsym --release Shift+Print exec bash $i3_config_dir/screenshot.sh area
-bindsym --release Shift+Print exec bash $i3_config_dir/screenshot.sh full
-# area with flameshot
-# bindsym --release $mod+Shift+Print exec bash $i3_config_dir/screenshot.sh area_fs
 
 bindsym $mod+Shift+h exec xdg-open /usr/share/doc/manjaro/i3_help.pdf
 bindsym $mod+Ctrl+x --release exec --no-startup-id xkill
@@ -315,9 +299,7 @@ mode "resize" {
 # bindsym $mod+Ctrl+l exec --no-startup-id blurlock
 
 # Autostart applications
-exec_always --no-startup-id bash $HOME/.config/i3/post_start.sh &
 exec --no-startup-id /usr/lib/polkit-gnome/polkit-gnome-authentication-agent-1
-exec --no-startup-id compton -b
 # exec --no-startup-id nitrogen --restore; sleep 1; compton -b
 # exec --no-startup-id manjaro-hello
 exec --no-startup-id xfce4-power-manager
@@ -327,38 +309,13 @@ exec --no-startup-id clipit
 # exec_always --no-startup-id sbxkb
 # exec --no-startup-id start_conky_maia
 # exec --no-startup-id start_conky_green
-exec --no-startup-id xautolock -time 15 -locker blurlock
+# exec --no-startup-id xautolock -time 15 -locker blurlock 
 exec_always --no-startup-id ff-theme-util
 exec_always --no-startup-id fix_xcursor
 exec --no-startup-id nm-applet
 
-# xflux
-exec_always --no-startup-id killall -9 xflux; xflux -l '30.2443314184' -g '120.1665687561' &
-
-# *
-# exec --no-startup-id fcitx &
-exec --no-startup-id fcitx5 &
-exec --no-startup-id flameshot &
-exec_always --no-startup-id command -v oneko && killall -9 oneko && oneko -tofocus &
-
 # deadd
-exec --no-startup-id deadd-notification-center &
 bindsym $mod+Shift+n --release exec "kill -s USR1 $(pidof deadd-notification-center)"
-
-# /* background and screen lock*/
-set $wallpaper_png $HOME/Pictures/LOCKSCREEN.png
-set $wallpaper_dir $HOME/Pictures/LOCKSCREENS/
-# background
-exec_always --no-startup-id ls $HOME/Pictures/BACKGROUND.* && feh --bg-max `ls $HOME/Pictures/BACKGROUND.*` &
-# change wallpaper
-bindsym $mod+Shift+w exec --no-startup-id feh --bg-max `[[ -d $wallpaper_dir ]] && (find $wallpaper_dir -type f | sort -R | head -1) || echo $wallpaper_png` &
-# auto lock
-# exec_always --no-startup-id xautolock -time 20 -locker i3lock -t -i $wallpaper_png &
-# bindsym $mod+Ctrl+l exec --no-startup-id i3lock -t -i $wallpaper_png
-# lock with random pic of specific dir
-bindsym $mod+Ctrl+l exec --no-startup-id i3lock -t -i `[ -d $wallpaper_dir ] && (find $wallpaper_dir -type f -name '*png' | shuf -n 1) || echo $wallpaper_png` &
-# lock with random pic from internet (random picture source: https://www.zhihu.com/question/21168322)
-# ...todo
 
 # Color palette used for the terminal ( ~/.Xresources file )
 # Colors are gathered based on the documentation:
@@ -421,7 +378,6 @@ set_from_resource $term_color15    color15
 #        urgent_workspace   #16a085 #FDF6E3 #E5201D
 #    }
 #}
-exec_always --no-startup-id $HOME/.config/polybar/launch.sh
 
 # hide/unhide i3status bar
 bindsym $mod+m bar mode toggle
@@ -492,3 +448,5 @@ mode "$mode_gaps_outer" {
         bindsym Return mode "default"
         bindsym Escape mode "default"
 }
+
+include ~/.config/i3/common

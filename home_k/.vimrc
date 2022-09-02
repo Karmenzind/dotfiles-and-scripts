@@ -137,7 +137,7 @@ Plug 'tweekmonster/django-plus.vim', { 'for': 'python' }
 Plug 'godlygeek/tabular'
 Plug 'mzlogin/vim-markdown-toc'
 Plug 'plasticboy/vim-markdown'
-Plug 'iamcco/markdown-preview.nvim', { 'do': { -> mkdp#util#install() }}
+Plug 'iamcco/markdown-preview.nvim', { 'do': { -> mkdp#util#install() }, 'for': ['markdown', 'vim-plug']}
 Plug 'nelstrom/vim-markdown-folding'
 Plug 'mklabs/vim-markdown-helpfile'
 Plug 'Traap/vim-helptags'
@@ -648,8 +648,8 @@ command! -bang -nargs=* Ag
       \                         : fzf#vim#with_preview('right:40%', '?'),
       \                 <bang>0)
 
-command! -bang -nargs=? -complete=dir Files
-      \ call fzf#vim#files(<q-args>, fzf#vim#with_preview('right:60%'), <bang>0)
+" command! -bang -nargs=? -complete=dir Files
+"       \ call fzf#vim#files(<q-args>, fzf#vim#with_preview('right:60%'), <bang>0)
 
 command! -bar -nargs=? -bang Maps
       \ call fzf#vim#maps(<q-args>, <bang>0)
@@ -807,7 +807,13 @@ let g:mkdp_preview_options = {
     \ 'uml': {},
     \ 'maid': {},
     \ 'disable_sync_scroll': 1,
-    \ 'sync_scroll_type': 'middle'
+    \ 'sync_scroll_type': 'middle',
+    \ 'hide_yaml_meta': 1,
+    \ 'sequence_diagrams': {},
+    \ 'flowchart_diagrams': {},
+    \ 'content_editable': v:false,
+    \ 'disable_filename': 0,
+    \ 'toc': {}
     \ }
 
 
@@ -815,7 +821,7 @@ let g:mkdp_preview_options = {
 augroup for_markdown_ft
   au!
   au FileType markdown
-        \ nnoremap <buffer> <silent> <Leader>mp :MarkdownPreview<CR>     |
+        \ nnoremap <buffer> <Leader>mp :MarkdownPreview<CR>     |
         \ let  b:AutoPairs = {'(':')', '[':']', '{':'}',"'":"'",'"':'"'} |
         \ cabbrev <buffer> TF TableFormat
   " FIXME (k): <2022-03-23> no search

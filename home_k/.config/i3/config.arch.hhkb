@@ -1,3 +1,4 @@
+# vim:set noet ft=i3config:
 # Github: https://github.com/Karmenzind/dotfiles-and-scripts
 
 set $mod Mod1
@@ -21,14 +22,6 @@ bindsym $mod+Return exec i3-sensible-terminal &
 
 # kill focused window
 bindsym $mod+Shift+q kill
-
-# program launcher
-# bindsym $mod+Shift+d exec dmenu_run
-# bindsym $mod+d exec --no-startup-id i3-dmenu-desktop
-bindsym $mod+d exec --no-startup-id rofi \
-    -show combi -modi combi              \
-    -combi-modi "drun#run#window#ssh"    \
-    -font "MV Boli Regular 11" &
 
 # change focus
 bindsym $mod+j focus left
@@ -170,7 +163,9 @@ new_window pixel $local_pixel
 # Hide borders
 # hide_edge_borders vertical
 # change borders
+# bindsym $mod+u border none
 # bindsym $mod+y border pixel $local_pixel
+# # bindsym $mod+n border normal
 
 # -----------------------------------------------------------------------------
 # bar
@@ -179,27 +174,27 @@ new_window pixel $local_pixel
 bindsym $mod+Shift+m bar mode toggle
 
 # Start i3bar to display a workspace bar
-bar {
-    status_command i3status
-    # status_command bash $i3_config_dir/conky_status.sh
-    i3bar_command i3bar
-    # separator_symbol " "
-    # strip_workspace_numbers yes
-    # top|bottom
-    position top
-    # font -misc-fixed-medium-r-normal--13-120-75-75-C-70-iso10646-1
-    # font pango:WenQuanYi WenQuanYi Bitmap Song 10
-    font pango:Monaco Nerd Font 9
-    colors {
-      separator #586e75
-      background #002b36
-      statusline #aea79f
-      focused_workspace #586e75 #586e75 #ffffff
-      active_workspace #073642 #073642 #ffffff
-      inactive_workspace #002b36 #002b36 #aea79f
-      urgent_workspace #77216f #77216f #ffffff
-    }
-}
+# bar {
+#     status_command i3status
+#     # status_command bash $i3_config_dir/conky_status.sh
+#     i3bar_command i3bar
+#     # separator_symbol " "
+#     # strip_workspace_numbers yes
+#     # top|bottom
+#     position top
+#     # font -misc-fixed-medium-r-normal--13-120-75-75-C-70-iso10646-1
+#     # font pango:WenQuanYi WenQuanYi Bitmap Song 10
+#     font pango:Monaco Nerd Font 9
+#     colors {
+#       separator #586e75
+#       background #002b36
+#       statusline #aea79f
+#       focused_workspace #586e75 #586e75 #ffffff
+#       active_workspace #073642 #073642 #ffffff
+#       inactive_workspace #002b36 #002b36 #aea79f
+#       urgent_workspace #77216f #77216f #ffffff
+#     }
+# }
 
 # -----------------------------------------------------------------------------
 # i3-gaps
@@ -256,8 +251,4 @@ mode "$mode_gaps_outer" {
     bindsym Escape mode "default"
 }
 
-# generated with i3-style
-client.focused #586e75 #586e75 #fdf6e3 #268bd2
-client.focused_inactive #073642 #073642 #93a1a1 #002b36
-client.unfocused #002b36 #002b36 #586e75 #002b36
-client.urgent #dc322f #dc322f #fdf6e3 #dc322f
+include ~/.config/i3/common

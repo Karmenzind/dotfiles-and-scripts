@@ -497,5 +497,5 @@ emoji-fzf() {
 #     done
 # }
 
-# PATH="/usr/local/bin:/usr/local/sbin:/usr/bin:$PATH"
+PATH="$PATH:$HOME/.local/bin"
 PATH="$(perl -e 'print join(":", grep { not $seen{$_}++ } split(/:/, $ENV{PATH}))')"

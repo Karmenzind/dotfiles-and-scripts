@@ -86,7 +86,7 @@ inherit = bar/base
 modules-left = eth
 ;modules-center = i3
 modules-right = updates-pacman-aurhelper vpn
-monitor = ${env:MONITOR:DVI-D-0}
+monitor = ${env:MONITOR:DVI-D-1}
 
 [bar/main]
 inherit = bar/base
@@ -94,11 +94,11 @@ modules-left =
 ;modules-center = i3
 modules-right = date 
 
-monitor = ${env:MONITOR:HDMI-0}
+monitor = ${env:MONITOR:HDMI-1}
 
 [bar/right]
 inherit = bar/base
-monitor = ${env:MONITOR:DP-5}
+monitor = ${env:MONITOR:DP-1}
 ;modules-left = bspwm i3
 modules-left = cpu memory wlan temperature
 ;modules-center = i3

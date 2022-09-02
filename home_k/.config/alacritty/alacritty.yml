@@ -103,8 +103,8 @@ font:
     # family: MonacoB Nerd Font Mono
     # family: Hack Nerd Font # should be "Menlo" or something on macOS.
     # family: Hack NF
-    family: DejavuSansMono NF
-    # family: CaskaydiaCove Nerd Font Mono
+    # family: DejavuSansMono NF
+    family: CaskaydiaCove Nerd Font Mono
     # Style can be specified to pick a specific face.
     # style: Bold
 
