@@ -16,12 +16,12 @@ runbar() {
 }
 
 
-case $ENV_TAG in
-    home ) 
-        bars=left main right
+case ${ENV_TAG} in
+    home) 
+        bars=('homeleft homeright')
         ;;
     *) 
-        bars=('homeleft homeright')
+        bars=('left main right')
         ;;
 
 esac
