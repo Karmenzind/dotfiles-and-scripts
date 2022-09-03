@@ -1,5 +1,5 @@
 # Configuration for Alacritty, the GPU enhanced terminal emulator
-
+#
 
 # Any items in the `env` entry below will be added as
 # environment variables. Some entries may override variables
@@ -36,7 +36,7 @@ window:
   decorations: full
 
   dynamic_title: true
-  opacity: 0.92
+  opacity: 0.93
 
 scrolling:
   # How many lines of scrollback to keep,
@@ -85,134 +85,133 @@ draw_bold_text_with_bright_colors: true
 #
 # * https://wiki.archlinux.org/index.php/font_configuration#Fontconfig_configuration
 # * file:///usr/share/doc/fontconfig/fontconfig-user.html
-font:
-  # The normal (roman) font face to use.
-  normal:
-    # family: Hack NF
-    # family: MonacoB Nerd Font Mono
-    # family: Monaco Nerd Font Mono
-    family: CaskaydiaCove Nerd Font
-    # family: FiraCode Nerd Font
-    # family: DejavuSansMono NF
-    # family: DejavuSansMono NF
-    # Style can be specified to pick a specific face.
-    # style: Regular
 
-  # The bold font face
-  bold:
-    # family: MonacoB Nerd Font Mono
-    # family: Hack Nerd Font # should be "Menlo" or something on macOS.
-    # family: Hack NF
-    # family: DejavuSansMono NF
-    family: CaskaydiaCove Nerd Font Mono
-    # Style can be specified to pick a specific face.
-    # style: Bold
+# font:
+#   # The normal (roman) font face to use.
+#   normal:
+#     # family: Hack NF
+#     family: Hack Nerd Font # should be "Menlo" or something on macOS.
+#     # family: Monaco Nerd Font
+#     # family: CaskaydiaCove Nerd Font
+#     # family: FiraCode Nerd Font
+#     # family: DejavuSansMono NF
+#     # family: DejavuSansMono NF
+#     # Style can be specified to pick a specific face.
+#     style: Regular
 
-  # The italic font face
-  italic:
-    # family: MonacoBItalic Nerd Font Mono
-    # family: Hack Nerd Font # should be "Menlo" or something on macOS.
-    # family: Monaco Nerd Font
-    family: CaskaydiaCove Nerd Font Mono
-    # family: Hack NF
-    # family: DejavuSansMono NF
-    # Style can be specified to pick a specific face.
-    # style: Italic
+#   # The bold font face
+#   bold:
+#     family: Hack Nerd Font # should be "Menlo" or something on macOS.
+#     # family: Hack NF
+#     # family: DejavuSansMono NF
+#     # family: CaskaydiaCove Nerd Font Mono
+#     # Style can be specified to pick a specific face.
+#     style: Bold
 
-  # Point size of the font
-  size: 12
+#   # The italic font face
+#   italic:
+#     family: Hack Nerd Font # should be "Menlo" or something on macOS.
+#     # family: Monaco Nerd Font
+#     # family: CaskaydiaCove Nerd Font Mono
+#     # family: Hack NF
+#     # family: DejavuSansMono NF
+#     # Style can be specified to pick a specific face.
+#     style: Italic
 
-  # Offset is the extra space around each character. offset.y can be thought of
-  # as modifying the linespacing, and offset.x as modifying the letter spacing.
-  offset:
-    x: 0
-    y: 2
+#   # Point size of the font
+#   size: 12
 
-  # Glyph offset determines the locations of the glyphs within their cells with
-  # the default being at the bottom. Increase the x offset to move the glyph to
-  # the right, increase the y offset to move the glyph upward.
-  glyph_offset:
-    x: 0
-    y: 0
+#   # Offset is the extra space around each character. offset.y can be thought of
+#   # as modifying the linespacing, and offset.x as modifying the letter spacing.
+#   offset:
+#     x: 0
+#     y: 2
 
-  # OS X only: use thin stroke font rendering. Thin strokes are suitable
-  # for retina displays, but for non-retina you probably want this set to
-  # false.
-  use_thin_strokes: true
+#   # Glyph offset determines the locations of the glyphs within their cells with
+#   # the default being at the bottom. Increase the x offset to move the glyph to
+#   # the right, increase the y offset to move the glyph upward.
+#   glyph_offset:
+#     x: 0
+#     y: 0
+
+#   # OS X only: use thin stroke font rendering. Thin strokes are suitable
+#   # for retina displays, but for non-retina you probably want this set to
+#   # false.
+#   use_thin_strokes: true
 
 # Should display the render timer
 # debug:
 #   render_timer: false
 
-# schemes
-schemes:
-  solarized_light: &light
-    # Default colors
-    primary:
-      background: '0xfdf6e3' # base3
-      foreground: '0x657b83' # base00
+# # schemes
+# schemes:
+#   solarized_light: &light
+#     # Default colors
+#     primary:
+#       background: '0xfdf6e3' # base3
+#       foreground: '0x657b83' # base00
 
-    # Cursor colors
-    cursor:
-      text:   '0xfdf6e3' # base3
-      cursor: '0x657b83' # base00
+#     # Cursor colors
+#     cursor:
+#       text:   '0xfdf6e3' # base3
+#       cursor: '0x657b83' # base00
 
-    # Normal colors
-    normal:
-      black:   '0x073642' # base02
-      red:     '0xdc322f' # red
-      green:   '0x859900' # green
-      yellow:  '0xb58900' # yellow
-      blue:    '0x268bd2' # blue
-      magenta: '0xd33682' # magenta
-      cyan:    '0x2aa198' # cyan
-      white:   '0xeee8d5' # base2
+#     # Normal colors
+#     normal:
+#       black:   '0x073642' # base02
+#       red:     '0xdc322f' # red
+#       green:   '0x859900' # green
+#       yellow:  '0xb58900' # yellow
+#       blue:    '0x268bd2' # blue
+#       magenta: '0xd33682' # magenta
+#       cyan:    '0x2aa198' # cyan
+#       white:   '0xeee8d5' # base2
 
-    # Bright colors
-    bright:
-      black:   '0x002b36' # base03
-      red:     '0xcb4b16' # orange
-      green:   '0x586e75' # base01
-      yellow:  '0x657b83' # base00
-      blue:    '0x839496' # base0
-      magenta: '0x6c71c4' # violet
-      cyan:    '0x93a1a1' # base1
-      white:   '0xfdf6e3' # base3
+#     # Bright colors
+#     bright:
+#       black:   '0x002b36' # base03
+#       red:     '0xcb4b16' # orange
+#       green:   '0x586e75' # base01
+#       yellow:  '0x657b83' # base00
+#       blue:    '0x839496' # base0
+#       magenta: '0x6c71c4' # violet
+#       cyan:    '0x93a1a1' # base1
+#       white:   '0xfdf6e3' # base3
 
-  solarized_dark: &dark
-    # Default colors
-    primary:
-      background: '0x002b36' # base03
-      foreground: '0x839496' # base0
+#   solarized_dark: &dark
+#     # Default colors
+#     primary:
+#       background: '0x002b36' # base03
+#       foreground: '0x839496' # base0
 
-    # Cursor colors
-    cursor:
-      text:   '0x002b36' # base03
-      cursor: '0x839496' # base0
+#     # Cursor colors
+#     cursor:
+#       text:   '0x002b36' # base03
+#       cursor: '0x839496' # base0
 
-    # Normal colors
-    normal:
-      black:   '0x073642' # base02
-      red:     '0xdc322f' # red
-      green:   '0x859900' # green
-      yellow:  '0xb58900' # yellow
-      blue:    '0x268bd2' # blue
-      magenta: '0xd33682' # magenta
-      cyan:    '0x2aa198' # cyan
-      white:   '0xeee8d5' # base2
+#     # Normal colors
+#     normal:
+#       black:   '0x073642' # base02
+#       red:     '0xdc322f' # red
+#       green:   '0x859900' # green
+#       yellow:  '0xb58900' # yellow
+#       blue:    '0x268bd2' # blue
+#       magenta: '0xd33682' # magenta
+#       cyan:    '0x2aa198' # cyan
+#       white:   '0xeee8d5' # base2
 
-    # Bright colors
-    bright:
-      black:   '0x002b36' # base03
-      red:     '0xcb4b16' # orange
-      green:   '0x586e75' # base01
-      yellow:  '0x657b83' # base00
-      blue:    '0x839496' # base0
-      magenta: '0x6c71c4' # violet
-      cyan:    '0x93a1a1' # base1
-      white:   '0xfdf6e3' # base3
+#     # Bright colors
+#     bright:
+#       black:   '0x002b36' # base03
+#       red:     '0xcb4b16' # orange
+#       green:   '0x586e75' # base01
+#       yellow:  '0x657b83' # base00
+#       blue:    '0x839496' # base0
+#       magenta: '0x6c71c4' # violet
+#       cyan:    '0x93a1a1' # base1
+#       white:   '0xfdf6e3' # base3
 
-colors: *dark
+# colors: *dark
 
 
 # Visual Bell
@@ -241,6 +240,7 @@ colors: *dark
 bell:
   animation: EaseOutExpo
   duration: 0
+
 # visual_bell:
 #   animation: EaseOutExpo
 #   duration: 0
@@ -460,3 +460,10 @@ key_bindings:
   - { key: F10,      mods: Super,   chars: "\x1b[21;3~"                  }
   - { key: F11,      mods: Super,   chars: "\x1b[23;3~"                  }
   - { key: F12,      mods: Super,   chars: "\x1b[24;3~"                  }
+
+#######################################################################
+#                              external                               #
+#######################################################################
+
+import:
+  - ~/.config/alacritty/local.yml

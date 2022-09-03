@@ -16,18 +16,26 @@ general {
 
 # order += "ipv6"
 order += "cpu_usage"
-order += "disk /"
+order += "memory"
+# order += "disk /"
 # order += "disk /home"
 order += "wireless _first_"
 order += "ethernet _first_"
 order += "battery all"
 # order += "load"
-order += "memory"
 order += "tztime local"
 
 cpu_usage {
         format = " cpu  %usage "
 }
+
+memory {
+        # format = "MEM %percentage_used"
+        format = " %used "
+        threshold_degraded = "10%"
+        format_degraded = "MEMORY: %free"
+}
+
 
 load {
         format = " load %1min "
@@ -64,11 +72,11 @@ battery all {
         threshold_type = time
 }
 
-memory {
-        format = "%used | %available"
-        threshold_degraded = "1G"
-        format_degraded = "MEMORY < %available"
-}
+# memory {
+#         format = "%used | %available"
+#         threshold_degraded = "1G"
+#         format_degraded = "MEMORY < %available"
+# }
 
 tztime local {
         # format = "%Y-%m-%d %H:%M:%S"

@@ -108,6 +108,31 @@ tray-position = right
 tray-padding = 2
 tray-background = #0063ff
 
+[bar/homeleft]
+inherit = bar/base
+modules-left = eth
+;modules-center = i3
+modules-right = date 
+
+monitor = ${env:MONITOR:HDMI-1}
+
+height=28
+font-0 = "Tamsyn:pixelsize=14;0"
+font-1 = "Noto Sans:size=14;1"
+font-2 = "Monaco Nerd Font:size=14:weight=bold;2"
+
+[bar/homeright]
+inherit = bar/base
+monitor = ${env:MONITOR:VGA-1}
+;modules-left = bspwm i3
+modules-left = cpu memory wlan temperature
+;modules-center = i3
+modules-right = notifications
+
+tray-position = right
+tray-padding = 2
+tray-background = #0063ff
+
 [module/xwindow]
 type = internal/xwindow
 label = %title:0:30:...%

@@ -1,5 +1,7 @@
 #!/usr/bin/env bash
 
+ENV_TAG=${K_ENV_TAG}
+
 # Terminate already running bar instances
 killall -q polybar
 # If all your bars have ipc enabled, you can also use 
@@ -13,7 +15,21 @@ runbar() {
     polybar -r $1 2>&1 | tee -a $logfile & disown
 }
 
-for bar in left main right; do
+
+case $ENV_TAG in
+    home ) 
+        bars=left main right
+        ;;
+    *) 
+        bars=('homeleft homeright')
+        ;;
+
+esac
+
+echo "bars are:" $bars
+
+for bar in ${bars[@]}; do
+    echo ">>> running bar ${bar}"
     runbar $bar
 done
 
