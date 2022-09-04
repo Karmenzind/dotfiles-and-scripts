@@ -125,9 +125,10 @@ font-2 = "Monaco Nerd Font:size=14:weight=bold;2"
 inherit = bar/base
 monitor = ${env:MONITOR:VGA-1}
 ;modules-left = bspwm i3
-modules-left = cpu memory wlan temperature
+modules-left = cpu memory temperature
 ;modules-center = i3
 modules-right = notifications
+height=18
 
 tray-position = right
 tray-padding = 2
