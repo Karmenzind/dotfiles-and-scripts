@@ -157,17 +157,6 @@ set $black       #282828
 set $darkblack   #1d2021
 set $transparent #00000000
 
-# /* borders */
-# border style <normal|1pixel|pixel xx|none|pixel>
-set $local_pixel 3
-new_window pixel $local_pixel
-# default_border pixel $local_pixel
-# default_floating_border none
-# Hide borders
-# hide_edge_borders vertical
-# change borders
-# bindsym $mod+y border pixel $local_pixel
-
 # -----------------------------------------------------------------------------
 # bar
 # -----------------------------------------------------------------------------
