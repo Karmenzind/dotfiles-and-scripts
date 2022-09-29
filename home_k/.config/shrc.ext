@@ -40,7 +40,7 @@ for _tmp_browser in chromium chrome firefox elinks; do
     [[ -n $BROWSER ]] && unset _tmp_browser && break
 done
 
-export CATALINA_HOME=/usr/share/tomcat8 # tomcat
+# export CATALINA_HOME=/usr/share/tomcat8 # tomcat
 
 # /* bat */
 alias bat='bat --theme="GitHub" --style="auto"'
@@ -114,16 +114,6 @@ ex() {
 #                                 fzf                                 #
 #######################################################################
 
-# for fzf
-# export FZF_DEFAULT_OPTS="--preview '[ -f {} ] && file {} && head -30 {} '
-# export FZF_DEFAULT_OPTS="--preview 'bat --style=numbers --color=always --line-range :50 {}'
-# --color 'fg:#bbccdd,fg+:#ddeeff,bg:#334455,preview-bg:#223344,border:#778899'
-export FZF_DEFAULT_OPTS="--height 50% --reverse --border --preview-window=down:50%"
-export FZF_TMUX=1
-export FZF_TMUX_OPTS="-p 80%,60%"
-export FZF_CTRL_T_OPTS="--preview '(highlight -O ansi -l {} 2> /dev/null || cat {} || tree -C {}) 2> /dev/null | head -200'"
-export FZF_CTRL_R_OPTS="--preview 'echo {}' --preview-window down:3:hidden:wrap --bind '?:toggle-preview'"
-
 # use fd
 # export FZF_DEFAULT_COMMAND="fd --type f --hidden --follow --ignore-file ~/.config/search_ignore"
 # use the silver searcher
@@ -132,6 +122,18 @@ if command -v 'ag' >/dev/null; then
 else
     echo "The silver search needs to be installed"
 fi
+
+# for fzf
+# export FZF_DEFAULT_OPTS="--preview '[ -f {} ] && file {} && head -30 {} '
+# export FZF_DEFAULT_OPTS="--preview 'bat --style=numbers --color=always --line-range :50 {}'"
+# --color 'fg:#bbccdd,fg+:#ddeeff,bg:#334455,preview-bg:#223344,border:#778899'
+# export FZF_DEFAULT_OPTS="--inline-info --height 50% --reverse --border=horizontal --preview-window=down:50% --color fg:yellow,fg+:bright-yellow"
+export FZF_DEFAULT_OPTS="--inline-info --height 50% --reverse --border=horizontal --preview-window=down:50% --color fg:yellow,fg+:bright-yellow"
+export FZF_CTRL_T_OPTS="--preview '(highlight -O ansi -l {} 2> /dev/null || cat {} || tree -C {}) 2> /dev/null | head -200'"
+export FZF_CTRL_R_OPTS="--preview 'echo {}' --preview-window down:3:hidden:wrap --bind '?:toggle-preview'"
+export FZF_TMUX=1
+export FZF_TMUX_OPTS="-p '80%,60%'"
+export FZF_COMPLETION_OPTS='--border --info=inline'
 
 # - The first argument to the function ($1) is the base path to start traversal
 # - See the source code (completion.{bash,zsh}) for the details.
@@ -499,3 +501,9 @@ emoji-fzf() {
 
 PATH="$PATH:$HOME/.local/bin"
 PATH="$(perl -e 'print join(":", grep { not $seen{$_}++ } split(/:/, $ENV{PATH}))')"
+
+#######################################################################
+#                                DEBUG                                #
+#######################################################################
+
+export TERMINFO=/usr/share/terminfo
