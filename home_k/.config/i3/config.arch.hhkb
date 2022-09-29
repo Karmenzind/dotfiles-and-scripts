@@ -109,7 +109,9 @@ bindsym $mod+b workspace back_and_forth
 # bindsym $mod+Shift+b move container to workspace back_and_forth; workspace back_and_forth
 
 # reload the configuration file
-bindsym $mod+Shift+c reload
+# bindsym $mod+Shift+c reload, exec "notify-send Reloaded i3 configs"
+# bindsym $mod+Shift+c exec i3-msg "reload" && "notify-send Reloaded i3 configs"
+bindsym $mod+Shift+c exec i3-msg reload && notify-send 'Reloaded i3 config'
 # restart i3 inplace (preserves your layout/session, can be used to upgrade i3)
 bindsym $mod+Shift+r restart
 # exit i3 (logs you out of your X session)

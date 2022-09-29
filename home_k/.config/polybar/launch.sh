@@ -12,7 +12,7 @@ logfile=~/Logs/polybar.log
 # $1: bar name
 runbar() {
     echo "---" | tee -a $logfile
-    polybar -r $1 2>&1 | tee -a $logfile & disown
+    polybar -l error -r $1 2>&1 | tee -a $logfile & disown
 }
 
 
