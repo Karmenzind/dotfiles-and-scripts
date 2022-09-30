@@ -132,7 +132,7 @@ export FZF_DEFAULT_OPTS="--inline-info --height 50% --reverse --border=horizonta
 export FZF_CTRL_T_OPTS="--preview '(highlight -O ansi -l {} 2> /dev/null || cat {} || tree -C {}) 2> /dev/null | head -200'"
 export FZF_CTRL_R_OPTS="--preview 'echo {}' --preview-window down:3:hidden:wrap --bind '?:toggle-preview'"
 export FZF_TMUX=1
-export FZF_TMUX_OPTS="-p '80%,60%'"
+export FZF_TMUX_OPTS="-p 80%,60%"
 export FZF_COMPLETION_OPTS='--border --info=inline'
 
 # - The first argument to the function ($1) is the base path to start traversal

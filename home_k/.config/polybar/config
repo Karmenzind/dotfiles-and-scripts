@@ -18,14 +18,20 @@
 
 [colors]
 ;background = ${xrdb:color0:#222}
+;foreground = ${xrdb:color7:#222}
+
 background = #222
 background-alt = #444
-;foreground = ${xrdb:color7:#222}
 foreground = #dfdfdf
 foreground-alt = #555
-primary = #ffb52a
 secondary = #e60053
+primary = #ffb52a
 alert = #bd2c40
+
+; background = #00000000
+; background-alt = #5e6161
+; primary = #88888888
+; alert = #80000000
 
 black = #000
 white = #fff
@@ -708,6 +714,7 @@ format-offset =
 
 ; Enables pseudo-transparency for the bar
 ; If set to true the bar can be transparent without a compositor.
+; pseudo-transparency = false
 pseudo-transparency = false
 
 [global/wm]
