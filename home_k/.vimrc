@@ -70,7 +70,7 @@ endif
 
 function! BuildYCM(info)
   if a:info.status == 'installed' || a:info.force
-     !./install.py --clang-completer --clangd-completer --system-libclang --go-completer --ts-completer --java-completer
+     !./install.py --clang-completer --clangd-completer --system-libclang --go-completer --ts-completer
   endif
 endfunction
 
