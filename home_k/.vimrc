@@ -74,7 +74,7 @@ function! BuildYCM(info)
   endif
 endfunction
 
-call plug#begin()
+call plug#begin('~/.vim/plugged')
 Plug 'junegunn/vim-plug'
 
 " /* coding tools */

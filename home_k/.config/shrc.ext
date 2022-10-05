@@ -385,7 +385,7 @@ export PYTHON_CONFIGURE_OPTS="--enable-shared"
 #######################################################################
 
 if [[ -d "$HOME/.gem" ]]; then
-    _MY_RUBY_BIN=$(find $HOME/.gem -regex '.*ruby/[^/]+/bin' | head -n 1 | tr -d '\r')
+    _MY_RUBY_BIN=$(find $HOME/.gem -regex '.*ruby/[^/]+/bin' | sort -r | head -n 1 | tr -d '\r')
     [[ -d $_MY_RUBY_BIN ]] && export PATH=$PATH:$_MY_RUBY_BIN
 fi
 
