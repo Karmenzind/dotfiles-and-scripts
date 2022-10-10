@@ -89,7 +89,43 @@ Plug 'Shougo/context_filetype.vim'
 Plug 'liuchengxu/vista.vim'
 " Plug 'Shougo/echodoc.vim'
 Plug 'w0rp/ale' " Asynchronous Lint Engine
-Plug 'Valloric/YouCompleteMe', { 'do': function('BuildYCM'), 'frozen': v:true }
+if has("nvim")
+  " lsp
+  Plug 'neovim/nvim-lspconfig'
+
+  " " coq
+  " Plug 'ms-jpq/coq_nvim', {'branch': 'coq'}
+  " Plug 'ms-jpq/coq.artifacts', {'branch': 'artifacts'}
+  " Plug 'ms-jpq/coq.thirdparty', {'branch': '3p'}
+
+  " appearence
+  Plug 'onsails/lspkind.nvim'
+  
+  " cmp
+  Plug 'hrsh7th/cmp-nvim-lsp'
+  Plug 'hrsh7th/cmp-buffer'
+  Plug 'hrsh7th/cmp-path'
+  Plug 'hrsh7th/cmp-cmdline'
+  Plug 'hrsh7th/nvim-cmp'
+
+  " For vsnip users.
+  " Plug 'hrsh7th/cmp-vsnip'
+  " Plug 'hrsh7th/vim-vsnip'
+
+  " For luasnip users.
+  " Plug 'L3MON4D3/LuaSnip'
+  " Plug 'saadparwaiz1/cmp_luasnip'
+
+  " For ultisnips users.
+  " Plug 'SirVer/ultisnips'
+  Plug 'quangnguyen30192/cmp-nvim-ultisnips'
+
+  " For snippy users.
+  " Plug 'dcampos/nvim-snippy'
+  " Plug 'dcampos/cmp-snippy'
+else
+  Plug 'Valloric/YouCompleteMe', { 'do': function('BuildYCM'), 'frozen': v:true }
+endif
 " Plug 'rdnetto/YCM-Generator', { 'branch': 'stable'}
 Plug 'mg979/vim-visual-multi', {'branch': 'master'}
 " Plug 'mattn/emmet-vim'
@@ -98,11 +134,14 @@ Plug 'mg979/vim-visual-multi', {'branch': 'master'}
 
 " /* version control | workspace */
 Plug 'scrooloose/nerdtree', { 'on': ['NERDTreeToggle', 'NERDTreeFind'] }
+" if has("nvim")
+"   Plug 'ms-jpq/chadtree', {'branch': 'chad', 'do': 'python3 -m chadtree deps'}
+" endif
 " Plug 'Xuyuanp/nerdtree-git-plugin', { 'on': ['NERDTreeToggle'] }
 Plug 'tiagofumo/vim-nerdtree-syntax-highlight'
 " Plug 'airblade/vim-gitgutter'
 " Plug 'tpope/vim-fugitive'
-" Plug 't9md/vim-choosewin'
+Plug 't9md/vim-choosewin'
 Plug 'mhinz/vim-startify'
 if executable('svn')
   Plug 'juneedahamed/vc.vim'
@@ -131,7 +170,7 @@ Plug 'raimon49/requirements.txt.vim'
 Plug 'vim-scripts/indentpython.vim'
 Plug 'tweekmonster/django-plus.vim', { 'for': 'python' }
 " Plug 'plytophogy/vim-virtualenv'
-" Plug 'python-mode/python-mode'
+" Plug 'python-m'ode/python-mode'
 
 " /* Write doc */
 Plug 'godlygeek/tabular'
@@ -176,7 +215,9 @@ Plug 'mtdl9/vim-log-highlighting'
 
 " /* Enhancement */
 Plug 'karmenzind/vim-tmuxlike'
-Plug 'karmenzind/registers.vim', {'branch': 'dev'}
+if !has("nvim")
+  Plug 'karmenzind/registers.vim', {'branch': 'dev'}
+endif
 Plug 'skywind3000/vim-quickui'
 " if has('nvim')
 "   Plug 'norcalli/nvim-colorizer.lua'
@@ -476,12 +517,6 @@ if has('patch-8.1.1902')
     set pumwidth=10
 endif
 
-nnoremap <silent> <Leader>g   :YcmCompleter GoTo<CR>
-nnoremap <silent> <Leader>dd  :YcmCompleter GoToDefinitionElseDeclaration<CR>
-nnoremap <silent> <Leader>rf  :YcmCompleter GoToReferences<CR>
-nnoremap <silent> <Leader>doc :YcmCompleter GetDoc<CR>
-nnoremap <Leader>rr  :YcmCompleter RefactorRename<SPACE>
-
 let g:ycm_language_server = [
       \ {"name": "vue", "filetypes": ["vue"], "cmdline": ["vls"] },
       \ {"name": "vim", "filetypes": ["vim"], "cmdline": ["vim-language-server", '--stdio'] },
@@ -491,13 +526,23 @@ if !has('nvim')
     let g:ycm_auto_hover = ''
 endif
 
-augroup ycm_behaviours
-    au!
-    au FileType python,go,sh,vim
-        \ nmap K <plug>(YCMHover)
-augroup END
+if has_key(plugs, 'YouCompleteMe')
+  augroup ycm_behaviours
+      au!
+      au FileType python,go,sh,vim
+          \ nmap K <plug>(YCMHover)
+  augroup END
 
+  nnoremap <silent> <Leader>g   :YcmCompleter GoTo<CR>
+  nnoremap <silent> <Leader>dd  :YcmCompleter GoToDefinitionElseDeclaration<CR>
+  nnoremap <silent> <Leader>rf  :YcmCompleter GoToReferences<CR>
+  nnoremap <silent> <Leader>doc :YcmCompleter GetDoc<CR>
+  nnoremap <Leader>rr  :YcmCompleter RefactorRename<SPACE>
+endif
+
+" /* for XXX */
 nnoremap <silent> <leader>N :NERDTreeFind<CR>
+
 
 function! s:FzfToNERDTree(lines)
     if len(a:lines) == 0
@@ -519,6 +564,9 @@ let g:fzf_action = {
   \ 'ctrl-t': 'tab split',
   \ 'ctrl-x': 'split',
   \ 'ctrl-v': 'vsplit' }
+
+" /* for Chadtree */
+" nnoremap <leader>c <cmd>CHADopen<cr>
 
 " /* for NERDTree */
 nnoremap <silent> <Leader>n :NERDTreeToggle<CR>
@@ -757,6 +805,7 @@ let g:ale_python_pylint_options = '--max-line-length=120 --rcfile $HOME/.config/
 " let g:ale_python_autopep8_options = '--max-line-length=120'
 let g:ale_python_flake8_options = '--max-line-length=120 --extend-ignore=E722,E741,E402,E501'
 let g:ale_python_pydocstyle_options = '--ignore=D200,D203,D204,D205,D211,D212,D213,D400,D401,D403,D415'
+let g:ale_python_autoflake_options = '--remove-all-unused-imports'
 " let g:ale_javascript_prettier_options = '-c'
 " let g:ale_javascript_eslint_options = '--ext .js,.vue'
 

@@ -52,7 +52,7 @@ noremap <Leader>T  :sp<CR>:terminal<CR>A
 " --------------------------------------------
 
 lua << EOF
-  require("todo-comments").setup {
+require("todo-comments").setup {
   signs = true, -- show icons in the signs column
   -- keywords recognized as todo comments
   keywords = {
@@ -104,4 +104,3 @@ lua << EOF
   },
 }
 EOF
-

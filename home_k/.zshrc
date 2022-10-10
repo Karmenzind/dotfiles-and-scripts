@@ -1,6 +1,7 @@
 # If you come from bash you might have to change your $PATH.
 # export PATH=$HOME/bin:/usr/bin:/usr/local/bin:$PATH
-# FIXME (qk): <2022-06-16> dirty path
+# XXX (qk): <2022-06-16> dirty path
+export PATH=/usr/local/bin:/bin:/usr/bin:/sbin:/usr/sbin:/usr/local/sbin
 
 # Path to your oh-my-zsh installation.
 if [[ -d "$HOME/.oh-my-zsh" ]]; then
@@ -38,11 +39,9 @@ fi
 # sensitive completion must be off. _ and - will be interchangeable.
 HYPHEN_INSENSITIVE="true"
 
-# Uncomment the following line to disable bi-weekly auto-update checks.
-DISABLE_AUTO_UPDATE="true"
-
 # Uncomment the following line to change how often to auto-update (in days).
-UPDATE_ZSH_DAYS=7
+# UPDATE_ZSH_DAYS=7
+zstyle ':omz:update' frequency 7
 
 # Uncomment the following line to disable colors in ls.
 # DISABLE_LS_COLORS="true"
@@ -97,8 +96,9 @@ plugins=(
   'colored-man-pages'
   'common-aliases'
   'compleat'
-  'copydir'
+  # 'copydir'
   'copyfile'
+  'copypath'
   # 'cp'
   # 'dirhistory'
   'docker'
@@ -121,7 +121,7 @@ plugins=(
   'taskwarrior'
   'urltools'
   'web-search'
-  # 'zsh-syntax-highlighting'
+  'zsh-syntax-highlighting'
   'tmux'
   'tmuxinator'
   # 'pyenv'
@@ -135,28 +135,4 @@ source $ZSH/oh-my-zsh.sh
 # Custom here
 [[ -e ~/.config/shrc.ext ]] && source ~/.config/shrc.ext && echo "Loaded ~/.config/shrc.ext"
 
-[ -f ~/.fzf.zsh ] && source ~/.fzf.zsh && echo "Loaded ~/.fzf.zsh"
-
-# autoload -U +X bashcompinit && bashcompinit
-# complete -o nospace -C /usr/local/bin/mc mc
-
-export NVM_DIR="$HOME/.nvm"
-[ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"  # This loads nvm
-[ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"  # This loads nvm bash_completion
-
-
-# >>> conda initialize >>>
-# !! Contents within this block are managed by 'conda init' !!
-__conda_setup="$('/opt/miniconda/bin/conda' 'shell.zsh' 'hook' 2> /dev/null)"
-if [ $? -eq 0 ]; then
-    eval "$__conda_setup"
-else
-    if [ -f "/opt/miniconda/etc/profile.d/conda.sh" ]; then
-        . "/opt/miniconda/etc/profile.d/conda.sh"
-    else
-        export PATH="/opt/miniconda/bin:$PATH"
-    fi
-fi
-unset __conda_setup
-# <<< conda initialize <<<
-
+# eval "$(starship init zsh)" && echo "Loaded starship"

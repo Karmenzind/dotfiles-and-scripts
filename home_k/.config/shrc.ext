@@ -42,8 +42,8 @@ done
 
 # export CATALINA_HOME=/usr/share/tomcat8 # tomcat
 
-# /* bat */
-alias bat='bat --theme="GitHub" --style="auto"'
+# # /* bat */
+# alias bat='bat --theme="GitHub" --style="auto"'
 
 #######################################################################
 #                             appearance                              #
@@ -111,8 +111,29 @@ ex() {
 }
 
 #######################################################################
+#                                conda                                #
+#######################################################################
+
+if command -v 'conda' >/dev/null; then
+    # !! Contents within this block are managed by 'conda init' !!
+    __conda_setup="$('/opt/miniconda/bin/conda' 'shell.zsh' 'hook' 2> /dev/null)"
+    if [ $? -eq 0 ]; then
+        eval "$__conda_setup"
+    else
+        if [ -f "/opt/miniconda/etc/profile.d/conda.sh" ]; then
+            . "/opt/miniconda/etc/profile.d/conda.sh"
+        else
+            export PATH="/opt/miniconda/bin:$PATH"
+        fi
+    fi
+    unset __conda_setup
+fi
+
+#######################################################################
 #                                 fzf                                 #
 #######################################################################
+
+[ -f ~/.fzf.zsh ] && source ~/.fzf.zsh && echo "Sourced ~/.fzf.zsh"
 
 # use fd
 # export FZF_DEFAULT_COMMAND="fd --type f --hidden --follow --ignore-file ~/.config/search_ignore"
@@ -460,7 +481,6 @@ alias weather='curl -4 http://wttr.in'
 export USE_PROXYCHAINS_FIRST=true
 ZSH_AUTOSUGGEST_HIGHLIGHT_STYLE="fg=#ff00ff,bg=cyan,bold,underline"
 
-
 pkg_by_missing() {
     local q=$(pacman -F $1)
     echo -e "Found:\n${q}\n"
@@ -488,7 +508,6 @@ emoji-fzf() {
     echo $selected_emoji
 }
 
-
 #######################################################################
 #                                POST                                 #
 #######################################################################
@@ -501,6 +520,16 @@ emoji-fzf() {
 
 PATH="$PATH:$HOME/.local/bin"
 PATH="$(perl -e 'print join(":", grep { not $seen{$_}++ } split(/:/, $ENV{PATH}))')"
+
+#######################################################################
+#                                 NVM                                 #
+#######################################################################
+
+if command -v 'nvm' >/dev/null; then
+    export NVM_DIR="$HOME/.nvm"
+    [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"                   # This loads nvm
+    [ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion" # This loads nvm bash_completion
+fi
 
 #######################################################################
 #                                DEBUG                                #
