@@ -22,8 +22,6 @@ function! s:NoSearchCabbrev(abbr, expanded)
   execute printf("cabbrev <expr> %s (getcmdtype() == ':') ? \"%s\" : \"%s\"", a:abbr, a:expanded, a:abbr)
 endfunction
 
-call s:NoSearchCabbrev("abc", "12354")
-
 noremap <Leader>e  :call EditRcFiles()<CR>
 noremap <Leader>R  :source $MYVIMRC<CR> :echom 'Vimrc reloaded :)'<CR>
 noremap <Leader>S  :source %<CR> :echom expand('%') . ' sourced :)'<CR>
@@ -100,32 +98,18 @@ if has("nvim")
 
   " appearence
   Plug 'onsails/lspkind.nvim'
-  
+
   " cmp
   Plug 'hrsh7th/cmp-nvim-lsp'
   Plug 'hrsh7th/cmp-buffer'
   Plug 'hrsh7th/cmp-path'
   Plug 'hrsh7th/cmp-cmdline'
   Plug 'hrsh7th/nvim-cmp'
-
-  " For vsnip users.
-  " Plug 'hrsh7th/cmp-vsnip'
-  " Plug 'hrsh7th/vim-vsnip'
-
-  " For luasnip users.
-  " Plug 'L3MON4D3/LuaSnip'
-  " Plug 'saadparwaiz1/cmp_luasnip'
-
-  " For ultisnips users.
-  " Plug 'SirVer/ultisnips'
   Plug 'quangnguyen30192/cmp-nvim-ultisnips'
-
-  " For snippy users.
-  " Plug 'dcampos/nvim-snippy'
-  " Plug 'dcampos/cmp-snippy'
 else
   Plug 'Valloric/YouCompleteMe', { 'do': function('BuildYCM'), 'frozen': v:true }
 endif
+
 " Plug 'rdnetto/YCM-Generator', { 'branch': 'stable'}
 Plug 'mg979/vim-visual-multi', {'branch': 'master'}
 " Plug 'mattn/emmet-vim'
@@ -157,8 +141,6 @@ else
   Plug 'junegunn/fzf', {'dir': '~/.local/fzf', 'do': './install --all'}
 endif
 Plug 'junegunn/fzf.vim'
-" Plug 'mileszs/ack.vim'
-" Plug 'Yggdroot/LeaderF'
 " Plug 'haya14busa/vim-signjk-motion'
 
 " /* Go */
@@ -180,6 +162,7 @@ Plug 'iamcco/markdown-preview.nvim', { 'do': { -> mkdp#util#install() }, 'for': 
 Plug 'nelstrom/vim-markdown-folding'
 Plug 'mklabs/vim-markdown-helpfile'
 Plug 'Traap/vim-helptags'
+
 " Plug 'gabrielelana/vim-markdown'
 " Plug 'iamcco/mathjax-support-for-mkdp'  " before markdown-preview
 " Plug 'scrooloose/vim-slumlord'
@@ -291,6 +274,7 @@ endif
 
 " /* line number */
 set number
+
 function! s:RelNoToggle(mode)
   if &ft =~? '\v(startify|registers)'
     return
@@ -386,11 +370,12 @@ augroup filetype_formats
   au FileType make setlocal noexpandtab
 
   au BufNewFile,BufRead *.{vim},*vimrc
-        \ setlocal tabstop=2         |
-        \ setlocal softtabstop=2     |
-        \ setlocal shiftwidth=2      |
-        \ setlocal foldmethod=expr   |
-        \ setlocal foldlevel=2       |
+        \ setlocal tabstop=2          |
+        \ setlocal softtabstop=2      |
+        \ setlocal shiftwidth=2       |
+        \ setlocal foldmethod=expr    |
+        \ setlocal foldlevel=2        |
+        \ setlocal formatoptions-=cro |
         \ setlocal foldexpr=VimScriptFold(v:lnum)
 
   au BufNewFile,BufRead *.go
@@ -1105,6 +1090,7 @@ function! InstallRequirements()
 endfunction
 
 " edit rc files
+" TODO (k): <2022-10-11> check opened
 let s:vimrc_path = glob('~/.vimrc')
 let s:extra_vimrc_path = s:vimrc_path . '.local'
 let s:valid_extra_vimrc = filereadable(s:extra_vimrc_path)
@@ -1214,19 +1200,24 @@ endfunction
 
 " vim's folding expr
 function! VimScriptFold(lnum)
-  if getline(a:lnum) =~? '\v^\s*$'
-    return '-1'
-  elseif getline(a:lnum) =~? '\v^"\s+(-{44}|\/\*).*$'
+  let curline = getline(a:lnum)
+  if curline == ''
+    " TODO (k): <2022-10-11>
+    " check if inside func/aug
     return '0'
-  elseif getline(a:lnum) =~? '\v^\s*".*$'
+  elseif curline =~? '\v^\s*$'
+    return '-1'
+  elseif curline =~? '\v^"\s+(-{44}|\/\*).*$'
+    return '0'
+  elseif curline =~? '\v^\s*".*$'
     if a:lnum > 0 && (getline(a:lnum + 1) =~? '\v^\s*(".*)?$' || getline(a:lnum - 1) =~? '\v^\s*"')
       return '3'
     else
       return '1'
     endif
-  elseif getline(a:lnum) =~? '\v^(augroup|function).*$'
+  elseif curline =~? '\v^(augroup|function).*$'
     return '1'
-  elseif getline(a:lnum) =~? '\v\S'
+  elseif curline =~? '\v\S'
     return '2'
   endif
 endfunction
