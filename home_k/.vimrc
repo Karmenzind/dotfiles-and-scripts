@@ -59,11 +59,20 @@ nnoremap <leader><CR> i<CR><ESC>k$
 " --------------------------------------------
 
 " /* automatically install Plug */
-if empty(glob('~/.vim/autoload/plug.vim')) && !has('win32')
-  silent !mkdir -p ~/.vim/autoload &&
-        \ wget https://raw.githubusercontent.com/junegunn/vim-plug/master/plug.vim
-        \ -O ~/.vim/autoload/plug.vim
-  autocmd VimEnter * PlugInstall --sync | source $MYVIMRC
+if !has("win32")
+  let s:plugged_dir = '~/.vim/plugged'
+  if empty(glob('~/.vim/autoload/plug.vim'))
+      silent !mkdir -p ~/.vim/autoload &&
+            \ wget https://raw.githubusercontent.com/junegunn/vim-plug/master/plug.vim
+            \ -O ~/.vim/autoload/plug.vim
+    autocmd VimEnter * PlugInstall --sync | source $MYVIMRC
+  endif
+else
+  let s:plugged_dir = glob('~/vimfiles/plugged')
+  if empty(glob("~/vimfiles/autoload/plug.vim"))
+    " FIXME (k): <2022-10-11> 
+    silent !iwr -useb https://raw.githubusercontent.com/junegunn/vim-plug/master/plug.vim |` ni $HOME/vimfiles/autoload/plug.vim -Force
+  endif
 endif
 
 function! BuildYCM(info)
@@ -72,11 +81,11 @@ function! BuildYCM(info)
   endif
 endfunction
 
-call plug#begin('~/.vim/plugged')
+call plug#begin(s:plugged_dir)
 Plug 'junegunn/vim-plug'
 
 " /* coding tools */
-Plug 'metakirby5/codi.vim'
+" Plug 'metakirby5/codi.vim'
 Plug 'tpope/vim-endwise'
 Plug 'tpope/vim-surround'
 Plug 'jiangmiao/auto-pairs'
@@ -850,12 +859,30 @@ let g:mkdp_preview_options = {
     \ 'toc': {}
     \ }
 
+function s:PreviewWithMLP() abort
+  if !executable("mlp")
+    echo "No mlp installed."
+    return
+  endif
+
+  let mlp_cmd = "mlp -p 13333 -o " .. expand("%")
+
+  if has_key(environ(), "TMUX")
+    call system(printf("tmux split-window \"%s\"", mlp_cmd))
+  else
+    if has("nvim")
+      execute "split"
+    endif
+    execute "terminal " .. mlp_cmd
+  endif
+
+endfunction
 
 " particular keymaps
 augroup for_markdown_ft
   au!
   au FileType markdown
-        \ nnoremap <buffer> <Leader>mp :MarkdownPreview<CR>     |
+        \ nnoremap <buffer> <Leader>mp :call <SID>PreviewWithMLP()<CR>     |
         \ let  b:AutoPairs = {'(':')', '[':']', '{':'}',"'":"'",'"':'"'} |
         \ cabbrev <buffer> TF TableFormat
   " FIXME (k): <2022-03-23> no search
