@@ -138,7 +138,6 @@ if has('nvim')
 else
   Plug 'mhinz/vim-startify'
 endif
-Plug 'juneedahamed/vc.vim', Cond(executable('svn'))
 " Plug 'bagrat/vim-workspace' " tab bar
 
 " /* Search */
