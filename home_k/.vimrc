@@ -70,7 +70,7 @@ if !has("win32")
 else
   let s:plugged_dir = glob('~/vimfiles/plugged')
   if empty(glob("~/vimfiles/autoload/plug.vim"))
-    " FIXME (k): <2022-10-11> 
+    " FIXME (k): <2022-10-11> not work
     silent !iwr -useb https://raw.githubusercontent.com/junegunn/vim-plug/master/plug.vim |` ni $HOME/vimfiles/autoload/plug.vim -Force
   endif
 endif
@@ -79,6 +79,11 @@ function! BuildYCM(info)
   if a:info.status == 'installed' || a:info.force
      !./install.py --clang-completer --clangd-completer --system-libclang --go-completer --ts-completer
   endif
+endfunction
+
+function! Cond(cond, ...)
+  let opts = get(a:000, 0, {})
+  return a:cond ? opts : extend(opts, { 'on': [], 'for': [] })
 endfunction
 
 call plug#begin(s:plugged_dir)
@@ -99,11 +104,6 @@ Plug 'w0rp/ale' " Asynchronous Lint Engine
 if has("nvim")
   " lsp
   Plug 'neovim/nvim-lspconfig'
-
-  " " coq
-  " Plug 'ms-jpq/coq_nvim', {'branch': 'coq'}
-  " Plug 'ms-jpq/coq.artifacts', {'branch': 'artifacts'}
-  " Plug 'ms-jpq/coq.thirdparty', {'branch': '3p'}
 
   " appearence
   Plug 'onsails/lspkind.nvim'
@@ -127,18 +127,18 @@ Plug 'mg979/vim-visual-multi', {'branch': 'master'}
 
 " /* version control | workspace */
 Plug 'scrooloose/nerdtree', { 'on': ['NERDTreeToggle', 'NERDTreeFind'] }
-" if has("nvim")
-"   Plug 'ms-jpq/chadtree', {'branch': 'chad', 'do': 'python3 -m chadtree deps'}
-" endif
 " Plug 'Xuyuanp/nerdtree-git-plugin', { 'on': ['NERDTreeToggle'] }
 Plug 'tiagofumo/vim-nerdtree-syntax-highlight'
 " Plug 'airblade/vim-gitgutter'
 " Plug 'tpope/vim-fugitive'
 Plug 't9md/vim-choosewin'
-Plug 'mhinz/vim-startify'
-if executable('svn')
-  Plug 'juneedahamed/vc.vim'
+if has('nvim')
+  Plug 'goolord/alpha-nvim'
+  Plug 'kyazdani42/nvim-web-devicons'
+else
+  Plug 'mhinz/vim-startify'
 endif
+Plug 'juneedahamed/vc.vim', Cond(executable('svn'))
 " Plug 'bagrat/vim-workspace' " tab bar
 
 " /* Search */
@@ -1262,6 +1262,8 @@ augroup END
 function! FitAirlineTheme(cname)
   if a:cname ==? 'NeoSolarized'
     let g:airline_theme='solarized'
+  elseif a:cname ==? 'atomic'
+    let g:airline_theme='atomic'
   elseif a:cname ==? 'github'
     let g:airline_theme = 'minimalist'
   elseif a:cname ==? 'gruvbox'

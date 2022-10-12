@@ -3,3 +3,8 @@ python_version = 3.6
 warn_return_any = True
 warn_unused_configs = True
 ignore_missing_imports = True
+plugins =
+    mypy_django_plugin.main
+
+[mypy.plugins.django-stubs]
+django_settings_module = "myproject.settings"
