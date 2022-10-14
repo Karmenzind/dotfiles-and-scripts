@@ -50,7 +50,8 @@ done
 #######################################################################
 
 export COLORTERM='truecolor'
-export GREP_COLOR="1;32"
+unset GREP_COLOR
+export GREP_COLORS="1;32"
 alias neofetch_local='neofetch --w3m ~/Pictures/LOCKSCREENS/kieslowski4-resize.png' # neofetch
 # alias grep='grep --color=auto'
 alias diff='diff --color=auto'

@@ -1,6 +1,9 @@
 .idea
 .svn
 .git
+.tox
+.pytest_cache
+.benchmarks
 __pycache__
 *.pyc
 *.pyo

@@ -22,7 +22,7 @@ function! s:NoSearchCabbrev(abbr, expanded)
   execute printf("cabbrev <expr> %s (getcmdtype() == ':') ? \"%s\" : \"%s\"", a:abbr, a:expanded, a:abbr)
 endfunction
 
-noremap <Leader>e  :call EditRcFiles()<CR>
+noremap <Leader>e  :call EditRcFilesV2()<CR>
 noremap <Leader>R  :source $MYVIMRC<CR> :echom 'Vimrc reloaded :)'<CR>
 noremap <Leader>S  :source %<CR> :echom expand('%') . ' sourced :)'<CR>
 noremap <Leader>T  :terminal<CR>
@@ -90,10 +90,13 @@ call plug#begin(s:plugged_dir)
 Plug 'junegunn/vim-plug'
 
 " /* coding tools */
-" Plug 'metakirby5/codi.vim'
 Plug 'tpope/vim-endwise'
 Plug 'tpope/vim-surround'
-Plug 'jiangmiao/auto-pairs'
+if has('nvim')
+  Plug 'windwp/nvim-autopairs'
+else
+  Plug 'jiangmiao/auto-pairs'
+endif
 Plug 'tpope/vim-commentary'
 Plug 'junegunn/vim-easy-align'
 Plug 'SirVer/ultisnips' | Plug 'honza/vim-snippets'
@@ -126,11 +129,14 @@ Plug 'mg979/vim-visual-multi', {'branch': 'master'}
 " Plug 'Valloric/MatchTagAlways'
 
 " /* version control | workspace */
+" if has('nvim')
+"   Plug 'nvim-tree/nvim-tree.lua'
+" else
+"   Plug 'scrooloose/nerdtree', { 'on': ['NERDTreeToggle', 'NERDTreeFind'] }
+" endif
 Plug 'scrooloose/nerdtree', { 'on': ['NERDTreeToggle', 'NERDTreeFind'] }
 " Plug 'Xuyuanp/nerdtree-git-plugin', { 'on': ['NERDTreeToggle'] }
 Plug 'tiagofumo/vim-nerdtree-syntax-highlight'
-" Plug 'airblade/vim-gitgutter'
-" Plug 'tpope/vim-fugitive'
 Plug 't9md/vim-choosewin'
 if has('nvim')
   Plug 'goolord/alpha-nvim'
@@ -149,7 +155,6 @@ else
   Plug 'junegunn/fzf', {'dir': '~/.local/fzf', 'do': './install --all'}
 endif
 Plug 'junegunn/fzf.vim'
-" Plug 'haya14busa/vim-signjk-motion'
 
 " /* Go */
 Plug 'fatih/vim-go', { 'do': ':GoUpdateBinaries' }
@@ -159,8 +164,6 @@ Plug 'tmhedberg/SimpylFold', { 'for': 'python' } " code folding
 Plug 'raimon49/requirements.txt.vim'
 Plug 'vim-scripts/indentpython.vim'
 Plug 'tweekmonster/django-plus.vim', { 'for': 'python' }
-" Plug 'plytophogy/vim-virtualenv'
-" Plug 'python-m'ode/python-mode'
 
 " /* Write doc */
 Plug 'godlygeek/tabular'
@@ -170,10 +173,6 @@ Plug 'iamcco/markdown-preview.nvim', { 'do': { -> mkdp#util#install() }, 'for': 
 Plug 'nelstrom/vim-markdown-folding'
 Plug 'mklabs/vim-markdown-helpfile'
 Plug 'Traap/vim-helptags'
-
-" Plug 'gabrielelana/vim-markdown'
-" Plug 'iamcco/mathjax-support-for-mkdp'  " before markdown-preview
-" Plug 'scrooloose/vim-slumlord'
 
 " /* Experience | Enhancement */
 " if !has('clipboard') | Plug 'kana/vim-fakeclip' | endif
@@ -205,14 +204,11 @@ Plug 'mtdl9/vim-log-highlighting'
 " Plug 'vim-scripts/txt.vim', { 'for': 'txt' }
 
 " /* Enhancement */
-Plug 'karmenzind/vim-tmuxlike'
+Plug 'karmenzind/vim-tmuxlike', {'branch': 'dev', 'frozen': 1}
 if !has("nvim")
-  Plug 'karmenzind/registers.vim', {'branch': 'dev'}
+  Plug 'karmenzind/registers.vim', {'branch': 'dev', 'frozen': 1}
 endif
 Plug 'skywind3000/vim-quickui'
-" if has('nvim')
-"   Plug 'norcalli/nvim-colorizer.lua'
-" endif
 
 " /* Appearance */
 Plug 'flazz/vim-colorschemes'
@@ -782,7 +778,8 @@ let g:ale_fixers = {
       \  'json': ['fixjson', 'prettier'],
       \  'sql': ['pgformatter'],
       \  'vue': ['eslint', 'prettier'],
-      \  'yaml': ['prettier']
+      \  'yaml': ['prettier'],
+      \  'lua': ['stylua'],
       \ }
 
 let g:ale_warn_about_trailing_whitespace = 0
@@ -798,13 +795,12 @@ let g:ale_python_pylint_options = '--max-line-length=120 --rcfile $HOME/.config/
 " let g:ale_python_autopep8_options = '--max-line-length=120'
 let g:ale_python_flake8_options = '--max-line-length=120 --extend-ignore=E722,E741,E402,E501'
 let g:ale_python_pydocstyle_options = '--ignore=D200,D203,D204,D205,D211,D212,D213,D400,D401,D403,D415'
-let g:ale_python_autoflake_options = '--remove-all-unused-imports'
+let g:ale_python_autoflake_options = '--remove-all-unused-imports --ignore-init-module-imports'
 " let g:ale_javascript_prettier_options = '-c'
 " let g:ale_javascript_eslint_options = '--ext .js,.vue'
-
-" executable
 let g:ale_sql_sqlfmt_executable = trim(system("which sqlfmt"))
 let g:ale_sql_sqlfmt_options = '-u'
+let g:ale_lua_stylua_options = '--indent-type Spaces'
 
 " format
 let g:ale_echo_msg_format = '(%severity% %linter%) %code:% %s'
@@ -998,6 +994,7 @@ autocmd! User GoyoEnter nested call <SID>goyo_enter()
 autocmd! User GoyoLeave nested call <SID>goyo_leave()
 
 " /* for indentline */
+let g:indentLine_fileTypeExclude = ['alpha', 'startify']
 nnoremap <silent> <Leader>it :IndentLinesToggle<CR>
 " let g:indentLine_char_list = ['|', '¦', '┆', '┊']
 let g:indentLine_setConceal = 0
@@ -1131,6 +1128,16 @@ function! EditRcFiles()
   call win_gotoid(l:rc_id)
   execute 'vsplit ' . s:extra_vimrc_path
   call win_gotoid(l:rc_id)
+endfunction
+
+function! EditRcFilesV2()
+  let fm = [s:vimrc_path, s:extra_vimrc_path, g:init_vim_path, g:extra_init_vim_path]
+  let n = confirm("To edit:", "&1vimrc\n&2vimrc.local\n&3init.vim\n&4init.vim.local\n&5all")
+  if n > 0 && n <= 4
+    execute 'vsplit' .. fm[n-1]
+  elseif n == 5 
+    call EditRcFiles()
+  endif
 endfunction
 
 " toggle quickfix window
