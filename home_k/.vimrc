@@ -105,10 +105,11 @@ Plug 'liuchengxu/vista.vim'
 " Plug 'Shougo/echodoc.vim'
 Plug 'w0rp/ale' " Asynchronous Lint Engine
 if has("nvim")
-  " lsp
+  Plug 'williamboman/mason.nvim'
+  Plug 'williamboman/mason-lspconfig.nvim'
   Plug 'neovim/nvim-lspconfig'
 
-  " appearence
+  " lspkind adds vscode-like pictograms to neovim built-in lsp:
   Plug 'onsails/lspkind.nvim'
 
   " cmp
@@ -125,8 +126,8 @@ endif
 " Plug 'rdnetto/YCM-Generator', { 'branch': 'stable'}
 Plug 'mg979/vim-visual-multi', {'branch': 'master'}
 " Plug 'mattn/emmet-vim'
+" TODO (k): <2022-10-15> 
 " Plug 'puremourning/vimspector'
-" Plug 'Valloric/MatchTagAlways'
 
 " /* version control | workspace */
 " if has('nvim')
@@ -1116,26 +1117,30 @@ endfunction
 " TODO (k): <2022-10-11> check opened
 let s:vimrc_path = glob('~/.vimrc')
 let s:extra_vimrc_path = s:vimrc_path . '.local'
-let s:valid_extra_vimrc = filereadable(s:extra_vimrc_path)
+let g:init_vim_path = glob('~/.config/nvim/init.vim')
+let g:extra_init_vim_path = g:init_vim_path . '.local'
+let g:config_lua_path = glob('~/.config/nvim/lua/config.lua')
+
 function! EditRcFiles()
   execute 'tabe ' . s:vimrc_path
   let l:rc_id = win_getid()
-  if exists('g:extra_init_vim_path') && exists('g:extra_init_vim_path')
+  if has('nvim')
     execute 'split ' . g:init_vim_path
     let l:init_id = win_getid()
     execute 'vsplit '. g:extra_init_vim_path
   endif
+
   call win_gotoid(l:rc_id)
   execute 'vsplit ' . s:extra_vimrc_path
   call win_gotoid(l:rc_id)
 endfunction
 
 function! EditRcFilesV2()
-  let fm = [s:vimrc_path, s:extra_vimrc_path, g:init_vim_path, g:extra_init_vim_path]
-  let n = confirm("To edit:", "&1vimrc\n&2vimrc.local\n&3init.vim\n&4init.vim.local\n&5all")
-  if n > 0 && n <= 4
+  let fm = [s:vimrc_path, s:extra_vimrc_path, g:init_vim_path, g:extra_init_vim_path, g:config_lua_path]
+  let n = confirm("To edit:", "&1vimrc\n&2vimrc.local\n&3init.vim\n&4init.vim.local\n&5config.lua\n&6all")
+  if n > 0 && n <= 5
     execute 'vsplit' .. fm[n-1]
-  elseif n == 5 
+  elseif n == 6
     call EditRcFiles()
   endif
 endfunction
@@ -1372,7 +1377,7 @@ set t_ZH=[3m
 set t_ZR=[23m
 
 " load local configuration
-if s:valid_extra_vimrc
+if filereadable(s:extra_vimrc_path)
   execute 'source ' . s:extra_vimrc_path
 endif
 

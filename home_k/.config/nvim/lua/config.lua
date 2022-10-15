@@ -3,6 +3,11 @@ vim.g.loaded_netrwPlugin = 1
 
 -- require("nvim-tree").setup()
 
+require("mason").setup()
+require("mason-lspconfig").setup({
+    ensure_installed = { "sumneko_lua", "pyright", "vimls" }
+})
+
 require("alpha").setup(require("alpha.themes.startify").config)
 
 -- https://github.com/neovim/nvim-lspconfig/blob/master/doc/server_configurations.md#sumneko_lua
