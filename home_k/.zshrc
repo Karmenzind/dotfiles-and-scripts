@@ -1,7 +1,7 @@
 # If you come from bash you might have to change your $PATH.
 # export PATH=$HOME/bin:/usr/bin:/usr/local/bin:$PATH
 # XXX (qk): <2022-06-16> dirty path
-export PATH=/usr/local/bin:/bin:/usr/bin:/sbin:/usr/sbin:/usr/local/sbin
+export PATH=/usr/local/bin:/bin:/usr/bin:/sbin:/usr/sbin:/usr/local/sbin:/usr/bin/vendor_perl
 
 # Path to your oh-my-zsh installation.
 if [[ -d "$HOME/.oh-my-zsh" ]]; then

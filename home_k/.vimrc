@@ -105,6 +105,10 @@ Plug 'liuchengxu/vista.vim'
 " Plug 'Shougo/echodoc.vim'
 Plug 'w0rp/ale' " Asynchronous Lint Engine
 if has("nvim")
+  Plug 'nvim-treesitter/nvim-treesitter', {'do': ':TSUpdate'}
+  Plug 'kevinhwang91/promise-async'
+  Plug 'kevinhwang91/nvim-ufo'
+
   Plug 'williamboman/mason.nvim'
   Plug 'williamboman/mason-lspconfig.nvim'
   Plug 'neovim/nvim-lspconfig'
@@ -776,7 +780,7 @@ let g:ale_fixers = {
       \  'sh': ['shfmt'],
       \  'go': ['gofmt', 'goimports'],
       \  'python': ['isort', 'autopep8', 'FixSurroundedWhiteSpaces', 'autoflake'],
-      \  'json': ['fixjson', 'prettier'],
+      \  'json': ['jq', 'prettier'],
       \  'sql': ['pgformatter'],
       \  'vue': ['eslint', 'prettier'],
       \  'yaml': ['prettier'],
