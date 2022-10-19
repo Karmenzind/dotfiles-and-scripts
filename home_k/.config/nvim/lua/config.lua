@@ -1,17 +1,23 @@
 vim.g.loaded = 1
 vim.g.loaded_netrwPlugin = 1
 
--- require("nvim-tree").setup()
-
 require("mason").setup()
 require("mason-lspconfig").setup({
-    ensure_installed = { "sumneko_lua", "pyright", "vimls" }
+    ensure_installed = { "sumneko_lua", "pyright", "vimls" },
 })
 
 require("alpha").setup(require("alpha.themes.startify").config)
 
--- https://github.com/neovim/nvim-lspconfig/blob/master/doc/server_configurations.md#sumneko_lua
-require("lspconfig").sumneko_lua.setup({})
+require("lspconfig").sumneko_lua.setup({
+    settings = {
+        Lua = {
+            runtime = { version = "LuaJIT" },
+            diagnostics = { globals = { "vim" } },
+            workspace = { library = vim.api.nvim_get_runtime_file("", true) },
+            telemetry = { enable = false },
+        },
+    },
+})
 
 require("todo-comments").setup({
     highlight = {
@@ -22,29 +28,51 @@ require("todo-comments").setup({
     },
 })
 
-vim.o.foldcolumn = '1' -- '0' is not bad
+-- vim.o.fillchars = [[eob: ,fold: ,foldopen:,foldsep: ,foldclose:]]
+vim.o.fillchars = [[eob: ,fold: ,foldopen:,foldclose:]]
+vim.o.foldcolumn = "1" -- '0' is not bad
 vim.o.foldlevel = 99 -- Using ufo provider need a large value, feel free to decrease the value
 vim.o.foldlevelstart = 99
 vim.o.foldenable = true
 
 -- Using ufo provider need remap `zR` and `zM`. If Neovim is 0.6.1, remap yourself
-vim.keymap.set('n', 'zR', require('ufo').openAllFolds)
-vim.keymap.set('n', 'zM', require('ufo').closeAllFolds)
+vim.keymap.set("n", "zR", require("ufo").openAllFolds)
+vim.keymap.set("n", "zM", require("ufo").closeAllFolds)
+vim.keymap.set("n", "zr", require("ufo").openFoldsExceptKinds)
+vim.keymap.set("n", "zm", require("ufo").closeFoldsWith) -- closeAllFolds == closeFoldsWith(0)
 
-local capabilities = vim.lsp.protocol.make_client_capabilities()
-capabilities.textDocument.foldingRange = {
-    dynamicRegistration = false,
-    lineFoldingOnly = true
-}
-local language_servers = {'vls', 'pyright', 'gopls'} -- like {'gopls', 'clangd'}
- -- local language_servers = {'vls', 'pyright'} -- like {'gopls', 'clangd'}
-for _, ls in ipairs(language_servers) do
-    require('lspconfig')[ls].setup({
-        capabilities = capabilities,
-        other_fields = ...
-    })
+local handler = function(virtText, lnum, endLnum, width, truncate)
+    local newVirtText = {}
+    local suffix = (" ⋯   %d "):format(endLnum - lnum)
+    local sufWidth = vim.fn.strdisplaywidth(suffix)
+    local targetWidth = width - sufWidth
+    local curWidth = 0
+    for _, chunk in ipairs(virtText) do
+        local chunkText = chunk[1]
+        local chunkWidth = vim.fn.strdisplaywidth(chunkText)
+        if targetWidth > curWidth + chunkWidth then
+            table.insert(newVirtText, chunk)
+        else
+            chunkText = truncate(chunkText, targetWidth - curWidth)
+            local hlGroup = chunk[2]
+            table.insert(newVirtText, { chunkText, hlGroup })
+            chunkWidth = vim.fn.strdisplaywidth(chunkText)
+            -- str width returned from truncate() may less than 2nd argument, need padding
+            if curWidth + chunkWidth < targetWidth then
+                suffix = suffix .. (" "):rep(targetWidth - curWidth - chunkWidth)
+            end
+            break
+        end
+        curWidth = curWidth + chunkWidth
+    end
+    table.insert(newVirtText, { suffix, "MoreMsg" })
+    return newVirtText
 end
-require('ufo').setup()
+
+require("ufo").setup({
+    close_fold_kinds = { "imports", "comment" },
+    fold_virt_text_handler = handler,
+})
 
 -- Set up nvim-cmp.
 local cmp = require("cmp")
@@ -65,10 +93,10 @@ local post_move = function(select_result, fallback)
 end
 
 local opts = { noremap = true, silent = true }
-vim.keymap.set("n", "<space>e", vim.diagnostic.open_float, opts)
-vim.keymap.set("n", "[d", vim.diagnostic.goto_prev, opts)
-vim.keymap.set("n", "]d", vim.diagnostic.goto_next, opts)
-vim.keymap.set("n", "<space>q", vim.diagnostic.setloclist, opts)
+-- vim.keymap.set("n", "<space>e", vim.diagnostic.open_float, opts)
+vim.keymap.set("n", "<C-k>", vim.diagnostic.goto_prev, opts)
+vim.keymap.set("n", "<C-j>", vim.diagnostic.goto_next, opts)
+vim.keymap.set("n", "<leader>q", vim.diagnostic.setloclist, opts)
 
 local on_attach = function(client, bufnr)
     -- Enable completion triggered by <c-x><c-o>
@@ -76,27 +104,24 @@ local on_attach = function(client, bufnr)
 
     local bufopts = { noremap = true, silent = true, buffer = bufnr }
     vim.keymap.set("n", "gD", vim.lsp.buf.declaration, bufopts)
-    vim.keymap.set("n", "gd", vim.lsp.buf.definition, bufopts)
-    vim.keymap.set("n", "K", vim.lsp.buf.hover, bufopts)
     vim.keymap.set("n", "gi", vim.lsp.buf.implementation, bufopts)
-    vim.keymap.set("n", "<C-k>", vim.lsp.buf.signature_help, bufopts)
-    vim.keymap.set("n", "<space>wa", vim.lsp.buf.add_workspace_folder, bufopts)
-    vim.keymap.set("n", "<space>wr", vim.lsp.buf.remove_workspace_folder, bufopts)
-    vim.keymap.set("n", "<space>wl", function()
-        print(vim.inspect(vim.lsp.buf.list_workspace_folders()))
-    end, bufopts)
-    vim.keymap.set("n", "<space>D", vim.lsp.buf.type_definition, bufopts)
-    vim.keymap.set("n", "<space>rn", vim.lsp.buf.rename, bufopts)
-    vim.keymap.set("n", "<space>ca", vim.lsp.buf.code_action, bufopts)
-    vim.keymap.set("n", "gr", vim.lsp.buf.references, bufopts)
-    vim.keymap.set("n", "<space>f", function()
+    -- vim.keymap.set("n", "<leader>k", vim.lsp.buf.signature_help, bufopts)
+    -- vim.keymap.set("n", "<space>wa", vim.lsp.buf.add_workspace_folder, bufopts)
+    -- vim.keymap.set("n", "<space>wr", vim.lsp.buf.remove_workspace_folder, bufopts)
+    -- vim.keymap.set("n", "<space>wl", function()
+    --     print(vim.inspect(vim.lsp.buf.list_workspace_folders()))
+    -- end, bufopts)
+    vim.keymap.set("n", "<leader>D", vim.lsp.buf.type_definition, bufopts)
+    vim.keymap.set("n", "<leader>rr", vim.lsp.buf.rename, bufopts)
+    vim.keymap.set("n", "<leader>la", vim.lsp.buf.code_action, bufopts)
+    vim.keymap.set("n", "<leader>rf", vim.lsp.buf.references, bufopts)
+    vim.keymap.set("n", "<leader>lf", function()
         vim.lsp.buf.format({ async = true })
     end, bufopts)
 end
 
 cmp.setup({
     snippet = {
-        -- REQUIRED - you must specify a snippet engine
         expand = function(args)
             vim.fn["UltiSnips#Anon"](args.body) -- For `ultisnips` users.
         end,
@@ -123,7 +148,7 @@ cmp.setup({
 
         ["<PageDown>"] = function(fallback)
             local r
-            for i = 0, 4, 1 do
+            for _ = 0, 4, 1 do
                 r = cmp.select_next_item()
             end
             post_move(r, fallback)
@@ -131,7 +156,7 @@ cmp.setup({
 
         ["<PageUp>"] = function(fallback)
             local r
-            for i = 0, 4, 1 do
+            for _ = 0, 4, 1 do
                 r = cmp.select_prev_item()
             end
             post_move(r, fallback)
@@ -181,9 +206,14 @@ cmp.setup.cmdline(":", {
 })
 
 -- Set up lspconfig.
-local capabilities = require("cmp_nvim_lsp").update_capabilities(vim.lsp.protocol.make_client_capabilities())
--- Replace <YOUR_LSP_SERVER> with each lsp server you've enabled.
-lsp.pyright.setup({ capabilities = capabilities })
+local capabilities = require("cmp_nvim_lsp").default_capabilities()
+
+-- ufo specs
+capabilities.textDocument.foldingRange = {
+    dynamicRegistration = false,
+    lineFoldingOnly = true,
+}
+lsp.pyright.setup({ on_attach = on_attach, capabilities = capabilities })
 lsp.vimls.setup({
     on_attach = on_attach,
     capabilities = capabilities,
@@ -230,11 +260,26 @@ lsp.gopls.setup({
     },
 })
 
-lsp.bashls.setup({ on_attach = on_attach })
-lsp.dockerls.setup({ on_attach = on_attach })
-lsp.yamlls.setup({ on_attach = on_attach })
+-- other lsp
+lsp.bashls.setup({ on_attach = on_attach, capabilities = capabilities })
+lsp.dockerls.setup({ on_attach = on_attach, capabilities = capabilities })
+lsp.yamlls.setup({ on_attach = on_attach, capabilities = capabilities })
+lsp.vls.setup({ on_attach = on_attach, capabilities = capabilities })
+lsp.marksman.setup({ on_attach = on_attach, capabilities = capabilities })
 
-require("nvim-autopairs").setup({})
+require("nvim-autopairs").setup({
+    disable_filetype = { "markdown" },
+})
 local cmp_autopairs = require("nvim-autopairs.completion.cmp")
-local cmp = require("cmp")
 cmp.event:on("confirm_done", cmp_autopairs.on_confirm_done())
+
+-- Common Keymaps
+vim.keymap.set("n", "K", function()
+    local winid = require("ufo").peekFoldedLinesUnderCursor()
+    if not winid then
+        _, winid = vim.diagnostic.open_float()
+        if not winid then
+            vim.lsp.buf.hover()
+        end
+    end
+end)

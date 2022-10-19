@@ -106,11 +106,11 @@ Plug 'liuchengxu/vista.vim'
 Plug 'w0rp/ale' " Asynchronous Lint Engine
 if has("nvim")
   Plug 'nvim-treesitter/nvim-treesitter', {'do': ':TSUpdate'}
-  Plug 'kevinhwang91/promise-async'
-  Plug 'kevinhwang91/nvim-ufo'
 
-  Plug 'williamboman/mason.nvim'
-  Plug 'williamboman/mason-lspconfig.nvim'
+  Plug 'kevinhwang91/promise-async' | Plug 'kevinhwang91/nvim-ufo'
+
+  Plug 'williamboman/mason.nvim' | Plug 'williamboman/mason-lspconfig.nvim'
+
   Plug 'neovim/nvim-lspconfig'
 
   " lspkind adds vscode-like pictograms to neovim built-in lsp:
@@ -130,15 +130,10 @@ endif
 " Plug 'rdnetto/YCM-Generator', { 'branch': 'stable'}
 Plug 'mg979/vim-visual-multi', {'branch': 'master'}
 " Plug 'mattn/emmet-vim'
-" TODO (k): <2022-10-15> 
+" TODO (k): <2022-10-15>
 " Plug 'puremourning/vimspector'
 
 " /* version control | workspace */
-" if has('nvim')
-"   Plug 'nvim-tree/nvim-tree.lua'
-" else
-"   Plug 'scrooloose/nerdtree', { 'on': ['NERDTreeToggle', 'NERDTreeFind'] }
-" endif
 Plug 'scrooloose/nerdtree', { 'on': ['NERDTreeToggle', 'NERDTreeFind'] }
 " Plug 'Xuyuanp/nerdtree-git-plugin', { 'on': ['NERDTreeToggle'] }
 Plug 'tiagofumo/vim-nerdtree-syntax-highlight'
@@ -175,7 +170,7 @@ Plug 'godlygeek/tabular'
 Plug 'mzlogin/vim-markdown-toc'
 Plug 'plasticboy/vim-markdown'
 Plug 'iamcco/markdown-preview.nvim', { 'do': { -> mkdp#util#install() }, 'for': ['markdown', 'vim-plug']}
-Plug 'nelstrom/vim-markdown-folding'
+Plug 'nelstrom/vim-markdown-folding', { 'for': 'markdown' }
 Plug 'mklabs/vim-markdown-helpfile'
 Plug 'Traap/vim-helptags'
 
@@ -255,7 +250,7 @@ if has('win32')
 else
   " set guifont=Hack\ Nerd\ Font\ 12
   " set guifont=Monaco\ Nerd\ Font\ Mono\ 12
-  set guifont=MonacoB\ Nerd\ Font\ Mono\ 12
+  set guifont=Monaco\ Nerd\ Font\ Mono\ 12
 endif
 set cursorline cursorcolumn
 set showmode
@@ -382,9 +377,9 @@ augroup filetype_formats
         \ setlocal tabstop=2          |
         \ setlocal softtabstop=2      |
         \ setlocal shiftwidth=2       |
-        \ setlocal foldmethod=expr    |
-        \ setlocal foldlevel=2        |
         \ setlocal formatoptions-=cro |
+        \ setlocal foldlevel=2        |
+        \ setlocal foldmethod=expr    |
         \ setlocal foldexpr=VimScriptFold(v:lnum)
 
   au BufNewFile,BufRead *.go
@@ -530,13 +525,12 @@ if has_key(plugs, 'YouCompleteMe')
   nnoremap <silent> <Leader>g   :YcmCompleter GoTo<CR>
   nnoremap <silent> <Leader>dd  :YcmCompleter GoToDefinitionElseDeclaration<CR>
   nnoremap <silent> <Leader>rf  :YcmCompleter GoToReferences<CR>
-  nnoremap <silent> <Leader>doc :YcmCompleter GetDoc<CR>
+  " nnoremap <silent> <Leader>doc :YcmCompleter GetDoc<CR>
   nnoremap <Leader>rr  :YcmCompleter RefactorRename<SPACE>
 endif
 
 " /* for XXX */
 nnoremap <silent> <leader>N :NERDTreeFind<CR>
-
 
 function! s:FzfToNERDTree(lines)
     if len(a:lines) == 0
@@ -558,9 +552,6 @@ let g:fzf_action = {
   \ 'ctrl-t': 'tab split',
   \ 'ctrl-x': 'split',
   \ 'ctrl-v': 'vsplit' }
-
-" /* for Chadtree */
-" nnoremap <leader>c <cmd>CHADopen<cr>
 
 " /* for NERDTree */
 nnoremap <silent> <Leader>n :NERDTreeToggle<CR>
@@ -743,36 +734,47 @@ let g:snips_email = 'valesail7@gmail.com'
 let g:snips_github = 'https://github.com/Karmenzind/'
 
 " /* for ale */
-nmap <silent> <C-k> <Plug>(ale_previous)
-nmap <silent> <C-j> <Plug>(ale_next)
-nmap <silent> <Leader>al <Plug>(ale_lint)
-nmap <silent> <Leader>af <Plug>(ale_fix)
-nmap <silent> <Leader>at <Plug>(ale_toggle)
-call s:NoSearchCabbrev("AF", "ALEFix")
-
 " trim whitespaces surrounded in docstrings
 function! FixSurroundedWhiteSpaces(buffer, lines)
   return map(a:lines, {idx, line -> substitute(line, '\v^(\s*""")\s+(.+)\s+(""")', '\1\2\3', '')})
 endfunction
 
-let g:ale_linter_aliases = {
-      \ 'vue': ['vue', 'javascript', 'html']
-      \ }
-let g:ale_linters = {
-      \ 'vim': ['vint'],
-      \ 'python': ['pylint', 'pydocstyle', 'flake8'],
-      \ 'markdown': ['mdl', 'prettier', 'proselint', 'alex'],
-      \ 'text': ['proselint', 'alex', 'redpen'],
-      \ 'vue': ['htmlhint', 'jshint', 'stylelint'],
-      \ 'javascript': ['jshint', 'prettier', 'importjs'],
-      \ 'gitcommit': ['gitlint'],
-      \ 'dockerfile': ['hadolint'],
-      \ 'sql': ['sqlint'],
-      \ 'cpp': ['gcc'],
-      \ 'html': ['prettier', 'htmlhint'],
-      \ 'go': ['golangci-lint'],
-      \ }
-" FIXME (k): <2022-03-21> unimport
+" only fixers for nvim
+if has('nvim')
+  let g:ale_enabled = 0
+else
+  let g:ale_linter_aliases = {
+        \ 'vue': ['vue', 'javascript', 'html']
+        \ }
+  let g:ale_linters = {
+        \ 'vim': ['vint'],
+        \ 'python': ['pylint', 'pydocstyle', 'flake8'],
+        \ 'markdown': ['mdl', 'prettier', 'proselint', 'alex'],
+        \ 'text': ['proselint', 'alex', 'redpen'],
+        \ 'vue': ['htmlhint', 'jshint', 'stylelint'],
+        \ 'javascript': ['jshint', 'prettier', 'importjs'],
+        \ 'gitcommit': ['gitlint'],
+        \ 'dockerfile': ['hadolint'],
+        \ 'sql': ['sqlint'],
+        \ 'cpp': ['gcc'],
+        \ 'html': ['prettier', 'htmlhint'],
+        \ 'go': ['golangci-lint'],
+        \ }
+
+  nmap <silent> <C-k> <Plug>(ale_previous)
+  nmap <silent> <C-j> <Plug>(ale_next)
+
+  let g:ale_warn_about_trailing_whitespace = 0
+  let g:ale_lint_on_text_changed = 'normal'
+  let g:ale_lint_on_insert_leave = 1
+
+  " format
+  let g:ale_echo_msg_format = '%severity% (%linter%) %code:% %s'
+  let g:ale_echo_msg_error_str = ' E'
+  let g:ale_echo_msg_info_str = ' I'
+  let g:ale_echo_msg_warning_str = ' W'
+endif
+
 let g:ale_fixers = {
       \  '*': ['trim_whitespace'],
       \  'c': ['clang-format'],
@@ -787,11 +789,14 @@ let g:ale_fixers = {
       \  'lua': ['stylua'],
       \ }
 
-let g:ale_warn_about_trailing_whitespace = 0
 let g:ale_maximum_file_size = 1024 * 1024
 " let g:ale_set_balloons_legacy_echo = 1
-let g:ale_lint_on_text_changed = 'normal'
-let g:ale_lint_on_insert_leave = 1
+
+" hover
+" let g:ale_hover_to_floating_preview = 1
+let g:ale_floating_preview = 1
+let g:ale_hover_to_preview = 1
+let g:ale_hover_to_floating_preview = 1
 
 " options
 let g:ale_python_mypy_ignore_invalid_syntax = 1
@@ -800,22 +805,23 @@ let g:ale_python_pylint_options = '--max-line-length=120 --rcfile $HOME/.config/
 " let g:ale_python_autopep8_options = '--max-line-length=120'
 let g:ale_python_flake8_options = '--max-line-length=120 --extend-ignore=E722,E741,E402,E501'
 let g:ale_python_pydocstyle_options = '--ignore=D200,D203,D204,D205,D211,D212,D213,D400,D401,D403,D415'
-let g:ale_python_autoflake_options = '--remove-all-unused-imports --ignore-init-module-imports'
+let g:ale_python_autoflake_options = '--remove-all-unused-imports --ignore-init-module-imports --expand-star-imports'
 " let g:ale_javascript_prettier_options = '-c'
 " let g:ale_javascript_eslint_options = '--ext .js,.vue'
 let g:ale_sql_sqlfmt_executable = trim(system("which sqlfmt"))
 let g:ale_sql_sqlfmt_options = '-u'
 let g:ale_lua_stylua_options = '--indent-type Spaces'
-
-" format
-let g:ale_echo_msg_format = '(%severity% %linter%) %code:% %s'
-let g:ale_echo_msg_error_str = 'E'
-let g:ale_echo_msg_info_str = 'I'
-let g:ale_echo_msg_warning_str = 'W'
+let g:ale_dprint_config = '$HOME/.dprint.json'
+let g:ale_dprint_use_global = 1
 
 " others
 let g:ale_c_parse_compile_commands = 1
 let g:ale_typescript_tslint_ignore_empty_files = 1
+
+nmap <silent> <Leader>al <Plug>(ale_lint)
+nmap <silent> <Leader>af <Plug>(ale_fix)
+nmap <silent> <Leader>at <Plug>(ale_toggle)
+call s:NoSearchCabbrev("AF", "ALEFix")
 
 " /* for vim-visual-multi */
 if !has('gui_running')
@@ -1011,13 +1017,23 @@ let g:user_emmet_leader_key = '<leader>y'
 " /* for vista.vim */
 noremap <Leader>V :Vista!!<CR>
 noremap <Leader>fc :Vista finder<CR>
-let g:vista_echo_cursor = 0
 let g:vista_sidebar_width = 40
-" TODO(k): <2019-08-24> g:vista_echo_cursor_strategy -> floating_win
+let g:vista_echo_cursor = 0
+let g:vista_echo_cursor_strategy = 'both'
+" let g:vista_highlight_whole_line = 1
+
+if has('nvim')
+  let g:vista_executive_for = {
+    \ 'lua': 'nvim_lsp',
+    \ 'yaml': 'nvim_lsp',
+    \ }
+endif
 
 augroup vista_aug
   au!
-  au FileType vista set nu rnu
+  au FileType vista,vista_kind set nu rnu
+  au FileType vista,vista_kind nnoremap <buffer> <silent> K :<c-u>call vista#cursor#TogglePreview()<CR>
+
 augroup END
 
 " /* for vim-vue */
@@ -1038,6 +1054,8 @@ let g:go_term_reuse = 1
 let g:go_term_close_on_exit = 0
 let g:go_term_height = 20
 let g:go_term_width = 30
+let g:go_doc_balloon = 0
+let g:go_doc_keywordprg_enabled = 0
 
 let g:go_code_completion_enabled = 1
 
@@ -1244,7 +1262,6 @@ endfunction
 function! VimScriptFold(lnum)
   let curline = getline(a:lnum)
   if curline == ''
-    " TODO (k): <2022-10-11>
     " check if inside func/aug
     return '0'
   elseif curline =~? '\v^\s*$'
@@ -1261,6 +1278,8 @@ function! VimScriptFold(lnum)
     return '1'
   elseif curline =~? '\v\S'
     return '2'
+  else
+    return '0'
   endif
 endfunction
 
