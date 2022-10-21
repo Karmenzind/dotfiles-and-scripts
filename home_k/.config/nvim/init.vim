@@ -37,12 +37,8 @@ nnoremap <A-l> <C-w>l
 
 noremap <Leader>T  :sp<CR>:terminal<CR>A
 
-" TODO (k): <2022-10-19> definition else declaration
 " nnoremap <silent> <leader>g :split \| lua vim.lsp.buf.definition({reuse_win = true})<CR>
-" split and record the winid
-" goto with reuse_win
-" close the winid if at old place
-nnoremap <silent> <leader>g :lua vim.lsp.buf.definition({reuse_win = true})<CR>
+" nnoremap <silent> <leader>g :lua vim.lsp.buf.definition({reuse_win = true})<CR>
 
 set completeopt=menu,menuone,noselect
 

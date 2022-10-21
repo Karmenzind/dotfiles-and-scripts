@@ -2,30 +2,13 @@ vim.g.loaded = 1
 vim.g.loaded_netrwPlugin = 1
 
 require("mason").setup()
-require("mason-lspconfig").setup({
-    ensure_installed = { "sumneko_lua", "pyright", "vimls" },
-})
+require("mason-lspconfig").setup({ ensure_installed = { "sumneko_lua", "pyright", "vimls" } })
 
 require("alpha").setup(require("alpha.themes.startify").config)
 
-require("lspconfig").sumneko_lua.setup({
-    settings = {
-        Lua = {
-            runtime = { version = "LuaJIT" },
-            diagnostics = { globals = { "vim" } },
-            workspace = { library = vim.api.nvim_get_runtime_file("", true) },
-            telemetry = { enable = false },
-        },
-    },
-})
-
 require("todo-comments").setup({
-    highlight = {
-        pattern = [[.*<(KEYWORDS)\s*]],
-    },
-    search = {
-        pattern = [[\b(KEYWORDS)\b]],
-    },
+    highlight = { pattern = [[.*<(KEYWORDS)\s*]] },
+    search = { pattern = [[\b(KEYWORDS)\b]] },
 })
 
 -- vim.o.fillchars = [[eob: ,fold: ,foldopen:,foldsep: ,foldclose:]]
@@ -69,10 +52,7 @@ local handler = function(virtText, lnum, endLnum, width, truncate)
     return newVirtText
 end
 
-require("ufo").setup({
-    close_fold_kinds = { "imports", "comment" },
-    fold_virt_text_handler = handler,
-})
+require("ufo").setup({ close_fold_kinds = { "imports", "comment" }, fold_virt_text_handler = handler })
 
 -- Set up nvim-cmp.
 local cmp = require("cmp")
@@ -170,50 +150,36 @@ cmp.setup({
             post_move(cmp.select_prev_item(), fallback)
         end,
     }),
-    sources = cmp.config.sources({
-        { name = "nvim_lsp" },
-        { name = "ultisnips" }, -- For ultisnips users.
-        { name = "path"},
-    }, {
-        { name = "buffer" },
-    }),
+    sources = cmp.config.sources(
+        { { name = "nvim_lsp" }, { name = "ultisnips" }, { name = "calc" }, { name = "tmux" }, { name = "emoji" } },
+        { { name = "buffer" } }
+    ),
 })
 
 -- Set configuration for specific filetype.
 cmp.setup.filetype("gitcommit", {
-    sources = cmp.config.sources({
-        { name = "cmp_git" }, -- You can specify the `cmp_git` source if you were installed it.
-    }, {
-        { name = "buffer" },
-    }),
+    sources = cmp.config.sources({ { name = "cmp_git" } }, { { name = "buffer" } }),
 })
 
 -- Use buffer source for `/` and `?` (if you enabled `native_menu`, this won't work anymore).
 cmp.setup.cmdline({ "/", "?" }, {
     mapping = cmp.mapping.preset.cmdline(),
-    sources = {
-        { name = "buffer" },
-    },
+    sources = { { name = "buffer" } },
 })
 
 -- Use cmdline & path source for ':' (if you enabled `native_menu`, this won't work anymore).
 cmp.setup.cmdline(":", {
     mapping = cmp.mapping.preset.cmdline(),
-    sources = cmp.config.sources({
-        { name = "path" },
-    }, {
-        { name = "cmdline" },
-    }),
+    sources = cmp.config.sources({ { name = "path" } }, { { name = "cmdline" } }),
 })
 
 -- Set up lspconfig.
 local capabilities = require("cmp_nvim_lsp").default_capabilities()
-
--- ufo specs
 capabilities.textDocument.foldingRange = {
     dynamicRegistration = false,
     lineFoldingOnly = true,
 }
+
 lsp.pyright.setup({ on_attach = on_attach, capabilities = capabilities })
 lsp.vimls.setup({
     on_attach = on_attach,
@@ -222,9 +188,7 @@ lsp.vimls.setup({
     filetypes = { "vim" },
     single_file_support = true,
     init_options = {
-        diagnostic = {
-            enable = true,
-        },
+        diagnostic = { enable = true },
         indexes = {
             count = 3,
             gap = 100,
@@ -234,10 +198,7 @@ lsp.vimls.setup({
         isNeovim = true,
         iskeyword = "@,48-57,_,192-255,-#",
         runtimepath = "",
-        suggest = {
-            fromRuntimepath = true,
-            fromVimruntime = true,
-        },
+        suggest = { fromRuntimepath = true, fromVimruntime = true },
         vimruntime = "",
     },
 })
@@ -249,15 +210,21 @@ lsp.gopls.setup({
     settings = {
         gopls = {
             experimentalPostfixCompletions = true,
-            analyses = {
-                unusedparams = true,
-                shadow = true,
-            },
+            analyses = { unusedparams = true, shadow = true },
             staticcheck = true,
         },
     },
-    init_options = {
-        usePlaceholders = true,
+    init_options = { usePlaceholders = true },
+})
+
+lsp.sumneko_lua.setup({
+    settings = {
+        Lua = {
+            runtime = { version = "LuaJIT" },
+            diagnostics = { globals = { "vim" } },
+            workspace = { library = vim.api.nvim_get_runtime_file("", true) },
+            telemetry = { enable = false },
+        },
     },
 })
 
@@ -283,4 +250,32 @@ vim.keymap.set("n", "K", function()
             vim.lsp.buf.hover()
         end
     end
+end)
+
+-- more sensible goto
+-- FIXME (k): <2022-10-20> definition else declaration
+-- split and record the winid
+-- close the winid if at old place
+vim.keymap.set("n", "<leader>g", function()
+    -- local origin_wid = vim.fn.win_getid()
+    vim.cmd("split")
+    vim.lsp.buf.definition({ reuse_win = false })
+    -- local splited_wid = vim.api.nvim_get_current_win()
+    -- vim.cmd(("echom 'origin %d splited %d'"):format(origin_wid, splited_wid))
+    -- vim.lsp.buf_request_sync(0, 'textDocument/definition', {reuse_win = true})
+
+    -- -- vim.lsp.buf.definition({reuse_win = true})
+    -- vim.cmd(("echom 'current buffer %d'"):format(vim.api.nvim_get_current_buf()))
+    -- vim.cmd(("echom 'current win %d'"):format(vim.api.nvim_get_current_win()))
+    -- vim.cmd(("echom 'vim.fn: origin buffer %d splited buffer %d'"):format(
+    --     vim.fn.winbufnr(origin_wid),
+    --     vim.fn.winbufnr(splited_wid)
+    -- ))
+    -- vim.cmd(("echom 'nvim.api: origin buffer %d splited buffer %d'"):format(
+    --     vim.api.nvim_win_get_buf(origin_wid),
+    --     vim.api.nvim_win_get_buf(splited_wid)
+    -- ))
+    -- -- if vim.fn.winbufnr(origin_wid) == vim.fn.winbufnr(splited_wid) then
+    -- --     vim.api.nvim_win_close(splited_wid, 0)
+    -- -- end
 end)

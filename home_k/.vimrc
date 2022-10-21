@@ -117,11 +117,14 @@ if has("nvim")
   Plug 'onsails/lspkind.nvim'
 
   " cmp
+  Plug 'hrsh7th/nvim-cmp'
   Plug 'hrsh7th/cmp-nvim-lsp'
   Plug 'hrsh7th/cmp-buffer'
   Plug 'hrsh7th/cmp-path'
+  Plug 'hrsh7th/cmp-calc'
   Plug 'hrsh7th/cmp-cmdline'
-  Plug 'hrsh7th/nvim-cmp'
+  Plug 'hrsh7th/cmp-emoji'
+  Plug 'andersevenrud/cmp-tmux'
   Plug 'quangnguyen30192/cmp-nvim-ultisnips'
 else
   Plug 'Valloric/YouCompleteMe', { 'do': function('BuildYCM'), 'frozen': v:true }
@@ -220,6 +223,11 @@ Plug 'KKPMW/sacredforest-vim'
 Plug 'junegunn/seoul256.vim'
 Plug 'arcticicestudio/nord-vim'
 Plug 'ryanoasis/vim-devicons' " load after other plugins
+if has('nvim')
+  Plug 'projekt0n/github-nvim-theme'
+  Plug 'rockerBOO/boo-colorscheme-nvim'
+  Plug 'kyazdani42/blue-moon' " no airline theme
+endif
 
 call plug#end()
 
@@ -1162,7 +1170,11 @@ function! EditRcFilesV2()
   let fm = [s:vimrc_path, s:extra_vimrc_path, g:init_vim_path, g:extra_init_vim_path, g:config_lua_path]
   let n = confirm("To edit:", "&1vimrc\n&2vimrc.local\n&3init.vim\n&4init.vim.local\n&5config.lua\n&6all")
   if n > 0 && n <= 5
-    execute 'vsplit' .. fm[n-1]
+    if winnr() == 1 && &ft =~ '\v^(alpha|startify)$'
+      execute 'e' .. fm[n-1]
+    else
+      execute 'vsplit' .. fm[n-1]
+    endif
   elseif n == 6
     call EditRcFiles()
   endif
@@ -1322,21 +1334,20 @@ function! SetColorScheme(cname)
       let g:atomic_mode = 9  " light soft
     endif
   endif
-  if v:version < 801 && !has('nvim')
-    call SetTermguiColors('no') | call LetBgFitClock()
-    if s:cname =~ '\vatomic|NeoSolarized|ayu|palenight'
-      call SetTermguiColors('yes')
-    endif
-  endif
+  " if v:version < 801 && !has('nvim') call SetTermguiColors('no') | call LetBgFitClock() if s:cname =~ '\vatomic|NeoSolarized|ayu|palenight' call SetTermguiColors('yes') endif endif
   execute 'colorscheme ' . s:cname
-  call FitAirlineTheme(s:cname)
-  if s:cname =~ '\v(default|blackbeauty|gruvbox)'
-    augroup ColoAirlineAug
-      au!
-      au User AirlineToggledOn let w:airline_disabled = 1
-      au WinEnter,WinNew,BufRead,BufEnter,BufNewFile,FileReadPre,BufWinEnter * if exists("#airline") | let w:airline_disabled = 1 | endif
-    augroup END
+
+  " Fit airline or disable it
+  if s:cname =~ '\v^(default|blackbeauty|gruvbox|blue-moon|boo|github_)'
+    let g:airline#extensions#tabline#enabled = 0
+    let g:airline_disable_statusline = 1
+    " augroup ColoAirlineAug
+    "   au!
+    "   au User AirlineToggledOn let w:airline_disabled = 1
+    "   au WinEnter,WinNew,BufRead,BufEnter,BufNewFile,FileReadPre,BufWinEnter * if exists("#airline") | let w:airline_disabled = 1 | endif
+    " augroup END
   else
+    call FitAirlineTheme(s:cname)
     augroup ColoAirlineAug
       au!
     augroup END
@@ -1363,7 +1374,7 @@ if has('gui_running')
 endif
 
 " --------------------------------------------
-" compatible with f cking windows
+" compatible with Windows
 " --------------------------------------------
 
 " gvim on win
