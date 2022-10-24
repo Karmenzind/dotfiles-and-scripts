@@ -258,7 +258,14 @@ vim.keymap.set("n", "K", function()
 end)
 
 -- themes
-if vim.api.nvim_get_var('colors_name'):find('github_', 1, true) == 1 then
+local cololike = function (p)
+    if vim.g.colors_name ~= nil and vim.g.colors_name:find(p, 1, true) == 1 then
+        return true
+    end
+    return false
+end
+
+if cololike('github_') then
     require('github-theme').setup({
         dark_float = true,
         hide_inactive_statusline = false,
