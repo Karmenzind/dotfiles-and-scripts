@@ -150,10 +150,14 @@ cmp.setup({
             post_move(cmp.select_prev_item(), fallback)
         end,
     }),
-    sources = cmp.config.sources(
-        { { name = "nvim_lsp" }, { name = "ultisnips" }, { name = "calc" }, { name = "tmux" }, { name = "emoji" } },
-        { { name = "buffer" } }
-    ),
+    sources = {
+        { name = "nvim_lsp" },
+        { name = "ultisnips" },
+        { name = "calc" },
+        { name = "emoji" },
+        -- FIXME (k): <2022-10-24> pattern didn't work for now
+        -- { name = "tmux", option = { keyword_pattern = [[\w\w\w\+]] } },
+    },
 })
 
 -- Set configuration for specific filetype.
@@ -234,6 +238,7 @@ lsp.dockerls.setup({ on_attach = on_attach, capabilities = capabilities })
 lsp.yamlls.setup({ on_attach = on_attach, capabilities = capabilities })
 lsp.vls.setup({ on_attach = on_attach, capabilities = capabilities })
 lsp.marksman.setup({ on_attach = on_attach, capabilities = capabilities })
+lsp.taplo.setup({ on_attach = on_attach, capabilities = capabilities })
 
 require("nvim-autopairs").setup({
     disable_filetype = { "markdown" },
@@ -251,6 +256,16 @@ vim.keymap.set("n", "K", function()
         end
     end
 end)
+
+-- themes
+if vim.api.nvim_get_var('colors_name'):find('github_', 1, true) == 1 then
+    require('github-theme').setup({
+        dark_float = true,
+        hide_inactive_statusline = false,
+        sidebars = { "qf", "vista_kind", "terminal", "packer", "nerdtree", "vista" },
+        function_style = "italic",
+    })
+end
 
 -- more sensible goto
 -- FIXME (k): <2022-10-20> definition else declaration

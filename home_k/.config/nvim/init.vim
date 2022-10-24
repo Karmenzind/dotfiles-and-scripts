@@ -20,7 +20,7 @@ set termguicolors
 " --------------------------------------------
 
 " XXX: <2019-11-28> 会导致fzf异常
-" tnoremap <Esc> <C-\><C-n>
+tnoremap <Esc> <C-\><C-n>
 tnoremap <expr> <C-R> '<C-\><C-N>"'.nr2char(getchar()).'pi'
 tnoremap <A-h> <C-\><C-N><C-w>h
 tnoremap <A-j> <C-\><C-N><C-w>j

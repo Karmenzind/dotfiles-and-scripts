@@ -508,11 +508,11 @@ let g:ycm_extra_conf_vim_data = ['g:__rtp']
 
 " set completeopt-=preview
 set completeopt+=longest,menu
-if has('patch-8.1.1902')
-    set completeopt+=popup
-    set completepopup=height:10,width:60,highlight:Pmenu,border:off
-    set pumwidth=10
-endif
+" if has('patch-8.1.1902')
+"     set completeopt+=popup
+"     set completepopup=height:10,width:60,highlight:Pmenu,border:off
+"     set pumwidth=10
+" endif
 
 let g:ycm_language_server = [
       \ {"name": "vue", "filetypes": ["vue"], "cmdline": ["vls"] },
@@ -1035,6 +1035,7 @@ if has('nvim')
   let g:vista_executive_for = {
     \ 'lua': 'nvim_lsp',
     \ 'yaml': 'nvim_lsp',
+    \ 'toml': 'nvim_lsp',
     \ }
 endif
 
@@ -1352,6 +1353,8 @@ function! SetColorScheme(cname)
       au!
     augroup END
   endif
+
+  " echom "Configured colorscheme: " .. a:cname
 endfunction
 
 " --------------------------------------------
@@ -1419,6 +1422,6 @@ endif
 " command -nargs=1 Colo :call SetColorScheme('<args>')
 
 " fallback
-if !exists('g:colors_name')
+if !exists('g:colors_name') && !has('nvim')
   call SetColorScheme('molokai')
 endif
