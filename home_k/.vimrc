@@ -224,6 +224,7 @@ Plug 'junegunn/seoul256.vim'
 Plug 'arcticicestudio/nord-vim'
 Plug 'ryanoasis/vim-devicons' " load after other plugins
 if has('nvim')
+  Plug 'katawful/kat.nvim', { 'tag': '3.0' }
   Plug 'projekt0n/github-nvim-theme'
   Plug 'rockerBOO/boo-colorscheme-nvim'
   Plug 'kyazdani42/blue-moon' " no airline theme
@@ -770,8 +771,8 @@ else
         \ 'go': ['golangci-lint'],
         \ }
 
-  nmap <silent> <C-k> <Plug>(ale_previous)
-  nmap <silent> <C-j> <Plug>(ale_next)
+  nmap <silent> [d <Plug>(ale_previous)
+  nmap <silent> ]d <Plug>(ale_next)
 
   let g:ale_warn_about_trailing_whitespace = 0
   let g:ale_lint_on_text_changed = 'normal'
@@ -1339,7 +1340,7 @@ function! SetColorScheme(cname)
   execute 'colorscheme ' . s:cname
 
   " Fit airline or disable it
-  if s:cname =~ '\v^(default|blackbeauty|gruvbox|blue-moon|boo|github_)'
+  if s:cname =~ '\v^(default|blackbeauty|gruvbox|blue-moon|boo|github_|kat\.)'
     let g:airline#extensions#tabline#enabled = 0
     let g:airline_disable_statusline = 1
     " augroup ColoAirlineAug
