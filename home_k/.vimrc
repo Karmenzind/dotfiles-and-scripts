@@ -136,7 +136,9 @@ Plug 'mg979/vim-visual-multi', {'branch': 'master'}
 " TODO (k): <2022-10-15>
 " Plug 'puremourning/vimspector'
 
-" /* version control | workspace */
+" /* version control (vcs) | workspace */
+Plug 'juneedahamed/vc.vim'
+" Plug 'adelarsq/neovcs.vim'
 Plug 'scrooloose/nerdtree', { 'on': ['NERDTreeToggle', 'NERDTreeFind'] }
 " Plug 'Xuyuanp/nerdtree-git-plugin', { 'on': ['NERDTreeToggle'] }
 Plug 'tiagofumo/vim-nerdtree-syntax-highlight'
@@ -815,7 +817,7 @@ let g:ale_python_pylint_options = '--max-line-length=120 --rcfile $HOME/.config/
 " let g:ale_python_autopep8_options = '--max-line-length=120'
 let g:ale_python_flake8_options = '--max-line-length=120 --extend-ignore=E722,E741,E402,E501'
 let g:ale_python_pydocstyle_options = '--ignore=D200,D203,D204,D205,D211,D212,D213,D400,D401,D403,D415'
-let g:ale_python_autoflake_options = '--remove-all-unused-imports --ignore-init-module-imports --expand-star-imports'
+let g:ale_python_autoflake_options = '--remove-all-unused-imports --ignore-init-module-imports'
 " let g:ale_javascript_prettier_options = '-c'
 " let g:ale_javascript_eslint_options = '--ext .js,.vue'
 let g:ale_sql_sqlfmt_executable = trim(system("which sqlfmt"))
@@ -967,7 +969,7 @@ let g:startify_lists = [
 
 " /* for vc */
 
-if executable('svn')
+if executable('svn') && has_key(plugs, 'vc.vim')
   let g:vc_browse_cache_all = 1
   map <silent> <leader>vB :VCBlame<CR>
   map <silent> <leader>vd :VCDiff<CR>

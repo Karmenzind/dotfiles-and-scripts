@@ -156,7 +156,7 @@ cmp.setup({
         { name = "calc" },
         { name = "emoji" },
         -- FIXME (k): <2022-10-24> pattern didn't work for now
-        -- { name = "tmux", option = { keyword_pattern = [[\w\w\w\+]] } },
+        { name = "tmux", option = { keyword_pattern = [[\w\w\w\+]] }, trigger_characters = {} },
     },
 })
 

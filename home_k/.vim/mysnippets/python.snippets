@@ -5,6 +5,19 @@ snippet ak "override akw" i
 endsnippet
 
 # --------------------------------------------
+# debug
+# --------------------------------------------
+
+snippet elp "calc elapsed time for code block"
+import time # FIXME: delete me
+st = time.time() # FIXME: delete me
+${VISUAL}
+delta = round(time.time() - st, 4) # FIXME: delete me
+# print("Elapsed %s sec", delta) # FIXME: delete me
+LOGGER.info("Elapsed %s sec", delta) # FIXME: delete me
+endsnippet
+
+# --------------------------------------------
 # exceptions
 # --------------------------------------------
 
