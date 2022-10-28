@@ -12,7 +12,7 @@ if $__MYKEYBOARD == "hhkb"
 endif
 
 let b:current_hour = strftime('%H')
-let s:bg_light = b:current_hour >=8 && b:current_hour < 13
+let s:bg_light = b:current_hour >=8 && b:current_hour < 16
 
 " --------------------------------------------
 " general keymaps and abbreviations
@@ -214,6 +214,7 @@ if !has("nvim")
   Plug 'karmenzind/registers.vim', {'branch': 'dev', 'frozen': 1}
 endif
 Plug 'skywind3000/vim-quickui'
+Plug 'skywind3000/asyncrun.vim'
 
 " /* Appearance */
 Plug 'flazz/vim-colorschemes'
