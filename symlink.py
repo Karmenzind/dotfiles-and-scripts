@@ -3,13 +3,12 @@
 
 """
 create symlink
-instead of copying files with do_synch.py
 """
 
-import os
-import re
-import time
+import argparse
 import datetime
+import os
+import time
 
 CUR_TS = int(time.time())
 CUR_TIME = datetime.datetime.now().strftime("%Y%m%d_%H%M")
@@ -135,4 +134,9 @@ def main():
 
 
 if __name__ == "__main__":
+    # TODO (k): <2022-11-07> Windows
+    # parser = argparse.ArgumentParser()
+    # parser.add_argument('-p', '--platform', type=str, default='linux')
+    # args = parser.parse_args()
+
     main()

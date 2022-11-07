@@ -20,7 +20,33 @@ set termguicolors
 " --------------------------------------------
 
 " XXX: <2019-11-28> 会导致fzf异常
-tnoremap <Esc> <C-\><C-n>
+function! s:TEsc() abort
+  if &ft == 'fzf'
+    normal 
+  else
+    normal 
+  endif
+endfunction
+
+
+function! s:BindEsc() abort
+  if &ft == 'fzf'
+    echom "bingo"
+    return
+  else
+    echom &ft
+    tnoremap <buffer> <Esc> <C-\><C-n>
+  endif
+endfunction
+
+augroup fzfSpecs
+  autocmd! FileType fzf
+  autocmd BufEnter * call s:BindEsc()
+  autocmd  FileType fzf set laststatus=0 noshowmode noruler |
+        \ autocmd BufLeave <buffer> set laststatus=2 showmode ruler
+augroup END
+
+
 tnoremap <expr> <C-R> '<C-\><C-N>"'.nr2char(getchar()).'pi'
 tnoremap <A-h> <C-\><C-N><C-w>h
 tnoremap <A-j> <C-\><C-N><C-w>j

@@ -124,10 +124,17 @@ if has("nvim")
   Plug 'hrsh7th/cmp-calc'
   Plug 'hrsh7th/cmp-cmdline'
   Plug 'hrsh7th/cmp-emoji'
-  Plug 'andersevenrud/cmp-tmux'
+  if exists('$TMUX')
+    Plug 'andersevenrud/cmp-tmux'
+  endif
   Plug 'quangnguyen30192/cmp-nvim-ultisnips'
 else
-  Plug 'Valloric/YouCompleteMe', { 'do': function('BuildYCM'), 'frozen': v:true }
+  Plug 'neoclide/coc.nvim', {'branch': 'release'}
+  " if has("win32")
+  "   Plug 'neoclide/coc.nvim', {'branch': 'release'}
+  " else
+  "   Plug 'Valloric/YouCompleteMe', { 'do': function('BuildYCM'), 'frozen': v:true }
+  " endif
 endif
 
 " Plug 'rdnetto/YCM-Generator', { 'branch': 'stable'}
@@ -225,7 +232,9 @@ Plug 'icymind/NeoSolarized'
 Plug 'KKPMW/sacredforest-vim'
 Plug 'junegunn/seoul256.vim'
 Plug 'arcticicestudio/nord-vim'
-Plug 'ryanoasis/vim-devicons' " load after other plugins
+if !has('win32')
+  Plug 'ryanoasis/vim-devicons' " load after other plugins
+endif
 if has('nvim')
   Plug 'katawful/kat.nvim', { 'tag': '3.0' }
   Plug 'projekt0n/github-nvim-theme'
@@ -258,10 +267,8 @@ set wildmenu
 set ruler
 set showtabline=1
 if has('win32')
-  set guifont=consolas:h13
+  set guifont=consolas:h14
 else
-  " set guifont=Hack\ Nerd\ Font\ 12
-  " set guifont=Monaco\ Nerd\ Font\ Mono\ 12
   set guifont=Monaco\ Nerd\ Font\ Mono\ 12
 endif
 set cursorline cursorcolumn
@@ -665,28 +672,42 @@ let g:fzf_buffers_jump = 1
 let g:fzf_tags_command = 'ctags -R'
 let g:fzf_history_dir = '~/.local/share/fzf-history'
 
-let g:__tmux_version = str2float(matchstr(system('tmux -V'), '\v[0-9]+\.[0-9]+'))
-
-if exists('$TMUX') && g:__tmux_version >= 3.2
-    let g:fzf_layout = { 'tmux': '-p90%,60%' }
-else
-    let g:fzf_layout = { 'down': '~51%' }
-    let g:fzf_colors = {
-      \ 'fg':      ['fg', 'Normal'],
-      \ 'bg':      ['bg', 'Normal'],
-      \ 'hl':      ['fg', 'Comment'],
-      \ 'fg+':     ['fg', 'CursorLine', 'CursorColumn', 'Normal'],
-      \ 'bg+':     ['bg', 'CursorLine', 'CursorColumn'],
-      \ 'hl+':     ['fg', 'Statement'],
-      \ 'info':    ['fg', 'PreProc'],
-      \ 'border':  ['fg', 'Ignore'],
-      \ 'prompt':  ['fg', 'Conditional'],
-      \ 'pointer': ['fg', 'Exception'],
-      \ 'marker':  ['fg', 'Keyword'],
-      \ 'spinner': ['fg', 'Label'],
-      \ 'header':  ['fg', 'Comment'] }
+let s:__use_tmux = v:false
+if !has('win32') && exists('$TMUX')
+  let g:__tmux_version = str2float(matchstr(system('tmux -V'), '\v[0-9]+\.[0-9]+'))
+  if g:__tmux_version >= 3.2
+    let s:__use_tmux = v:true
+  endif
 endif
 
+if s:__use_tmux
+  let g:fzf_layout = { 'tmux': '-p90%,60%' }
+else
+  if has('win32')
+    let g:fzf_layout = { 'down': '~51%' }
+  else
+    if has('nvim') || has("popupwin")
+      let g:fzf_layout = { 'down': 'enew' }
+      " let g:fzf_layout = { 'window': { 'width': 0.9, 'height': 0.6 } }
+    else
+      let g:fzf_layout = { 'down': '~51%' }
+    endif
+  endif
+  let g:fzf_colors = {
+    \ 'fg':      ['fg', 'Normal'],
+    \ 'bg':      ['bg', 'Normal'],
+    \ 'hl':      ['fg', 'Comment'],
+    \ 'fg+':     ['fg', 'CursorLine', 'CursorColumn', 'Normal'],
+    \ 'bg+':     ['bg', 'CursorLine', 'CursorColumn'],
+    \ 'hl+':     ['fg', 'Statement'],
+    \ 'info':    ['fg', 'PreProc'],
+    \ 'border':  ['fg', 'Ignore'],
+    \ 'prompt':  ['fg', 'Conditional'],
+    \ 'pointer': ['fg', 'Exception'],
+    \ 'marker':  ['fg', 'Keyword'],
+    \ 'spinner': ['fg', 'Label'],
+    \ 'header':  ['fg', 'Comment'] }
+endif
 
 command! -bang -nargs=* Ag
       \ call fzf#vim#ag(<q-args>,
@@ -714,7 +735,7 @@ nnoremap <Leader>fq :FzfQF<CR>
 " /* for devicons */
 let g:WebDevIconsUnicodeDecorateFolderNodes = 1
 let g:DevIconsEnableFoldersOpenClose = 1
-" let g:WebDevIconsOS = 'ArchLinux'
+let g:WebDevIconsOS = 'ArchLinux'
 
 " /* for vim-easy-align */
 xmap ga <Plug>(EasyAlign)
@@ -821,7 +842,8 @@ let g:ale_python_pydocstyle_options = '--ignore=D200,D203,D204,D205,D211,D212,D2
 let g:ale_python_autoflake_options = '--remove-all-unused-imports --ignore-init-module-imports'
 " let g:ale_javascript_prettier_options = '-c'
 " let g:ale_javascript_eslint_options = '--ext .js,.vue'
-let g:ale_sql_sqlfmt_executable = trim(system("which sqlfmt"))
+let g:ale_sql_sqlfmt_executable = exepath("sqlfmt")
+
 let g:ale_sql_sqlfmt_options = '-u'
 let g:ale_lua_stylua_options = '--indent-type Spaces'
 let g:ale_dprint_config = '$HOME/.dprint.json'
@@ -1027,6 +1049,172 @@ let g:indentLine_enabled = 1
 " /* for emmet */
 let g:user_emmet_leader_key = '<leader>y'
 
+" /* for coc */
+if has_key(plugs, 'coc.nvim')
+  " May need for vim (not neovim) since coc.nvim calculate byte offset by count
+  " utf-8 byte sequence.
+  set encoding=utf-8
+  " Some servers have issues with backup files, see #649.
+  set nobackup
+  set nowritebackup
+
+  " Having longer updatetime (default is 4000 ms = 4 s) leads to noticeable
+  " delays and poor user experience.
+  set updatetime=300
+
+  " Always show the signcolumn, otherwise it would shift the text each time
+  " diagnostics appear/become resolved.
+  set signcolumn=yes
+
+  " Use tab for trigger completion with characters ahead and navigate.
+  " NOTE: There's always complete item selected by default, you may want to enable
+  " no select by `"suggest.noselect": true` in your configuration file.
+  " NOTE: Use command ':verbose imap <tab>' to make sure tab is not mapped by
+  " other plugin before putting this into your config.
+  inoremap <silent><expr> <TAB>
+        \ coc#pum#visible() ? coc#pum#next(1) :
+        \ CheckBackspace() ? "\<Tab>" :
+        \ coc#refresh()
+  inoremap <expr><S-TAB> coc#pum#visible() ? coc#pum#prev(1) : "\<C-h>"
+
+  " inoremap <expr> <Tab> coc#pum#visible() ? coc#pum#next(1) : "\<Tab>"
+  " inoremap <expr> <S-Tab> coc#pum#visible() ? coc#pum#prev(1) : "\<S-Tab>"
+
+  " Make <CR> to accept selected completion item or notify coc.nvim to format
+  " <C-g>u breaks current undo, please make your own choice.
+  inoremap <silent><expr> <CR> coc#pum#visible() ? coc#pum#confirm()
+        \: "\<C-g>u\<CR>\<c-r>=coc#on_enter()\<CR>"
+
+  function! CheckBackspace() abort
+    let col = col('.') - 1
+    return !col || getline('.')[col - 1]  =~# '\s'
+  endfunction
+
+  " Use <c-space> to trigger completion.
+  if has('nvim')
+    inoremap <silent><expr> <c-space> coc#refresh()
+  else
+    inoremap <silent><expr> <c-@> coc#refresh()
+  endif
+
+  " Use `[g` and `]g` to navigate diagnostics
+  " Use `:CocDiagnostics` to get all diagnostics of current buffer in location list.
+  nmap <silent> [g <Plug>(coc-diagnostic-prev)
+  nmap <silent> ]g <Plug>(coc-diagnostic-next)
+
+  " GoTo code navigation.
+  nmap <silent> gd <Plug>(coc-definition)
+  nmap <silent> gy <Plug>(coc-type-definition)
+  nmap <silent> gi <Plug>(coc-implementation)
+  nmap <silent> gr <Plug>(coc-references)
+
+  " Use K to show documentation in preview window.
+  nnoremap <silent> K :call ShowDocumentation()<CR>
+
+  function! ShowDocumentation()
+    if CocAction('hasProvider', 'hover')
+      call CocActionAsync('doHover')
+    else
+      call feedkeys('K', 'in')
+    endif
+  endfunction
+
+  " Highlight the symbol and its references when holding the cursor.
+  autocmd CursorHold * silent call CocActionAsync('highlight')
+
+  " Symbol renaming.
+  nmap <leader>rn <Plug>(coc-rename)
+
+  " Formatting selected code.
+  xmap <leader>f  <Plug>(coc-format-selected)
+  nmap <leader>f  <Plug>(coc-format-selected)
+
+  augroup mygroup
+    autocmd!
+    " Setup formatexpr specified filetype(s).
+    autocmd FileType typescript,json setl formatexpr=CocAction('formatSelected')
+    " Update signature help on jump placeholder.
+    autocmd User CocJumpPlaceholder call CocActionAsync('showSignatureHelp')
+  augroup end
+
+  " Applying codeAction to the selected region.
+  " Example: `<leader>aap` for current paragraph
+  xmap <leader>a  <Plug>(coc-codeaction-selected)
+  nmap <leader>a  <Plug>(coc-codeaction-selected)
+
+  " Remap keys for applying codeAction to the current buffer.
+  nmap <leader>ac  <Plug>(coc-codeaction)
+  " Apply AutoFix to problem on the current line.
+  nmap <leader>qf  <Plug>(coc-fix-current)
+
+  " Run the Code Lens action on the current line.
+  nmap <leader>cl  <Plug>(coc-codelens-action)
+
+  " Map function and class text objects
+  " NOTE: Requires 'textDocument.documentSymbol' support from the language server.
+  xmap if <Plug>(coc-funcobj-i)
+  omap if <Plug>(coc-funcobj-i)
+  xmap af <Plug>(coc-funcobj-a)
+  omap af <Plug>(coc-funcobj-a)
+  xmap ic <Plug>(coc-classobj-i)
+  omap ic <Plug>(coc-classobj-i)
+  xmap ac <Plug>(coc-classobj-a)
+  omap ac <Plug>(coc-classobj-a)
+
+  " Remap <C-f> and <C-b> for scroll float windows/popups.
+  if has('nvim-0.4.0') || has('patch-8.2.0750')
+    nnoremap <silent><nowait><expr> <C-f> coc#float#has_scroll() ? coc#float#scroll(1) : "\<C-f>"
+    nnoremap <silent><nowait><expr> <C-b> coc#float#has_scroll() ? coc#float#scroll(0) : "\<C-b>"
+    inoremap <silent><nowait><expr> <C-f> coc#float#has_scroll() ? "\<c-r>=coc#float#scroll(1)\<cr>" : "\<Right>"
+    inoremap <silent><nowait><expr> <C-b> coc#float#has_scroll() ? "\<c-r>=coc#float#scroll(0)\<cr>" : "\<Left>"
+    vnoremap <silent><nowait><expr> <C-f> coc#float#has_scroll() ? coc#float#scroll(1) : "\<C-f>"
+    vnoremap <silent><nowait><expr> <C-b> coc#float#has_scroll() ? coc#float#scroll(0) : "\<C-b>"
+  endif
+
+  " Use CTRL-S for selections ranges.
+  " Requires 'textDocument/selectionRange' support of language server.
+  nmap <silent> <C-s> <Plug>(coc-range-select)
+  xmap <silent> <C-s> <Plug>(coc-range-select)
+
+  " Add `:Format` command to format current buffer.
+  command! -nargs=0 Format :call CocActionAsync('format')
+
+  " Add `:Fold` command to fold current buffer.
+  command! -nargs=? Fold :call     CocAction('fold', <f-args>)
+
+  " Add `:OR` command for organize imports of the current buffer.
+  command! -nargs=0 OR   :call     CocActionAsync('runCommand', 'editor.action.organizeImport')
+
+  " Add (Neo)Vim's native statusline support.
+  " NOTE: Please see `:h coc-status` for integrations with external plugins that
+  " provide custom statusline: lightline.vim, vim-airline.
+  set statusline^=%{coc#status()}%{get(b:,'coc_current_function','')}
+
+  " Mappings for CoCList
+  " Show all diagnostics.
+  nnoremap <silent><nowait> <space>a  :<C-u>CocList diagnostics<cr>
+  " Manage extensions.
+  nnoremap <silent><nowait> <space>e  :<C-u>CocList extensions<cr>
+  " Show commands.
+  nnoremap <silent><nowait> <space>c  :<C-u>CocList commands<cr>
+  " Find symbol of current document.
+  nnoremap <silent><nowait> <space>o  :<C-u>CocList outline<cr>
+  " Search workspace symbols.
+  nnoremap <silent><nowait> <space>s  :<C-u>CocList -I symbols<cr>
+  " Do default action for next item.
+  nnoremap <silent><nowait> <space>j  :<C-u>CocNext<CR>
+  " Do default action for previous item.
+  nnoremap <silent><nowait> <space>k  :<C-u>CocPrev<CR>
+  " Resume latest coc list.
+  nnoremap <silent><nowait> <space>p  :<C-u>CocListResume<CR>
+
+  " inoremap <expr> <cr> coc#pum#visible() ? coc#pum#confirm() : "\<CR>"
+  " TODO (k): <2022-11-07> 
+  " let g:coc_global_extensions=[ 'coc-powershell', ... ]  
+
+endif
+
+
 " /* for vista.vim */
 noremap <Leader>V :Vista!!<CR>
 noremap <Leader>fc :Vista finder<CR>
@@ -1151,11 +1339,19 @@ endfunction
 
 " edit rc files
 " TODO (k): <2022-10-11> check opened
-let s:vimrc_path = glob('~/.vimrc')
-let s:extra_vimrc_path = s:vimrc_path . '.local'
-let g:init_vim_path = glob('~/.config/nvim/init.vim')
-let g:extra_init_vim_path = g:init_vim_path . '.local'
-let g:config_lua_path = glob('~/.config/nvim/lua/config.lua')
+if has('win32')
+  let s:vimrc_path = glob('~/_vimrc')
+  let g:init_vim_path = glob('~/.config/nvim/init.vim')
+  let g:config_lua_path = glob('~/.config/nvim/lua/config.lua')
+  let s:extra_vimrc_path = s:vimrc_path . '_local'
+  let g:extra_init_vim_path = g:init_vim_path . '_local'
+else
+  let s:vimrc_path = glob('~/.vimrc')
+  let g:init_vim_path = glob('~/.config/nvim/init.vim')
+  let g:config_lua_path = glob('~/.config/nvim/lua/config.lua')
+  let s:extra_vimrc_path = s:vimrc_path . '.local'
+  let g:extra_init_vim_path = g:init_vim_path . '.local'
+endif
 
 function! EditRcFiles()
   execute 'tabe ' . s:vimrc_path
@@ -1176,9 +1372,9 @@ function! EditRcFilesV2()
   let n = confirm("To edit:", "&1vimrc\n&2vimrc.local\n&3init.vim\n&4init.vim.local\n&5config.lua\n&6all")
   if n > 0 && n <= 5
     if winnr() == 1 && &ft =~ '\v^(alpha|startify)$'
-      execute 'e' .. fm[n-1]
+      execute 'e ' .. fm[n-1]
     else
-      execute 'vsplit' .. fm[n-1]
+      execute 'vsplit ' .. fm[n-1]
     endif
   elseif n == 6
     call EditRcFiles()

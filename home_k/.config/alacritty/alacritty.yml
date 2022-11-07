@@ -35,7 +35,6 @@ window:
   # Setting this to false will result in window without borders and title bar.
   decorations: full
 
-  dynamic_title: true
   opacity: 0.93
 
 scrolling:
