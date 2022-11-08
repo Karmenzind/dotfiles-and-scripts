@@ -280,15 +280,19 @@ set nowrap
 
 " set noshowmode
 " set whichwrap+=<,>,h,l
-" set statusline=%F%m%r%h%w\ (%{&ff}){%Y}\ [%l,%v][%p%%]
-" set statusline=%f\ %{WebDevIconsGetFileTypeSymbol()}\ %h%w%m%r\ %=%(%l,%c%V\ %Y\ %=\ %P%)
+if has_key(plugs, 'vim-devicons')
+  set statusline=%f\ %{WebDevIconsGetFileTypeSymbol()}\ %h%w%m%r\ %=%(%l,%c%V\ %Y\ %=\ %P%)
+else
+  set statusline=%F%m%r%h%w\ (%{&ff}){%Y}\ [%l,%v][%p%%]
+endif
+
 function! EchoIfNotUnix()
   if &ff ==? 'unix'
     return ''
   endif
   return '<' . &ff . '>'
 endfunction
-set statusline=%f\ %h%w%m%r\ %=%(%l,%c%V\ %{WebDevIconsGetFileTypeSymbol()}\ %{EchoIfNotUnix()}\%=\ %P%)
+
 " cursor's shape (FIXIT)
 if !has('nvim')
   let &t_SI = "\e[6 q"
@@ -1051,34 +1055,17 @@ let g:user_emmet_leader_key = '<leader>y'
 
 " /* for coc */
 if has_key(plugs, 'coc.nvim')
-  " May need for vim (not neovim) since coc.nvim calculate byte offset by count
-  " utf-8 byte sequence.
-  set encoding=utf-8
-  " Some servers have issues with backup files, see #649.
   set nobackup
   set nowritebackup
-
-  " Having longer updatetime (default is 4000 ms = 4 s) leads to noticeable
-  " delays and poor user experience.
   set updatetime=300
-
-  " Always show the signcolumn, otherwise it would shift the text each time
-  " diagnostics appear/become resolved.
+  " Always show the signcolumn, otherwise it would shift the text each time diagnostics appear/become resolved.
   set signcolumn=yes
 
-  " Use tab for trigger completion with characters ahead and navigate.
-  " NOTE: There's always complete item selected by default, you may want to enable
-  " no select by `"suggest.noselect": true` in your configuration file.
-  " NOTE: Use command ':verbose imap <tab>' to make sure tab is not mapped by
-  " other plugin before putting this into your config.
-  inoremap <silent><expr> <TAB>
-        \ coc#pum#visible() ? coc#pum#next(1) :
-        \ CheckBackspace() ? "\<Tab>" :
-        \ coc#refresh()
-  inoremap <expr><S-TAB> coc#pum#visible() ? coc#pum#prev(1) : "\<C-h>"
+  inoremap <expr> <cr> coc#pum#visible() ? coc#pum#confirm() : "\<CR>"
 
-  " inoremap <expr> <Tab> coc#pum#visible() ? coc#pum#next(1) : "\<Tab>"
-  " inoremap <expr> <S-Tab> coc#pum#visible() ? coc#pum#prev(1) : "\<S-Tab>"
+  " Use tab for trigger completion with characters ahead and navigate.
+  inoremap <silent><expr> <TAB> coc#pum#visible() ? coc#pum#next(1) : CheckBackspace() ? "\<Tab>" : coc#refresh()
+  inoremap <expr><S-TAB> coc#pum#visible() ? coc#pum#prev(1) : "\<C-h>"
 
   " Make <CR> to accept selected completion item or notify coc.nvim to format
   " <C-g>u breaks current undo, please make your own choice.
@@ -1090,23 +1077,14 @@ if has_key(plugs, 'coc.nvim')
     return !col || getline('.')[col - 1]  =~# '\s'
   endfunction
 
-  " Use <c-space> to trigger completion.
-  if has('nvim')
-    inoremap <silent><expr> <c-space> coc#refresh()
-  else
-    inoremap <silent><expr> <c-@> coc#refresh()
-  endif
-
-  " Use `[g` and `]g` to navigate diagnostics
-  " Use `:CocDiagnostics` to get all diagnostics of current buffer in location list.
-  nmap <silent> [g <Plug>(coc-diagnostic-prev)
-  nmap <silent> ]g <Plug>(coc-diagnostic-next)
+  nmap <silent> [d <Plug>(coc-diagnostic-prev)
+  nmap <silent> ]d <Plug>(coc-diagnostic-next)
 
   " GoTo code navigation.
-  nmap <silent> gd <Plug>(coc-definition)
-  nmap <silent> gy <Plug>(coc-type-definition)
-  nmap <silent> gi <Plug>(coc-implementation)
-  nmap <silent> gr <Plug>(coc-references)
+  nmap <silent> <leader>g <Plug>(coc-definition)
+  " nmap <silent> gy <Plug>(coc-type-definition)
+  " nmap <silent> gi <Plug>(coc-implementation)
+  nmap <silent> <leader>rf <Plug>(coc-references)
 
   " Use K to show documentation in preview window.
   nnoremap <silent> K :call ShowDocumentation()<CR>
@@ -1137,8 +1115,7 @@ if has_key(plugs, 'coc.nvim')
     autocmd User CocJumpPlaceholder call CocActionAsync('showSignatureHelp')
   augroup end
 
-  " Applying codeAction to the selected region.
-  " Example: `<leader>aap` for current paragraph
+  " Applying codeAction to the selected region. Example: `<leader>aap` for current paragraph
   xmap <leader>a  <Plug>(coc-codeaction-selected)
   nmap <leader>a  <Plug>(coc-codeaction-selected)
 
@@ -1172,7 +1149,6 @@ if has_key(plugs, 'coc.nvim')
   endif
 
   " Use CTRL-S for selections ranges.
-  " Requires 'textDocument/selectionRange' support of language server.
   nmap <silent> <C-s> <Plug>(coc-range-select)
   xmap <silent> <C-s> <Plug>(coc-range-select)
 
@@ -1180,38 +1156,43 @@ if has_key(plugs, 'coc.nvim')
   command! -nargs=0 Format :call CocActionAsync('format')
 
   " Add `:Fold` command to fold current buffer.
-  command! -nargs=? Fold :call     CocAction('fold', <f-args>)
+  command! -nargs=? Fold :call CocAction('fold', <f-args>)
 
   " Add `:OR` command for organize imports of the current buffer.
-  command! -nargs=0 OR   :call     CocActionAsync('runCommand', 'editor.action.organizeImport')
+  command! -nargs=0 OR   :call CocActionAsync('runCommand', 'editor.action.organizeImport')
 
   " Add (Neo)Vim's native statusline support.
   " NOTE: Please see `:h coc-status` for integrations with external plugins that
   " provide custom statusline: lightline.vim, vim-airline.
   set statusline^=%{coc#status()}%{get(b:,'coc_current_function','')}
 
-  " Mappings for CoCList
-  " Show all diagnostics.
-  nnoremap <silent><nowait> <space>a  :<C-u>CocList diagnostics<cr>
-  " Manage extensions.
-  nnoremap <silent><nowait> <space>e  :<C-u>CocList extensions<cr>
-  " Show commands.
-  nnoremap <silent><nowait> <space>c  :<C-u>CocList commands<cr>
-  " Find symbol of current document.
-  nnoremap <silent><nowait> <space>o  :<C-u>CocList outline<cr>
-  " Search workspace symbols.
-  nnoremap <silent><nowait> <space>s  :<C-u>CocList -I symbols<cr>
-  " Do default action for next item.
-  nnoremap <silent><nowait> <space>j  :<C-u>CocNext<CR>
-  " Do default action for previous item.
-  nnoremap <silent><nowait> <space>k  :<C-u>CocPrev<CR>
-  " Resume latest coc list.
-  nnoremap <silent><nowait> <space>p  :<C-u>CocListResume<CR>
+  " " Mappings for CoCList
+  " " Show all diagnostics.
+  " nnoremap <silent><nowait> <space>a  :<C-u>CocList diagnostics<cr>
+  " " Manage extensions.
+  " nnoremap <silent><nowait> <space>e  :<C-u>CocList extensions<cr>
+  " " Show commands.
+  " nnoremap <silent><nowait> <space>c  :<C-u>CocList commands<cr>
+  " " Find symbol of current document.
+  " nnoremap <silent><nowait> <space>o  :<C-u>CocList outline<cr>
+  " " Search workspace symbols.
+  " nnoremap <silent><nowait> <space>s  :<C-u>CocList -I symbols<cr>
+  " " Do default action for next item.
+  " nnoremap <silent><nowait> <space>j  :<C-u>CocNext<CR>
+  " " Do default action for previous item.
+  " nnoremap <silent><nowait> <space>k  :<C-u>CocPrev<CR>
+  " " Resume latest coc list.
+  " nnoremap <silent><nowait> <space>p  :<C-u>CocListResume<CR>
 
-  " inoremap <expr> <cr> coc#pum#visible() ? coc#pum#confirm() : "\<CR>"
   " TODO (k): <2022-11-07> 
-  " let g:coc_global_extensions=[ 'coc-powershell', ... ]  
+  " let g:coc_global_extensions=[ 'coc-powershell', ... ] 
+  let g:coc_global_extensions=[ 'coc-json', 'coc-git', 'coc-snippets' ] 
 
+  " snippets
+  let g:coc_snippet_next = '<c-j>'
+  let g:coc_snippet_prev = '<c-k>'
+  imap <C-j> <Plug>(coc-snippets-expand-jump)
+  " xmap <leader>x  <Plug>(coc-convert-snippet)
 endif
 
 
@@ -1228,6 +1209,13 @@ if has('nvim')
     \ 'lua': 'nvim_lsp',
     \ 'yaml': 'nvim_lsp',
     \ 'toml': 'nvim_lsp',
+    \ }
+elseif has_key(plugs, "coc.nvim")
+  let g:vista_executive_for = {
+    \ 'lua': 'coc',
+    \ 'yaml': 'coc',
+    \ 'toml': 'coc',
+    \ 'ps1': 'coc',
     \ }
 endif
 
@@ -1557,11 +1545,21 @@ function! SetColorScheme(cname)
   " echom "Configured colorscheme: " .. a:cname
 endfunction
 
+function! RandomSetColo(themes)
+  let choosen_colo = a:themes[rand() % len(a:themes)]
+  " echom "Choosed color: " .. s:choosen_colo
+  call SetColorScheme(choosen_colo)
+endfunction
+
+
 " --------------------------------------------
 " compatible with gui
 " --------------------------------------------
 
 if has('gui_running')
+  set lines=77
+  set columns=150
+
   set winaltkeys=no
   " lang
   set langmenu=en_US
@@ -1587,6 +1585,14 @@ if has("win32")
   source $VIMRUNTIME/delmenu.vim
   source $VIMRUNTIME/menu.vim
   language messages zh_CN.utf-8
+
+  set lines=77
+  set columns=180
+  if executable("pwsh")
+    set shell=pwsh
+  else
+    set shell=powershell
+  endif
 endif
 
 " --------------------------------------------

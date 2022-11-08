@@ -1,3 +1,27 @@
+// vim: filetype=jsonc
 {
-  "suggest.noselect": true
+"suggest.virtualText": true,
+  "powershell.integratedConsole.showOnStartup": false,
+  "coc.preferences.jumpCommand": ":sp",
+  "suggest.enablePreselect": true,
+  "suggest.snippetIndicator": "",
+  "coc.source.emoji.enable": true,
+  "suggest.noselect": true,
+   //      ⏲
+  "diagnostic.errorSign": "",
+  "diagnostic.warningSign": "",
+  "diagnostic.infoSign": "",
+  "diagnostic.hintSign": "➤",
+  "diagnostic.checkCurrentLine": true,
+  "languageserver": {
+    "go": {
+      "command": "gopls",
+      "rootPatterns": ["go.mod"],
+      "trace.server": "verbose",
+      "filetypes": ["go"]
+    }
+  },
+  "[python]": {
+    "inlayHint.enable": false
+  }
 }

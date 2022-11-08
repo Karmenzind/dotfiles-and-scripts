@@ -130,7 +130,10 @@ def main():
 
                 print(f"\n>>> processing: {src} -> {dest}")
 
-                do_symlink(src, dest)
+                try:
+                    do_symlink(src, dest)
+                except Exception as e:
+                    print("[Warn] Error occurred: %s", e)
 
 
 if __name__ == "__main__":
