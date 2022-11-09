@@ -13,14 +13,16 @@
   "diagnostic.infoSign": "",
   "diagnostic.hintSign": "➤",
   "diagnostic.checkCurrentLine": true,
-  "languageserver": {
-    "go": {
-      "command": "gopls",
-      "rootPatterns": ["go.mod"],
-      "trace.server": "verbose",
-      "filetypes": ["go"]
-    }
-  },
+  // "languageserver": {
+  //   "go": {
+  //     "command": "gopls",
+  //     "rootPatterns": ["go.mod", ".vim/", ".git/", ".svn/"],
+  //     "filetypes": ["go"],
+  //     "initializationOptions": {
+  //       "usePlaceholders": true
+  //     }
+  //   }
+  // },
   "[python]": {
     "inlayHint.enable": false
   }

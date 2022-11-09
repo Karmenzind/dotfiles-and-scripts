@@ -116,6 +116,9 @@ if has("nvim")
   " lspkind adds vscode-like pictograms to neovim built-in lsp:
   Plug 'onsails/lspkind.nvim'
 
+  Plug 'kosayoda/nvim-lightbulb'  " show code action symbol
+  Plug 'weilbith/nvim-code-action-menu', {'on': 'CodeActionMenu'}
+
   " cmp
   Plug 'hrsh7th/nvim-cmp'
   Plug 'hrsh7th/cmp-nvim-lsp'
@@ -144,8 +147,11 @@ Plug 'mg979/vim-visual-multi', {'branch': 'master'}
 " Plug 'puremourning/vimspector'
 
 " /* version control (vcs) | workspace */
-Plug 'juneedahamed/vc.vim'
-" Plug 'adelarsq/neovcs.vim'
+" Plug 'juneedahamed/vc.vim'
+if executable("svn")
+  Plug 'Karmenzind/vc-svn.vim', {'branch': 'dev', 'frozen': 1}
+endif
+
 Plug 'scrooloose/nerdtree', { 'on': ['NERDTreeToggle', 'NERDTreeFind'] }
 " Plug 'Xuyuanp/nerdtree-git-plugin', { 'on': ['NERDTreeToggle'] }
 Plug 'tiagofumo/vim-nerdtree-syntax-highlight'
@@ -169,7 +175,7 @@ endif
 Plug 'junegunn/fzf.vim'
 
 " /* Go */
-Plug 'fatih/vim-go', { 'do': ':GoUpdateBinaries' }
+" Plug 'fatih/vim-go', { 'do': ':GoUpdateBinaries' }
 
 " /* Python */
 Plug 'tmhedberg/SimpylFold', { 'for': 'python' } " code folding
@@ -996,7 +1002,7 @@ let g:startify_lists = [
 
 " /* for vc */
 
-if executable('svn') && has_key(plugs, 'vc.vim')
+if executable('svn') && has_key(plugs, 'vc-svn.vim')
   let g:vc_browse_cache_all = 1
   map <silent> <leader>vB :VCBlame<CR>
   map <silent> <leader>vd :VCDiff<CR>
@@ -1116,11 +1122,11 @@ if has_key(plugs, 'coc.nvim')
   augroup end
 
   " Applying codeAction to the selected region. Example: `<leader>aap` for current paragraph
-  xmap <leader>a  <Plug>(coc-codeaction-selected)
-  nmap <leader>a  <Plug>(coc-codeaction-selected)
+  xmap <leader>ca  <Plug>(coc-codeaction-selected)
+  nmap <leader>ca  <Plug>(coc-codeaction-selected)
 
   " Remap keys for applying codeAction to the current buffer.
-  nmap <leader>ac  <Plug>(coc-codeaction)
+  nmap <leader>ca  <Plug>(coc-codeaction)
   " Apply AutoFix to problem on the current line.
   nmap <leader>qf  <Plug>(coc-fix-current)
 
@@ -1184,9 +1190,9 @@ if has_key(plugs, 'coc.nvim')
   " " Resume latest coc list.
   " nnoremap <silent><nowait> <space>p  :<C-u>CocListResume<CR>
 
-  " TODO (k): <2022-11-07> 
-  " let g:coc_global_extensions=[ 'coc-powershell', ... ] 
-  let g:coc_global_extensions=[ 'coc-json', 'coc-git', 'coc-snippets' ] 
+  " TODO (k): <2022-11-07>
+  " let g:coc_global_extensions=[ 'coc-powershell', ... ]
+  let g:coc_global_extensions=[ 'coc-json', 'coc-git', 'coc-snippets' ]
 
   " snippets
   let g:coc_snippet_next = '<c-j>'
@@ -1360,9 +1366,9 @@ function! EditRcFilesV2()
   let n = confirm("To edit:", "&1vimrc\n&2vimrc.local\n&3init.vim\n&4init.vim.local\n&5config.lua\n&6all")
   if n > 0 && n <= 5
     if winnr() == 1 && &ft =~ '\v^(alpha|startify)$'
-      execute 'e ' .. fm[n-1]
+      execute 'silent e ' .. fm[n-1]
     else
-      execute 'vsplit ' .. fm[n-1]
+      execute 'silent vsplit ' .. fm[n-1]
     endif
   elseif n == 6
     call EditRcFiles()
@@ -1547,7 +1553,7 @@ endfunction
 
 function! RandomSetColo(themes)
   let choosen_colo = a:themes[rand() % len(a:themes)]
-  " echom "Choosed color: " .. s:choosen_colo
+  " echo "Choosed color: " .. choosen_colo
   call SetColorScheme(choosen_colo)
 endfunction
 

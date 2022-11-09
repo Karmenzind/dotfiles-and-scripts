@@ -46,6 +46,11 @@ augroup fzfSpecs
         \ autocmd BufLeave <buffer> set laststatus=2 showmode ruler
 augroup END
 
+" nnoremap <leader>ca :CodeActionMenu<cr>
+" vnoremap <leader>ca :'<,'>CodeActionMenu<cr>
+" xnoremap <leader>ca :'<,'>CodeActionMenu<cr>
+nnoremap <leader>ca <cmd>lua vim.lsp.buf.code_action()<CR>
+
 
 tnoremap <expr> <C-R> '<C-\><C-N>"'.nr2char(getchar()).'pi'
 tnoremap <A-h> <C-\><C-N><C-w>h
