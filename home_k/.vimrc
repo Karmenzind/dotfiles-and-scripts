@@ -148,6 +148,7 @@ Plug 'mg979/vim-visual-multi', {'branch': 'master'}
 
 " /* version control (vcs) | workspace */
 " Plug 'juneedahamed/vc.vim'
+Plug 'tpope/vim-fugitive'
 if executable("svn")
   Plug 'Karmenzind/vc-svn.vim', {'branch': 'dev', 'frozen': 1}
 endif
@@ -310,6 +311,10 @@ set number
 
 function! s:RelNoToggle(mode)
   if &ft =~? '\v(startify|registers)'
+    return
+  endif
+  " respect buffer settings
+  if getbufvar(winbufnr(0), '&nu') == 0
     return
   endif
   if a:mode == "in"
@@ -1501,25 +1506,36 @@ augroup fit_colorscheme
   au ColorScheme * call AfterChangeColorscheme()
 augroup END
 
-function! FitAirlineTheme(cname)
+function! s:GetFitAirlineTheme(cname)
+  if a:cname =~ '\v^(default|blackbeauty|gruvbox|blue-moon|boo|github_|kat\.)'
+    return ''
+  endif
+  let airline_theme = a:cname
   if a:cname ==? 'NeoSolarized'
-    let g:airline_theme='solarized'
+    let airline_theme='solarized'
   elseif a:cname ==? 'atomic'
-    let g:airline_theme='atomic'
+    let airline_theme='atomic'
   elseif a:cname ==? 'github'
-    let g:airline_theme = 'minimalist'
+    let airline_theme = 'minimalist'
   elseif a:cname ==? 'gruvbox'
     if s:bg_light
-      let g:airline_theme = 'base16_gruvbox_light_soft'
+      let airline_theme = 'base16_gruvbox_light_soft'
     else
-      let g:airline_theme = 'base16_gruvbox_dark_hard'
+      let airline_theme = 'base16_gruvbox_dark_hard'
     endif
   elseif a:cname =~ 'seoul256'
-    let g:airline_theme = 'seoul256'
+    let airline_theme = 'seoul256'
   endif
+  return airline_theme
 endfunction
 
-function! SetColorScheme(cname)
+
+function! s:DisableAirline()
+  let g:airline#extensions#tabline#enabled = 0
+  let g:airline_disable_statusline = 1
+endfunction
+
+function! SetColorScheme(cname) abort
   " fake cs pre
   let s:cname = a:cname
   if s:bg_light
@@ -1533,19 +1549,19 @@ function! SetColorScheme(cname)
   execute 'colorscheme ' . s:cname
 
   " Fit airline or disable it
-  if s:cname =~ '\v^(default|blackbeauty|gruvbox|blue-moon|boo|github_|kat\.)'
-    let g:airline#extensions#tabline#enabled = 0
-    let g:airline_disable_statusline = 1
+  let airline_theme = s:GetFitAirlineTheme(s:cname)
+  if airline_theme == '' || index(airline#util#themes(''), airline_theme) == -1
+    call s:DisableAirline()
     " augroup ColoAirlineAug
     "   au!
     "   au User AirlineToggledOn let w:airline_disabled = 1
     "   au WinEnter,WinNew,BufRead,BufEnter,BufNewFile,FileReadPre,BufWinEnter * if exists("#airline") | let w:airline_disabled = 1 | endif
     " augroup END
   else
-    call FitAirlineTheme(s:cname)
-    augroup ColoAirlineAug
-      au!
-    augroup END
+    let g:airline_theme = airline_theme
+    " augroup ColoAirlineAug
+    "   au!
+    " augroup END
   endif
 
   " echom "Configured colorscheme: " .. a:cname
