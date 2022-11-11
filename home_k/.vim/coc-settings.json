@@ -1,18 +1,27 @@
 // vim: filetype=jsonc
 {
-"suggest.virtualText": true,
-  "powershell.integratedConsole.showOnStartup": false,
-  "coc.preferences.jumpCommand": ":sp",
+  "suggest.virtualText": true,
   "suggest.enablePreselect": true,
   "suggest.snippetIndicator": "",
+
+  "powershell.integratedConsole.showOnStartup": false,
+  "coc.preferences.jumpCommand": ":sp",
+  
   "coc.source.emoji.enable": true,
   "suggest.noselect": true,
    //      ⏲
+  // "diagnostic.displayByAle": true,
+  "diagnostic.enableMessage": "jump",
+  "diagnostic.messageTarget": "float",
+  "diagnostic.virtualText": true,
+  "diagnostic.virtualTextPrefix": "    👽 ",
   "diagnostic.errorSign": "",
   "diagnostic.warningSign": "",
   "diagnostic.infoSign": "",
   "diagnostic.hintSign": "➤",
   "diagnostic.checkCurrentLine": true,
+  "diagnostic.virtualTextCurrentLineOnly": false,
+
   // "languageserver": {
   //   "go": {
   //     "command": "gopls",

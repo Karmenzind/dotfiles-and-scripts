@@ -101,13 +101,14 @@ local on_attach = function(client, bufnr)
 end
 
 cmp.setup({
+    preselect = cmp.PreselectMode.None,
     snippet = {
         expand = function(args)
             vim.fn["UltiSnips#Anon"](args.body) -- For `ultisnips` users.
         end,
     },
     window = {
-        completion = cmp.config.window.bordered(),
+        -- completion = cmp.config.window.bordered(),
         documentation = cmp.config.window.bordered(),
     },
     formatting = {
@@ -151,6 +152,7 @@ cmp.setup({
         end,
     }),
     sources = {
+        { name = "nvim_lsp_signature_help" },
         { name = "nvim_lsp" },
         { name = "ultisnips" },
         { name = "calc" },
@@ -218,7 +220,7 @@ lsp.gopls.setup({
             staticcheck = true,
         },
     },
-    init_options = { usePlaceholders = true },
+    init_options = { usePlaceholders = false },
 })
 
 lsp.sumneko_lua.setup({
@@ -247,13 +249,15 @@ local cmp_autopairs = require("nvim-autopairs.completion.cmp")
 cmp.event:on("confirm_done", cmp_autopairs.on_confirm_done())
 
 -- Common Keymaps
+vim.keymap.set("n", "<leader>e", vim.diagnostic.open_float)
 vim.keymap.set("n", "K", function()
     local winid = require("ufo").peekFoldedLinesUnderCursor()
     if not winid then
-        _, winid = vim.diagnostic.open_float()
-        if not winid then
-            vim.lsp.buf.hover()
-        end
+        vim.lsp.buf.hover()
+        -- _, winid = vim.diagnostic.open_float()
+        -- if not winid then
+        --     vim.lsp.buf.hover()
+        -- end
     end
 end)
 

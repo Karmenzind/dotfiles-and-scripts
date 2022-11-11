@@ -18,30 +18,23 @@ set termguicolors
 
 " terminal
 " --------------------------------------------
-
-" XXX: <2019-11-28> 会导致fzf异常
-function! s:TEsc() abort
+function! s:TermEsc() abort
   if &ft == 'fzf'
-    normal 
+    echom "bingo"
+    execute("close")
   else
-    normal 
+    call feedkeys("")
+    return
   endif
 endfunction
 
-
-function! s:BindEsc() abort
-  if &ft == 'fzf'
-    echom "bingo"
-    return
-  else
-    echom &ft
-    tnoremap <buffer> <Esc> <C-\><C-n>
-  endif
+function! s:LazyEsc() abort
+  tnoremap <buffer> <Esc> <cmd>call <SID>TermEsc()<CR>
 endfunction
 
 augroup fzfSpecs
   autocmd! FileType fzf
-  autocmd BufEnter * call s:BindEsc()
+  autocmd BufEnter * call s:LazyEsc()
   autocmd  FileType fzf set laststatus=0 noshowmode noruler |
         \ autocmd BufLeave <buffer> set laststatus=2 showmode ruler
 augroup END
@@ -66,7 +59,7 @@ nnoremap <A-j> <C-w>j
 nnoremap <A-k> <C-w>k
 nnoremap <A-l> <C-w>l
 
-noremap <Leader>T  :sp<CR>:terminal<CR>A
+" noremap <Leader>T  :sp<CR>:terminal<CR>A
 
 " nnoremap <silent> <leader>g :split \| lua vim.lsp.buf.definition({reuse_win = true})<CR>
 " nnoremap <silent> <leader>g :lua vim.lsp.buf.definition({reuse_win = true})<CR>

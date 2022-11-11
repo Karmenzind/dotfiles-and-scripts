@@ -22,10 +22,25 @@ function! s:NoSearchCabbrev(abbr, expanded)
   execute printf("cabbrev <expr> %s (getcmdtype() == ':') ? \"%s\" : \"%s\"", a:abbr, a:expanded, a:abbr)
 endfunction
 
-noremap <Leader>e  :call EditRcFilesV2()<CR>
+function! s:OpenTerm() abort
+  if has('nvim')
+    sp
+    terminal
+    call feedkeys('A')
+  else
+    if has('win32') && executable('pwsh')
+      execute ':terminal pwsh'
+    else
+      terminal
+    endif
+  endif
+endfunction
+
+noremap <Leader>E  :call EditRcFilesV2()<CR>
 noremap <Leader>R  :source $MYVIMRC<CR> :echom 'Vimrc reloaded :)'<CR>
 noremap <Leader>S  :source %<CR> :echom expand('%') . ' sourced :)'<CR>
-noremap <Leader>T  :terminal<CR>
+" noremap <Leader>T  :terminal<CR>
+noremap <Leader>T  <cmd>call <SID>OpenTerm()<CR>
 
 " /* command */
 call s:NoSearchCabbrev("w!!", "w !sudo tee %")
@@ -121,6 +136,7 @@ if has("nvim")
 
   " cmp
   Plug 'hrsh7th/nvim-cmp'
+  Plug 'hrsh7th/cmp-nvim-lsp-signature-help'
   Plug 'hrsh7th/cmp-nvim-lsp'
   Plug 'hrsh7th/cmp-buffer'
   Plug 'hrsh7th/cmp-path'
@@ -176,7 +192,7 @@ endif
 Plug 'junegunn/fzf.vim'
 
 " /* Go */
-" Plug 'fatih/vim-go', { 'do': ':GoUpdateBinaries' }
+Plug 'fatih/vim-go', { 'do': ':GoUpdateBinaries' }
 
 " /* Python */
 Plug 'tmhedberg/SimpylFold', { 'for': 'python' } " code folding
@@ -581,12 +597,6 @@ function! s:FzfToNERDTree(lines)
     execute 'NERDTreeFind ' .. path
 endfunction
 
-let g:fzf_action = {
-  \ 'ctrl-n': function('s:FzfToNERDTree'),
-  \ 'ctrl-t': 'tab split',
-  \ 'ctrl-x': 'split',
-  \ 'ctrl-v': 'vsplit' }
-
 " /* for NERDTree */
 nnoremap <silent> <Leader>n :NERDTreeToggle<CR>
 let g:NERDTreeIgnore = ['\.pyc$', '\~$', '__pycache__[[dir]]', '\.swp$']
@@ -676,10 +686,12 @@ function! s:build_quickfix_list(lines)
 endfunction
 
 let g:fzf_action = {
-      \ 'ctrl-t': 'tab split',
-      \ 'ctrl-x': 'split',
-      \ 'ctrl-v': 'vsplit',
-      \ 'ctrl-q': function('s:build_quickfix_list') }
+  \ 'ctrl-n': function('s:FzfToNERDTree'),
+  \ 'ctrl-q': function('s:build_quickfix_list'),
+  \ 'ctrl-t': 'tab split',
+  \ 'ctrl-x': 'split',
+  \ 'ctrl-v': 'vsplit' }
+
 " let g:fzf_layout = { 'down': '~51%' }
 " let g:fzf_layout = { 'window': { 'width': 0.9, 'height': 0.6 } }
 let g:fzf_preview_window = 'right:60%'
@@ -698,15 +710,11 @@ endif
 if s:__use_tmux
   let g:fzf_layout = { 'tmux': '-p90%,60%' }
 else
-  if has('win32')
-    let g:fzf_layout = { 'down': '~51%' }
+  if has('nvim') || has("popupwin")
+    let g:fzf_layout = { 'window': { 'width': 0.9, 'height': 0.6 } }
+    " let g:fzf_layout = { 'down': '10new' }
   else
-    if has('nvim') || has("popupwin")
-      let g:fzf_layout = { 'down': 'enew' }
-      " let g:fzf_layout = { 'window': { 'width': 0.9, 'height': 0.6 } }
-    else
-      let g:fzf_layout = { 'down': '~51%' }
-    endif
+    let g:fzf_layout = { 'down': '~51%' }
   endif
   let g:fzf_colors = {
     \ 'fg':      ['fg', 'Normal'],
@@ -1099,6 +1107,7 @@ if has_key(plugs, 'coc.nvim')
 
   " Use K to show documentation in preview window.
   nnoremap <silent> K :call ShowDocumentation()<CR>
+  nnoremap <silent> <leader>e <Plug>(coc-diagnostic-info)
 
   function! ShowDocumentation()
     if CocAction('hasProvider', 'hover')
@@ -1344,15 +1353,17 @@ if has('win32')
   let g:config_lua_path = glob('~/.config/nvim/lua/config.lua')
   let s:extra_vimrc_path = s:vimrc_path . '_local'
   let g:extra_init_vim_path = g:init_vim_path . '_local'
+  let g:coc_settings_json_path = glob('~/vimfiles/coc-settings.json')
 else
   let s:vimrc_path = glob('~/.vimrc')
   let g:init_vim_path = glob('~/.config/nvim/init.vim')
   let g:config_lua_path = glob('~/.config/nvim/lua/config.lua')
+  let g:coc_settings_json_path = glob('~/.vim/coc-settings.json')
   let s:extra_vimrc_path = s:vimrc_path . '.local'
   let g:extra_init_vim_path = g:init_vim_path . '.local'
 endif
 
-function! EditRcFiles()
+function! EditRcFiles() abort
   execute 'tabe ' . s:vimrc_path
   let l:rc_id = win_getid()
   if has('nvim')
@@ -1366,17 +1377,16 @@ function! EditRcFiles()
   call win_gotoid(l:rc_id)
 endfunction
 
-function! EditRcFilesV2()
-  let fm = [s:vimrc_path, s:extra_vimrc_path, g:init_vim_path, g:extra_init_vim_path, g:config_lua_path]
-  let n = confirm("To edit:", "&1vimrc\n&2vimrc.local\n&3init.vim\n&4init.vim.local\n&5config.lua\n&6all")
-  if n > 0 && n <= 5
-    if winnr() == 1 && &ft =~ '\v^(alpha|startify)$'
-      execute 'silent e ' .. fm[n-1]
-    else
-      execute 'silent vsplit ' .. fm[n-1]
-    endif
-  elseif n == 6
-    call EditRcFiles()
+function! EditRcFilesV2() abort
+  let fm = [s:vimrc_path, s:extra_vimrc_path, g:init_vim_path, g:extra_init_vim_path, g:config_lua_path, g:coc_settings_json_path]
+  let n = confirm("To edit:", "&1vimrc\n&2vimrc.local\n&3init.vim\n&4init.vim.local\n&5config.lua\n&6coc.json")
+  if n == 0
+    return
+  endif
+  if winnr() == 1 && &ft =~ '\v^(alpha|startify)$'
+    execute 'silent e ' .. fm[n-1]
+  else
+    execute 'silent vsplit ' .. fm[n-1]
   endif
 endfunction
 
@@ -1504,6 +1514,7 @@ augroup fit_colorscheme
     au ColorSchemePre atomic,NeoSolarized,ayu,palenight,sacredforest call SetTermguiColors('yes')
   endif
   au ColorScheme * call AfterChangeColorscheme()
+  au ColorScheme github_light,github_dark_default,blue-moon set nocursorcolumn
 augroup END
 
 function! s:GetFitAirlineTheme(cname)
@@ -1587,6 +1598,11 @@ if has('gui_running')
   set langmenu=en_US
   let $LANG = 'en_US.UTF-8'
   " window / tab / bar / ...
+  set guioptions+=v
+  " set guioptions+=e
+  set guioptions+=i
+  " set guioptions+=!
+  set guioptions+=g
   set guioptions-=T
   set guioptions-=m
   set guioptions-=L
