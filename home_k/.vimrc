@@ -184,11 +184,7 @@ endif
 " /* Search */
 Plug 'easymotion/vim-easymotion'
 Plug 'junegunn/vim-slash' " enhancing in-buffer search experience
-if executable('fzf')
-  Plug 'junegunn/fzf'
-else
-  Plug 'junegunn/fzf', {'dir': '~/.local/fzf', 'do': './install --all'}
-endif
+Plug 'junegunn/fzf', { 'do': { -> fzf#install() } }
 Plug 'junegunn/fzf.vim'
 
 " /* Go */
@@ -1349,8 +1345,8 @@ endfunction
 " TODO (k): <2022-10-11> check opened
 if has('win32')
   let s:vimrc_path = glob('~/_vimrc')
-  let g:init_vim_path = glob('~/.config/nvim/init.vim')
-  let g:config_lua_path = glob('~/.config/nvim/lua/config.lua')
+  let g:init_vim_path = glob('~/AppData/Local/nvim/init.vim')
+  let g:config_lua_path = glob('~/AppData/Local/nvim/lua/config.lua')
   let s:extra_vimrc_path = s:vimrc_path . '_local'
   let g:extra_init_vim_path = g:init_vim_path . '_local'
   let g:coc_settings_json_path = glob('~/vimfiles/coc-settings.json')

@@ -1,14 +1,23 @@
 " Github: https://github.com/Karmenzind/dotfiles-and-scripts
 
+let s:is_win = has("win32")
+
 " share the .vimrc with Vim
-set runtimepath^=~/.vim runtimepath+=~/.vim/after
-let &packpath = &runtimepath
-source ~/.vimrc
 
 " to specify the providers
-let g:python_host_prog = '/usr/bin/python2'
-let g:python3_host_prog = '/usr/bin/python3'
-let g:ruby_host_prog = trim(system("find $HOME/.gem -regex '.*ruby/[^/]+/bin/neovim-ruby-host'"))
+if !s:is_win
+  set runtimepath^=~/.vim runtimepath+=~/.vim/after
+  let &packpath = &runtimepath
+  source ~/.vimrc
+
+  let g:python_host_prog = '/usr/bin/python2'
+  let g:python3_host_prog = '/usr/bin/python3'
+  let g:ruby_host_prog = trim(system("find $HOME/.gem -regex '.*ruby/[^/]+/bin/neovim-ruby-host'"))
+else
+  set runtimepath^=~/vimfiles runtimepath+=~/vimfiles/after
+  let &packpath = &runtimepath
+  source ~/_vimrc
+endif
 
 if filereadable(g:extra_init_vim_path)
   execute 'source ' . g:extra_init_vim_path

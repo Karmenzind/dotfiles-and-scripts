@@ -5,17 +5,32 @@
 create symlink
 """
 
+
 import argparse
 import datetime
+import getpass
 import os
+import sys
 import time
+from pathlib import Path
+
+if sys.platform == 'linux':
+    platform = 'linux'
+    with open('/proc/version', 'r') as f:
+        VERSION_INFO = f.read().lower()
+elif sys.platform == 'win32':
+    platform = 'win'
+
+    VERSION_INFO = None
+else:
+    raise AssertionError("Not supported platform: %s" % platform)
 
 CUR_TS = int(time.time())
 CUR_TIME = datetime.datetime.now().strftime("%Y%m%d_%H%M")
 print("Current time: ", CUR_TIME)
 
-REPO_DIR = os.path.dirname(os.path.abspath(__file__))
-HOME_DIR = os.path.expanduser('~')
+REPO_DIR = Path(os.path.dirname(os.path.abspath(__file__)))
+HOME_DIR = Path(os.path.expanduser('~'))
 os.chdir(REPO_DIR)
 
 TAB = ' ' * 4
@@ -23,25 +38,47 @@ YN = ('y', 'n')
 YNI = ('y', 'n', 'i')
 LINE = '\n' + '-' * 44 + '\n'
 
-path_map = {
-    "home_k": HOME_DIR,
-    "local_bin": "/usr/local/bin",
+TO_SYNC = {
+    "linux": [
+        Path("home_k"),
+        Path("local_bin"),
+    ],
+    "win": [
+        Path("home_k/.vim"),
+        Path("home_k/.vimrc"),
+        Path("home_k/.config/nvim"),
+        # "home_k/.golangci.yml",
+        # "home_k/.gitconfig",
+        # "home_k/.agignore",
+        # "home_k/.config/mypy",
+    ]
+}
+
+PATH_MAP = {
+    "linux": {
+        Path("home_k"): HOME_DIR,
+        Path("local_bin"): "/usr/local/bin",
+    },
+    "win": {
+        Path("home_k/.vim"): HOME_DIR / "vimfiles",
+        Path("home_k/.vimrc"): HOME_DIR / "_vimrc",
+        Path("home_k/.config/nvim"): HOME_DIR / "AppData\\Local\\nvim",
+        # "home_k/.golangci.yml",
+        # "home_k/.gitconfig",
+        # "home_k/.agignore",
+    }
 }
 
 # dirs
-TO_SYNC = (
-    "home_k",
-    "local_bin",
-)
 
 SYMLINK_AS_DIR = [
-    "home_k/.vim/mysnippets",
+    Path("home_k/.vim/mysnippets"),
 ]
 
 EXCLUDED = [
-    "home_k/README.md",
-    "local_bin/acpyve",
-    "local_bin/docker_manager",
+    Path("home_k/README.md"),
+    Path("local_bin/acpyve"),
+    Path("local_bin/docker_manager"),
 ]
 
 
@@ -53,20 +90,17 @@ def ask(choices, msg='Continue?'):
     return ans
 
 
-with open('/proc/version', 'r') as f:
-    VERSION_INFO = f.read().lower()
-
-
 def validate(src):
     ret = True
     if src in EXCLUDED:
         return False
 
-    if 'i3/config' in src:
-        if 'manjaro' in VERSION_INFO:
-            ret = src.endswith(".manjaro")
-        else:
-            ret = not src.endswith(".manjaro")
+    if platform == 'linux':
+        if 'i3/config' in src:
+            if 'manjaro' in VERSION_INFO:
+                ret = src.endswith(".manjaro")
+            else:
+                ret = not src.endswith(".manjaro")
 
     return ret
 
@@ -75,11 +109,11 @@ backup_pat = f"*.backup_{CUR_TIME}"
 
 
 def do_symlink(from_, to_):
-    from_ = os.path.join(REPO_DIR, from_)
+    print(f"\n>>> processing: {from_} -> {to_}")
+    from_ = REPO_DIR / from_
     if os.path.exists(to_):
         if os.path.islink(to_):
-            print(os.readlink(to_))
-            if os.readlink(to_) == from_:
+            if os.readlink(to_) == str(from_):
                 print(
                     f"{to_} is already symlinked to {from_}. Ignored.")
                 return
@@ -91,10 +125,17 @@ def do_symlink(from_, to_):
         if ans == 'n':
             return
 
-        os.rename(to_, to_ + f'.backup_{CUR_TIME}')
+        bakname = to_ + f'.backup_{CUR_TIME}'
+        if fake:
+            print("[fake] rename: %s -> %s" % (to_, bakname))
+        else:
+            os.rename(to_, bakname)
 
-    os.symlink(from_, to_)
-    print(f"created symlink for {from_}")
+    if fake:
+        print("[fake] symlink: %s -> %s" % (from_, to_))
+    else:
+        os.symlink(from_, to_)
+        print(f"created symlink for {from_}")
 
 
 def main():
@@ -102,23 +143,42 @@ def main():
     :returns: TODO
 
     """
-    import getpass
-    for d in TO_SYNC:
-        to_d = path_map[d]
-        if not to_d.startswith("/home") and not getpass.getuser() == "root":
-            print("[Warn] root or sudo is required to symlink %s" % d)
-            continue
+    path_conn = os.sep
+    path_map = PATH_MAP[platform]
+    for d in TO_SYNC[platform]:
+        to_d: Path = path_map[d]
+        d = Path(d)
+        if platform == 'linux':
+            if not str(to_d).startswith("/home") and not getpass.getuser() == "root":
+                print("[Warn] root or sudo is required to symlink %s" % d)
+                continue
+
+        if os.path.isfile(d):
+            do_symlink(d, to_d)
 
         for (from_dir, _, subfiles) in os.walk(d):
-            if from_dir.count("/"):
-                to_dir = os.path.join(to_d, from_dir.split("/", 1)[1])
-                os.makedirs(to_dir, exist_ok=True)
+            from_dir = Path(from_dir)
+            # from_dir_unix = from_dir.replace(path_conn, '/')
+            if from_dir in path_map:
+                to_dir = path_map[from_dir]
             else:
-                to_dir = path_map[d]
+                sep_count = str(d).count(path_conn)
+                if sep_count:
+                    to_dir = os.path.join(
+                        to_d, path_conn.join(str(from_dir).split(path_conn)[sep_count+1:])
+                    )
+                else:
+                    to_dir = os.path.join(to_d, str(from_dir).split(path_conn, 1)[1])
 
             if from_dir in SYMLINK_AS_DIR:
                 do_symlink(from_dir, to_dir)
                 continue
+
+            if not os.path.isdir(to_dir):
+                if fake:
+                    print("[fake] create dir:", to_dir)
+                else:
+                    os.makedirs(to_dir, exist_ok=True)
 
             for filename in subfiles:
                 src = os.path.join(from_dir, filename)
@@ -128,8 +188,6 @@ def main():
                     print("\n>>> Ignored invalid: %s" % src)
                     continue
 
-                print(f"\n>>> processing: {src} -> {dest}")
-
                 try:
                     do_symlink(src, dest)
                 except Exception as e:
@@ -138,8 +196,9 @@ def main():
 
 if __name__ == "__main__":
     # TODO (k): <2022-11-07> Windows
-    # parser = argparse.ArgumentParser()
-    # parser.add_argument('-p', '--platform', type=str, default='linux')
-    # args = parser.parse_args()
+    parser = argparse.ArgumentParser()
+    parser.add_argument('--fake', action='store_true', help="Only preview what will happen")
+    args = parser.parse_args()
+    fake = args.fake
 
     main()
