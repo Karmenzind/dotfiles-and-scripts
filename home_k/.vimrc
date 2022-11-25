@@ -186,6 +186,10 @@ Plug 'easymotion/vim-easymotion'
 Plug 'junegunn/vim-slash' " enhancing in-buffer search experience
 Plug 'junegunn/fzf', { 'do': { -> fzf#install() } }
 Plug 'junegunn/fzf.vim'
+if has("nvim")
+  Plug 'nvim-lua/plenary.nvim'
+  Plug 'nvim-telescope/telescope.nvim', { 'tag': '0.1.0' }
+endif
 
 " /* Go */
 Plug 'fatih/vim-go', { 'do': ':GoUpdateBinaries' }
@@ -835,7 +839,7 @@ let g:ale_fixers = {
       \  'sh': ['shfmt'],
       \  'go': ['gofmt', 'goimports'],
       \  'python': ['isort', 'autopep8', 'FixSurroundedWhiteSpaces', 'autoflake'],
-      \  'json': ['jq', 'prettier'],
+      \  'json': ['prettier'],
       \  'sql': ['pgformatter'],
       \  'vue': ['eslint', 'prettier'],
       \  'yaml': ['prettier'],
@@ -1222,6 +1226,7 @@ let g:vista_echo_cursor_strategy = 'both'
 
 if has('nvim')
   let g:vista_executive_for = {
+    \ 'go': 'nvim_lsp',
     \ 'lua': 'nvim_lsp',
     \ 'yaml': 'nvim_lsp',
     \ 'toml': 'nvim_lsp',
@@ -1248,8 +1253,8 @@ let g:vue_pre_processors = []
 " /* for vim-javascript */
 
 augroup javascript_folding
-    au!
-    au FileType javascript setlocal foldmethod=syntax
+  au!
+  au FileType javascript setlocal foldmethod=syntax
 augroup END
 
 " /* for vim-go */
@@ -1269,12 +1274,12 @@ let g:go_fmt_autosave = 0
 let g:go_mod_fmt_autosave = 0
 
 augroup go_map
-    au!
-    au FileType go nmap <leader>rt <Plug>(go-run-tab)
-    au FileType go nmap <leader>rs <Plug>(go-run-split)
-    au FileType go nmap <leader>rv <Plug>(go-run-vertical)
-    au FileType go call s:NoSearchCabbrev("GI", "GoImport")
-    au FileType go call s:NoSearchCabbrev("GR", "GoRun")
+  au!
+  au FileType go nmap <leader>rt <Plug>(go-run-tab)
+  au FileType go nmap <leader>rs <Plug>(go-run-split)
+  au FileType go nmap <leader>rv <Plug>(go-run-vertical)
+  au FileType go call s:NoSearchCabbrev("GI", "GoImport")
+  au FileType go call s:NoSearchCabbrev("GR", "GoRun")
 augroup END
 
 " --------------------------------------------

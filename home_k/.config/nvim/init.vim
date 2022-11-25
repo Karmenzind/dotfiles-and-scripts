@@ -28,8 +28,7 @@ set termguicolors
 " terminal
 " --------------------------------------------
 function! s:TermEsc() abort
-  if &ft == 'fzf'
-    echom "bingo"
+  if &ft =~ '\v^(fzf|Telescope)'
     execute("close")
   else
     call feedkeys("")

@@ -1,6 +1,25 @@
 vim.g.loaded = 1
 vim.g.loaded_netrwPlugin = 1
 
+vim.diagnostic.config({
+    virtual_text = {
+        -- source = true,
+        format = function(diagnostic)
+            if diagnostic.user_data and diagnostic.user_data.code then
+                return string.format("%s %s", diagnostic.user_data.code, diagnostic.message)
+            else
+                return diagnostic.message
+            end
+        end,
+    },
+    signs = true,
+    float = {
+        -- header = "Diagnostics",
+        source = true,
+        -- border = "rounded",
+    },
+})
+
 require("mason").setup()
 require("mason-lspconfig").setup({ ensure_installed = { "sumneko_lua", "pyright", "vimls" } })
 
@@ -187,6 +206,7 @@ capabilities.textDocument.foldingRange = {
 }
 
 lsp.pyright.setup({ on_attach = on_attach, capabilities = capabilities })
+-- lsp.pylsp.setup({ on_attach = on_attach, capabilities = capabilities })
 lsp.vimls.setup({
     on_attach = on_attach,
     capabilities = capabilities,
@@ -262,15 +282,15 @@ vim.keymap.set("n", "K", function()
 end)
 
 -- themes
-local cololike = function (p)
+local cololike = function(p)
     if vim.g.colors_name ~= nil and vim.g.colors_name:find(p, 1, true) == 1 then
         return true
     end
     return false
 end
 
-if cololike('github_') then
-    require('github-theme').setup({
+if cololike("github_") then
+    require("github-theme").setup({
         dark_float = true,
         hide_inactive_statusline = false,
         sidebars = { "qf", "vista_kind", "terminal", "packer", "nerdtree", "vista" },
