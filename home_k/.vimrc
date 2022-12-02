@@ -147,6 +147,13 @@ if has("nvim")
     Plug 'andersevenrud/cmp-tmux'
   endif
   Plug 'quangnguyen30192/cmp-nvim-ultisnips'
+
+  " debug
+  Plug 'mfussenegger/nvim-dap'
+  Plug 'mfussenegger/nvim-dap-python'
+  Plug 'leoluz/nvim-dap-go'
+  Plug 'rcarriga/nvim-dap-ui'
+  Plug 'theHamsta/nvim-dap-virtual-text'
 else
   Plug 'neoclide/coc.nvim', {'branch': 'release'}
   " if has("win32")
@@ -1237,6 +1244,8 @@ elseif has_key(plugs, "coc.nvim")
     \ 'yaml': 'coc',
     \ 'toml': 'coc',
     \ 'ps1': 'coc',
+    \ 'tsx': 'coc',
+    \ 'typescriptreact': 'coc',
     \ }
 endif
 

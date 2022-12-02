@@ -8,3 +8,5 @@ __pycache__
 *.pyc
 *.pyo
 *.swp
+node_modules
+.cache-loader
