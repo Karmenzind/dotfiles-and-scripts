@@ -74,4 +74,26 @@ nnoremap <A-l> <C-w>l
 
 set completeopt=menu,menuone,noselect
 
+" Find files using Telescope command-line sugar.
+nnoremap <leader>tf <cmd>Telescope find_files<cr>
+nnoremap <leader>tg <cmd>Telescope live_grep<cr>
+nnoremap <leader>tb <cmd>Telescope buffers<cr>
+nnoremap <leader>th <cmd>Telescope help_tags<cr>
+
+nnoremap <leader>db <cmd>lua require'dap'.toggle_breakpoint()<cr>
+nnoremap <silent> <F5> <Cmd>lua require'dap'.continue()<CR>
+nnoremap <silent> <F10> <Cmd>lua require'dap'.step_over()<CR>
+nnoremap <silent> <F11> <Cmd>lua require'dap'.step_into()<CR>
+nnoremap <silent> <F12> <Cmd>lua require'dap'.step_out()<CR>
+" nnoremap <leader>dc <cmd>lua require'dap'.continue()<cr>
+" nnoremap <leader>dso <cmd>lua require'dap'.step_over()<cr>
+" nnoremap <leader>dsi <cmd>lua require'dap'.step_into()<cr>
+" nnoremap <leader>dr <cmd>lua require'dap'.repl.open()<cr>
+nnoremap <leader>dr <cmd>lua require'dapui'.float_element('repl')<cr>
+nnoremap <leader>du <cmd>lua require'dapui'.toggle({reset=true})<cr>
+nnoremap <Leader>dl <Cmd>lua require'dap'.run_last()<CR>
+" nnoremap <silent> <Leader>b <Cmd>lua require'dap'.toggle_breakpoint()<CR>
+" nnoremap <silent> <Leader>B <Cmd>lua require'dap'.set_breakpoint(vim.fn.input('Breakpoint condition: '))<CR>
+" nnoremap <silent> <Leader>lp <Cmd>lua require'dap'.set_breakpoint(nil, nil, vim.fn.input('Log point message: '))<CR>
+
 lua require('config')

@@ -153,6 +153,7 @@ if has("nvim")
   Plug 'mfussenegger/nvim-dap-python'
   Plug 'leoluz/nvim-dap-go'
   Plug 'rcarriga/nvim-dap-ui'
+  Plug 'rcarriga/cmp-dap'
   Plug 'theHamsta/nvim-dap-virtual-text'
 else
   Plug 'neoclide/coc.nvim', {'branch': 'release'}
@@ -221,15 +222,20 @@ Plug 'Traap/vim-helptags'
 " if executable('fcitx') | Plug 'vim-scripts/fcitx.vim' | endif
 " Plug 'junegunn/goyo.vim'
 " Plug 'junegunn/limelight.vim'
-" Plug 'terryma/vim-smooth-scroll'
 " Plug 'vipul-sharma20/vim-registers'
 Plug 'dahu/vim-lotr'
 if has('nvim')
   Plug 'nvim-lua/plenary.nvim'
   Plug 'folke/todo-comments.nvim', {'branch': 'main'}
   " Plug 'gennaro-tedesco/nvim-peekup'
-  " Plug 'tversteeg/registers.nvim', {'branch': 'main'}
+  Plug 'tversteeg/registers.nvim', {'branch': 'main'}
+else
+  " Plug 'utubo/vim-registers-lite.nvim'
+  Plug 'karmenzind/registers.vim', {'branch': 'dev', 'frozen': 1}
 endif
+Plug 'karmenzind/vim-tmuxlike', {'branch': 'dev', 'frozen': 1}
+Plug 'skywind3000/vim-quickui'
+Plug 'skywind3000/asyncrun.vim'
 
 " /* Funny Stuff */
 " Plug 'junegunn/vim-emoji', { 'for': 'markdown,gitcommit' }
@@ -244,14 +250,6 @@ Plug 'pangloss/vim-javascript'
 Plug 'mtdl9/vim-log-highlighting'
 " Plug 'demophoon/bash-fold-expr', { 'for': 'sh' }
 " Plug 'vim-scripts/txt.vim', { 'for': 'txt' }
-
-" /* Enhancement */
-Plug 'karmenzind/vim-tmuxlike', {'branch': 'dev', 'frozen': 1}
-if !has("nvim")
-  Plug 'karmenzind/registers.vim', {'branch': 'dev', 'frozen': 1}
-endif
-Plug 'skywind3000/vim-quickui'
-Plug 'skywind3000/asyncrun.vim'
 
 " /* Appearance */
 Plug 'flazz/vim-colorschemes'
