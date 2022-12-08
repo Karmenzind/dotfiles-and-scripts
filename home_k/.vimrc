@@ -177,7 +177,11 @@ if executable("svn")
   Plug 'Karmenzind/vc-svn.vim', {'branch': 'dev', 'frozen': 1}
 endif
 
-Plug 'scrooloose/nerdtree', { 'on': ['NERDTreeToggle', 'NERDTreeFind'] }
+if has('nvim')
+  Plug 'ms-jpq/chadtree', {'branch': 'chad', 'do': 'python3 -m chadtree deps'}
+else
+  Plug 'scrooloose/nerdtree', { 'on': ['NERDTreeToggle', 'NERDTreeFind'] }
+endif
 " Plug 'Xuyuanp/nerdtree-git-plugin', { 'on': ['NERDTreeToggle'] }
 Plug 'tiagofumo/vim-nerdtree-syntax-highlight'
 Plug 't9md/vim-choosewin'
@@ -596,10 +600,15 @@ function! s:FzfToNERDTree(lines)
         echoerr "Invalid path: " .. a:lines[0]
         return
     endif
-    if get(g:, "loaded_nerd_tree", 0) == 0
-        execute 'NERDTree'
+    if has("nvim")
+      execute 'CHADopen --always-focus ' .. path
+      wincmd p
+    else
+      if get(g:, "loaded_nerd_tree", 0) == 0
+          execute 'NERDTree'
+      endif
+      execute 'NERDTreeFind ' .. path
     endif
-    execute 'NERDTreeFind ' .. path
 endfunction
 
 " /* for NERDTree */

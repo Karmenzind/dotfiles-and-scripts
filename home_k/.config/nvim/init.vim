@@ -52,7 +52,6 @@ augroup END
 " xnoremap <leader>ca :'<,'>CodeActionMenu<cr>
 nnoremap <leader>ca <cmd>lua vim.lsp.buf.code_action()<CR>
 
-
 tnoremap <expr> <C-R> '<C-\><C-N>"'.nr2char(getchar()).'pi'
 tnoremap <A-h> <C-\><C-N><C-w>h
 tnoremap <A-j> <C-\><C-N><C-w>j
@@ -74,12 +73,13 @@ nnoremap <A-l> <C-w>l
 
 set completeopt=menu,menuone,noselect
 
-" Find files using Telescope command-line sugar.
+" /* telescope */
 nnoremap <leader>tf <cmd>Telescope find_files<cr>
 nnoremap <leader>tg <cmd>Telescope live_grep<cr>
 nnoremap <leader>tb <cmd>Telescope buffers<cr>
 nnoremap <leader>th <cmd>Telescope help_tags<cr>
 
+" /* dap */
 nnoremap <leader>db <cmd>lua require'dap'.toggle_breakpoint()<cr>
 nnoremap <silent> <F5> <Cmd>lua require'dap'.continue()<CR>
 nnoremap <silent> <F10> <Cmd>lua require'dap'.step_over()<CR>
@@ -95,5 +95,29 @@ nnoremap <Leader>dl <Cmd>lua require'dap'.run_last()<CR>
 " nnoremap <silent> <Leader>b <Cmd>lua require'dap'.toggle_breakpoint()<CR>
 " nnoremap <silent> <Leader>B <Cmd>lua require'dap'.set_breakpoint(vim.fn.input('Breakpoint condition: '))<CR>
 " nnoremap <silent> <Leader>lp <Cmd>lua require'dap'.set_breakpoint(nil, nil, vim.fn.input('Log point message: '))<CR>
+
+" /* chadtree */
+nnoremap <leader>n <cmd>CHADopen<cr>
+
+let g:chadtree_settings = {
+      \ "xdg": v:true,
+      \ "options.show_hidden": v:true,
+      \ "ignore.name_exact": [".git"],
+      \ "view.width": 30,
+      \ "view.window_options": {"number": v:true, "relativenumber": v:true},
+      \ "keymap.refresh": ["R", "<c-r>"],
+      \ "keymap.primary": ["o"],
+      \ "keymap.secondary": ["go"],
+      \ "keymap.tertiary": ["T"],
+      \ "keymap.v_split": ["s"],
+      \ "keymap.h_split": ["i"],
+      \ "keymap.select": ["<space>"],
+      \ "keymap.clear_selection": ["<space>"],
+      \ "keymap.new": ["ma"],
+      \ "keymap.rename": ["mm", "mr"],
+      \ "keymap.copy": ["mc"],
+      \ }
+      " \ "keymap.open_sys": ["<enter>"],
+
 
 lua require('config')
