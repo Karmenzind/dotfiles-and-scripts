@@ -80,7 +80,8 @@ nnoremap <leader>tb <cmd>Telescope buffers<cr>
 nnoremap <leader>th <cmd>Telescope help_tags<cr>
 
 " /* dap */
-nnoremap <leader>db <cmd>lua require'dap'.toggle_breakpoint()<cr>
+nnoremap <silent> <leader>db <cmd>lua require'dap'.toggle_breakpoint()<cr>
+nnoremap <silent> <Leader>dc <Cmd>lua require'dap'.set_breakpoint(vim.fn.input('Breakpoint condition: '))<CR>
 nnoremap <silent> <F5> <Cmd>lua require'dap'.continue()<CR>
 nnoremap <silent> <F10> <Cmd>lua require'dap'.step_over()<CR>
 nnoremap <silent> <F11> <Cmd>lua require'dap'.step_into()<CR>
