@@ -25,16 +25,16 @@
   "diagnostic.checkCurrentLine": true,
   "diagnostic.virtualTextCurrentLineOnly": false,
 
-  // "languageserver": {
-  //   "go": {
-  //     "command": "gopls",
-  //     "rootPatterns": ["go.mod", ".vim/", ".git/", ".svn/"],
-  //     "filetypes": ["go"],
-  //     "initializationOptions": {
-  //       "usePlaceholders": true
-  //     }
-  //   }
-  // },
+  "languageserver": {
+    "go": {
+      "command": "gopls",
+      "rootPatterns": ["go.mod", ".vim/", ".git/", ".svn/"],
+      "filetypes": ["go"],
+      "initializationOptions": {
+        "usePlaceholders": true
+      }
+    }
+  },
   "[python]": {
     "inlayHint.enable": false
   }

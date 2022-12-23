@@ -123,6 +123,14 @@ snippet Lif
 ${2:LOGGER}.info(__import__("pprint").pformat(${1:${VISUAL}}))
 endsnippet
 
+# --------------------------------------------
+# loop
+# --------------------------------------------
+
+snippet fore "for...enumerate"
+for ${1:idx}, ${2:value} in enumerate(${VISUAL}):
+	${0:pass}
+endsnippet
 
 # --------------------------------------------
 # dict

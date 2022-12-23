@@ -12,7 +12,7 @@ if $__MYKEYBOARD == "hhkb"
 endif
 
 let b:current_hour = strftime('%H')
-let s:bg_light = b:current_hour >=8 && b:current_hour < 16
+let s:bg_light = b:current_hour >=8 && b:current_hour < 17
 
 " --------------------------------------------
 " general keymaps and abbreviations
@@ -178,7 +178,7 @@ if executable("svn")
 endif
 
 if has('nvim')
-  Plug 'ms-jpq/chadtree', {'branch': 'chad', 'do': 'python3 -m chadtree deps'}
+  Plug 'nvim-tree/nvim-tree.lua'
 else
   Plug 'scrooloose/nerdtree', { 'on': ['NERDTreeToggle', 'NERDTreeFind'] }
 endif
@@ -273,6 +273,9 @@ if has('nvim')
   Plug 'rockerBOO/boo-colorscheme-nvim'
   Plug 'kyazdani42/blue-moon' " no airline theme
 endif
+
+" /* local */
+" Plug '~/Localworks/dbcli.vim'
 
 call plug#end()
 
@@ -601,7 +604,8 @@ function! s:FzfToNERDTree(lines)
         return
     endif
     if has("nvim")
-      execute 'CHADopen --always-focus ' .. path
+      " execute 'CHADopen --always-focus ' .. path
+      execute 'NvimTreeFindFile '
       wincmd p
     else
       if get(g:, "loaded_nerd_tree", 0) == 0
