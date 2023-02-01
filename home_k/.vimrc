@@ -270,8 +270,10 @@ endif
 if has('nvim')
   Plug 'katawful/kat.nvim', { 'tag': '3.0' }
   Plug 'projekt0n/github-nvim-theme'
+  Plug 'uloco/bluloco.nvim' | Plug 'rktjmp/lush.nvim'
   Plug 'rockerBOO/boo-colorscheme-nvim'
   Plug 'kyazdani42/blue-moon' " no airline theme
+  Plug 'folke/tokyonight.nvim', { 'branch': 'main' }
 endif
 
 " /* local */
