@@ -5,13 +5,13 @@
 create symlink
 """
 
-
 import argparse
 import datetime
 import getpass
 import os
 import sys
 import time
+import warnings
 from pathlib import Path
 
 if sys.platform == 'linux':
@@ -20,10 +20,9 @@ if sys.platform == 'linux':
         VERSION_INFO = f.read().lower()
 elif sys.platform == 'win32':
     platform = 'win'
-
     VERSION_INFO = None
 else:
-    raise AssertionError("Not supported platform: %s" % platform)
+    warnings.warn("Not tested on platform: %s" % platform)
 
 CUR_TS = int(time.time())
 CUR_TIME = datetime.datetime.now().strftime("%Y%m%d_%H%M")
@@ -47,6 +46,7 @@ TO_SYNC = {
         Path("home_k/.vim"),
         Path("home_k/.vimrc"),
         Path("home_k/.config/nvim"),
+        Path("home_k/.config/alacritty/alacritty.yml"),
         # "home_k/.golangci.yml",
         # "home_k/.gitconfig",
         # "home_k/.agignore",
@@ -63,6 +63,7 @@ PATH_MAP = {
         Path("home_k/.vim"): HOME_DIR / "vimfiles",
         Path("home_k/.vimrc"): HOME_DIR / "_vimrc",
         Path("home_k/.config/nvim"): HOME_DIR / "AppData\\Local\\nvim",
+        Path("home_k/.config/alacritty/alacritty.yml"): HOME_DIR / "AppData\\Roaming\\alacritty\\alacritty.yml",
         # "home_k/.golangci.yml",
         # "home_k/.gitconfig",
         # "home_k/.agignore",
@@ -113,12 +114,13 @@ def do_symlink(from_, to_):
     from_ = REPO_DIR / from_
     if os.path.exists(to_):
         if os.path.islink(to_):
-            if os.readlink(to_) == str(from_):
+            existed_link_to = os.path.realpath(to_) if sys.platform == 'win32' else os.readlink(to_)
+            if existed_link_to == str(from_):
                 print(
                     f"{to_} is already symlinked to {from_}. Ignored.")
                 return
 
-            override_msg = f"{to_} exists and is a symlink. Override it? (file will be mv to {backup_pat})"
+            override_msg = f"{to_} exists and is a symlink (-> {existed_link_to!r}). Override it? (file will be mv to {backup_pat})"
         else:
             override_msg = f"{to_} exists and is not a symlink. Override it? (file will be mv to {backup_pat})"
         ans = ask(YN, override_msg)
@@ -154,7 +156,11 @@ def main():
                 continue
 
         if os.path.isfile(d):
+            to_pardir = os.path.dirname(to_d)
+            if not os.path.exists(to_pardir):
+                os.makedirs(to_pardir, exist_ok=True)
             do_symlink(d, to_d)
+            continue
 
         for (from_dir, _, subfiles) in os.walk(d):
             from_dir = Path(from_dir)
@@ -165,7 +171,7 @@ def main():
                 sep_count = str(d).count(path_conn)
                 if sep_count:
                     to_dir = os.path.join(
-                        to_d, path_conn.join(str(from_dir).split(path_conn)[sep_count+1:])
+                        to_d, path_conn.join(str(from_dir).split(path_conn)[sep_count + 1:])
                     )
                 else:
                     to_dir = os.path.join(to_d, str(from_dir).split(path_conn, 1)[1])
@@ -195,7 +201,6 @@ def main():
 
 
 if __name__ == "__main__":
-    # TODO (k): <2022-11-07> Windows
     parser = argparse.ArgumentParser()
     parser.add_argument('--fake', action='store_true', help="Only preview what will happen")
     args = parser.parse_args()

@@ -12,9 +12,9 @@ require("nvim-tree").setup({
                 { key = "<C-e>", action = "edit_in_place" },
                 { key = {}, action = "edit_no_picker" },
                 { key = { "<C-]>", "<2-RightMouse>" }, action = "cd" },
-                { key = {"<C-v>", "s"}, action = "vsplit" },
-                { key = {"<C-x>", "i"}, action = "split" },
-                { key = {"<C-t>", "t"}, action = "tabnew" },
+                { key = { "<C-v>", "s" }, action = "vsplit" },
+                { key = { "<C-x>", "i" }, action = "split" },
+                { key = { "<C-t>", "t" }, action = "tabnew" },
                 { key = "<", action = "prev_sibling" },
                 { key = ">", action = "next_sibling" },
                 { key = "P", action = "parent_node" },
@@ -394,7 +394,21 @@ local dap = require("dap")
 vim.fn.sign_define("DapBreakpoint", { text = "🛑", texthl = "", linehl = "", numhl = "" })
 dap.defaults.fallback.terminal_win_cmd = "50vsplit new"
 require("dap-python").setup("/usr/bin/python")
-require("dap-go").setup()
+require("dap-go").setup({
+    dap_configurations = {
+        { type = "go", name = "Attach remote", mode = "remote", request = "attach" },
+    },
+    -- -- delve configurations
+    -- delve = {
+    --     -- time to wait for delve to initialize the debug session.
+    --     -- default to 20 seconds
+    --     initialize_timeout_sec = 20,
+    --     -- a string that defines the port to start delve debugger.
+    --     -- default to string "${port}" which instructs nvim-dap
+    --     -- to start the process in a random available port
+    --     port = "${port}",
+    -- },
+})
 require("nvim-dap-virtual-text").setup({
     commented = true,
 })
@@ -493,3 +507,28 @@ require("cmp").setup.filetype({ "dap-repl", "dapui_watches", "dapui_hover" }, {
         { name = "dap" },
     },
 })
+
+-- require("noice").setup({
+--     lsp = {
+--         -- override markdown rendering so that **cmp** and other plugins use **Treesitter**
+--         override = {
+--             ["vim.lsp.util.convert_input_to_markdown_lines"] = true,
+--             ["vim.lsp.util.stylize_markdown"] = true,
+--             ["cmp.entry.get_documentation"] = true,
+--         },
+--     },
+--     -- you can enable a preset for easier configuration
+--     presets = {
+--         bottom_search = true, -- use a classic bottom cmdline for search
+--         command_palette = true, -- position the cmdline and popupmenu together
+--         long_message_to_split = true, -- long messages will be sent to a split
+--         inc_rename = false, -- enables an input dialog for inc-rename.nvim
+--         lsp_doc_border = false, -- add a border to hover docs and signature help
+--     },
+--     routes = {
+--         {
+--             view = "notify",
+--             filter = { event = "msg_showmode" },
+--         },
+--     },
+-- })

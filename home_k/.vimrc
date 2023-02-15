@@ -229,6 +229,10 @@ Plug 'Traap/vim-helptags'
 " Plug 'vipul-sharma20/vim-registers'
 Plug 'dahu/vim-lotr'
 if has('nvim')
+  " Plug 'MunifTanjim/nui.nvim'
+  " Plug 'folke/noice.nvim'
+  " Plug 'MunifTanjim/nui.nvim'
+
   Plug 'nvim-lua/plenary.nvim'
   Plug 'folke/todo-comments.nvim', {'branch': 'main'}
   " Plug 'gennaro-tedesco/nvim-peekup'
@@ -1537,7 +1541,7 @@ augroup fit_colorscheme
     au ColorSchemePre atomic,NeoSolarized,ayu,palenight,sacredforest call SetTermguiColors('yes')
   endif
   au ColorScheme * call AfterChangeColorscheme()
-  au ColorScheme github_light,github_dark_default,blue-moon set nocursorcolumn
+  au ColorScheme github_light,blue-moon,github_light_default set nocursorcolumn
 augroup END
 
 function! s:GetFitAirlineTheme(cname)
