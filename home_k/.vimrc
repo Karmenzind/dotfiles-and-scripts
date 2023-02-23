@@ -1541,7 +1541,8 @@ augroup fit_colorscheme
     au ColorSchemePre atomic,NeoSolarized,ayu,palenight,sacredforest call SetTermguiColors('yes')
   endif
   au ColorScheme * call AfterChangeColorscheme()
-  au ColorScheme github_light,blue-moon,github_light_default set nocursorcolumn
+  " au ColorScheme github_light,blue-moon,github_light_default,github_* set nocursorcolumn
+  au ColorScheme blue-moon,github_* set nocursorcolumn
 augroup END
 
 function! s:GetFitAirlineTheme(cname)

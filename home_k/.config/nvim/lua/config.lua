@@ -79,7 +79,7 @@ vim.diagnostic.config({
 })
 
 require("mason").setup()
-require("mason-lspconfig").setup({ ensure_installed = { "sumneko_lua", "pyright", "vimls" } })
+require("mason-lspconfig").setup({ ensure_installed = { "lua_ls", "pyright", "vimls" } })
 
 require("alpha").setup(require("alpha.themes.startify").config)
 
@@ -301,7 +301,17 @@ lsp.gopls.setup({
     init_options = { usePlaceholders = false },
 })
 
-lsp.sumneko_lua.setup({
+-- lsp.lua_ls.setup({
+--     settings = {
+--         Lua = {
+--             runtime = { version = "LuaJIT" },
+--             diagnostics = { globals = { "vim" } },
+--             workspace = { library = vim.api.nvim_get_runtime_file("", true) },
+--             telemetry = { enable = false },
+--         },
+--     },
+-- })
+lsp.lua_ls.setup({
     settings = {
         Lua = {
             runtime = { version = "LuaJIT" },
