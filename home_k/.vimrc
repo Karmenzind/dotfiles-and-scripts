@@ -261,16 +261,19 @@ Plug 'mtdl9/vim-log-highlighting'
 
 " /* Appearance */
 Plug 'flazz/vim-colorschemes'
-Plug 'vim-airline/vim-airline'
-Plug 'vim-airline/vim-airline-themes'
+if has('nvim')
+  let g:line_plugin = 'lualine'
+  Plug 'nvim-lualine/lualine.nvim'
+else
+  let g:line_plugin = 'airline'
+  Plug 'vim-airline/vim-airline'
+  Plug 'vim-airline/vim-airline-themes'
+endif
 Plug 'gerardbm/vim-atomic'
 Plug 'icymind/NeoSolarized'
 Plug 'KKPMW/sacredforest-vim'
 Plug 'junegunn/seoul256.vim'
 Plug 'arcticicestudio/nord-vim'
-if !has('win32')
-  Plug 'ryanoasis/vim-devicons' " load after other plugins
-endif
 if has('nvim')
   Plug 'katawful/kat.nvim', { 'tag': '3.0' }
   Plug 'projekt0n/github-nvim-theme'
@@ -278,6 +281,13 @@ if has('nvim')
   Plug 'rockerBOO/boo-colorscheme-nvim'
   Plug 'kyazdani42/blue-moon' " no airline theme
   Plug 'folke/tokyonight.nvim', { 'branch': 'main' }
+endif
+if !has('win32')
+  if has('nvim')
+    Plug 'kyazdani42/nvim-web-devicons'
+  else
+    Plug 'ryanoasis/vim-devicons' " load after other plugins
+  endif
 endif
 
 " /* local */
@@ -383,6 +393,12 @@ set scrolloff=5
 
 " /* Enable folding */
 set foldlevel=99
+let g:fold_offset = 4
+augroup fold_specs
+    au!
+    au FileType vim let b:fold_offset = 5
+augroup END
+
 
 " /* spell check */
 set spelllang=en nospell
@@ -638,69 +654,71 @@ augroup nerd_behaviours
 augroup END
 
 " /* For vim-airline */
-nnoremap <Leader>A :AirlineToggle<CR>:AirlineRefresh<CR>
-let g:airline_powerline_fonts = 1
-let g:airline_left_sep=''
-let g:airline_right_sep=''
-let g:airline_mode_map = {
-      \ '__' : '-',
-      \ 'n'  : 'N',
-      \ 'i'  : 'I',
-      \ 'R'  : 'R',
-      \ 'c'  : 'C',
-      \ 'v'  : 'V',
-      \ 'V'  : 'V',
-      \ '' : 'V',
-      \ 's'  : 'S',
-      \ 'S'  : 'S',
-      \ '' : 'S',
-      \ 't'  : 'T',
-      \ }
-let g:airline_highlighting_cache = 1
-let g:airline_skip_empty_sections = 1
-let g:airline#extensions#ale#enabled = 0
-let g:airline#extensions#branch#enabled = 0
-let g:airline#extensions#wordcount#enabled = 0
-let g:airline#extensions#whitespace#enabled = 0
-let g:airline#extensions#fugitiveline#enabled = 0
-let g:airline#extensions#hunks#enabled = 0
-" let g:airline#extensions#hunks#non_zero_only = 1
-let g:airline#extensions#tabline#enabled = 1
-let g:airline#extensions#tabline#show_splits = 0
-" let g:airline#extensions#searchcount#enabled = 0
+if g:line_plugin == 'airline'
+  nnoremap <Leader>A :AirlineToggle<CR>:AirlineRefresh<CR>
+  let g:airline_powerline_fonts = 1
+  let g:airline_left_sep=''
+  let g:airline_right_sep=''
+  let g:airline_mode_map = {
+        \ '__' : '-',
+        \ 'n'  : 'N',
+        \ 'i'  : 'I',
+        \ 'R'  : 'R',
+        \ 'c'  : 'C',
+        \ 'v'  : 'V',
+        \ 'V'  : 'V',
+        \ '' : 'V',
+        \ 's'  : 'S',
+        \ 'S'  : 'S',
+        \ '' : 'S',
+        \ 't'  : 'T',
+        \ }
+  let g:airline_highlighting_cache = 1
+  let g:airline_skip_empty_sections = 1
+  let g:airline#extensions#ale#enabled = 0
+  let g:airline#extensions#branch#enabled = 0
+  let g:airline#extensions#wordcount#enabled = 0
+  let g:airline#extensions#whitespace#enabled = 0
+  let g:airline#extensions#fugitiveline#enabled = 0
+  let g:airline#extensions#hunks#enabled = 0
+  " let g:airline#extensions#hunks#non_zero_only = 1
+  let g:airline#extensions#tabline#enabled = 1
+  let g:airline#extensions#tabline#show_splits = 0
+  " let g:airline#extensions#searchcount#enabled = 0
 
-let g:airline#extensions#tabline#buffer_idx_mode = 1
-nmap <leader>1 <Plug>AirlineSelectTab1
-nmap <leader>2 <Plug>AirlineSelectTab2
-nmap <leader>3 <Plug>AirlineSelectTab3
-nmap <leader>4 <Plug>AirlineSelectTab4
-nmap <leader>5 <Plug>AirlineSelectTab5
-nmap <leader>6 <Plug>AirlineSelectTab6
-nmap <leader>7 <Plug>AirlineSelectTab7
-nmap <leader>8 <Plug>AirlineSelectTab8
-nmap <leader>9 <Plug>AirlineSelectTab9
-nmap <leader>- <Plug>AirlineSelectPrevTab
-nmap <leader>+ <Plug>AirlineSelectNextTab
+  let g:airline#extensions#tabline#buffer_idx_mode = 1
+  nmap <leader>1 <Plug>AirlineSelectTab1
+  nmap <leader>2 <Plug>AirlineSelectTab2
+  nmap <leader>3 <Plug>AirlineSelectTab3
+  nmap <leader>4 <Plug>AirlineSelectTab4
+  nmap <leader>5 <Plug>AirlineSelectTab5
+  nmap <leader>6 <Plug>AirlineSelectTab6
+  nmap <leader>7 <Plug>AirlineSelectTab7
+  nmap <leader>8 <Plug>AirlineSelectTab8
+  nmap <leader>9 <Plug>AirlineSelectTab9
+  nmap <leader>- <Plug>AirlineSelectPrevTab
+  nmap <leader>+ <Plug>AirlineSelectNextTab
 
-let g:airline#extensions#tabline#show_close_button = 0
-let g:airline#extensions#tabline#buffer_idx_format = {
-      \ '0': '0 ',
-      \ '1': '1 ',
-      \ '2': '2 ',
-      \ '3': '3 ',
-      \ '4': '4 ',
-      \ '5': '5 ',
-      \ '6': '6 ',
-      \ '7': '7 ',
-      \ '8': '8 ',
-      \ '9': '9 '
-      \}
+  let g:airline#extensions#tabline#show_close_button = 0
+  let g:airline#extensions#tabline#buffer_idx_format = {
+        \ '0': '0 ',
+        \ '1': '1 ',
+        \ '2': '2 ',
+        \ '3': '3 ',
+        \ '4': '4 ',
+        \ '5': '5 ',
+        \ '6': '6 ',
+        \ '7': '7 ',
+        \ '8': '8 ',
+        \ '9': '9 '
+        \}
 
-let g:airline#extensions#tabline#tab_nr_type = 2
+  let g:airline#extensions#tabline#tab_nr_type = 2
 
-let g:airline#extensions#tabline#show_buffers = 0
-let g:airline#extensions#tabline#tabs_label = 't'
-let g:airline#extensions#tabline#buffers_label = 'b'
+  let g:airline#extensions#tabline#show_buffers = 0
+  let g:airline#extensions#tabline#tabs_label = 't'
+  let g:airline#extensions#tabline#buffers_label = 'b'
+endif
 
 " /* for fzf */
 function! s:build_quickfix_list(lines)
@@ -900,6 +918,12 @@ let g:ale_dprint_use_global = 1
 let g:ale_c_parse_compile_commands = 1
 let g:ale_typescript_tslint_ignore_empty_files = 1
 
+" experimental
+let g:ale_hover_cursor = 1
+let g:ale_set_balloons = 1
+let g:ale_hover_to_preview = 1
+let g:ale_floating_preview = 1
+
 nmap <silent> <Leader>al <Plug>(ale_lint)
 nmap <silent> <Leader>af <Plug>(ale_fix)
 nmap <silent> <Leader>at <Plug>(ale_toggle)
@@ -946,6 +970,7 @@ let g:mkdp_preview_options = {
     \ 'disable_filename': 0,
     \ 'toc': {}
     \ }
+let g:mkdp_browser = 'chromium'
 
 function s:PreviewWithMLP() abort
   if !executable("mlp")
@@ -1533,6 +1558,16 @@ function! VimScriptFold(lnum)
   endif
 endfunction
 
+function! MyFoldText()
+    let nl = v:foldend - v:foldstart + 1
+    let linetext = getline(v:foldstart)
+    let left = substitute(linetext, '\t', repeat(' ', &tabstop), "g")
+    let txt = substitute(left, '^  ', '+ ', 1) .. ' ...     [' .. nl .. ' lines] '
+    return txt
+endfunction
+set foldtext=MyFoldText()
+
+
 " au when change colo
 augroup fit_colorscheme
   au!
@@ -1575,6 +1610,9 @@ function! s:DisableAirline()
 endfunction
 
 function! SetColorScheme(cname) abort
+  if exists('g:colors_name')
+    return
+  endif
   " fake cs pre
   let s:cname = a:cname
   if s:bg_light
@@ -1587,20 +1625,22 @@ function! SetColorScheme(cname) abort
   " if v:version < 801 && !has('nvim') call SetTermguiColors('no') | call LetBgFitClock() if s:cname =~ '\vatomic|NeoSolarized|ayu|palenight' call SetTermguiColors('yes') endif endif
   execute 'colorscheme ' . s:cname
 
-  " Fit airline or disable it
-  let airline_theme = s:GetFitAirlineTheme(s:cname)
-  if airline_theme == '' || index(airline#util#themes(''), airline_theme) == -1
-    call s:DisableAirline()
-    " augroup ColoAirlineAug
-    "   au!
-    "   au User AirlineToggledOn let w:airline_disabled = 1
-    "   au WinEnter,WinNew,BufRead,BufEnter,BufNewFile,FileReadPre,BufWinEnter * if exists("#airline") | let w:airline_disabled = 1 | endif
-    " augroup END
-  else
-    let g:airline_theme = airline_theme
-    " augroup ColoAirlineAug
-    "   au!
-    " augroup END
+  if g:line_plugin == 'airline'
+    " Fit airline or disable it
+    let airline_theme = s:GetFitAirlineTheme(s:cname)
+    if airline_theme == '' || index(airline#util#themes(''), airline_theme) == -1
+      call s:DisableAirline()
+      " augroup ColoAirlineAug
+      "   au!
+      "   au User AirlineToggledOn let w:airline_disabled = 1
+      "   au WinEnter,WinNew,BufRead,BufEnter,BufNewFile,FileReadPre,BufWinEnter * if exists("#airline") | let w:airline_disabled = 1 | endif
+      " augroup END
+    else
+      let g:airline_theme = airline_theme
+      " augroup ColoAirlineAug
+      "   au!
+      " augroup END
+    endif
   endif
 
   " echom "Configured colorscheme: " .. a:cname
@@ -1662,12 +1702,12 @@ if has("win32")
 endif
 
 " --------------------------------------------
-" colorscheme
+" colorschemes
 " --------------------------------------------
 
-" /* for solarized */
-" let g:solarized_termcolors=256
-" let g:solarized_termtrans=1
+" /* for NeoSolarized */
+let g:neosolarized_contrast = "high"
+let g:neosolarized_visibility = "high"
 
 " /* for vim-atomic */
 " let g:atomic_mode = 3 " Cyan soft
@@ -1694,6 +1734,40 @@ endif
 " command -nargs=1 Colo :call SetColorScheme('<args>')
 
 " fallback
-if !exists('g:colors_name') && !has('nvim')
-  call SetColorScheme('molokai')
+if !exists('g:colors_name')
+  if has('nvim')
+    call RandomSetColo([
+          \'NeoSolarized',
+          \'blue-moon',
+          \'atomic',
+          \'boo',
+          \'gruvbox',
+          \'github_dark_default',
+          \'github_light_default',
+          \'nord',
+          \'kat.nvim',
+          \'kat.nwim',
+          \'bluloco',
+          \'tokyonight-night',
+          \'tokyonight-storm',
+          \'tokyonight-day',
+          \'tokyonight-moon',
+          \])
+  else
+    call RandomSetColo([
+          \'Tomorrow',
+          \'1989',
+          \'NeoSolarized',
+          \'gruvbox',
+          \'seoul256',
+          \'bubblegum',
+          \'darkburn',
+          \'enigma',
+          \'eva01',
+          \'evening',
+          \'apprentice',
+          \'molokai',
+          \])
+  endif
+  " call SetColorScheme('molokai')
 endif

@@ -101,28 +101,9 @@ nnoremap <Leader>dl <Cmd>lua require'dap'.run_last()<CR>
 nnoremap <silent> <leader>N :NvimTreeFindFile<CR>
 nnoremap <silent> <Leader>n :NvimTreeToggle<CR>
 
-" " /* chadtree */
-" nnoremap <leader>n <cmd>CHADopen<cr>
-
-" let g:chadtree_settings = {
-"       \ "xdg": v:true,
-"       \ "options.show_hidden": v:true,
-"       \ "ignore.name_exact": [".git"],
-"       \ "view.width": 30,
-"       \ "view.window_options": {"number": v:true, "relativenumber": v:true},
-"       \ "keymap.refresh": ["R", "<c-r>"],
-"       \ "keymap.primary": ["o"],
-"       \ "keymap.secondary": ["go"],
-"       \ "keymap.tertiary": ["T"],
-"       \ "keymap.v_split": ["s"],
-"       \ "keymap.h_split": ["i"],
-"       \ "keymap.select": ["<space>"],
-"       \ "keymap.clear_selection": ["<space>"],
-"       \ "keymap.new": ["ma"],
-"       \ "keymap.rename": ["mm", "mr"],
-"       \ "keymap.copy": ["mc"],
-"       \ }
-"       " \ "keymap.open_sys": ["<enter>"],
-
+" --------------------------------------------
+" colorschemes
+" --------------------------------------------
+let g:boo_colorscheme_theme = 'crimson_moonlight'
 
 lua require('config')
