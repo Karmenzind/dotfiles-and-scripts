@@ -1734,26 +1734,7 @@ endif
 " command -nargs=1 Colo :call SetColorScheme('<args>')
 
 " fallback
-if !exists('g:colors_name')
-  if has('nvim')
-    call RandomSetColo([
-          \'NeoSolarized',
-          \'blue-moon',
-          \'atomic',
-          \'boo',
-          \'gruvbox',
-          \'github_dark_default',
-          \'github_light_default',
-          \'nord',
-          \'kat.nvim',
-          \'kat.nwim',
-          \'bluloco',
-          \'tokyonight-night',
-          \'tokyonight-storm',
-          \'tokyonight-day',
-          \'tokyonight-moon',
-          \])
-  else
+if !exists('g:colors_name') && !has('nvim')
     call RandomSetColo([
           \'Tomorrow',
           \'1989',
@@ -1768,6 +1749,7 @@ if !exists('g:colors_name')
           \'apprentice',
           \'molokai',
           \])
-  endif
   " call SetColorScheme('molokai')
 endif
+
+" before nvim config .local

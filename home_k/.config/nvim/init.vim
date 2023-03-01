@@ -106,4 +106,24 @@ nnoremap <silent> <Leader>n :NvimTreeToggle<CR>
 " --------------------------------------------
 let g:boo_colorscheme_theme = 'crimson_moonlight'
 
+if !exists('g:colors_name')
+  call RandomSetColo([
+        \'NeoSolarized',
+        \'blue-moon',
+        \'atomic',
+        \'boo',
+        \'gruvbox',
+        \'github_dark_default',
+        \'github_light_default',
+        \'nord',
+        \'kat.nvim',
+        \'kat.nwim',
+        \'bluloco',
+        \'tokyonight-night',
+        \'tokyonight-storm',
+        \'tokyonight-day',
+        \'tokyonight-moon',
+        \])
+endif
+
 lua require('config')
