@@ -1,3 +1,4 @@
+" vim:set et sw=2 ts=2 tw=78 ft=vim:
 " Github: https://github.com/Karmenzind/dotfiles-and-scripts
 
 let s:is_win = has("win32")
@@ -127,3 +128,4 @@ if !exists('g:colors_name')
 endif
 
 lua require('config')
+

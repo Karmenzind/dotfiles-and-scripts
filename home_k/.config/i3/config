@@ -1,6 +1,7 @@
+# vim:set noet ft=i3config:
 # Github: https://github.com/Karmenzind/dotfiles-and-scripts
 
-set $mod Mod4
+set $mod Mod1
 include ~/.config/i3/config.local
 set $i3_config_dir $HOME/.config/i3/
 
@@ -21,10 +22,6 @@ bindsym $mod+Return exec i3-sensible-terminal &
 
 # kill focused window
 bindsym $mod+Shift+q kill
-
-# program launcher
-# bindsym $mod+Shift+d exec dmenu_run
-# bindsym $mod+d exec --no-startup-id i3-dmenu-desktop
 
 # change focus
 bindsym $mod+j focus left
@@ -112,7 +109,9 @@ bindsym $mod+b workspace back_and_forth
 # bindsym $mod+Shift+b move container to workspace back_and_forth; workspace back_and_forth
 
 # reload the configuration file
-bindsym $mod+Shift+c reload
+# bindsym $mod+Shift+c reload, exec "notify-send Reloaded i3 configs"
+# bindsym $mod+Shift+c exec i3-msg "reload" && "notify-send Reloaded i3 configs"
+bindsym $mod+Shift+c exec i3-msg reload && notify-send 'Reloaded i3 config'
 # restart i3 inplace (preserves your layout/session, can be used to upgrade i3)
 bindsym $mod+Shift+r restart
 # exit i3 (logs you out of your X session)
@@ -156,6 +155,19 @@ set_from_resource $white       color15 #000000
 set $black       #282828
 set $darkblack   #1d2021
 set $transparent #00000000
+
+# /* borders */
+# border style <normal|1pixel|pixel xx|none|pixel>
+set $local_pixel 3
+new_window pixel $local_pixel
+# default_border pixel $local_pixel
+# default_floating_border none
+# Hide borders
+# hide_edge_borders vertical
+# change borders
+# bindsym $mod+u border none
+# bindsym $mod+y border pixel $local_pixel
+# # bindsym $mod+n border normal
 
 # -----------------------------------------------------------------------------
 # bar
@@ -240,11 +252,5 @@ mode "$mode_gaps_outer" {
     bindsym Return mode "default"
     bindsym Escape mode "default"
 }
-
-# generated with i3-style
-client.focused #586e75 #586e75 #fdf6e3 #268bd2
-client.focused_inactive #073642 #073642 #93a1a1 #002b36
-client.unfocused #002b36 #002b36 #586e75 #002b36
-client.urgent #dc322f #dc322f #fdf6e3 #dc322f
 
 include ~/.config/i3/common

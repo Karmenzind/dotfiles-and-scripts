@@ -1,3 +1,4 @@
+" vim:set et sw=2 ts=2 tw=78 ft=vim:
 " Github: https://github.com/Karmenzind/dotfiles-and-scripts
 
 " --------------------------------------------
@@ -972,23 +973,29 @@ let g:mkdp_preview_options = {
     \ }
 let g:mkdp_browser = 'chromium'
 
-function s:PreviewWithMLP() abort
+" tmux pane or terminal
+function! s:TermExecute(cmd)
+  if has_key(environ(), "TMUX")
+    call system(printf("tmux split-window \"%s\"", a:cmd))
+  else
+    if has("nvim")
+      execute "split"
+    endif
+    execute "terminal " .. a:cmd
+  endif
+endfunction
+
+function! s:PreviewWithMLP() abort
   if !executable("mlp")
     echo "No mlp installed."
     return
   endif
 
-  let mlp_cmd = "mlp -p 13333 -o " .. expand("%")
-
-  if has_key(environ(), "TMUX")
-    call system(printf("tmux split-window \"%s\"", mlp_cmd))
-  else
-    if has("nvim")
-      execute "split"
-    endif
-    execute "terminal " .. mlp_cmd
+  let mlp_cmd = "mlp --no-browser -p 13333 -o " .. expand("%")
+  call s:TermExecute(mlp_cmd)
+  if executable("chromium")
+    call s:TermExecute("chromium http://localhost:13333")
   endif
-
 endfunction
 
 " particular keymaps
@@ -1233,7 +1240,7 @@ if has_key(plugs, 'coc.nvim')
   " Add (Neo)Vim's native statusline support.
   " NOTE: Please see `:h coc-status` for integrations with external plugins that
   " provide custom statusline: lightline.vim, vim-airline.
-  set statusline^=%{coc#status()}%{get(b:,'coc_current_function','')}
+  " set statusline^=%{coc#status()}%{get(b:,'coc_current_function','')}
 
   " " Mappings for CoCList
   " " Show all diagnostics.
@@ -1255,7 +1262,19 @@ if has_key(plugs, 'coc.nvim')
 
   " TODO (k): <2022-11-07>
   " let g:coc_global_extensions=[ 'coc-powershell', ... ]
-  let g:coc_global_extensions=[ 'coc-json', 'coc-git', 'coc-snippets' ]
+  let g:coc_global_extensions=[ 'coc-json',
+        \'coc-git',
+        \'coc-snippets',
+        \'coc-docker',
+        \'coc-sh',
+        \'coc-sql',
+        \'coc-toml',
+        \'coc-go',
+        \'coc-pyright',
+        \]
+  if has("win32")
+    call add(g:coc_global_extensions, "coc-powershell")
+  endif
 
   " snippets
   let g:coc_snippet_next = '<c-j>'
@@ -1601,6 +1620,7 @@ function! s:GetFitAirlineTheme(cname)
     let airline_theme = 'seoul256'
   endif
   return airline_theme
+
 endfunction
 
 
@@ -1753,3 +1773,4 @@ if !exists('g:colors_name') && !has('nvim')
 endif
 
 " before nvim config .local
+

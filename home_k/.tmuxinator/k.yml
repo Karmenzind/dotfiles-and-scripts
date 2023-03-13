@@ -43,8 +43,8 @@ windows:
       layout: tiled
       root: /var/log
       panes:
-        - tail -f /tmp/i3log*
-        - tail -f /tmp/xx-net.log
+        - tail -f /home/k/Logs/i3log*
+        -
         - journalctl -xef
   - my-dot:
       layout: even-horizontal
