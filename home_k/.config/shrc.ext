@@ -117,11 +117,13 @@ ex() {
 
 for __my_conda_root in /opt/miniconda ; do
     if [[ -d $__my_conda_root ]]; then
-        # echo "Found conda dir: $__my_conda_root . Initializing..."
+        # echo "[conda] Found conda dir: $__my_conda_root . Initializing..."
         #
         # !! Contents within this block are managed by 'conda init' !!
         __conda_setup="$('${__my_conda_root}/bin/conda' 'shell.zsh' 'hook' 2> /dev/null)"
+        # __conda_setup="$(${__my_conda_root}/bin/conda 'shell.zsh' 'hook')"
         if [ $? -eq 0 ]; then
+            echo "[conda] initializing with shell.zsh hook"
             eval "$__conda_setup"
         else
             if [ -f "${__my_conda_root}/etc/profile.d/conda.sh" ]; then
@@ -132,18 +134,19 @@ for __my_conda_root in /opt/miniconda ; do
         fi
         unset __conda_setup
 
-        echo "Loaded conda from $__my_conda_root"
+        echo "[conda] Loaded from $__my_conda_root"
 
         alias workon='conda activate'
         break
     fi
 done
 
+
 #######################################################################
 #                                 fzf                                 #
 #######################################################################
 
-[ -f ~/.fzf.zsh ] && source ~/.fzf.zsh && echo "Sourced ~/.fzf.zsh"
+[ -f ~/.fzf.zsh ] && source ~/.fzf.zsh && echo "[fzf] Sourced ~/.fzf.zsh"
 
 # use fd
 # export FZF_DEFAULT_COMMAND="fd --type f --hidden --follow --ignore-file ~/.config/search_ignore"

@@ -110,8 +110,7 @@ plugins=(
   'pip'
   'pj'
   'python'
-  'conda'
-  'conda-zsh-completion'
+  'conda-zsh-completion'  # install manually
 
   # 'redis-cli'
   'rsync'
@@ -131,6 +130,9 @@ plugins=(
 )
 
 source $ZSH/oh-my-zsh.sh
+
+# for conda-zsh-completion
+autoload -U compinit && compinit
 
 # Custom here
 [[ -e ~/.config/shrc.ext ]] && source ~/.config/shrc.ext && echo "Loaded ~/.config/shrc.ext"

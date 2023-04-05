@@ -18,7 +18,8 @@ runbar() {
 
 case ${ENV_TAG} in
     home) 
-        bars=('homeleft homeright')
+        # bars=('homeleft homeright')
+        bars=('homesingle')
         ;;
     *) 
         bars=('left main right')

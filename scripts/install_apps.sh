@@ -96,6 +96,7 @@ _desktop=(
     # libreoffice
     # fbreader
     # thunderbird
+    alacritty
     compton
     rofi
     geeqie
@@ -106,11 +107,10 @@ _desktop=(
     polybar
     xfce4-terminal
     flameshot
-    github-desktop-bin
-    alacritty
-    pycharm-community-edition
     remmina
     typora
+    github-desktop-bin
+    pycharm-community-edition
 )
 
 _aur=(
@@ -127,6 +127,8 @@ _aur=(
     acroread
     acroread-fonts
     netease-cloud-music
+
+    ttf-monaco-nerd-font-git
 )
 
 # appearance
@@ -159,10 +161,12 @@ _required_by_vim_aur=(
 # pip
 _py_general=()
 
-
 # --------------------------------------------
 # Manually install
 # --------------------------------------------
+git_pull_head() {
+    git pull origin $(git rev-parse --abbrev-ref HEAD)
+}
 
 # manually install pkg from aur
 # $1    the app to install
@@ -271,40 +275,51 @@ install_aurs() {
     $aur_helper -Sc
 }
 
-# TODO
 install_fcitx() {
     aur_helper=yay
     echo "Install fcitx and Chinese input method? (Y/n)"
     check_input yn
     [[ ! $ans = 'y' ]] && return
 
-    # fcitx4
     # do_install fcitx fcitx-im fcitx-configtool fcitx-sunpinyin fcitx-cloudpinyin
 
     do_install fcitx5 fcitx5-chinese-addons fcitx5-configtool fcitx5-gtk fcitx5-material-color fcitx5-nord fcitx5-pinyin-zhwiki fcitx5-qt
+
+    # TODO (k): <2023-04-06> update charactor config
 }
 
+install_zsh_plugin() {
+    local name=$1
+    local url=$2
+    echo "Install/Update zsh plugin: ${name}? (Y/n)"
+    check_input yn
+    [[ ! $ans = 'y' ]] && return
 
-install_zsh_autosuggestions() {
+    local targetdir=${ZSH_CUSTOM:-~/.oh-my-zsh/custom}/plugins/${name}
+
+    if [[ -d $targetdir ]]; then
+        cd $targetdir
+        git_pull_head
+        cd -
+    else
+        git clone $url $targetdir
+    fi
+}
+
+install_zsh_stuff() {
     if command -v zsh; then
-        echo "Install zsh zsh_autosuggestions? (Y/n)"
-        check_input yn
-        [[ ! $ans = 'y' ]] && return
-
-        git clone https://github.com/zsh-users/zsh-autosuggestions ${ZSH_CUSTOM:-~/.oh-my-zsh/custom}/plugins/zsh-autosuggestions
+        install_zsh_plugin zsh-autosuggestions https://github.com/zsh-users/zsh-autosuggestions
+        install_zsh_plugin conda-zsh-completion https://github.com/esc/conda-zsh-completion
+        install_zsh_plugin zsh-syntax-highlighting https://github.com/zsh-users/zsh-syntax-highlighting.git
     fi
 }
 
 # --------------------------------------------
 
-# official
 install_officials
-# aur
 install_aurs
-# others
 install_ranger_and_plugins
 install_wudao_dict
-install_nerd_fonts
+# install_nerd_fonts
 install_fcitx
-install_zsh_autosuggestions
-
+install_zsh_stuff
