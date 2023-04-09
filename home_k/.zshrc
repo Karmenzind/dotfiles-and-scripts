@@ -132,7 +132,9 @@ plugins=(
 source $ZSH/oh-my-zsh.sh
 
 # for conda-zsh-completion
-autoload -U compinit && compinit
+if ! [[ "root" == "$USER" ]]; then
+    autoload -U compinit && compinit
+fi
 
 # Custom here
 [[ -e ~/.config/shrc.ext ]] && source ~/.config/shrc.ext && echo "Loaded ~/.config/shrc.ext"

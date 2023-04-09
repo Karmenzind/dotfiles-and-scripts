@@ -160,7 +160,7 @@ call InstallRequirements()
 
 - Vim:
     ![](https://raw.githubusercontent.com/Karmenzind/i/master/dotfiles-and-scripts/vim.png)
-    ![](https://raw.githubusercontent.com/Karmenzind/i/master/dotfiles-and-scripts/vim_goyo.png)
+    <!-- ![](https://raw.githubusercontent.com/Karmenzind/i/master/dotfiles-and-scripts/vim_goyo.png) -->
 
 
 ## 创建你自己的DotFile仓库
