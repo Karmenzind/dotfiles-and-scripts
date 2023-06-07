@@ -59,14 +59,15 @@ for_window [all] title_window_icon padding 7px
 for_window [class="Alacritty"] title_window_icon off
 
 # Open specific applications in floating mode
-for_window [class="libreoffice-.*"] floating enable, border normal, resize set 1360 720
-for_window [class="Xarchiver"] floating enable, border normal, resize set 900 600
+for_window [class="libreoffice-.*"]                floating enable, border normal, resize set 1360 720
+for_window [class="Xarchiver"]                     floating enable, border normal, resize set 900  600
 for_window [title="Remmina Remote Desktop Client"] floating enable
-for_window [class="Apvlv"] floating enable, resize set 1360 720
-for_window [class="Lxappearance"] floating enable sticky enable border normal
-for_window [class="Pamac-manager"]     floating enable
-for_window [class="Pcmanfm"]           floating enable border none resize set 1360 720
-for_window [class="netease-cloud-music"] floating enable resize set 1360 720
+for_window [class="Apvlv"]                         floating enable, resize set     1360   720
+for_window [class="Lxappearance"]                  floating enable  sticky enable  border normal
+for_window [class="Pamac-manager"]                 floating enable
+for_window [class="Pcmanfm"]                       floating enable  border none    resize set 1360 720
+for_window [class="netease-cloud-music"]           floating enable  resize set     1360   720
+for_window [class="electronic-wechat"]             floating enable  resize set     1360   720
 # for_window [class="(?i)virtualbox"]    floating enable border normal
 # for_window [class="Wine"]              floating enable border none
 # for_window [class="fontforge"]         floating enable
