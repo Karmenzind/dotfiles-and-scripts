@@ -86,8 +86,14 @@ if !has("win32")
 else
   let s:plugged_dir = glob('~/vimfiles/plugged')
   if empty(glob("~/vimfiles/autoload/plug.vim"))
-    " FIXME (k): <2022-10-11> not work
-    silent !iwr -useb https://raw.githubusercontent.com/junegunn/vim-plug/master/plug.vim |` ni $HOME/vimfiles/autoload/plug.vim -Force
+    " XXX
+    silent ! powershell -Command "
+    \   New-Item -Path ~\vimfiles -Name autoload -Type Directory -Force;
+    \   Invoke-WebRequest
+    \   -Uri 'https://raw.githubusercontent.com/junegunn/vim-plug/master/plug.vim'
+    \   -OutFile ~\vimfiles\autoload\plug.vim
+    \ "
+    autocmd VimEnter * PlugInstall --sync | source $MYVIMRC
   endif
 endif
 
