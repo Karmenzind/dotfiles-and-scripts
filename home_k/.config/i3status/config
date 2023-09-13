@@ -26,7 +26,7 @@ order += "battery all"
 order += "tztime local"
 
 cpu_usage {
-        format = " cpu  %usage "
+        format = " cpu %usage "
 }
 
 memory {
@@ -47,15 +47,22 @@ disk "/" {
         format = " ⛁ %avail "
 }
 
+wireless _first_ {
+        # if you use %speed, i3status requires root privileges
+        # format_up = " wlan: %ip %speed "
+        format_up = " w: %ip "
+        format_down = " no wlan "
+}
+
 ethernet _first_ {
-# if you use %speed, i3status requires root privileges
-        format_up = " lan: %ip %speed "
-        format_down = " no lan "
+        # if you use %speed, i3status requires root privileges
+        format_up = " l: %ip %speed "
+        format_down = " lan✗ "
 }
 
 battery all {
         # format = "%status %percentage %remaining %emptytime"
-        format = " %status %percentage"
+        format = " %status %percentage "
         format_down = ""
         last_full_capacity = true
         integer_battery_capacity = true
@@ -72,13 +79,14 @@ battery all {
         threshold_type = time
 }
 
-# memory {
-#         format = "%used | %available"
-#         threshold_degraded = "1G"
-#         format_degraded = "MEMORY < %available"
-# }
+memory {
+        # format = " %used %available "
+        format = " mem %used "
+        threshold_degraded = "1G"
+        format_degraded = "MEMORY < %available"
+}
 
 tztime local {
         # format = "%Y-%m-%d %H:%M:%S"
-        format = " %m/%d %a %H:%M"
+        format = " %m/%d %H:%M:%S "
 }

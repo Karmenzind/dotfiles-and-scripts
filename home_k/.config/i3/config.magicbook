@@ -1,0 +1,363 @@
+# Github: https://github.com/Karmenzind/dotfiles-and-scripts
+
+set $mod Mod4
+set $i3_config_dir $HOME/.config/i3/
+
+# -----------------------------------------------------------------------------
+# basics
+# -----------------------------------------------------------------------------
+
+# Font for window titles. Also as a fallback for bar
+# font -misc-fixed-medium-r-normal--13-120-75-75-C-70-iso10646-1
+# font pango:MV Boli Regular 10
+font pango:Tahoma Regular 10
+
+# Use Mouse+$mod to drag floating windows to their wanted position
+floating_modifier $mod
+
+# start a terminal
+bindsym $mod+Return exec i3-sensible-terminal &
+
+# kill focused window
+bindsym $mod+Shift+q kill
+
+# program launcher
+# bindsym $mod+Shift+d exec dmenu_run
+# bindsym $mod+d exec --no-startup-id i3-dmenu-desktop
+bindsym $mod+d exec --no-startup-id rofi \
+    -show combi -modi combi              \
+    -combi-modi "drun#run#window#ssh"    \
+    -font "MV Boli Regular 11" &
+
+# change focus
+bindsym $mod+j focus left
+bindsym $mod+k focus down
+bindsym $mod+l focus up
+bindsym $mod+semicolon focus right
+bindsym $mod+Left focus left
+bindsym $mod+Down focus down
+bindsym $mod+Up focus up
+bindsym $mod+Right focus right
+
+# move focused window
+bindsym $mod+Shift+j move left
+bindsym $mod+Shift+k move down
+bindsym $mod+Shift+l move up
+bindsym $mod+Shift+semicolon move right
+bindsym $mod+Shift+Left move left
+bindsym $mod+Shift+Down move down
+bindsym $mod+Shift+Up move up
+bindsym $mod+Shift+Right move right
+
+# split in horizontal orientation
+bindsym $mod+h split h
+
+# split in vertical orientation
+bindsym $mod+v split v
+
+# enter fullscreen mode for the focused container
+bindsym $mod+f fullscreen toggle
+
+# change container layout (stacked, tabbed, toggle split)
+bindsym $mod+s layout stacking
+bindsym $mod+w layout tabbed
+bindsym $mod+e layout toggle split
+
+# toggle tiling / floating
+bindsym $mod+Shift+space floating toggle
+
+# change focus between tiling / floating windows
+bindsym $mod+space focus mode_toggle
+
+# focus the parent container
+bindsym $mod+a focus parent
+# focus the child container
+bindsym $mod+c focus child
+
+# switch to workspace
+bindsym $mod+1 workspace 1
+bindsym $mod+2 workspace 2
+bindsym $mod+3 workspace 3
+bindsym $mod+4 workspace 4
+bindsym $mod+5 workspace 5
+bindsym $mod+6 workspace 6
+bindsym $mod+7 workspace 7
+bindsym $mod+8 workspace 8
+bindsym $mod+9 workspace 9
+bindsym $mod+0 workspace 10
+
+# move focused container to workspace
+bindsym $mod+Shift+1 move container to workspace 1
+bindsym $mod+Shift+2 move container to workspace 2
+bindsym $mod+Shift+3 move container to workspace 3
+bindsym $mod+Shift+4 move container to workspace 4
+bindsym $mod+Shift+5 move container to workspace 5
+bindsym $mod+Shift+6 move container to workspace 6
+bindsym $mod+Shift+7 move container to workspace 7
+bindsym $mod+Shift+8 move container to workspace 8
+bindsym $mod+Shift+9 move container to workspace 9
+bindsym $mod+Shift+0 move container to workspace 10
+
+# change workspace
+bindsym $mod+comma workspace prev
+bindsym $mod+period workspace next
+
+# workspace back and forth (with/without active container)
+workspace_auto_back_and_forth yes
+bindsym $mod+b workspace back_and_forth
+# bindsym $mod+Shift+b move container to workspace back_and_forth; workspace back_and_forth
+
+# reload the configuration file
+bindsym $mod+Shift+c reload
+# restart i3 inplace (preserves your layout/session, can be used to upgrade i3)
+bindsym $mod+Shift+r restart
+# exit i3 (logs you out of your X session)
+bindsym $mod+Shift+e exec "i3-nagbar -t warning -m 'You pressed the exit shortcut. Do you really want to exit i3? This will end your X session.' -b 'Yes, exit i3' 'i3-msg exit'"
+
+# resize window (you can also use the mouse for that)
+mode "resize" {
+    bindsym j         resize shrink width  5 px or 5 ppt
+    bindsym k         resize grow   height 5 px or 5 ppt
+    bindsym l         resize shrink height 5 px or 5 ppt
+    bindsym semicolon resize grow   width  5 px or 5 ppt
+
+    bindsym Left      resize shrink width  5 px or 5 ppt
+    bindsym Down      resize grow   height 5 px or 5 ppt
+    bindsym Up        resize shrink height 5 px or 5 ppt
+    bindsym Right     resize grow   width  5 px or 5 ppt
+
+    bindsym Return mode "default"
+    bindsym Escape mode "default"
+}
+
+bindsym $mod+r mode "resize"
+
+# /* colors */
+set_from_resource $darkred     color1  #000000
+set_from_resource $red         color9  #000000
+set_from_resource $darkgreen   color2  #000000
+set_from_resource $green       color10 #000000
+set_from_resource $darkyellow  color3  #000000
+set_from_resource $yellow      color11 #000000
+set_from_resource $darkblue    color4  #000000
+set_from_resource $blue        color12 #000000
+set_from_resource $darkmagenta color5  #000000
+set_from_resource $magenta     color13 #000000
+set_from_resource $darkcyan    color6  #000000
+set_from_resource $cyan        color14 #000000
+set_from_resource $darkwhite   color7  #000000
+set_from_resource $white       color15 #000000
+
+# Use custom colors for black
+set $black       #282828
+set $darkblack   #1d2021
+set $transparent #00000000
+
+# /* borders */
+# border style <normal|1pixel|pixel xx|none|pixel>
+set $local_pixel 3
+new_window pixel $local_pixel
+# default_border pixel $local_pixel
+# default_floating_border none
+# Hide borders
+# hide_edge_borders vertical
+# change borders
+# bindsym $mod+u border none
+# bindsym $mod+y border pixel $local_pixel
+# # bindsym $mod+n border normal
+
+# /* apps specification */
+# for_window [class="netease-cloud-music"] floating enable
+# for_window [title="QQ"] floating enable border none, move container to workspace 10
+for_window [class="Lxappearance"]      floating enable sticky enable border none
+for_window [class="Pamac-manager"]     floating enable
+for_window [class="(?i)virtualbox"]    floating enable border normal
+for_window [class="Wine"]              floating enable border none
+for_window [class="fontforge"]         floating enable
+for_window [class="Xiami.Music"]       floating enable border none
+for_window [class="TeamViewer"]        floating enable border none
+for_window [class="Pcmanfm"]           floating enable border none
+for_window [class="Crossover"]         floating enable border none
+for_window [class="electronic-wechat"] floating enable border none
+for_window [class="Gitter"]            floating enable border none
+
+for_window [window_role="pop-up"]      floating enable
+for_window [window_role="bubble"]      floating enable
+for_window [window_role="task_dialog"] floating enable
+for_window [window_role="Preferences"] floating enable
+
+for_window [window_type="dialog"]      floating enable
+for_window [window_type="menu"]        floating enable
+
+assign [title="QQ"]                10
+assign [class="Gitter"]            10
+assign [class="electronic-wechat"] 10
+
+# /* notice in fullscreen */
+popup_during_fullscreen smart
+
+# /* colorscheme */
+
+# /* focus follows mouse */
+focus_follows_mouse no
+
+# -----------------------------------------------------------------------------
+# bar
+# -----------------------------------------------------------------------------
+
+bindsym $mod+Shift+m bar mode toggle
+
+# Start i3bar to display a workspace bar
+bar {
+    status_command i3status
+    # status_command bash $i3_config_dir/conky_status.sh
+    i3bar_command i3bar
+    # separator_symbol " "
+    # strip_workspace_numbers yes
+    # top|bottom
+    position top
+    # font -misc-fixed-medium-r-normal--13-120-75-75-C-70-iso10646-1
+    # font pango:WenQuanYi WenQuanYi Bitmap Song 10
+    font pango:Monaco Nerd Font 9
+    colors {
+      separator #586e75
+      background #002b36
+      statusline #aea79f
+      focused_workspace #586e75 #586e75 #ffffff
+      active_workspace #073642 #073642 #ffffff
+      inactive_workspace #002b36 #002b36 #aea79f
+      urgent_workspace #77216f #77216f #ffffff
+    }
+}
+
+# -----------------------------------------------------------------------------
+# i3-gaps
+# -----------------------------------------------------------------------------
+
+gaps inner 6
+gaps outer 0
+smart_gaps on
+smart_borders on
+
+set $mode_gaps gaps
+set $mode_gaps_outer outer gaps
+set $mode_gaps_inner inner gaps
+bindsym $mod+Shift+g mode "$mode_gaps"
+
+mode "$mode_gaps" {
+    bindsym o      mode "$mode_gaps_outer"
+    bindsym i      mode "$mode_gaps_inner"
+
+    bindsym 0      mode "default", exec --no-startup-id i3-msg "gaps inner current set 0" && i3-msg "gaps outer current set 0"
+    bindsym d      mode "default", exec --no-startup-id i3-msg "gaps inner current set $default_gaps_inner" && i3-msg "gaps outer current set $default_gaps_outer"
+
+    bindsym Return mode "default"
+    bindsym Escape mode "default"
+}
+
+mode "$mode_gaps_inner" {
+    bindsym plus  gaps inner current plus 5
+    bindsym minus gaps inner current minus 5
+    bindsym 0     mode "default", gaps inner current set 0
+    bindsym d     mode "default", gaps inner current set $default_gaps_inner
+
+    bindsym Shift+plus  gaps inner all plus 5
+    bindsym Shift+minus gaps inner all minus 5
+    bindsym Shift+0     mode "default", gaps inner all set 0
+    bindsym Shift+d     mode "default", gaps inner all set $default_gaps_inner
+
+    bindsym Return mode "default"
+    bindsym Escape mode "default"
+}
+
+mode "$mode_gaps_outer" {
+    bindsym plus  gaps outer current plus 5
+    bindsym minus gaps outer current minus 5
+    bindsym 0     mode "default", gaps outer current set 0
+    bindsym d     mode "default", gaps outer current set $default_gaps_outer
+
+    bindsym Shift+plus  gaps outer all plus 5
+    bindsym Shift+minus gaps outer all minus 5
+    bindsym Shift+0     mode "default", gaps outer all set 0
+    bindsym Shift+d     mode "default", gaps outer all set $default_gaps_outer
+
+    bindsym Return mode "default"
+    bindsym Escape mode "default"
+}
+
+# -----------------------------------------------------------------------------
+# general functions
+# -----------------------------------------------------------------------------
+
+# /* screenshot */
+# full
+bindsym --release Print exec bash $i3_config_dir/screenshot.sh full
+# area
+bindsym --release Shift+Print exec bash $i3_config_dir/screenshot.sh area
+# area with flameshot
+bindsym --release $mod+Shift+Print exec bash $i3_config_dir/screenshot.sh area_fs
+
+# /* background and screen lock*/
+set $wallpaper_png $HOME/Pictures/LOCKSCREEN.png
+set $wallpaper_dir $HOME/Pictures/LOCKSCREENS
+# background
+exec_always --no-startup-id ls $HOME/Pictures/BACKGROUND.* && feh --bg-max `ls $HOME/Pictures/BACKGROUND.*` &
+# change background
+bindsym $mod+Shift+b exec --no-startup-id feh --bg-max `[[ -d $wallpaper_dir ]] && (find $wallpaper_dir -type f | sort -R | head -1) || echo $wallpaper_png` &
+# auto lock
+exec_always --no-startup-id xautolock -time 20 -locker i3lock -t -i $wallpaper_png &
+# bindsym $mod+Ctrl+l exec --no-startup-id i3lock -t -i $wallpaper_png
+# lock with random pic of specific dir
+# bindsym $mod+Ctrl+l exec --no-startup-id i3lock -t -i `[ -d $wallpaper_dir ] && (find $wallpaper_dir -type f -name '*png' | sort -R | head -1) || echo $wallpaper_png` &
+# bindsym $mod+Ctrl+l exec --no-startup-id i3lock -t -i `[ -d $wallpaper_dir ] && (find $wallpaper_dir -type f -name '*png' | sort -R | head -1) || echo $wallpaper_png` &
+bindsym $mod+Ctrl+l exec --no-startup-id i3lock -t -i /home/qk/Pictures/LOCKSCREEN.png
+# lock with random pic from internet (random picture source: https://www.zhihu.com/question/21168322)
+# ...todo
+
+# -----------------------------------------------------------------------------
+# apps
+# -----------------------------------------------------------------------------
+
+# basic
+# exec --no-startup-id i3-msg "workspace 3; exec chromium; workspace 2; exec i3-sensible-terminal; workspace 1; exec i3-sensible-terminal" &
+# exec --no-startup-id electronic-wechat &
+
+# /* system tools */
+# screenshot
+exec --no-startup-id flameshot &
+# notifier
+exec_always dunst &
+# transparency controller
+# exec_always --no-startup-id killall compton; compton -b &
+# popup input box for authentication
+exec --no-startup-id /usr/lib/polkit-gnome/polkit-gnome-authentication-agent-1 & eval $(gnome-keyring-daemon -s --components=pkcs11,secrets,ssh,gpg) &
+# xflux
+exec_always --no-startup-id killall -9 xflux; xflux -l '30.2443314184' -g '120.1665687561' &
+# arrange monitors
+# exec_always xrandr --output HDMI3 --off --output HDMI2 --off --output HDMI1 --mode 1920x1080 --pos 1920x0 --rotate normal --output VIRTUAL1 --off --output DP1 --primary --mode 1920x1080 --pos 0x0 --rotate normal
+exec_always bash $HOME/.screenlayout/default.sh
+
+# a cat chasing the mouse
+# exec_always --no-startup-id bash $HOME/.config/i3/run_oneko.sh &
+
+# /* with tray icons */
+exec --no-startup-id pamac-tray &
+exec --no-startup-id volumeicon &
+exec --no-startup-id fcitx &
+
+# generated with i3-style
+client.focused #586e75 #586e75 #fdf6e3 #268bd2
+client.focused_inactive #073642 #073642 #93a1a1 #002b36
+client.unfocused #002b36 #002b36 #586e75 #002b36
+client.urgent #dc322f #dc322f #fdf6e3 #dc322f
+
+
+#######################################################################
+#                             for laptop                              #
+#######################################################################
+
+bindsym XF86MonBrightnessDown exec --no-startup-id brightnessctl set 5%-
+bindsym XF86MonBrightnessUp exec --no-startup-id brightnessctl set +5%
+
+# bindsym XF86MonBrightnessUp exec "xbacklight -inc 10; notify-send 'brightness up'"
+# bindsym XF86MonBrightnessDown exec "xbacklight -dec 10; notify-send 'brightness down'"
