@@ -1,6 +1,8 @@
+# vim:set noet ft=i3config:
 # Github: https://github.com/Karmenzind/dotfiles-and-scripts
 
 set $mod Mod4
+include ~/.config/i3/config.local
 set $i3_config_dir $HOME/.config/i3/
 
 # -----------------------------------------------------------------------------
@@ -20,14 +22,6 @@ bindsym $mod+Return exec i3-sensible-terminal &
 
 # kill focused window
 bindsym $mod+Shift+q kill
-
-# program launcher
-# bindsym $mod+Shift+d exec dmenu_run
-# bindsym $mod+d exec --no-startup-id i3-dmenu-desktop
-bindsym $mod+d exec --no-startup-id rofi \
-    -show combi -modi combi              \
-    -combi-modi "drun#run#window#ssh"    \
-    -font "MV Boli Regular 11" &
 
 # change focus
 bindsym $mod+j focus left
@@ -73,6 +67,13 @@ bindsym $mod+space focus mode_toggle
 bindsym $mod+a focus parent
 # focus the child container
 bindsym $mod+c focus child
+
+# move the currently focused window to the scratchpad
+bindsym $mod+Shift+minus move scratchpad
+
+# Show the next scratchpad window or hide the focused scratchpad window.
+# If there are multiple scratchpad windows, this command cycles through them.
+bindsym $mod+minus scratchpad show
 
 # switch to workspace
 bindsym $mod+1 workspace 1
@@ -166,41 +167,6 @@ new_window pixel $local_pixel
 # bindsym $mod+y border pixel $local_pixel
 # # bindsym $mod+n border normal
 
-# /* apps specification */
-# for_window [class="netease-cloud-music"] floating enable
-# for_window [title="QQ"] floating enable border none, move container to workspace 10
-for_window [class="Lxappearance"]      floating enable sticky enable border none
-for_window [class="Pamac-manager"]     floating enable
-for_window [class="(?i)virtualbox"]    floating enable border normal
-for_window [class="Wine"]              floating enable border none
-for_window [class="fontforge"]         floating enable
-for_window [class="Xiami.Music"]       floating enable border none
-for_window [class="TeamViewer"]        floating enable border none
-for_window [class="Pcmanfm"]           floating enable border none
-for_window [class="Crossover"]         floating enable border none
-for_window [class="electronic-wechat"] floating enable border none
-for_window [class="Gitter"]            floating enable border none
-
-for_window [window_role="pop-up"]      floating enable
-for_window [window_role="bubble"]      floating enable
-for_window [window_role="task_dialog"] floating enable
-for_window [window_role="Preferences"] floating enable
-
-for_window [window_type="dialog"]      floating enable
-for_window [window_type="menu"]        floating enable
-
-assign [title="QQ"]                10
-assign [class="Gitter"]            10
-assign [class="electronic-wechat"] 10
-
-# /* notice in fullscreen */
-popup_during_fullscreen smart
-
-# /* colorscheme */
-
-# /* focus follows mouse */
-focus_follows_mouse no
-
 # -----------------------------------------------------------------------------
 # bar
 # -----------------------------------------------------------------------------
@@ -286,35 +252,6 @@ mode "$mode_gaps_outer" {
 }
 
 # -----------------------------------------------------------------------------
-# general functions
-# -----------------------------------------------------------------------------
-
-# /* screenshot */
-# full
-bindsym --release Print exec bash $i3_config_dir/screenshot.sh full
-# area
-bindsym --release Shift+Print exec bash $i3_config_dir/screenshot.sh area
-# area with flameshot
-bindsym --release $mod+Shift+Print exec bash $i3_config_dir/screenshot.sh area_fs
-
-# /* background and screen lock*/
-set $wallpaper_png $HOME/Pictures/LOCKSCREEN.png
-set $wallpaper_dir $HOME/Pictures/LOCKSCREENS
-# background
-exec_always --no-startup-id ls $HOME/Pictures/BACKGROUND.* && feh --bg-max `ls $HOME/Pictures/BACKGROUND.*` &
-# change background
-bindsym $mod+Shift+b exec --no-startup-id feh --bg-max `[[ -d $wallpaper_dir ]] && (find $wallpaper_dir -type f | sort -R | head -1) || echo $wallpaper_png` &
-# auto lock
-exec_always --no-startup-id xautolock -time 20 -locker i3lock -t -i $wallpaper_png &
-# bindsym $mod+Ctrl+l exec --no-startup-id i3lock -t -i $wallpaper_png
-# lock with random pic of specific dir
-# bindsym $mod+Ctrl+l exec --no-startup-id i3lock -t -i `[ -d $wallpaper_dir ] && (find $wallpaper_dir -type f -name '*png' | sort -R | head -1) || echo $wallpaper_png` &
-# bindsym $mod+Ctrl+l exec --no-startup-id i3lock -t -i `[ -d $wallpaper_dir ] && (find $wallpaper_dir -type f -name '*png' | sort -R | head -1) || echo $wallpaper_png` &
-bindsym $mod+Ctrl+l exec --no-startup-id i3lock -t -i /home/qk/Pictures/LOCKSCREEN.png
-# lock with random pic from internet (random picture source: https://www.zhihu.com/question/21168322)
-# ...todo
-
-# -----------------------------------------------------------------------------
 # apps
 # -----------------------------------------------------------------------------
 
@@ -361,3 +298,5 @@ bindsym XF86MonBrightnessUp exec --no-startup-id brightnessctl set +5%
 
 # bindsym XF86MonBrightnessUp exec "xbacklight -inc 10; notify-send 'brightness up'"
 # bindsym XF86MonBrightnessDown exec "xbacklight -dec 10; notify-send 'brightness down'"
+
+include ~/.config/i3/common

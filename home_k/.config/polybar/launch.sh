@@ -2,6 +2,13 @@
 
 ENV_TAG=${K_ENV_TAG}
 
+noti_aggr=
+
+if [ "$(pgrep -f i3bar)" != "1" ]; then
+    notify-send "Detected i3bar is running. Polybar will not run."
+    exit 0
+fi
+
 # Terminate already running bar instances
 killall -q polybar
 # If all your bars have ipc enabled, you can also use 

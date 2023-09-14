@@ -142,14 +142,14 @@ if has("nvim")
   Plug 'weilbith/nvim-code-action-menu', {'on': 'CodeActionMenu'}
 
   " cmp
-  Plug 'hrsh7th/nvim-cmp'
-  Plug 'hrsh7th/cmp-nvim-lsp-signature-help'
-  Plug 'hrsh7th/cmp-nvim-lsp'
-  Plug 'hrsh7th/cmp-buffer'
-  Plug 'hrsh7th/cmp-path'
-  Plug 'hrsh7th/cmp-calc'
-  Plug 'hrsh7th/cmp-cmdline'
-  Plug 'hrsh7th/cmp-emoji'
+  Plug 'hrsh7th/nvim-cmp',                    {'branch': 'main'}
+  Plug 'hrsh7th/cmp-nvim-lsp-signature-help', {'branch': 'main'}
+  Plug 'hrsh7th/cmp-nvim-lsp',                {'branch': 'main'}
+  Plug 'hrsh7th/cmp-buffer',                  {'branch': 'main'}
+  Plug 'hrsh7th/cmp-path',                    {'branch': 'main'}
+  Plug 'hrsh7th/cmp-calc',                    {'branch': 'main'}
+  Plug 'hrsh7th/cmp-cmdline',                 {'branch': 'main'}
+  Plug 'hrsh7th/cmp-emoji',                   {'branch': 'main'}
   if exists('$TMUX')
     Plug 'andersevenrud/cmp-tmux'
   endif

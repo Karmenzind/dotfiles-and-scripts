@@ -22,7 +22,9 @@ elif sys.platform == 'win32':
     platform = 'win'
     VERSION_INFO = None
 else:
-    warnings.warn("Not tested on platform: %s" % platform)
+    warnings.warn("Not tested on this platform: %s" % platform)
+    platform = 'unknown'
+    VERSION_INFO = None
 
 CUR_TS = int(time.time())
 CUR_TIME = datetime.datetime.now().strftime("%Y%m%d_%H%M")
