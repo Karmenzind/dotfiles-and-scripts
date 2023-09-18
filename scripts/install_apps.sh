@@ -87,6 +87,12 @@ _cli=(
 	youtube-dl
 	zsh
 	miniconda
+
+    # system service
+    udiskie
+
+    # language server
+    marksman
 )
 
 _desktop=(
