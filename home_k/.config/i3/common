@@ -4,8 +4,9 @@
 # apps
 # -----------------------------------------------------------------------------
 
-# basic
+# start apps with wm
 # exec --no-startup-id i3-msg "workspace 3; exec chromium; workspace 2; exec i3-sensible-terminal; workspace 1; exec i3-sensible-terminal" &
+exec --no-startup-id i3-msg "exec i3-sensible-terminal --title 'my-init-terminal' -e tmux new -As t" &
 # exec --no-startup-id electronic-wechat &
 
 # /* system tools */
@@ -58,16 +59,17 @@ bindsym $mod+d exec --no-startup-id rofi \
 for_window [all] title_window_icon padding 7px
 for_window [class="Alacritty"] title_window_icon off
 
-# Open specific applications in floating mode
+for_window [title="my-init-terminal"]                 floating enable, resize set 1360 720, border pixel $local_pixel, move position center, move scratchpad
 for_window [class="libreoffice-.*"]                floating enable, border normal, resize set 1360 720
 for_window [class="Xarchiver"]                     floating enable, border normal, resize set 900  600
-for_window [title="Remmina Remote Desktop Client"] floating enable
+for_window [title="Remmina Remote Desktop Client"] floating enable,
 for_window [class="Apvlv"]                         floating enable, resize set     1360   720
-for_window [class="Lxappearance"]                  floating enable  sticky enable  border normal
+for_window [class="Lxappearance"]                  floating enable, sticky enable, border normal
 for_window [class="Pamac-manager"]                 floating enable
-for_window [class="Pcmanfm"]                       floating enable  border none    resize set 1360 720
-for_window [class="netease-cloud-music"]           floating enable  resize set     1360   720
-for_window [class="electronic-wechat"]             floating enable  resize set     1360   720
+for_window [class="Pcmanfm"]                       floating enable, border none,   resize set 1360 720
+for_window [class="netease-cloud-music"]           floating enable, resize set     1360   720
+for_window [class="electronic-wechat"]             floating enable, resize set     1360   720
+
 # for_window [class="(?i)virtualbox"]    floating enable border normal
 # for_window [class="Wine"]              floating enable border none
 # for_window [class="fontforge"]         floating enable
@@ -81,7 +83,6 @@ for_window [window_role="pop-up"]      floating enable, border normal
 for_window [window_role="bubble"]      floating enable
 for_window [window_role="task_dialog"] floating enable
 for_window [window_role="Preferences"] floating enable
-
 for_window [window_type="dialog"]      floating enable
 for_window [window_type="menu"]        floating enable
 
@@ -110,6 +111,13 @@ hide_edge_borders smart
 # general functions
 # -----------------------------------------------------------------------------
 
+# move the currently focused window to the scratchpad
+bindsym $mod+Shift+minus floating enable, move scratchpad
+# bindsym $mod+t floating enable, resize set 1360 720, move position center, exec "notify-send 123"
+
+# Show the next scratchpad window or hide the focused scratchpad window.
+# If there are multiple scratchpad windows, this command cycles through them.
+bindsym $mod+minus scratchpad show
 
 # /* screenshot */
 # full

@@ -1,4 +1,4 @@
-# vim: set et fenc=utf-8 ft=vim sts=4 sw=4 ts=8 tw=80 :
+# vim: set et fenc=utf-8 ft=ini sts=4 sw=4 ts=8 tw=80 :
 
 [global]
     ### Display ###
@@ -197,9 +197,9 @@
     enable_recursive_icon_lookup = true
 
     # Set icon theme (only used for recursive icon lookup)
-    " icon_theme = Adwaita
+    icon_theme = Adwaita
     # You can also set multiple icon themes, with the leftmost one being used first.
-    " # icon_theme = "Adwaita, Papirus, mate"
+    # icon_theme = "Adwaita, Papirus, mate"
 
     # Align icons left/right/top/off
     icon_position = left
@@ -207,10 +207,10 @@
     # Scale small icons up to this size, set to 0 to disable. Helpful
     # for e.g. small files or high-dpi screens. In case of conflict,
     # max_icon_size takes precedence over this.
-    min_icon_size = 32
+    min_icon_size = 8
 
     # Scale larger icons down to this size, set to 0 to disable
-    max_icon_size = 128
+    max_icon_size = 64
 
     # Paths to default icons (only neccesary when not using recursive icon lookup)
     # icon_path = /usr/share/icons/gnome/16x16/status/:/usr/share/icons/gnome/16x16/devices/
