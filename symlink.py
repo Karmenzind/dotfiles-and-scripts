@@ -4,6 +4,7 @@
 """
 create symlink
 """
+from __future__ import annotations, print_function, unicode_literals
 
 import argparse
 import datetime
@@ -93,9 +94,9 @@ def ask(choices, msg='Continue?'):
     return ans
 
 
-def validate(src):
+def validate(src: str) -> bool:
     ret = True
-    if src in EXCLUDED:
+    if Path(src) in EXCLUDED:
         return False
 
     if platform == 'linux':
@@ -111,7 +112,7 @@ def validate(src):
 backup_pat = f"*.backup_{CUR_TIME}"
 
 
-def do_symlink(from_, to_):
+def do_symlink(from_: Path, to_: Path):
     print(f"\n>>> processing: {from_} -> {to_}")
     from_ = REPO_DIR / from_
     if os.path.exists(to_):
@@ -129,7 +130,7 @@ def do_symlink(from_, to_):
         if ans == 'n':
             return
 
-        bakname = to_ + f'.backup_{CUR_TIME}'
+        bakname = str(to_) + f'.backup_{CUR_TIME}'
         if fake:
             print("[fake] rename: %s -> %s" % (to_, bakname))
         else:
