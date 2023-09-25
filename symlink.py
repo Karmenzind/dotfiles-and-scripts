@@ -60,7 +60,7 @@ TO_SYNC = {
 PATH_MAP = {
     "linux": {
         Path("home_k"): HOME_DIR,
-        Path("local_bin"): "/usr/local/bin",
+        Path("local_bin"): Path("/usr/local/bin"),
     },
     "win": {
         Path("home_k/.vim"): HOME_DIR / "vimfiles",
@@ -173,11 +173,9 @@ def main():
             else:
                 sep_count = str(d).count(path_conn)
                 if sep_count:
-                    to_dir = os.path.join(
-                        to_d, path_conn.join(str(from_dir).split(path_conn)[sep_count + 1:])
-                    )
+                    to_dir = Path(os.path.join(to_d, path_conn.join(str(from_dir).split(path_conn)[sep_count + 1:])))
                 else:
-                    to_dir = os.path.join(to_d, str(from_dir).split(path_conn, 1)[1])
+                    to_dir = Path(os.path.join(to_d, str(from_dir).split(path_conn, 1)[1]))
 
             if from_dir in SYMLINK_AS_DIR:
                 do_symlink(from_dir, to_dir)
