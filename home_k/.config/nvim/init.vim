@@ -115,7 +115,7 @@ if !exists('g:colors_name')
         \'boo',
         \'gruvbox',
         \'github_dark_default',
-        \'github_light_default',
+        \'github_light_high_contrast',
         \'nord',
         \'kat.nvim',
         \'kat.nwim',

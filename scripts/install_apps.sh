@@ -129,11 +129,11 @@ _aur=(
 	# crossover
 	# teamviewer
 	# oh-my-zsh-git
+    # netease-cloud-music # already dead
 	emojify
 	sqlint
 	acroread
 	acroread-fonts
-	netease-cloud-music
 
 	ttf-monaco-nerd-font-git
 )
