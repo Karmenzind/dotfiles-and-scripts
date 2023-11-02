@@ -115,32 +115,28 @@ ex() {
 #                                conda                                #
 #######################################################################
 
-for __my_conda_root in /opt/miniconda ; do
-    if [[ -d $__my_conda_root ]]; then
-        # echo "[conda] Found conda dir: $__my_conda_root . Initializing..."
-        #
-        # !! Contents within this block are managed by 'conda init' !!
-        __conda_setup="$('${__my_conda_root}/bin/conda' 'shell.zsh' 'hook' 2> /dev/null)"
-        # __conda_setup="$(${__my_conda_root}/bin/conda 'shell.zsh' 'hook')"
-        if [ $? -eq 0 ]; then
-            echo "[conda] initializing with shell.zsh hook"
-            eval "$__conda_setup"
+__initialize_my_conda() {
+    local __my_conda_root
+    local __conda_setup
+    for p in /opt/miniconda /opt/miniconda3 ${HOME}/.local/miniconda ${HOME}/.local/miniconda3; do
+        [[ -d $p ]] && __my_conda_root=$p && break
+    done
+    [[ -z $__my_conda_root ]] && return
+    echo "[conda] Found conda dir: $__my_conda_root . Initializing..."
+
+    __conda_setup="$('${__my_conda_root}/bin/conda' 'shell.zsh' 'hook' 2> /dev/null)"
+    if [ $? -eq 0 ]; then
+        eval "$__conda_setup"
+    else
+        if [ -f "${__my_conda_root}/etc/profile.d/conda.sh" ]; then
+            . "${__my_conda_root}/etc/profile.d/conda.sh"
         else
-            if [ -f "${__my_conda_root}/etc/profile.d/conda.sh" ]; then
-                . "${__my_conda_root}/etc/profile.d/conda.sh"
-            else
-                export PATH="${__my_conda_root}/bin:$PATH"
-            fi
+            export PATH="${__my_conda_root}/bin:$PATH"
         fi
-        unset __conda_setup
-
-        echo "[conda] Loaded from $__my_conda_root"
-
-        alias workon='conda activate'
-        break
     fi
-done
-
+    alias workon='conda activate'
+}
+__initialize_my_conda
 
 #######################################################################
 #                                 fzf                                 #

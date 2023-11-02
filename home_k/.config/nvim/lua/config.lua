@@ -24,6 +24,9 @@ require("nvim-tree").setup({
     view = {
         float = { enable = false, open_win_config = { border = "double" } },
     },
+    filters = {
+        git_ignored = false,
+    },
 })
 
 vim.diagnostic.config({
