@@ -93,6 +93,7 @@ _cli=(
 
     # language server
     marksman
+    taplo-cli
 )
 
 _desktop=(

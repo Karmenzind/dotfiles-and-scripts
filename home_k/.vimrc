@@ -889,7 +889,10 @@ let g:ale_fixers = {
       \  'sql': ['pgformatter'],
       \  'vue': ['eslint', 'prettier'],
       \  'yaml': ['prettier'],
+      \  'css': ['prettier'],
+      \  'html': ['html-beautify'],
       \  'lua': ['stylua'],
+      \  'php': ['php_cs_fixer'],
       \ }
 
 let g:ale_maximum_file_size = 1024 * 1024

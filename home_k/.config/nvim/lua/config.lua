@@ -282,6 +282,7 @@ lsp.gopls.setup({
 --     },
 -- })
 lsp.lua_ls.setup({
+    on_attach = on_attach, capabilities = capabilities ,
     settings = {
         Lua = {
             runtime = { version = "LuaJIT" },
@@ -293,6 +294,12 @@ lsp.lua_ls.setup({
 })
 
 -- other lsp
+lsp.phpactor.setup({ on_attach = on_attach, capabilities = capabilities,
+    init_options = {
+        ["language_server_phpstan.enabled"] = false,
+        ["language_server_psalm.enabled"] = false,
+    }
+})
 lsp.bashls.setup({ on_attach = on_attach, capabilities = capabilities })
 lsp.dockerls.setup({ on_attach = on_attach, capabilities = capabilities })
 lsp.yamlls.setup({ on_attach = on_attach, capabilities = capabilities })
