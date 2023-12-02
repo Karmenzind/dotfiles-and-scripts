@@ -23,15 +23,11 @@
         <td>Vim/NeoVim两套打磨多年的配置，内部插件有诸多差异但主要行为和快捷键基本一致，主要供日常Python/Golang开发和VimL/Lua/Bash脚本语言编写</td>
     </tr>
     <tr>
-        <td rowspan=2 align="center" valign=middle>安装脚本</td>
-        <td>ArchLinux软件批量安装</td>
+        <td rowspan=2 align="center" valign=middle>自用脚本</td>
+        <td>工具类：Aria2管理；拉取国内广告屏蔽列表；部分特殊软件自动更新等</td>
     </tr>
     <tr>
-        <td>软件编译/安装脚本，如Vim-YCM插件</td>
-    </tr>
-    <tr>
-        <td align="center" valign=middle>工具脚本</td>
-        <td>如Aria2管理等</td>
+        <td>配置类：一键应用本仓库配置；Arch软件批量安装脚本</td>
     </tr>
 </table>
 
@@ -53,7 +49,8 @@
         * [Vim插件涉及依赖安装](#vim插件涉及依赖安装)
 * [工具脚本部分](#工具脚本部分)
     * [Aria2管理&自动更新bt-tracker](#aria2管理自动更新bt-tracker)
-* [效果截图](#效果截图)
+    * [获取国内适用的广告屏蔽域名列表](#获取国内适用的广告屏蔽域名列表)
+* [配置效果截图](#配置效果截图)
 * [创建你自己的DotFile仓库](#创建你自己的dotfile仓库)
 
 <!-- vim-markdown-toc -->
@@ -151,8 +148,15 @@ call InstallRequirements()
 结合cron使用
 配置项见脚本注释
 
+### 获取国内适用的广告屏蔽域名列表
 
-## 效果截图
+- [update-adblock-list](./scripts/tools/update-adblock-list)
+
+主要供pihole使用，其实直接在pihole的adlists中加列表域名也是可以的，但pihole的更新经常卡死（可能是旧树莓派的性能原因），所以干脆弄了个手动处理的脚本。
+
+综合了比较流行的几个repo中的域名列表，合并去重。我是直接在crontab中weekly运行，然后直接在pihole中拉取本地文件。
+
+## 配置效果截图
 
 - i3 desktop:
     ![](https://raw.githubusercontent.com/Karmenzind/i/master/dotfiles-and-scripts/float.png)

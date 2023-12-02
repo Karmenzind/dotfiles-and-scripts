@@ -993,7 +993,7 @@ endfunction
 
 function! s:PreviewWithMLP() abort
   if !executable("mlp")
-    echo "mlp not found (Install with: pip install markdown_live_preview)"
+    echom "mlp not found (Install with: pip install markdown_live_preview)"
     return
   endif
 

@@ -118,9 +118,11 @@ tray-background = #0063ff
 inherit = bar/base
 modules-left = eth cpu memory temperature
 modules-right = date notifications
-monitor = ${env:MONITOR:HDMI-A-0}
+# monitor = ${env:MONITOR:HDMI-A-0}
+# can be started with
+# MONITOR=$(polybar -m|tail -1|sed -e 's/:.*$//g')
 
-height=28
+height=20
 font-0 = "Tamsyn:pixelsize=14;0"
 font-1 = "Noto Sans:size=14;1"
 font-2 = "Monaco Nerd Font:size=14:weight=bold;2"

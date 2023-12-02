@@ -114,6 +114,10 @@ backup_pat = f"*.backup_{CUR_TIME}"
 
 def do_symlink(from_: Path, to_: Path):
     print(f"\n>>> processing: {from_} -> {to_}")
+    if args.interactive and ask(YN) == 'n':
+        print("Ignored.")
+        return
+
     from_ = REPO_DIR / from_
     if os.path.exists(to_):
         if os.path.islink(to_):
@@ -204,6 +208,7 @@ def main():
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument('--fake', action='store_true', help="Only preview what will happen")
+    parser.add_argument('-i', '--interactive', action='store_true', help="Let me determine every file")
     args = parser.parse_args()
     fake = args.fake
 
