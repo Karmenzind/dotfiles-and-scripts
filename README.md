@@ -150,7 +150,7 @@ call InstallRequirements()
 
 ### 获取国内适用的广告屏蔽域名列表
 
-- [update-adblock-list](./scripts/tools/update-adblock-list)
+- [update-adblock-list](./scripts/tools/update-adblock-list.sh)
 
 主要供pihole使用，其实直接在pihole的adlists中加列表域名也是可以的，但pihole的更新经常卡死（可能是旧树莓派的性能原因），所以干脆弄了个手动处理的脚本。
 
