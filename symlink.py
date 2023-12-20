@@ -48,6 +48,7 @@ TO_SYNC = {
     "win": [
         Path("home_k/.vim"),
         Path("home_k/.vimrc"),
+        Path("home_k/.gitconfig"),
         Path("home_k/.config/nvim"),
         Path("home_k/.config/alacritty/alacritty.yml"),
         # "home_k/.golangci.yml",
@@ -65,6 +66,7 @@ PATH_MAP = {
     "win": {
         Path("home_k/.vim"): HOME_DIR / "vimfiles",
         Path("home_k/.vimrc"): HOME_DIR / "_vimrc",
+        Path("home_k/.gitconfig"): HOME_DIR / ".gitconfig",
         Path("home_k/.config/nvim"): HOME_DIR / "AppData\\Local\\nvim",
         Path("home_k/.config/alacritty/alacritty.yml"): HOME_DIR / "AppData\\Roaming\\alacritty\\alacritty.yml",
         # "home_k/.golangci.yml",
@@ -119,17 +121,21 @@ def do_symlink(from_: Path, to_: Path):
         return
 
     from_ = REPO_DIR / from_
-    if os.path.exists(to_):
-        if os.path.islink(to_):
-            existed_link_to = os.path.realpath(to_) if sys.platform == 'win32' else os.readlink(to_)
-            if existed_link_to == str(from_):
-                print(
-                    f"{to_} is already symlinked to {from_}. Ignored.")
-                return
 
-            override_msg = f"{to_} exists and is a symlink (-> {existed_link_to!r}). Override it? (file will be mv to {backup_pat})"
-        else:
-            override_msg = f"{to_} exists and is not a symlink. Override it? (file will be mv to {backup_pat})"
+    # A file can be a symlink as well as nonexisted on Win. Fuck Windows
+    if os.path.islink(to_):
+        existed_link_to = os.path.realpath(to_) if sys.platform == 'win32' else os.readlink(to_)
+        if existed_link_to == str(from_):
+            print(f"{to_} is already symlinked to {from_}. Ignored.")
+            return
+
+        override_msg = f"{to_} exists and is a symlink (-> {existed_link_to!r}). Override it? (file will be mv to {backup_pat})"
+    elif os.path.exists(to_):
+        override_msg = f"{to_} exists and is not a symlink. Override it? (file will be mv to {backup_pat})"
+    else:
+        override_msg = ""
+
+    if override_msg:
         ans = ask(YN, override_msg)
         if ans == 'n':
             return
@@ -143,8 +149,11 @@ def do_symlink(from_: Path, to_: Path):
     if fake:
         print("[fake] symlink: %s -> %s" % (from_, to_))
     else:
-        os.symlink(from_, to_)
-        print(f"created symlink for {from_}")
+        try:
+            os.symlink(from_, to_)
+            print(f"created symlink for {from_}")
+        except Exception as e:
+            print("[Warn] Error occurred: %s", e)
 
 
 def main():
@@ -199,10 +208,7 @@ def main():
                     print("\n>>> Ignored invalid: %s" % src)
                     continue
 
-                try:
-                    do_symlink(src, dest)
-                except Exception as e:
-                    print("[Warn] Error occurred: %s", e)
+                do_symlink(src, dest)
 
 
 if __name__ == "__main__":
