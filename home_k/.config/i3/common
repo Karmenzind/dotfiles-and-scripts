@@ -4,8 +4,9 @@
 # apps
 # -----------------------------------------------------------------------------
 
-# basic
+# start apps with wm
 # exec --no-startup-id i3-msg "workspace 3; exec chromium; workspace 2; exec i3-sensible-terminal; workspace 1; exec i3-sensible-terminal" &
+exec --no-startup-id i3-msg "exec i3-sensible-terminal --title 'my-init-terminal' -e tmux new -As t" &
 # exec --no-startup-id electronic-wechat &
 
 # /* system tools */
@@ -50,6 +51,84 @@ bindsym $mod+d exec --no-startup-id rofi \
 # bindsym $mod+p exec --no-startup-id ~/.config/rofi/launchers/type-2/launcher.sh
 # bindsym $mod+x exec --no-startup-id powermenu_t2
 
+# -----------------------------------------------------------------------------
+# Workspace
+# -----------------------------------------------------------------------------
+
+# Workspace names
+# to display names or symbols instead of plain workspace numbers you can use
+# something like: set $ws1 1:mail
+#                 set $ws2 2:
+set $ws1 1
+set $ws2 2
+set $ws3 3
+set $ws4 4
+set $ws5 5
+set $ws6 6
+set $ws7 7
+set $ws8 8
+set $ws9 9
+set $ws0 0
+
+# switch to workspace
+bindsym $mod+1 workspace $ws1
+bindsym $mod+2 workspace $ws2
+bindsym $mod+3 workspace $ws3
+bindsym $mod+4 workspace $ws4
+bindsym $mod+5 workspace $ws5
+bindsym $mod+6 workspace $ws6
+bindsym $mod+7 workspace $ws7
+bindsym $mod+8 workspace $ws8
+bindsym $mod+9 workspace $ws9
+bindsym $mod+0 workspace $ws0
+
+# Move focused container to workspace
+bindsym $mod+Ctrl+1 move container to workspace $ws1
+bindsym $mod+Ctrl+2 move container to workspace $ws2
+bindsym $mod+Ctrl+3 move container to workspace $ws3
+bindsym $mod+Ctrl+4 move container to workspace $ws4
+bindsym $mod+Ctrl+5 move container to workspace $ws5
+bindsym $mod+Ctrl+6 move container to workspace $ws6
+bindsym $mod+Ctrl+7 move container to workspace $ws7
+bindsym $mod+Ctrl+8 move container to workspace $ws8
+bindsym $mod+Ctrl+9 move container to workspace $ws9
+bindsym $mod+Ctrl+0 move container to workspace $ws0
+
+# Move to workspace with focused container
+bindsym $mod+Shift+1 move container to workspace $ws1; workspace $ws1
+bindsym $mod+Shift+2 move container to workspace $ws2; workspace $ws2
+bindsym $mod+Shift+3 move container to workspace $ws3; workspace $ws3
+bindsym $mod+Shift+4 move container to workspace $ws4; workspace $ws4
+bindsym $mod+Shift+5 move container to workspace $ws5; workspace $ws5
+bindsym $mod+Shift+6 move container to workspace $ws6; workspace $ws6
+bindsym $mod+Shift+7 move container to workspace $ws7; workspace $ws7
+bindsym $mod+Shift+8 move container to workspace $ws8; workspace $ws8
+bindsym $mod+Shift+9 move container to workspace $ws9; workspace $ws9
+bindsym $mod+Shift+0 move container to workspace $ws0; workspace $ws0
+
+# # switch to workspace
+# bindsym $mod+1 workspace 1
+# bindsym $mod+2 workspace 2
+# bindsym $mod+3 workspace 3
+# bindsym $mod+4 workspace 4
+# bindsym $mod+5 workspace 5
+# bindsym $mod+6 workspace 6
+# bindsym $mod+7 workspace 7
+# bindsym $mod+8 workspace 8
+# bindsym $mod+9 workspace 9
+# bindsym $mod+0 workspace 10
+
+# # move focused container to workspace
+# bindsym $mod+Shift+1 move container to workspace 1
+# bindsym $mod+Shift+2 move container to workspace 2
+# bindsym $mod+Shift+3 move container to workspace 3
+# bindsym $mod+Shift+4 move container to workspace 4
+# bindsym $mod+Shift+5 move container to workspace 5
+# bindsym $mod+Shift+6 move container to workspace 6
+# bindsym $mod+Shift+7 move container to workspace 7
+# bindsym $mod+Shift+8 move container to workspace 8
+# bindsym $mod+Shift+9 move container to workspace 9
+# bindsym $mod+Shift+0 move container to workspace 10
 
 # -----------------------------------------------------------------------------
 # Window specs
@@ -58,16 +137,17 @@ bindsym $mod+d exec --no-startup-id rofi \
 for_window [all] title_window_icon padding 7px
 for_window [class="Alacritty"] title_window_icon off
 
-# Open specific applications in floating mode
-for_window [class="libreoffice-.*"]                floating enable, border normal, resize set 1360 720
-for_window [class="Xarchiver"]                     floating enable, border normal, resize set 900  600
+for_window [title="my-init-terminal"]              floating enable, resize set 1366 768, border pixel $local_pixel, move position center, move scratchpad
+for_window [class="libreoffice-.*"]                floating enable, border normal, resize set 1360 720, move position center
+for_window [class="Xarchiver"]                     floating enable, border normal, resize set 900  600, move position center
 for_window [title="Remmina Remote Desktop Client"] floating enable
 for_window [class="Apvlv"]                         floating enable, resize set     1360   720
-for_window [class="Lxappearance"]                  floating enable  sticky enable  border normal
+for_window [class="Lxappearance"]                  floating enable, sticky enable, border normal
 for_window [class="Pamac-manager"]                 floating enable
-for_window [class="Pcmanfm"]                       floating enable  border none    resize set 1360 720
-for_window [class="netease-cloud-music"]           floating enable  resize set     1360   720
-for_window [class="electronic-wechat"]             floating enable  resize set     1360   720
+for_window [class="Pcmanfm"]                       floating enable, border none,   resize set 1360 720, move position center
+for_window [class="netease-cloud-music"]           floating enable, resize set     1360   720
+for_window [class="electronic-wechat"]             floating enable, resize set     1360   720, move position center
+
 # for_window [class="(?i)virtualbox"]    floating enable border normal
 # for_window [class="Wine"]              floating enable border none
 # for_window [class="fontforge"]         floating enable
@@ -81,7 +161,6 @@ for_window [window_role="pop-up"]      floating enable, border normal
 for_window [window_role="bubble"]      floating enable
 for_window [window_role="task_dialog"] floating enable
 for_window [window_role="Preferences"] floating enable
-
 for_window [window_type="dialog"]      floating enable
 for_window [window_type="menu"]        floating enable
 
@@ -110,6 +189,13 @@ hide_edge_borders smart
 # general functions
 # -----------------------------------------------------------------------------
 
+# move the currently focused window to the scratchpad
+bindsym $mod+Shift+minus floating enable, move scratchpad
+# bindsym $mod+t floating enable, resize set 1360 720, move position center, exec "notify-send 123"
+
+# Show the next scratchpad window or hide the focused scratchpad window.
+# If there are multiple scratchpad windows, this command cycles through them.
+bindsym $mod+minus scratchpad show
 
 # /* screenshot */
 # full

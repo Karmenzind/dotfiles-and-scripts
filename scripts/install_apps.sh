@@ -87,6 +87,13 @@ _cli=(
 	youtube-dl
 	zsh
 	miniconda
+
+    # system service
+    udiskie
+
+    # language server
+    marksman
+    taplo-cli
 )
 
 _desktop=(
@@ -123,11 +130,11 @@ _aur=(
 	# crossover
 	# teamviewer
 	# oh-my-zsh-git
+    # netease-cloud-music # already dead
 	emojify
 	sqlint
 	acroread
 	acroread-fonts
-	netease-cloud-music
 
 	ttf-monaco-nerd-font-git
 )

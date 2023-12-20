@@ -7,7 +7,11 @@ snippet sb "bash shebang" b
 #!/usr/bin/env bash
 endsnippet
 
-snippet ford "for k v in dict" b
+#######################################################################
+#                          Collections/Dict                           #
+#######################################################################
+
+snippet ford "[dict] iterate k v" b
 for ${2:k} in "${!${1:d}[@]}"; do
     # echo -e "$$2\t:\t${$1[$$2]}"
 done
@@ -19,4 +23,24 @@ endsnippet
 
 snippet dictn "[dict] key whose value is not empty" b
 [[ -n ${${1:d}[$${2:k}]} ]]
+endsnippet
+
+#######################################################################
+#                              Datetime                               #
+#######################################################################
+
+snippet dts "datetime like 2023-11-01T21:18:51+08:00"
+datetime -Iseconds
+endsnippet
+
+snippet dtc "localtime like 2023-11-01 21:17:11"
+datetime +"%F %T"
+endsnippet
+
+snippet ts "timestamp (sec)"
+date +%s 
+endsnippet
+
+snippet dtts "timestamp (sec)"
+date +%s 
 endsnippet

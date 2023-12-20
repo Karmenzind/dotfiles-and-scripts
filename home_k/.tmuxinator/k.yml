@@ -37,7 +37,7 @@ windows:
       # synchronize: after
       layout: even-horizontal
       panes:
-        - screenfetch
+        - neofetch
         - sudo -i
   - logs: 
       layout: tiled
@@ -46,18 +46,18 @@ windows:
         - tail -f /home/k/Logs/i3log*
         -
         - journalctl -xef
-  - my-dot:
+  - myDot:
       layout: even-horizontal
-      root: ~/Localworks/dotfiles-and-scripts
+      root: ~/Workspace/dotfiles-and-scripts
       panes:
         - 
         - git status
-  - tmuxinator:
-      layout: even-horizontal
-      root: ~/.tmuxinator
-      panes:
-        - ls
-        - cd ~ 
+  # - tmuxinator:
+  #     layout: even-horizontal
+  #     root: ~/.tmuxinator
+  #     panes:
+  #       - ls
+  #       - cd ~ 
   - others:
       layout: even-horizontal
       root: ~

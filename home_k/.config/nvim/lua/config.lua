@@ -3,59 +3,29 @@ vim.g.loaded_netrw = 1
 vim.g.loaded_netrwPlugin = 1
 vim.opt.termguicolors = true
 
+local function nvim_tree_on_attach(bufnr)
+    local api = require('nvim-tree.api')
+    local function opts(desc)
+      return { desc = 'nvim-tree: ' .. desc, buffer = bufnr, noremap = true, silent = true, nowait = true }
+    end
+
+    api.config.mappings.default_on_attach(bufnr)
+
+    vim.keymap.del('n', 's', { buffer = bufnr })
+    vim.keymap.set('n', 's', api.node.open.vertical, opts('Split'))
+    vim.keymap.set('n', 'i', api.node.open.horizontal, opts('VSplit'))
+    vim.keymap.set('n', 't', api.node.open.tab, opts('NewTab'))
+    vim.keymap.set('n', '?', api.tree.toggle_help, opts('Help'))
+    vim.keymap.set('n', '<leader>n', api.tree.close, opts('Close'))
+end
+
 require("nvim-tree").setup({
+    on_attach = nvim_tree_on_attach,
     view = {
         float = { enable = false, open_win_config = { border = "double" } },
-        mappings = {
-            list = { -- BEGIN_DEFAULT_MAPPINGS
-                { key = { "<CR>", "o", "<2-LeftMouse>" }, action = "edit" },
-                { key = "<C-e>", action = "edit_in_place" },
-                { key = {}, action = "edit_no_picker" },
-                { key = { "<C-]>", "<2-RightMouse>" }, action = "cd" },
-                { key = { "<C-v>", "s" }, action = "vsplit" },
-                { key = { "<C-x>", "i" }, action = "split" },
-                { key = { "<C-t>", "t" }, action = "tabnew" },
-                { key = "<", action = "prev_sibling" },
-                { key = ">", action = "next_sibling" },
-                { key = "P", action = "parent_node" },
-                { key = {}, action = "close_node" },
-                { key = "<Tab>", action = "preview" },
-                { key = "K", action = "first_sibling" },
-                { key = "J", action = "last_sibling" },
-                { key = "I", action = "toggle_git_ignored" },
-                { key = "H", action = "toggle_dotfiles" },
-                { key = "U", action = "toggle_custom" },
-                { key = "R", action = "refresh" },
-                { key = "a", action = "create" },
-                { key = "d", action = "remove" },
-                { key = "D", action = "trash" },
-                { key = "r", action = "rename" },
-                { key = {}, action = "full_rename" },
-                { key = "x", action = "cut" },
-                { key = "c", action = "copy" },
-                { key = "p", action = "paste" },
-                { key = "y", action = "copy_name" },
-                { key = "Y", action = "copy_path" },
-                { key = "gy", action = "copy_absolute_path" },
-                { key = "[e", action = "prev_diag_item" },
-                { key = "[c", action = "prev_git_item" },
-                { key = "]e", action = "next_diag_item" },
-                { key = "]c", action = "next_git_item" },
-                { key = "-", action = "dir_up" },
-                { key = {}, action = "system_open" },
-                { key = "f", action = "live_filter" },
-                { key = "F", action = "clear_live_filter" },
-                { key = "q", action = "close" },
-                { key = "W", action = "collapse_all" },
-                { key = "E", action = "expand_all" },
-                { key = "S", action = "search_node" },
-                { key = ".", action = "run_file_command" },
-                { key = "<C-k>", action = "toggle_file_info" },
-                { key = "g?", action = "toggle_help" },
-                { key = "m", action = "toggle_mark" },
-                { key = "bmv", action = "bulk_move" },
-            },
-        },
+    },
+    filters = {
+        git_ignored = false,
     },
 })
 
@@ -312,6 +282,7 @@ lsp.gopls.setup({
 --     },
 -- })
 lsp.lua_ls.setup({
+    on_attach = on_attach, capabilities = capabilities ,
     settings = {
         Lua = {
             runtime = { version = "LuaJIT" },
@@ -323,6 +294,12 @@ lsp.lua_ls.setup({
 })
 
 -- other lsp
+lsp.phpactor.setup({ on_attach = on_attach, capabilities = capabilities,
+    init_options = {
+        ["language_server_phpstan.enabled"] = false,
+        ["language_server_psalm.enabled"] = false,
+    }
+})
 lsp.bashls.setup({ on_attach = on_attach, capabilities = capabilities })
 lsp.dockerls.setup({ on_attach = on_attach, capabilities = capabilities })
 lsp.yamlls.setup({ on_attach = on_attach, capabilities = capabilities })

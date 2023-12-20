@@ -144,14 +144,14 @@ if has("nvim")
   Plug 'weilbith/nvim-code-action-menu', {'on': 'CodeActionMenu'}
 
   " cmp
-  Plug 'hrsh7th/nvim-cmp'
-  Plug 'hrsh7th/cmp-nvim-lsp-signature-help'
-  Plug 'hrsh7th/cmp-nvim-lsp'
-  Plug 'hrsh7th/cmp-buffer'
-  Plug 'hrsh7th/cmp-path'
-  Plug 'hrsh7th/cmp-calc'
-  Plug 'hrsh7th/cmp-cmdline'
-  Plug 'hrsh7th/cmp-emoji'
+  Plug 'hrsh7th/nvim-cmp',                    {'branch': 'main'}
+  Plug 'hrsh7th/cmp-nvim-lsp-signature-help', {'branch': 'main'}
+  Plug 'hrsh7th/cmp-nvim-lsp',                {'branch': 'main'}
+  Plug 'hrsh7th/cmp-buffer',                  {'branch': 'main'}
+  Plug 'hrsh7th/cmp-path',                    {'branch': 'main'}
+  Plug 'hrsh7th/cmp-calc',                    {'branch': 'main'}
+  Plug 'hrsh7th/cmp-cmdline',                 {'branch': 'main'}
+  Plug 'hrsh7th/cmp-emoji',                   {'branch': 'main'}
   if exists('$TMUX')
     Plug 'andersevenrud/cmp-tmux'
   endif
@@ -784,10 +784,7 @@ else
 endif
 
 command! -bang -nargs=* Ag
-      \ call fzf#vim#ag(<q-args>,
-      \                 <bang>0 ? fzf#vim#with_preview('up:60%')
-      \                         : fzf#vim#with_preview('right:40%', '?'),
-      \                 <bang>0)
+      \ call fzf#vim#ag(<q-args>, '--hidden', <bang>0)
 
 " command! -bang -nargs=? -complete=dir Files
 "       \ call fzf#vim#files(<q-args>, fzf#vim#with_preview('right:60%'), <bang>0)
@@ -894,7 +891,10 @@ let g:ale_fixers = {
       \  'sql': ['pgformatter'],
       \  'vue': ['eslint', 'prettier'],
       \  'yaml': ['prettier'],
+      \  'css': ['prettier'],
+      \  'html': ['html-beautify'],
       \  'lua': ['stylua'],
+      \  'php': ['php_cs_fixer'],
       \ }
 
 let g:ale_maximum_file_size = 1024 * 1024
@@ -995,7 +995,7 @@ endfunction
 
 function! s:PreviewWithMLP() abort
   if !executable("mlp")
-    echo "No mlp installed."
+    echom "mlp not found (Install with: pip install markdown_live_preview)"
     return
   endif
 

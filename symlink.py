@@ -4,6 +4,7 @@
 """
 create symlink
 """
+from __future__ import annotations, print_function, unicode_literals
 
 import argparse
 import datetime
@@ -22,7 +23,9 @@ elif sys.platform == 'win32':
     platform = 'win'
     VERSION_INFO = None
 else:
-    warnings.warn("Not tested on platform: %s" % platform)
+    warnings.warn("Not tested on this platform: %s" % platform)
+    platform = 'unknown'
+    VERSION_INFO = None
 
 CUR_TS = int(time.time())
 CUR_TIME = datetime.datetime.now().strftime("%Y%m%d_%H%M")
@@ -57,7 +60,7 @@ TO_SYNC = {
 PATH_MAP = {
     "linux": {
         Path("home_k"): HOME_DIR,
-        Path("local_bin"): "/usr/local/bin",
+        Path("local_bin"): Path("/usr/local/bin"),
     },
     "win": {
         Path("home_k/.vim"): HOME_DIR / "vimfiles",
@@ -91,9 +94,9 @@ def ask(choices, msg='Continue?'):
     return ans
 
 
-def validate(src):
+def validate(src: str) -> bool:
     ret = True
-    if src in EXCLUDED:
+    if Path(src) in EXCLUDED:
         return False
 
     if platform == 'linux':
@@ -109,8 +112,12 @@ def validate(src):
 backup_pat = f"*.backup_{CUR_TIME}"
 
 
-def do_symlink(from_, to_):
+def do_symlink(from_: Path, to_: Path):
     print(f"\n>>> processing: {from_} -> {to_}")
+    if args.interactive and ask(YN) == 'n':
+        print("Ignored.")
+        return
+
     from_ = REPO_DIR / from_
     if os.path.exists(to_):
         if os.path.islink(to_):
@@ -127,7 +134,7 @@ def do_symlink(from_, to_):
         if ans == 'n':
             return
 
-        bakname = to_ + f'.backup_{CUR_TIME}'
+        bakname = str(to_) + f'.backup_{CUR_TIME}'
         if fake:
             print("[fake] rename: %s -> %s" % (to_, bakname))
         else:
@@ -170,11 +177,9 @@ def main():
             else:
                 sep_count = str(d).count(path_conn)
                 if sep_count:
-                    to_dir = os.path.join(
-                        to_d, path_conn.join(str(from_dir).split(path_conn)[sep_count + 1:])
-                    )
+                    to_dir = Path(os.path.join(to_d, path_conn.join(str(from_dir).split(path_conn)[sep_count + 1:])))
                 else:
-                    to_dir = os.path.join(to_d, str(from_dir).split(path_conn, 1)[1])
+                    to_dir = Path(os.path.join(to_d, str(from_dir).split(path_conn, 1)[1]))
 
             if from_dir in SYMLINK_AS_DIR:
                 do_symlink(from_dir, to_dir)
@@ -203,6 +208,7 @@ def main():
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument('--fake', action='store_true', help="Only preview what will happen")
+    parser.add_argument('-i', '--interactive', action='store_true', help="Let me determine every file")
     args = parser.parse_args()
     fake = args.fake
 
