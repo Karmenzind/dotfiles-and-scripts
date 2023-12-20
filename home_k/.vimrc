@@ -78,7 +78,7 @@ nnoremap <leader><CR> i<CR><ESC>k$
 if !has("win32")
   let s:plugged_dir = '~/.vim/plugged'
   if empty(glob('~/.vim/autoload/plug.vim'))
-      silent !mkdir -p ~/.vim/autoload &&
+    silent !mkdir -p ~/.vim/autoload &&
             \ wget https://raw.githubusercontent.com/junegunn/vim-plug/master/plug.vim
             \ -O ~/.vim/autoload/plug.vim
     autocmd VimEnter * PlugInstall --sync | source $MYVIMRC
@@ -86,6 +86,7 @@ if !has("win32")
 else
   let s:plugged_dir = glob('~/vimfiles/plugged')
   if empty(glob("~/vimfiles/autoload/plug.vim"))
+    echom "Initializing plugins..."
     " XXX
     silent ! powershell -Command "
     \   New-Item -Path ~\vimfiles -Name autoload -Type Directory -Force;
@@ -97,6 +98,7 @@ else
   endif
 endif
 
+" TODO: move to plug specfic
 function! BuildYCM(info)
   if a:info.status == 'installed' || a:info.force
      !./install.py --clang-completer --clangd-completer --system-libclang --go-completer --ts-completer
