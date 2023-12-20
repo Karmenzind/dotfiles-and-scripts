@@ -157,6 +157,9 @@ if has("nvim")
   endif
   Plug 'quangnguyen30192/cmp-nvim-ultisnips'
 
+  " language specs
+  Plug 'Hoffs/omnisharp-extended-lsp.nvim'
+
   " debug
   Plug 'mfussenegger/nvim-dap'
   Plug 'mfussenegger/nvim-dap-python'

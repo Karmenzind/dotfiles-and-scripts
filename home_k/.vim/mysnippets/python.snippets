@@ -323,6 +323,33 @@ endsnippet
 #         return ob
 # endsnippet
 
+# sqlite
+snippet sqlite "sqlite3 template" b
+import sqlite3
+db_path = "$1"
+con = sqlite3.connect(db_path)
+try:
+    cur = con.cursor()
+    sql = "$2"
+    params = [$3]
+    cur.execute(sql, params)
+    con.commit()
+except Exception as e:
+    raise e
+finally:
+    con.close()
+endsnippet
+
+snippet sqlitewith "sqlite3 template context version" b
+import sqlite3
+db_path = "$1"
+with sqlite3.connect(db_path) as con:
+    cur = con.cursor()
+    sql = "$2"
+    params = [$3]
+    cur.execute(sql, params)
+    con.commit()
+endsnippet
 
 # mysql
 snippet mysqlexec "exec mysql with pymysql" b

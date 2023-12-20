@@ -114,7 +114,7 @@ if !exists('g:colors_name')
         \'atomic',
         \'boo',
         \'gruvbox',
-        \'github_dark_default',
+        \'github_dark_high_contrast',
         \'github_light_high_contrast',
         \'nord',
         \'kat.nvim',

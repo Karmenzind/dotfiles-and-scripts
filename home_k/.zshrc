@@ -21,6 +21,8 @@ else
     ZSH_THEME="random"
 fi
 
+ZSH_THEME_RANDOM_IGNORED=(adben)
+
 # Set list of themes to load
 # Setting this variable when ZSH_THEME=random
 # cause zsh load theme from this variable instead of
@@ -40,7 +42,6 @@ fi
 HYPHEN_INSENSITIVE="true"
 
 # Uncomment the following line to change how often to auto-update (in days).
-# UPDATE_ZSH_DAYS=7
 zstyle ':omz:update' frequency 7
 
 # Uncomment the following line to disable colors in ls.
@@ -115,7 +116,7 @@ plugins=(
   # 'redis-cli'
   'rsync'
   'safe-paste'
-  'timer'
+  # 'timer'
   # 'ssh-agent'
   'taskwarrior'
   'urltools'

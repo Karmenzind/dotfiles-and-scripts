@@ -27,6 +27,7 @@ alias xy=proxychains4
 
 # /* others apps */
 export EDITOR=vim
+export PAGER='less -F'
 export VISUAL=$EDITOR
 export SVN_EDITOR=$EDITOR
 
@@ -396,6 +397,14 @@ export PROJECT_PATHS=(~/Workspace ~/Localworks)
 
 # virtualenv wrapper
 export WORKON_HOME=~/.venvs
+
+#######################################################################
+#                                 C#                                  #
+#######################################################################
+
+if command -V dotnet >/dev/null; then
+    export PATH=$PATH:~/.dotnet/tools
+fi
 
 #######################################################################
 #                                pyenv                                #

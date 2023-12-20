@@ -3,20 +3,22 @@ vim.g.loaded_netrw = 1
 vim.g.loaded_netrwPlugin = 1
 vim.opt.termguicolors = true
 
+local nvimpid = vim.fn.getpid()
+
 local function nvim_tree_on_attach(bufnr)
-    local api = require('nvim-tree.api')
+    local api = require("nvim-tree.api")
     local function opts(desc)
-      return { desc = 'nvim-tree: ' .. desc, buffer = bufnr, noremap = true, silent = true, nowait = true }
+        return { desc = "nvim-tree: " .. desc, buffer = bufnr, noremap = true, silent = true, nowait = true }
     end
 
     api.config.mappings.default_on_attach(bufnr)
 
-    vim.keymap.del('n', 's', { buffer = bufnr })
-    vim.keymap.set('n', 's', api.node.open.vertical, opts('Split'))
-    vim.keymap.set('n', 'i', api.node.open.horizontal, opts('VSplit'))
-    vim.keymap.set('n', 't', api.node.open.tab, opts('NewTab'))
-    vim.keymap.set('n', '?', api.tree.toggle_help, opts('Help'))
-    vim.keymap.set('n', '<leader>n', api.tree.close, opts('Close'))
+    vim.keymap.del("n", "s", { buffer = bufnr })
+    vim.keymap.set("n", "s", api.node.open.vertical, opts("Split"))
+    vim.keymap.set("n", "i", api.node.open.horizontal, opts("VSplit"))
+    vim.keymap.set("n", "t", api.node.open.tab, opts("NewTab"))
+    vim.keymap.set("n", "?", api.tree.toggle_help, opts("Help"))
+    vim.keymap.set("n", "<leader>n", api.tree.close, opts("Close"))
 end
 
 require("nvim-tree").setup({
@@ -204,6 +206,7 @@ cmp.setup({
         { name = "ultisnips" },
         { name = "calc" },
         { name = "emoji" },
+        { name = "path" },
         -- FIXME (k): <2022-10-24> pattern didn't work for now
         { name = "tmux", option = { keyword_pattern = [[\w\w\w\+]] }, trigger_characters = {} },
     },
@@ -282,7 +285,8 @@ lsp.gopls.setup({
 --     },
 -- })
 lsp.lua_ls.setup({
-    on_attach = on_attach, capabilities = capabilities ,
+    on_attach = on_attach,
+    capabilities = capabilities,
     settings = {
         Lua = {
             runtime = { version = "LuaJIT" },
@@ -294,11 +298,23 @@ lsp.lua_ls.setup({
 })
 
 -- other lsp
-lsp.phpactor.setup({ on_attach = on_attach, capabilities = capabilities,
-    init_options = {
-        ["language_server_phpstan.enabled"] = false,
-        ["language_server_psalm.enabled"] = false,
-    }
+-- lsp.phpactor.setup({
+--     on_attach = on_attach,
+--     capabilities = capabilities,
+--     init_options = { ["language_server_phpstan.enabled"] = false, ["language_server_psalm.enabled"] = false },
+-- })
+lsp.omnisharp.setup({
+    on_attach = on_attach,
+    capabilities = capabilities,
+    cmd = {
+        "/bin/OmniSharp",
+        "--languageserver",
+        "--hostPID",
+        tostring(nvimpid),
+    },
+    handlers = {
+        ["textDocument/definition"] = require("omnisharp_extended").handler,
+    },
 })
 lsp.bashls.setup({ on_attach = on_attach, capabilities = capabilities })
 lsp.dockerls.setup({ on_attach = on_attach, capabilities = capabilities })
@@ -579,7 +595,7 @@ require("lualine").setup({
             },
         },
         -- lualine_a = {'buffers'},
-        lualine_z = {'tabs'}
+        lualine_z = { "tabs" },
     },
     winbar = {},
     inactive_winbar = {},

@@ -1,0 +1,16 @@
+debug = true
+paging = true
+pager_command = "less -F"
+# pager_command = "bat"
+auto_clear = false
+max_cached = 1000000
+english_only = false
+theme = "temp"
+http_proxy = ""
+freq_alert = true
+
+[logging]
+  enable = true
+  path = ""
+  level = "info"
+  stderr = false
