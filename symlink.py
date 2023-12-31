@@ -27,6 +27,8 @@ else:
     platform = 'unknown'
     VERSION_INFO = None
 
+new_linked = []
+
 CUR_TS = int(time.time())
 CUR_TIME = datetime.datetime.now().strftime("%Y%m%d_%H%M")
 print("Current time: ", CUR_TIME)
@@ -115,7 +117,7 @@ backup_pat = f"*.backup_{CUR_TIME}"
 
 
 def do_symlink(from_: Path, to_: Path):
-    print(f"\n>>> processing: {from_} -> {to_}")
+    print(f"\n≫  processing: {from_} -> {to_}")
     if args.interactive and ask(YN) == 'n':
         print("Ignored.")
         return
@@ -151,9 +153,10 @@ def do_symlink(from_: Path, to_: Path):
     else:
         try:
             os.symlink(from_, to_)
-            print(f"created symlink for {from_}")
+            new_linked.append(to_)
+            print(f"[✔] created symlink for {from_}")
         except Exception as e:
-            print("[Warn] Error occurred: %s", e)
+            print(f"[✘] Error occurred: {e}")
 
 
 def main():
@@ -168,7 +171,7 @@ def main():
         d = Path(d)
         if platform == 'linux':
             if not str(to_d).startswith("/home") and not getpass.getuser() == "root":
-                print("[Warn] root or sudo is required to symlink %s" % d)
+                print("[⚠ Warn] root or sudo is required to symlink %s" % d)
                 continue
 
         if os.path.isfile(d):
@@ -205,10 +208,15 @@ def main():
                 dest = os.path.join(to_dir, filename)
 
                 if not validate(src):
-                    print("\n>>> Ignored invalid: %s" % src)
+                    print("\n≫  Ignored invalid: %s" % src)
                     continue
 
                 do_symlink(src, dest)
+
+    if new_linked:
+        print("[✔]  New created links:")
+        for i in new_linked:
+            print("\t", i)
 
 
 if __name__ == "__main__":

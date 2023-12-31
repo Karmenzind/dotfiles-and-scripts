@@ -1,7 +1,9 @@
 debug = true
 paging = true
+# pager_command = "more asdfsadga"
+# pager_command = "more asdf"
 pager_command = "less -F"
-# pager_command = "bat"
+
 auto_clear = false
 max_cached = 1000000
 english_only = false
@@ -12,5 +14,5 @@ freq_alert = true
 [logging]
   enable = true
   path = ""
-  level = "info"
+  level = "debug"
   stderr = false

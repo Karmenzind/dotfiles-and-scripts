@@ -21,7 +21,7 @@ else
     ZSH_THEME="random"
 fi
 
-ZSH_THEME_RANDOM_IGNORED=(adben)
+ZSH_THEME_RANDOM_IGNORED=(adben humza)
 
 # Set list of themes to load
 # Setting this variable when ZSH_THEME=random
