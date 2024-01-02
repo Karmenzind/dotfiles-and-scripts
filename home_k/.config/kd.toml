@@ -9,7 +9,7 @@ max_cached = 1000000
 english_only = false
 theme = "temp"
 http_proxy = ""
-freq_alert = true
+freq_alert = false
 
 [logging]
   enable = true
