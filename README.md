@@ -1,6 +1,18 @@
-# 🐝 dotfiles and scripts 
+# 🐝 dotfiles and scripts
+
 
 > ArchLinux一键安装脚本[已经迁移至此处](https://github.com/Karmenzind/arch-installation-scripts)，不再维护
+
+| 类别         | 🎨 成分                                                                                                                                                                                                                           |
+|--------------|--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| 系统         | [Archlinux](https://archlinux.org)                                                                                                                                                                                             |
+| GUI          | 桌面：[i3](https://i3wm.org)<br>任务栏：[polybar](https://github.com/polybar/polybar)<br>程序选择器：[rofi](https://github.com/davatorium/rofi)<br>通知：dunst<br>渲染优化：picom<br>输入法：fcitx5<br>截图工具：flameshot<br> |
+| 编辑器       | Vim/Neovim                                                                                                                                                                                                                     |
+| 终端         | [Alacritty](https://github.com/alacritty/alacritty) + Tmux + Zsh                                                                                                                                                               |
+| 词典         | [kd](https://github.com/Karmenzind/kd)                                                                                                                                                                                         |
+| 字体         | [Monaco Nerd](https://github.com/Karmenzind/monaco-nerd-fonts)                                                                                                                                                                 |
+| 其他体验增强 | fzf / ranger / pistol / ag 等等                                                                                                                                                                                                |
+
 
 <!-- 1.  配置文件 -->
 <!--     * i3wm、Tmux、ZSH和各种系统/开发工具 -->
@@ -9,24 +21,24 @@
 <!--     *   软件编译/安装脚本，如Vim-YCM插件 -->
 <!-- 3.  工具脚本，如Aria2管理等 -->
 
-<table cellspacing="0" border="0">
-	<colgroup width="100"></colgroup>
-	<!-- <colgroup width="1025"></colgroup> -->
-    <tr>
-        <td rowspan=2 align="center" valign=middle>配置文件</td>
-        <td>i3wm、Tmux、ZSH和各种系统/开发工具</td>
-    </tr>
-    <tr>
-        <td>Vim/NeoVim两套打磨多年的配置，内部插件有诸多差异但主要行为和快捷键基本一致，主要供日常Python/Golang开发和VimL/Lua/Bash脚本语言编写</td>
-    </tr>
-    <tr>
-        <td rowspan=2 align="center" valign=middle>自用脚本</td>
-        <td>工具类：Aria2管理；拉取国内广告屏蔽列表；部分特殊软件自动更新等</td>
-    </tr>
-    <tr>
-        <td>配置类：一键应用本仓库配置；Arch软件批量安装脚本</td>
-    </tr>
-</table>
+<!-- <table cellspacing="0" border="0"> -->
+<!-- 	<colgroup width="100"></colgroup> -->
+<!-- 	<!-1- <colgroup width="1025"></colgroup> -1-> -->
+<!--     <tr> -->
+<!--         <td rowspan=2 align="center" valign=middle>配置文件</td> -->
+<!--         <td>i3wm、Tmux、ZSH和各种系统/开发工具</td> -->
+<!--     </tr> -->
+<!--     <tr> -->
+<!--         <td>Vim/NeoVim两套打磨多年的配置，内部插件有诸多差异但主要行为和快捷键基本一致，主要供日常Python/Golang开发和VimL/Lua/Bash脚本编写</td> -->
+<!--     </tr> -->
+<!--     <tr> -->
+<!--         <td rowspan=2 align="center" valign=middle>自用脚本</td> -->
+<!--         <td>工具类：Aria2管理；拉取国内广告屏蔽列表；部分特殊软件自动更新等</td> -->
+<!--     </tr> -->
+<!--     <tr> -->
+<!--         <td>配置类：一键应用本仓库配置；Arch软件批量安装脚本</td> -->
+<!--     </tr> -->
+<!-- </table> -->
 
 
 > 查看[文件目录树](./TREE.md)
@@ -35,111 +47,103 @@
 
 <!-- vim-markdown-toc GFM -->
 
-* [🔶 成分介绍](#-成分介绍)
-* [🎨 用法简述](#-用法简述)
-    * [一键应用所有配置](#一键应用所有配置)
-    * [只要(Neo)Vim配置](#只要neovim配置)
-    * [安装常用软件（仅ArchLinux）](#安装常用软件仅archlinux)
-* [⚙️ 安装脚本部分](#-安装脚本部分)
-    * [软件批量安装](#软件批量安装)
-    * [Vim及插件安装](#vim及插件安装)
-        * [YouCompleteMe编译安装](#youcompleteme编译安装)
-        * [Vim插件涉及依赖安装](#vim插件涉及依赖安装)
-* [🔌 工具脚本部分](#-工具脚本部分)
-    * [Aria2管理&自动更新bt-tracker](#aria2管理自动更新bt-tracker)
-    * [获取国内适用的广告屏蔽域名列表](#获取国内适用的广告屏蔽域名列表)
-* [🖼️ 配置效果截图](#-配置效果截图)
-* [🖊️ 我用的字体](#-我用的字体)
+* [⚙️ 用法](#-用法)
+    * [一键应用所有](#一键应用所有)
+    * [(Neo)Vim配置](#neovim配置)
+    * [安装常用软件](#安装常用软件)
+* [🧰 工具脚本](#-工具脚本)
+    * [Aria2管理和自动更新bt-tracker](#aria2管理和自动更新bt-tracker)
+    * [获取国内适用广告域名列表](#获取国内适用广告域名列表)
+* [🖼️ 效果截图](#-效果截图)
 * [💡 创建你自己的DotFile仓库](#-创建你自己的dotfile仓库)
 
 <!-- vim-markdown-toc -->
 
-## 🔶 成分介绍
 
-- 桌面环境：i3wm
-- 编辑器：Vim/Neovim
-- 终端：Alacritty + Tmux
-- 任务栏：polybar
-- 程序选择器：rofi
 
-## 🎨 用法简述
 
-### 一键应用所有配置
+<!-- - 桌面环境： -->
+<!--     - 桌面：[i3](https://i3wm.org) -->
+<!--     - 任务栏：[polybar](https://github.com/polybar/polybar) -->
+<!--     - 程序选择器：[rofi](https://github.com/davatorium/rofi) -->
+<!--     - 通知：dunst -->
+<!--     - 渲染优化：picom -->
+<!--     - 输入法：fcitx5 -->
+<!--     - 截图工具：flameshot -->
+<!-- - 系统：[Archlinux](https://archlinux.org) -->
+<!-- - 编辑器：Vim/Neovim -->
+<!-- - 终端：[Alacritty](https://github.com/alacritty/alacritty) + Tmux + Zsh -->
+<!-- - 词典：[kd](https://github.com/Karmenzind/kd) -->
+<!-- - 字体：[Monaco Nerd](https://github.com/Karmenzind/monaco-nerd-fonts) -->
+<!-- - 其他体验增强工具：fzf / ranger / pistol / ag 等等 -->
 
-以创建软链接的形式一键安装所有配置（同名文件会提示+自动备份，请放心执行）：
 
-```bash
-git clone https://github.com/Karmenzind/dotfiles-and-scripts && cd ./dotfiles-and-scripts && python3 symlink.py
-```
 
-如果想创建自己的dotfile仓库，[参考下文](#创建你自己的dotfile仓库)
+## ⚙️ 用法
 
-### 只要(Neo)Vim配置
+### 一键应用所有
 
-如果只需要[Vim配置](./home_k/.vimrc)，Unix环境直接运行以下命令，等待自动安装完成
-```bash
-wget https://raw.githubusercontent.com/Karmenzind/dotfiles-and-scripts/master/home_k/.vimrc -O ~/.vimrc && vim 
-```
-
-> 也可以用[脚本安装](#vim及插件安装)
-
-> 使用**root用户**安装我的配置可能会出问题。我不喜欢给root用户单独配置，采用的做法是在`/root`目录下创建`.vimrc`和`.vim`的软链接，与普通用户共用一套配置，供参考。如果要**直接**给root用户安装配置，请自行研究解决方案。
-
-### 安装常用软件（仅ArchLinux）
+以创建软链接的形式一键安装所有配置（现有文件会询问是否覆盖、自动备份）：
 
 ```bash
-git clone https://github.com/Karmenzind/dotfiles-and-scripts --depth=1 && bash ./install.sh
+git clone https://github.com/Karmenzind/dotfiles-and-scripts && cd dotfiles-and-scripts && python3 symlink.py
 ```
 
-然后选择第一项
+### (Neo)Vim配置
 
-## ⚙️ 安装脚本部分
+Vim/Neovim两套打磨多年的配置，内部插件有诸多差异但主要行为和快捷键基本一致，主要供日常Python/Golang开发和VimL/Lua/Bash脚本编写
 
-### 软件批量安装
+用交互模式运行symlink.py：
+
+```bash
+git clone https://github.com/Karmenzind/dotfiles-and-scripts && cd dotfiles-and-scripts && python3 symlink.py -i
+```
+
+然后确认同步以下几项（不用Neovim的话可以不要后两个）：
+
+```
+home_k/.vimrc
+home_k/.vim/coc-settings.json
+home_k/.config/nvim/init.vim
+home_k/.config/nvim/lua/config.lua
+```
+
+> 使用**root用户**同步Vim配置可能会出问题。我不喜欢给root创建配置，一般是在`/root`目录下创建`.vimrc`和`.vim`的软链接，与普通用户共用一套文件，供参考
+
+然后启动Vim/Neovim，会自动开始安装和初始化
+
+部分插件可能会依赖外部工具（比如`fzf`、`ctags`、`ag`等）才能正常工作，打开Vim/Neovim，在命令行模式执行`:call InstallRequirements()`
+
+### 安装常用软件
+
+包含了我工作开发、日常生活的绝大多数应用程序。脚本中大部分安装命令调用的是pacman和AUR工具，非ArchLinux系的发行版可能不适用
+
+```bash
+# 执行后，根据提示，选择第一项
+git clone https://github.com/Karmenzind/dotfiles-and-scripts --depth=1 && bash dotfiles-and-scripts/install.sh
+```
 
 - [install_apps.sh](./scripts/install_apps.sh)
 
 `_fonts`数组中包含了ArchWiki中推荐的所有中文环境所需字体（不含AUR）
 
-1. 自行修改脚本，根据需要添加、删除软件
-2. 从install.sh进入选择`install recommended apps`
+<!-- ## ⚙️ 安装脚本部分 -->
 
-### Vim及插件安装
+<!-- ### Vim及插件安装 -->
 
-Vim比较特殊，尤其是YCM经常安装失败，所以单独列出来
+<!-- Vim比较特殊，尤其是YCM经常安装失败，所以单独列出来 -->
 
-用脚本安装Vim和插件：
-- [complete installation](./scripts/install_vim/main.sh) 直接按照我的Vim配置一键安装Vim和各种插件，无需其他配置
+<!-- 用脚本安装Vim和插件： -->
+<!-- - [complete installation](./scripts/install_vim/main.sh) 直接按照我的Vim配置一键安装Vim和各种插件，无需其他配置 -->
 
-如果你已经安装了Vim，需要直接使用我的配置&插件，除了上面的脚本安装外，更简单的方法为直接执行[Usage](#usage)中提到的命令
+<!-- 如果你已经安装了Vim，需要直接使用我的配置&插件，除了上面的脚本安装外，更简单的方法为直接执行[Usage](#usage)中提到的命令 -->
 
-#### YouCompleteMe编译安装
 
-> 22年开始已经不再用YouCompleteMe，目前在Neovim中使用内置LSP和cmp相关插件，在Vim中使用coc。此处仅供参考
-
-- [compile and install YouCompleteMe](./scripts/install_vim/ycm.sh) YouCompleteMe插件编译安装
-
-[通过install.sh](#usage)**选择第四项单独安装YouCompleteMe插件**时，需要注意：
-1.  阅读ycm.sh的开头部分
-2.  修改ycm.sh中的ycm插件安装地址
-3.  如果为Arch系统，直接选择任意一种方式安装；如果非Arch系统，选择`official way`可以直接安装，如果选择`my way`方式，需要手动安装python、cmake和clang，然后修改ycm.sh中的`libclang.so`地址
-
-> `official way`是采用ycm自带安装脚本编译安装，`my way`是用我写的命令编译安装。如果用`my way`安装时`git clone`速度太慢，可以手动修改ycm.sh中的git repo地址（脚本注释中提供了国内源）
-
-#### Vim插件涉及依赖安装
-
-部分插件依赖外部工具（比如`fzf`、`ctags`、`ag`等）。按照上述步骤安装Vim以及插件之后，打开Vim，在命令行模式运行：
-```
-# 依赖系统中的`pip`和`npm`，需自行安装
-call InstallRequirements()
-```
-安装过程中注意观察窗口日志提示。
-
-## 🔌 工具脚本部分
+## 🧰 工具脚本
 
 > 此处仅列出在用脚本，部分不再使用/维护的脚本说明，见[脚本目录的README](./local_bin)
 
-### Aria2管理&自动更新bt-tracker
+### Aria2管理和自动更新bt-tracker
 
 - [myaria2](./local_bin/myaria2)
 
@@ -152,7 +156,7 @@ call InstallRequirements()
 结合cron使用
 配置项见脚本注释
 
-### 获取国内适用的广告屏蔽域名列表
+### 获取国内适用广告域名列表
 
 - [update-adblock-list](./scripts/tools/update-adblock-list.sh)
 
@@ -160,7 +164,7 @@ call InstallRequirements()
 
 综合了比较流行的几个repo中的域名列表，合并去重。我是直接在crontab中weekly运行，然后直接在pihole中拉取本地文件。
 
-## 🖼️ 配置效果截图
+## 🖼️ 效果截图
 
 - i3 desktop:
     ![](https://raw.githubusercontent.com/Karmenzind/i/master/dotfiles-and-scripts/float.png)
@@ -168,11 +172,9 @@ call InstallRequirements()
 
 - Vim:
     ![](https://raw.githubusercontent.com/Karmenzind/i/master/dotfiles-and-scripts/vim.png)
-    <!-- ![](https://raw.githubusercontent.com/Karmenzind/i/master/dotfiles-and-scripts/vim_goyo.png) -->
 
-## 🖊️ 我用的字体
+<!-- ![](https://raw.githubusercontent.com/Karmenzind/i/master/dotfiles-and-scripts/vim_goyo.png) -->
 
-点这里：[Monaco Nerd](https://github.com/Karmenzind/monaco-nerd-fonts)
 
 ## 💡 创建你自己的DotFile仓库
 
