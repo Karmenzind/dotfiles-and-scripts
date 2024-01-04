@@ -86,7 +86,7 @@
 以创建软链接的形式一键安装所有配置（现有文件会询问是否覆盖、自动备份）：
 
 ```bash
-git clone https://github.com/Karmenzind/dotfiles-and-scripts && cd dotfiles-and-scripts && python3 symlink.py
+git clone https://github.com/Karmenzind/dotfiles-and-scripts && cd dotfiles-and-scripts && python symlink.py
 ```
 
 ### (Neo)Vim配置
@@ -96,7 +96,7 @@ Vim/Neovim两套打磨多年的配置，内部插件有诸多差异但主要行�
 用交互模式运行symlink.py：
 
 ```bash
-git clone https://github.com/Karmenzind/dotfiles-and-scripts && cd dotfiles-and-scripts && python3 symlink.py -i
+git clone https://github.com/Karmenzind/dotfiles-and-scripts && cd dotfiles-and-scripts && python symlink.py -i
 ```
 
 然后确认同步以下几项（不用Neovim的话可以不要后两个）：

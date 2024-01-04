@@ -128,4 +128,3 @@ if !exists('g:colors_name')
 endif
 
 lua require('config')
-

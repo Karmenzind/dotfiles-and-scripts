@@ -4,7 +4,12 @@
 """
 create symlink
 """
+
 from __future__ import annotations, print_function, unicode_literals
+import sys
+
+if sys.version_info.major < 3:
+    print("Python3 is required.")
 
 import argparse
 import datetime
@@ -52,7 +57,7 @@ TO_SYNC = {
         Path("home_k/.vimrc"),
         Path("home_k/.gitconfig"),
         Path("home_k/.config/nvim"),
-        Path("home_k/.config/alacritty/alacritty.yml"),
+        Path("home_k/.config/alacritty/alacritty.toml"),
         # "home_k/.golangci.yml",
         # "home_k/.gitconfig",
         # "home_k/.agignore",
@@ -68,9 +73,10 @@ PATH_MAP = {
     "win": {
         Path("home_k/.vim"): HOME_DIR / "vimfiles",
         Path("home_k/.vimrc"): HOME_DIR / "_vimrc",
-        Path("home_k/.gitconfig"): HOME_DIR / ".gitconfig",
+        Path("home_k/.gitconfig"): HOME_DIR / ".gitconfig", # TODO: auto generate
+        # Path("home_k/.config/nvim"): HOME_DIR / ".config\\nvim",
         Path("home_k/.config/nvim"): HOME_DIR / "AppData\\Local\\nvim",
-        Path("home_k/.config/alacritty/alacritty.yml"): HOME_DIR / "AppData\\Roaming\\alacritty\\alacritty.yml",
+        Path("home_k/.config/alacritty/alacritty.toml"): HOME_DIR / "AppData\\Roaming\\alacritty\\alacritty.toml",
         # "home_k/.golangci.yml",
         # "home_k/.gitconfig",
         # "home_k/.agignore",
