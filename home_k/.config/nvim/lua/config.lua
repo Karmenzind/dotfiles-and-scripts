@@ -3,6 +3,16 @@ vim.g.loaded_netrw = 1
 vim.g.loaded_netrwPlugin = 1
 vim.opt.termguicolors = true
 
+if vim.fn.has("win32") then
+    -- vim.opt.shell = "cmd"
+    vim.opt.shell = vim.fn.executable("pwsh") > 0 and "pwsh" or "powershell"
+    vim.opt.shellcmdflag = "-NoLogo -NoProfile -ExecutionPolicy RemoteSigned -Command [Console]::InputEncoding=[Console]::OutputEncoding=[System.Text.Encoding]::UTF8;"
+    vim.opt.shellredir = "-RedirectStandardOutput %s -NoNewWindow -Wait"
+    vim.opt.shellpipe = "2>&1 | Out-File -Encoding UTF8 %s; exit $LastExitCode"
+    vim.opt.shellquote = ""
+    vim.opt.shellxquote = ""
+end
+
 local nvimpid = vim.fn.getpid()
 
 local function nvim_tree_on_attach(bufnr)

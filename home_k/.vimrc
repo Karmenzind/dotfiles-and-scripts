@@ -5,6 +5,7 @@
 " init
 " --------------------------------------------
 
+let s:is_win = has("win32")
 " let maplocalleader = " "
 " let mapleader = " "
 if $__MYKEYBOARD == "hhkb"
@@ -76,7 +77,7 @@ nnoremap <leader><CR> i<CR><ESC>k$
 
 " /* automatically install Plug */
 if !has("win32")
-  let s:plugged_dir = '~/.vim/plugged'
+  let g:plugged_dir = '~/.vim/plugged'
   if empty(glob('~/.vim/autoload/plug.vim'))
     silent !mkdir -p ~/.vim/autoload &&
             \ wget https://raw.githubusercontent.com/junegunn/vim-plug/master/plug.vim
@@ -84,15 +85,16 @@ if !has("win32")
     autocmd VimEnter * PlugInstall --sync | source $MYVIMRC
   endif
 else
-  let s:plugged_dir = glob('~/vimfiles/plugged')
-  if empty(glob("~/vimfiles/autoload/plug.vim"))
-    echom "Initializing plugins..."
+  let g:plugged_dir = glob('~') .. '\vimfiles\plugged'
+  if !isdirectory(g:plugged_dir)
+    mkdir(g:plugged_dir, 'p')
+  endif
+  if !filereadable(glob('~') .. '\vimfiles\autoload\plug.vim')
+    echom "Initializing vim-plug..."
     " XXX
     silent ! powershell -Command "
-    \   New-Item -Path ~\vimfiles -Name autoload -Type Directory -Force;
-    \   Invoke-WebRequest
-    \   -Uri 'https://raw.githubusercontent.com/junegunn/vim-plug/master/plug.vim'
-    \   -OutFile ~\vimfiles\autoload\plug.vim
+    \ New-Item -Path ~\vimfiles -Name autoload -Type Directory -Force;
+    \ Invoke-WebRequest -Uri 'https://raw.githubusercontent.com/junegunn/vim-plug/master/plug.vim' -OutFile ~\vimfiles\autoload\plug.vim
     \ "
     autocmd VimEnter * PlugInstall --sync | source $MYVIMRC
   endif
@@ -110,7 +112,7 @@ function! Cond(cond, ...)
   return a:cond ? opts : extend(opts, { 'on': [], 'for': [] })
 endfunction
 
-call plug#begin(s:plugged_dir)
+call plug#begin(g:plugged_dir)
 Plug 'junegunn/vim-plug'
 
 " /* coding tools */
@@ -129,7 +131,9 @@ Plug 'liuchengxu/vista.vim'
 " Plug 'Shougo/echodoc.vim'
 Plug 'w0rp/ale' " Asynchronous Lint Engine
 if has("nvim")
-  Plug 'nvim-treesitter/nvim-treesitter', {'do': ':TSUpdate'}
+  if !has("win32")
+    Plug 'nvim-treesitter/nvim-treesitter', {'do': ':TSUpdate'}
+  endif
 
   Plug 'kevinhwang91/promise-async' | Plug 'kevinhwang91/nvim-ufo'
 
@@ -183,11 +187,10 @@ Plug 'mg979/vim-visual-multi', {'branch': 'master'}
 " Plug 'puremourning/vimspector'
 
 " /* version control (vcs) | workspace */
-" Plug 'juneedahamed/vc.vim'
 Plug 'tpope/vim-fugitive'
-if executable("svn")
-  Plug 'Karmenzind/vc-svn.vim', {'branch': 'dev', 'frozen': 1}
-endif
+" if executable("svn")
+"   Plug 'Karmenzind/vc-svn.vim', {'branch': 'dev', 'frozen': 1}
+" endif
 
 if has('nvim')
   Plug 'nvim-tree/nvim-tree.lua'
@@ -235,8 +238,6 @@ Plug 'Traap/vim-helptags'
 
 " /* Experience | Enhancement */
 " if !has('clipboard') | Plug 'kana/vim-fakeclip' | endif
-" if executable('fcitx') | Plug 'vim-scripts/fcitx.vim' | endif
-" Plug 'junegunn/goyo.vim'
 " Plug 'junegunn/limelight.vim'
 " Plug 'vipul-sharma20/vim-registers'
 Plug 'dahu/vim-lotr'
@@ -550,68 +551,68 @@ augroup END
 " --------------------------------------------
 
 " /* for YCM */
-if empty(glob('~/.vim/.ycm_extra_conf.py')) && !has('win32')
-  silent !wget https://raw.githubusercontent.com/Karmenzind/dotfiles-and-scripts/master/home_k/.vim/.ycm_extra_conf.py
-        \ -O ~/.vim/.ycm_extra_conf.py
-endif
-
-let g:ycm_filetype_blacklist = {
-      \ 'gitcommit': 1,
-      \ 'tagbar': 1,
-      \ 'qf': 1,
-      \ 'notes': 1,
-      \ 'unite': 1,
-      \ 'text': 1,
-      \ 'vimwiki': 1,
-      \ 'pandoc': 1,
-      \ 'infolog': 1,
-      \ 'mail': 1,
-      \ }
-
-let g:ycm_confirm_extra_conf = 0
-let g:ycm_add_preview_to_completeopt = 1
-let g:ycm_autoclose_preview_window_after_completion = 1
-
-let g:ycm_global_ycm_extra_conf = '~/.vim/.ycm_extra_conf.py'
-let g:ycm_complete_in_comments = 1
-let g:ycm_complete_in_strings = 1
-let g:ycm_server_python_interpreter = 'python'
-let g:ycm_python_binary_path = 'python3'
-let g:ycm_goto_buffer_command = 'horizontal-split'
-
-let g:ycm_seed_identifiers_with_syntax = 1
-let g:ycm_collect_identifiers_from_tags_files = 1
-" let g:ycm_collect_identifiers_from_comments_and_strings = 1
-" let g:ycm_max_num_candidates = 14
-" let g:ycm_max_num_identifier_candidates = 7
-
-let g:ycm_semantic_triggers = {
- \   'python': [ 're!(import\s+|from\s+(\w+\s+(import\s+(\w+,\s+)*)?)?)' ],
- \   'html': ['<', '"', '</', ' '],
- \   'scss,css': [ 're!^\s{2,4}', 're!:\s+' ]
- \ }
-
-let g:__rtp = &rtp
-let g:ycm_extra_conf_vim_data = ['g:__rtp']
-
-" set completeopt-=preview
-set completeopt+=longest,menu
-" if has('patch-8.1.1902')
-"     set completeopt+=popup
-"     set completepopup=height:10,width:60,highlight:Pmenu,border:off
-"     set pumwidth=10
-" endif
-
-let g:ycm_language_server = [
-      \ {"name": "vue", "filetypes": ["vue"], "cmdline": ["vls"] },
-      \ {"name": "vim", "filetypes": ["vim"], "cmdline": ["vim-language-server", '--stdio'] },
-      \ ]
-
-if !has('nvim')
-    let g:ycm_auto_hover = ''
-endif
-
 if has_key(plugs, 'YouCompleteMe')
+  if empty(glob('~/.vim/.ycm_extra_conf.py')) && !has('win32')
+    silent !wget https://raw.githubusercontent.com/Karmenzind/dotfiles-and-scripts/master/home_k/.vim/.ycm_extra_conf.py
+          \ -O ~/.vim/.ycm_extra_conf.py
+  endif
+
+  let g:ycm_filetype_blacklist = {
+        \ 'gitcommit': 1,
+        \ 'tagbar': 1,
+        \ 'qf': 1,
+        \ 'notes': 1,
+        \ 'unite': 1,
+        \ 'text': 1,
+        \ 'vimwiki': 1,
+        \ 'pandoc': 1,
+        \ 'infolog': 1,
+        \ 'mail': 1,
+        \ }
+
+  let g:ycm_confirm_extra_conf = 0
+  let g:ycm_add_preview_to_completeopt = 1
+  let g:ycm_autoclose_preview_window_after_completion = 1
+
+  let g:ycm_global_ycm_extra_conf = '~/.vim/.ycm_extra_conf.py'
+  let g:ycm_complete_in_comments = 1
+  let g:ycm_complete_in_strings = 1
+  let g:ycm_server_python_interpreter = 'python'
+  let g:ycm_python_binary_path = 'python3'
+  let g:ycm_goto_buffer_command = 'horizontal-split'
+
+  let g:ycm_seed_identifiers_with_syntax = 1
+  let g:ycm_collect_identifiers_from_tags_files = 1
+  " let g:ycm_collect_identifiers_from_comments_and_strings = 1
+  " let g:ycm_max_num_candidates = 14
+  " let g:ycm_max_num_identifier_candidates = 7
+
+  let g:ycm_semantic_triggers = {
+  \   'python': [ 're!(import\s+|from\s+(\w+\s+(import\s+(\w+,\s+)*)?)?)' ],
+  \   'html': ['<', '"', '</', ' '],
+  \   'scss,css': [ 're!^\s{2,4}', 're!:\s+' ]
+  \ }
+
+  let g:__rtp = &rtp
+  let g:ycm_extra_conf_vim_data = ['g:__rtp']
+
+  " set completeopt-=preview
+  set completeopt+=longest,menu
+  " if has('patch-8.1.1902')
+  "     set completeopt+=popup
+  "     set completepopup=height:10,width:60,highlight:Pmenu,border:off
+  "     set pumwidth=10
+  " endif
+
+  let g:ycm_language_server = [
+        \ {"name": "vue", "filetypes": ["vue"], "cmdline": ["vls"] },
+        \ {"name": "vim", "filetypes": ["vim"], "cmdline": ["vim-language-server", '--stdio'] },
+        \ ]
+
+  if !has('nvim')
+      let g:ycm_auto_hover = ''
+  endif
+
   augroup ycm_behaviours
       au!
       au FileType python,go,sh,vim
@@ -626,8 +627,6 @@ if has_key(plugs, 'YouCompleteMe')
 endif
 
 " /* for XXX */
-nnoremap <silent> <leader>N :NERDTreeFind<CR>
-
 function! s:FzfToNERDTree(lines)
     if len(a:lines) == 0
         return
@@ -650,6 +649,7 @@ function! s:FzfToNERDTree(lines)
 endfunction
 
 " /* for NERDTree */
+nnoremap <silent> <leader>N :NERDTreeFind<CR>
 nnoremap <silent> <Leader>n :NERDTreeToggle<CR>
 let g:NERDTreeIgnore = ['\.pyc$', '\~$', '__pycache__[[dir]]', '\.swp$']
 let g:NERDTreeShowBookmarks = 1
@@ -746,12 +746,21 @@ let g:fzf_action = {
   \ 'ctrl-x': 'split',
   \ 'ctrl-v': 'vsplit' }
 
-" let g:fzf_layout = { 'down': '~51%' }
-" let g:fzf_layout = { 'window': { 'width': 0.9, 'height': 0.6 } }
 let g:fzf_preview_window = 'right:60%'
 let g:fzf_buffers_jump = 1
 let g:fzf_tags_command = 'ctags -R'
 let g:fzf_history_dir = '~/.local/share/fzf-history'
+
+if s:is_win
+  let g:fzf_history_dir = '~/.local/share/fzf-history'
+  " XXX bash path
+  let g:fzf_vim = {
+    \ 'preview_bash': 'C:\Program Files\Git\git-bash.exe',
+    \ 'preview_window': ['hidden,right,50%,<70(up,40%)', 'ctrl-/'],
+    \ }
+  " let g:fzf_vim.preview_bash = 'C:\Program Files\Git\git-bash.exe'
+  " let g:fzf_vim.preview_window = ['hidden,right,50%,<70(up,40%)', 'ctrl-/']
+endif
 
 let s:__use_tmux = v:false
 if !has('win32') && exists('$TMUX')
@@ -764,7 +773,7 @@ endif
 if s:__use_tmux
   let g:fzf_layout = { 'tmux': '-p90%,60%' }
 else
-  if has('nvim') || has("popupwin")
+  if !s:is_win && (has('nvim') || has("popupwin"))
     let g:fzf_layout = { 'window': { 'width': 0.9, 'height': 0.6 } }
     " let g:fzf_layout = { 'down': '10new' }
   else
@@ -789,14 +798,15 @@ endif
 command! -bang -nargs=* Ag
       \ call fzf#vim#ag(<q-args>, '--hidden', <bang>0)
 
-" command! -bang -nargs=? -complete=dir Files
-"       \ call fzf#vim#files(<q-args>, fzf#vim#with_preview('right:60%'), <bang>0)
-
 command! -bar -nargs=? -bang Maps
       \ call fzf#vim#maps(<q-args>, <bang>0)
 
 nnoremap <Leader>ff :Files<CR>
-nnoremap <Leader>fa :Ag<SPACE>
+if s:is_win
+  nnoremap <Leader>fa :Rg<SPACE>
+else
+  nnoremap <Leader>fa :Ag<SPACE>
+endif
 nnoremap <Leader>fr :Rg<SPACE>
 nnoremap <Leader>fl :Lines<SPACE>
 nnoremap <Leader>fL :BLines<SPACE>
@@ -1723,8 +1733,8 @@ if has("win32")
   source $VIMRUNTIME/menu.vim
   language messages zh_CN.utf-8
 
-  set lines=77
-  set columns=180
+  " broken on Win11
+  " set lines=77  columns=180
   if executable("pwsh")
     set shell=pwsh
   else

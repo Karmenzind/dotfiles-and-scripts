@@ -6,7 +6,9 @@ create symlink
 """
 
 from __future__ import annotations, print_function, unicode_literals
+
 import sys
+from typing import List
 
 if sys.version_info.major < 3:
     print("Python3 is required.")
@@ -20,17 +22,17 @@ import time
 import warnings
 from pathlib import Path
 
-if sys.platform == 'linux':
-    platform = 'linux'
-    with open('/proc/version', 'r') as f:
+if sys.platform == "linux":
+    platform = "linux"
+    with open("/proc/version", "r") as f:
         VERSION_INFO = f.read().lower()
-elif sys.platform == 'win32':
-    platform = 'win'
-    VERSION_INFO = None
+elif sys.platform == "win32":
+    platform = "win"
+    VERSION_INFO = ""
 else:
     warnings.warn("Not tested on this platform: %s" % platform)
-    platform = 'unknown'
-    VERSION_INFO = None
+    platform = "unknown"
+    VERSION_INFO = ""
 
 new_linked = []
 
@@ -39,52 +41,61 @@ CUR_TIME = datetime.datetime.now().strftime("%Y%m%d_%H%M")
 print("Current time: ", CUR_TIME)
 
 REPO_DIR = Path(os.path.dirname(os.path.abspath(__file__)))
-HOME_DIR = Path(os.path.expanduser('~'))
+HOME_DIR = Path(os.path.expanduser("~"))
 os.chdir(REPO_DIR)
 
-TAB = ' ' * 4
-YN = ('y', 'n')
-YNI = ('y', 'n', 'i')
-LINE = '\n' + '-' * 44 + '\n'
+TAB = " " * 4
+YN = ("y", "n")
+YNI = ("y", "n", "i")
+LINE = "\n" + "-" * 44 + "\n"
 
-TO_SYNC = {
-    "linux": [
-        Path("home_k"),
-        Path("local_bin"),
-    ],
-    "win": [
+TO_SYNC: List[Path]
+if platform == "win":
+    def get_ps_profile_path(all_users=False):
+        import subprocess
+        ps_args = "-NoLogo -NoProfile -ExecutionPolicy RemoteSigned -Command"
+        if all_users:
+            powershell_command = f"pwsh {ps_args} $PROFILE.AllUsersCurrentHost"
+        else:
+            powershell_command = f'pwsh {ps_args} $PROFILE'
+        result = subprocess.run(powershell_command, stdout=subprocess.PIPE, text=True, shell=True)
+        return result.stdout.strip()
+
+
+    TO_SYNC = [
         Path("home_k/.vim"),
         Path("home_k/.vimrc"),
         Path("home_k/.gitconfig"),
         Path("home_k/.config/nvim"),
         Path("home_k/.config/alacritty/alacritty.toml"),
+        Path("others/powershell/profile.ps1"),
         # "home_k/.golangci.yml",
-        # "home_k/.gitconfig",
         # "home_k/.agignore",
         # "home_k/.config/mypy",
     ]
-}
-
-PATH_MAP = {
-    "linux": {
+    PATH_MAP = {
         Path("home_k"): HOME_DIR,
-        Path("local_bin"): Path("/usr/local/bin"),
-    },
-    "win": {
         Path("home_k/.vim"): HOME_DIR / "vimfiles",
         Path("home_k/.vimrc"): HOME_DIR / "_vimrc",
-        Path("home_k/.gitconfig"): HOME_DIR / ".gitconfig", # TODO: auto generate
-        # Path("home_k/.config/nvim"): HOME_DIR / ".config\\nvim",
         Path("home_k/.config/nvim"): HOME_DIR / "AppData\\Local\\nvim",
         Path("home_k/.config/alacritty/alacritty.toml"): HOME_DIR / "AppData\\Roaming\\alacritty\\alacritty.toml",
+        Path("others/powershell/profile.ps1") : get_ps_profile_path(),
         # "home_k/.golangci.yml",
         # "home_k/.gitconfig",
         # "home_k/.agignore",
     }
-}
+else:
+    TO_SYNC = [
+        Path("home_k"),
+        Path("local_bin"),
+    ]
+    PATH_MAP = {
+        Path("home_k"): HOME_DIR,
+        Path("local_bin"): Path("/usr/local/bin"),
+    }
+
 
 # dirs
-
 SYMLINK_AS_DIR = [
     Path("home_k/.vim/mysnippets"),
 ]
@@ -96,27 +107,34 @@ EXCLUDED = [
 ]
 
 
-def ask(choices, msg='Continue?'):
+def ask(choices, msg="Continue?"):
     ans = None
-    msg += ' (%s) ' % '/'.join(choices)
+    msg += " (%s) " % "/".join(choices)
     while ans not in choices:
         ans = input(msg)
     return ans
 
 
-def validate(src: str) -> bool:
+def validate(src: Path) -> bool:
     ret = True
     if Path(src) in EXCLUDED:
         return False
 
-    if platform == 'linux':
-        if 'i3/config' in src:
-            if 'manjaro' in VERSION_INFO:
-                ret = src.endswith(".manjaro")
+    if platform == "linux":
+        src_str = str(src)
+        if "i3/config" in src_str:
+            if "manjaro" in VERSION_INFO:
+                ret = src_str.endswith(".manjaro")
             else:
-                ret = not src.endswith(".manjaro")
+                ret = not src_str.endswith(".manjaro")
 
     return ret
+
+
+def ensure_pardir(filepath):
+    to_pardir = os.path.dirname(filepath)
+    if not os.path.exists(to_pardir):
+        os.makedirs(to_pardir, exist_ok=True)
 
 
 backup_pat = f"*.backup_{CUR_TIME}"
@@ -124,7 +142,7 @@ backup_pat = f"*.backup_{CUR_TIME}"
 
 def do_symlink(from_: Path, to_: Path):
     print(f"\n≫  processing: {from_} -> {to_}")
-    if args.interactive and ask(YN) == 'n':
+    if args.interactive and ask(YN) == "n":
         print("Ignored.")
         return
 
@@ -132,7 +150,9 @@ def do_symlink(from_: Path, to_: Path):
 
     # A file can be a symlink as well as nonexisted on Win. Fuck Windows
     if os.path.islink(to_):
-        existed_link_to = os.path.realpath(to_) if sys.platform == 'win32' else os.readlink(to_)
+        existed_link_to = (
+            os.path.realpath(to_) if sys.platform == "win32" else os.readlink(to_)
+        )
         if existed_link_to == str(from_):
             print(f"{to_} is already symlinked to {from_}. Ignored.")
             return
@@ -145,10 +165,10 @@ def do_symlink(from_: Path, to_: Path):
 
     if override_msg:
         ans = ask(YN, override_msg)
-        if ans == 'n':
+        if ans == "n":
             return
 
-        bakname = str(to_) + f'.backup_{CUR_TIME}'
+        bakname = str(to_) + f".backup_{CUR_TIME}"
         if fake:
             print("[fake] rename: %s -> %s" % (to_, bakname))
         else:
@@ -165,59 +185,66 @@ def do_symlink(from_: Path, to_: Path):
             print(f"[✘] Error occurred: {e}")
 
 
+def accessible(p):
+    if platform == "linux":
+        if not str(p).startswith("/home") and not getpass.getuser() == "root":
+            return False
+    return True
+
+
+def get_mapped(p: Path) -> Path:
+    if p in PATH_MAP:
+        return PATH_MAP[p]
+
+    parts = str(p).split(os.sep)
+    if len(parts) == 1:
+        raise AssertionError(f"{p} not in PATH_MAP")
+
+    for i in range(len(parts) - 1, 0, -1):
+        left = Path(os.sep.join(parts[:i]))
+        if left in PATH_MAP:
+            return PATH_MAP[left] / os.sep.join(parts[i:])
+
+    raise AssertionError(f"Mapping {p} failed")
+
+
 def main():
     """TODO: Docstring for main.
     :returns: TODO
 
     """
-    path_conn = os.sep
-    path_map = PATH_MAP[platform]
-    for d in TO_SYNC[platform]:
-        to_d: Path = path_map[d]
-        d = Path(d)
-        if platform == 'linux':
-            if not str(to_d).startswith("/home") and not getpass.getuser() == "root":
-                print("[⚠ Warn] root or sudo is required to symlink %s" % d)
-                continue
-
-        if os.path.isfile(d):
-            to_pardir = os.path.dirname(to_d)
-            if not os.path.exists(to_pardir):
-                os.makedirs(to_pardir, exist_ok=True)
-            do_symlink(d, to_d)
+    for item in TO_SYNC:
+        mapped: Path = get_mapped(item)
+        if not accessible(mapped):
+            print("[⚠ Warn] root or sudo is required to symlink %s" % item)
             continue
 
-        for (from_dir, _, subfiles) in os.walk(d):
+        if os.path.isfile(item):
+            ensure_pardir(mapped)
+            do_symlink(item, mapped)
+            continue
+
+        for from_dir, _, subfiles in os.walk(item):
             from_dir = Path(from_dir)
-            # from_dir_unix = from_dir.replace(path_conn, '/')
-            if from_dir in path_map:
-                to_dir = path_map[from_dir]
-            else:
-                sep_count = str(d).count(path_conn)
-                if sep_count:
-                    to_dir = Path(os.path.join(to_d, path_conn.join(str(from_dir).split(path_conn)[sep_count + 1:])))
-                else:
-                    to_dir = Path(os.path.join(to_d, str(from_dir).split(path_conn, 1)[1]))
+            to_dir = get_mapped(from_dir)
 
             if from_dir in SYMLINK_AS_DIR:
                 do_symlink(from_dir, to_dir)
                 continue
 
-            if not os.path.isdir(to_dir):
+            if not os.path.isdir(to_dir):  # not exist
                 if fake:
                     print("[fake] create dir:", to_dir)
                 else:
                     os.makedirs(to_dir, exist_ok=True)
 
             for filename in subfiles:
-                src = os.path.join(from_dir, filename)
-                dest = os.path.join(to_dir, filename)
-
+                src = from_dir / filename
                 if not validate(src):
                     print("\n≫  Ignored invalid: %s" % src)
                     continue
 
-                do_symlink(src, dest)
+                do_symlink(src, to_dir / filename)
 
     if new_linked:
         print("[✔]  New created links:")
@@ -227,8 +254,12 @@ def main():
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
-    parser.add_argument('--fake', action='store_true', help="Only preview what will happen")
-    parser.add_argument('-i', '--interactive', action='store_true', help="Let me determine every file")
+    parser.add_argument(
+        "--fake", action="store_true", help="Only preview what will happen"
+    )
+    parser.add_argument(
+        "-i", "--interactive", action="store_true", help="Let me determine every file"
+    )
     args = parser.parse_args()
     fake = args.fake
 

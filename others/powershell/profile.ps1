@@ -6,21 +6,26 @@ function Test-Administrator {
 $isRunningAsAdmin = Test-Administrator
 
 if (Get-Command 'fzf') {
-    if (Get-Module -ListAvailable -Name PsFZF) {
+    if (Get-Module -ListAvailable -Name PsFZF ) {
         echo "Found Psfzf. Configuring..."
         # replace 'Ctrl+t' and 'Ctrl+r' with your preferred bindings:
+        Import-Module PSReadline
         Set-PsFzfOption -PSReadlineChordProvider 'Ctrl+t' -PSReadlineChordReverseHistory 'Ctrl+r'
         # Set-PSReadLineKeyHandler -Key Tab -ScriptBlock { Invoke-FzfTabCompletion }
     }
-    # XXX slow on windows
-    if (Get-Command ag) {
-        # $env:FZF_DEFAULT_COMMAND="fd --type -f"
-        $env:FZF_DEFAULT_COMMAND="ag --hidden --nocolor -U -g ."
+    elseif ($isRunningAsAdmin) {
+        echo "PsFZF not found. Install command: 'Install-Module -Name PSFzf'"
     }
-    # $env:FZF_DEFAULT_OPTS="--inline-info --height 50% --reverse --border=horizontal --preview-window=down:50% --color fg:yellow,fg+:bright-yellow"
+    if (Get-Command rg -ErrorAction SilentlyContinue) {
+        $env:FZF_DEFAULT_COMMAND = 'fd --type f --strip-cwd-prefix --hidden --follow --exclude .git'
+
+    }
+    # $env:FZF_DEFAULT_OPTS="--preview 'bat.exe -r:10 {}' --inline-info --height 50% --reverse --border=horizontal --preview-window=right:40% --color fg:yellow,fg+:bright-yellow"
+    $env:FZF_DEFAULT_OPTS="--preview 'bat.exe -r:10 {}' --inline-info --height 50% --reverse --border --preview-window=right:40%:hidden --bind 'ctrl-/:toggle-preview'"
     # $env:FZF_CTRL_T_OPTS="--preview '(highlight -O ansi -l {} 2> /dev/null || cat {} || tree -C {}) 2> /dev/null | head -200'"
-    $env:FZF_CTRL_R_OPTS="--preview 'echo {}' --preview-window down:3:hidden:wrap --bind '?:toggle-preview'"
-    $env:FZF_COMPLETION_OPTS='--border --info=inline'
+    # $env:FZF_CTRL_R_OPTS = "--preview 'bat.exe -r:10 {}' --preview-window down:3:hidden:wrap --bind '?:toggle-preview'"
+    $env:FZF_CTRL_R_OPTS = "--preview 'echo {}' --preview-window down:3:hidden:wrap --bind 'ctrl-/:toggle-preview'"
+    $env:FZF_COMPLETION_OPTS = '--border --info=inline'
 
     if ($isRunningAsAdmin) {
         [System.Environment]::SetEnvironmentVariable("FZF_COMPLETION_OPTS", "--border --info=inline", "Machine")
@@ -47,11 +52,11 @@ if (Get-Command 'fzf') {
 # See https://ch0.co/tab-completion for details.
 $ChocolateyProfile = "$env:ChocolateyInstall\helpers\chocolateyProfile.psm1"
 if (Test-Path($ChocolateyProfile)) {
-  Import-Module "$ChocolateyProfile"
+    Import-Module "$ChocolateyProfile"
 }
 
 # Invoke-Expression (&starship init powershell)
 # pwsh -ExecutionPolicy Bypass -NoLogo -NoProfile -NoExit -Command "Invoke-Expression 'Import-Module ''%ConEmuDir%\..\profile.ps1''; Import-Module ''C:\Users\qike\Documents\WindowsPowerShell\Microsoft.PowerShell_profile.ps1'''"
 
 Remove-Variable -Name 'isRunningAsAdmin'
-echo "[√] Loaded profile: $PROFILE"
+echo "[:)] Loaded profile: $PROFILE"

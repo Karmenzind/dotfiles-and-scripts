@@ -1,22 +1,34 @@
 " vim:set et sw=2 ts=2 tw=78 ft=vim:
 " Github: https://github.com/Karmenzind/dotfiles-and-scripts
+" share the .vimrc with Vim
 
 let s:is_win = has("win32")
-
-" share the .vimrc with Vim
 
 " to specify the providers
 if !s:is_win
   set runtimepath^=~/.vim runtimepath+=~/.vim/after
   let &packpath = &runtimepath
-  source ~/.vimrc
-
-  let g:python_host_prog = '/usr/bin/python2'
   let g:python3_host_prog = '/usr/bin/python3'
   let g:ruby_host_prog = trim(system("find $HOME/.gem -regex '.*ruby/[^/]+/bin/neovim-ruby-host'"))
+  source ~/.vimrc
 else
   set runtimepath^=~/vimfiles runtimepath+=~/vimfiles/after
   let &packpath = &runtimepath
+
+  function! s:FindPythonExe()
+    let pats = [
+          \ 'C:\Program Files\Python3*\python.exe',
+          \ '~\AppData\Local\Programs\Python\Python*\python.exe',
+          \ ]
+    for pat in pats
+      let expanded = glob(pat, v:false, v:true)
+      if !empty(expanded)
+        return expanded[len(expanded)-1]
+      endif
+    endfor
+    throw "Failed to locate python.exe"
+  endfunction
+  let g:python3_host_prog = s:FindPythonExe()
   source ~/_vimrc
 endif
 
