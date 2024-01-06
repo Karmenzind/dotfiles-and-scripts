@@ -1,7 +1,11 @@
+param(
+    [int]$vimOnly
+)
+
 $isAdminMode = ([Security.Principal.WindowsPrincipal] [Security.Principal.WindowsIdentity]::GetCurrent()).IsInRole([Security.Principal.WindowsBuiltInRole]::Administrator)
 
 function Command-Exists {
-    param ( 
+    param (
         [string]$commandName
     )
     Get-Command -Name $commandName -ErrorAction SilentlyContinue
@@ -17,7 +21,6 @@ if (-not $isAdminMode) {
     Exit
 }
 
-
 function Ensure-Tool {
     param (
         [string]$checkCommand,
@@ -25,12 +28,12 @@ function Ensure-Tool {
         [string]$packageName
     )
 
-    if (Command-Exists $checkCommand) {
-        Write-Host "[OK] $checkCommand is already installed."
+    if (($checkCommand -eq "") -or (Command-Exists $checkCommand)) {
+        Write-Host "[OK] $packageName is already installed."
         return $true
     }
-     
-    Write-Host "[>] $checkCommand is not installed. Attempting to install using $installTool..."
+
+    Write-Host "[>] Command $checkCommand not found. Attempting to install using $installTool..."
 
     switch ($installTool) {
         "choco" {
@@ -56,29 +59,82 @@ function Ensure-Tool {
     $commandExistsAfterInstall = Get-Command -Name $checkCommand -ErrorAction SilentlyContinue
 
     if ($commandExistsAfterInstall) {
-        Write-Host "[OK] $checkCommand has been successfully installed."
+        Write-Host "[OK] $packageName has been successfully installed."
         return $true
     }
     else {
-        Write-Host "[x] Failed to install $checkCommand using $installTool. Please install it manually."
+        Write-Host "[x] Failed to install $packageName. Please install it manually."
         return $false
     }
-    
 }
 
+function PressToQuit {
+    Write-Host ":) Press any key to continue..."
+    $null = $Host.UI.RawUI.ReadKey("NoEcho,IncludeKeyDown")
+}
+
+function Setup-Fonts {
+    # Monaco
+    Write-Host "[>] Checking fonts..."
+    $fontsDlDir = Join-Path $env:USERPROFILE 'Downloads\fonts'
+    New-Item -ItemType Directory -Force -Path $fontsDlDir
+    $monacoDir = Join-Path $fontsDlDir 'monaco-nerd'
+    if (Test-Path $monacoDir) {
+        Write-Host "[>] $monacoDir exists. No need to clone."
+    } else {
+        Write-Host "[>] Fonts files will be downloaded to $monacoDir..."
+        git clone https://github.com/Karmenzind/monaco-nerd-fonts $monacoDir
+    }
+
+    foreach ($_ in Get-ChildItem -Path $(Join-Path $monacoDir "fonts")) {
+        # Write-Host "Installing font: $_.Name"
+        $fontFileName = Split-Path $_ -Leaf
+        $srcPath = $(Join-Path "$monacoDir\fonts" $fontFileName)
+        $targetPath = Join-Path "C:\Windows\Fonts" $fontFileName
+        Write-Host "$_ will be installed to $targetPath"
+
+        if (Test-Path $targetPath) {
+            Write-Host "$targetPath already exists. Ignored."
+            continue
+        }
+        if (Command-Exists Install-Font) {
+            Install-Font -FontFilePath "$monacoDir\fonts\$_"
+        } else {
+            Copy-Item $srcPath $targetPath
+        }
+    }
+
+    PressToQuit
+}
+
+Write-Host "[>] Checking basic apps..."
 $null = Ensure-Tool "choco" "winget" "chocolatey"
+$null = Ensure-Tool "node" "choco" "nodejs"
+$null = Ensure-Tool "pwsh" "winget" "MicrosoftPowershell"
+$null = Ensure-Tool "git" "winget" "git"
+$pyOk = Ensure-Tool "python" "choco" "python"
+
+Write-Host "[>] Checking Vim/Neovim related apps..."
+$null = Ensure-Tool "vim" "winget" "vim"
 $null = Ensure-Tool "nvim" "choco" "neovim"
 $null = Ensure-Tool "fzf" "choco" "fzf"
 $null = Ensure-Tool "axel" "choco" "axel"
-$null = Ensure-Tool "node" "choco" "nodejs"
-$null = Ensure-Tool "pwsh" "winget" "MicrosoftPowershell"
 $null = Ensure-Tool "lua" "winget" "DEVCOM.Lua"
 $null = Ensure-Tool "rg" "winget" "BurntSushi.ripgrep.MSVC"
-$null = Ensure-Tool "lf" "winget" "gokcehan.lf"
 $null = Ensure-Tool "bat" "winget" "sharkdp.bat"
 $null = Ensure-Tool "ctags" "choco" "universal-ctags"
+$null = Ensure-Tool "neovide" "choco" "neovide"
 
-if (Ensure-Tool "python" "choco" "python") {
+# linters / fixers
+$null = Ensure-Tool "prettier" "npm" "neovide"
+$null = Ensure-Tool "marksman" "npm" "marksman"
+$null = Ensure-Tool "marksman" "npm" "marksman"
+$null = Ensure-Tool "stylua" "choco" "stylua"
+
+Setup-Fonts
+
+if ($pyOk) {
+    $null = Ensure-Tool "" "pip" "neovim"
     $null = Ensure-Tool "ipython" "pip" "ipython"
     $null = Ensure-Tool "autopep8" "pip" "autopep8"
     $null = Ensure-Tool "black" "pip" "black"
@@ -86,6 +142,15 @@ if (Ensure-Tool "python" "choco" "python") {
     $null = Ensure-Tool "autoflake" "pip" "autoflake"
 }
 
-# 在脚本结束时，提示用户按任意键继续
-Write-Host "Press any key to continue..."
+if ($vimOnly -ne 1) {
+    Write-Host ":) Installad vim related apps."
+    Write-Host ":) Press any key to continue..."
+    $null = $Host.UI.RawUI.ReadKey("NoEcho,IncludeKeyDown")
+    Exit
+}
+
+Write-Host "[>] Checking regular apps..."
+$null = Ensure-Tool "lf" "winget" "gokcehan.lf"
+
+Write-Host ":) Press any key to continue..."
 $null = $Host.UI.RawUI.ReadKey("NoEcho,IncludeKeyDown")

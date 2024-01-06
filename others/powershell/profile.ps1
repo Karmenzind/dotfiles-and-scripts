@@ -6,19 +6,23 @@ function Test-Administrator {
 $isRunningAsAdmin = Test-Administrator
 
 if (Get-Command 'fzf') {
-    if (Get-Module -ListAvailable -Name PsFZF ) {
-        echo "Found Psfzf. Configuring..."
-        # replace 'Ctrl+t' and 'Ctrl+r' with your preferred bindings:
-        Import-Module PSReadline
-        Set-PsFzfOption -PSReadlineChordProvider 'Ctrl+t' -PSReadlineChordReverseHistory 'Ctrl+r'
-        # Set-PSReadLineKeyHandler -Key Tab -ScriptBlock { Invoke-FzfTabCompletion }
-    }
-    elseif ($isRunningAsAdmin) {
-        echo "PsFZF not found. Install command: 'Install-Module -Name PSFzf'"
+    $psVersion = $PSVersionTable.PSVersion.Major
+    if ($psVersion.Major -ge 7) {
+        if (Get-Module -ListAvailable -Name PsFZF ) {
+            Write-Host "Found Psfzf. Configuring..."
+            # replace 'Ctrl+t' and 'Ctrl+r' with your preferred bindings:
+            Import-Module PSReadline
+            Set-PsFzfOption -PSReadlineChordProvider 'Ctrl+t' -PSReadlineChordReverseHistory 'Ctrl+r'
+            # Set-PSReadLineKeyHandler -Key Tab -ScriptBlock { Invoke-FzfTabCompletion }
+        }
+        elseif ($isRunningAsAdmin) {
+            Write-Host "PsFZF not found. Install command: 'Install-Module -Name PSFzf'"
+        }
+    } else {
+        Write-Host "(PsFZF is Ignored.)"
     }
     if (Get-Command rg -ErrorAction SilentlyContinue) {
         $env:FZF_DEFAULT_COMMAND = 'fd --type f --strip-cwd-prefix --hidden --follow --exclude .git'
-
     }
     # $env:FZF_DEFAULT_OPTS="--preview 'bat.exe -r:10 {}' --inline-info --height 50% --reverse --border=horizontal --preview-window=right:40% --color fg:yellow,fg+:bright-yellow"
     $env:FZF_DEFAULT_OPTS="--preview 'bat.exe -r:10 {}' --inline-info --height 50% --reverse --border --preview-window=right:40%:hidden --bind 'ctrl-/:toggle-preview'"
@@ -34,7 +38,7 @@ if (Get-Command 'fzf') {
 }
 
 # $env:HTTP_PROXY="http://0.0.0.0:12345"
-# echo "Set proxy: $env:HTTP_PROXY"
+# Write-Host "Set proxy: $env:HTTP_PROXY"
 
 # [system.net.webrequest]::DefaultWebProxy = new-object system.net.webproxy('http://0.0.0.0:12345')
 # # If you need to import proxy settings from Internet Explorer, you can replace the previous line with the: "netsh winhttp import proxy source=ie"
@@ -45,18 +49,14 @@ if (Get-Command 'fzf') {
 # # System.Net.WebRequest]::DefaultWebProxy= Import-Clixml -Path C:\PS\user_creds.xml
 # [system.net.webrequest]::DefaultWebProxy.BypassProxyOnLocal = $true
 
-# Import the Chocolatey Profile that contains the necessary code to enable
-# tab-completions to function for `choco`.
-# Be aware that if you are missing these lines from your profile, tab completion
-# for `choco` will not function.
-# See https://ch0.co/tab-completion for details.
-$ChocolateyProfile = "$env:ChocolateyInstall\helpers\chocolateyProfile.psm1"
-if (Test-Path($ChocolateyProfile)) {
-    Import-Module "$ChocolateyProfile"
-}
+# Import the Chocolatey Profile that contains the necessary code to enable tab-completions to function for `choco`.
+# $ChocolateyProfile = "$env:ChocolateyInstall\helpers\chocolateyProfile.psm1"
+# if (Test-Path($ChocolateyProfile)) {
+#     Import-Module "$ChocolateyProfile"
+# }
 
 # Invoke-Expression (&starship init powershell)
 # pwsh -ExecutionPolicy Bypass -NoLogo -NoProfile -NoExit -Command "Invoke-Expression 'Import-Module ''%ConEmuDir%\..\profile.ps1''; Import-Module ''C:\Users\qike\Documents\WindowsPowerShell\Microsoft.PowerShell_profile.ps1'''"
 
 Remove-Variable -Name 'isRunningAsAdmin'
-echo "[:)] Loaded profile: $PROFILE"
+Write-Host "[:)] Loaded profile: $PROFILE"

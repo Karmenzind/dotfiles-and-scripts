@@ -1,24 +1,30 @@
 " vim:set et sw=2 ts=2 tw=78 ft=vim:
 " Github: https://github.com/Karmenzind/dotfiles-and-scripts
 
-" --------------------------------------------
-" init
-" --------------------------------------------
-
 let s:is_win = has("win32")
-" let maplocalleader = " "
-" let mapleader = " "
-if $__MYKEYBOARD == "hhkb"
-  noremap <BACKSPACE> <NOP>
-  map <BACKSPACE> <Leader>
+if s:is_win
+  set fileencodings=ucs-bom,utf-8,chinese,cp936
+  set fileencoding=chinese
+  language messages zh_CN.utf-8
+  let &shell= executable("pwsh")? 'pwsh': 'powershell'
+  let &shellcmdflag = "-NoLogo -NoProfile -ExecutionPolicy RemoteSigned -Command [Console]::InputEncoding=[Console]::OutputEncoding=[System.Text.Encoding]::UTF8;"
+
+  let g:vimroot = glob('~') .. '\vimfiles'
+else
+  let g:vimroot = glob('~') .. '/vim'
 endif
 
 let b:current_hour = strftime('%H')
 let s:bg_light = b:current_hour >=8 && b:current_hour < 17
+let g:plugged_dir = g:vimroot .. '/plugged'
 
 " --------------------------------------------
 " general keymaps and abbreviations
 " --------------------------------------------
+if $__MYKEYBOARD == "hhkb"
+  noremap <BACKSPACE> <NOP>
+  map <BACKSPACE> <Leader>
+endif
 
 function! s:NoSearchCabbrev(abbr, expanded)
   execute printf("cabbrev <expr> %s (getcmdtype() == ':') ? \"%s\" : \"%s\"", a:abbr, a:expanded, a:abbr)
@@ -30,7 +36,7 @@ function! s:OpenTerm() abort
     terminal
     call feedkeys('A')
   else
-    if has('win32') && executable('pwsh')
+    if s:is_win && executable('pwsh')
       execute ':terminal pwsh'
     else
       terminal
@@ -51,16 +57,8 @@ call s:NoSearchCabbrev("th", "tab<SPACE>help")
 call s:NoSearchCabbrev("sss", "s/\v(,)\s*/\1\r/g")
 
 " /* workspace, layout, format and others */
-" XXX: <2019-11-28> didn't work in vim8
-nnoremap <silent> <A-a> gT
-nnoremap <silent> <A-d> gt
-map <M-a> <A-a>
-map <M-d> <A-d>
-nnoremap n gt
-nnoremap p gT
-
-nnoremap <silent> <C-p> gT
 nnoremap <silent> <C-n> gt
+nnoremap <silent> <C-p> gT
 
 " use <Leader>s as 'set' prefix
 nnoremap <silent> <Leader>sw :set wrap!<CR> :set wrap?<CR>
@@ -75,9 +73,8 @@ nnoremap <leader><CR> i<CR><ESC>k$
 "  plugin manager
 " --------------------------------------------
 
-" /* automatically install Plug */
+" /* initialize Plug itself */
 if !has("win32")
-  let g:plugged_dir = '~/.vim/plugged'
   if empty(glob('~/.vim/autoload/plug.vim'))
     silent !mkdir -p ~/.vim/autoload &&
             \ wget https://raw.githubusercontent.com/junegunn/vim-plug/master/plug.vim
@@ -85,10 +82,10 @@ if !has("win32")
     autocmd VimEnter * PlugInstall --sync | source $MYVIMRC
   endif
 else
-  let g:plugged_dir = glob('~') .. '\vimfiles\plugged'
   if !isdirectory(g:plugged_dir)
-    mkdir(g:plugged_dir, 'p')
+    call mkdir(g:plugged_dir, 'p')
   endif
+  let g:plugged_dir = glob(g:plugged_dir)
   if !filereadable(glob('~') .. '\vimfiles\autoload\plug.vim')
     echom "Initializing vim-plug..."
     " XXX
@@ -100,12 +97,11 @@ else
   endif
 endif
 
-" TODO: move to plug specfic
-function! BuildYCM(info)
-  if a:info.status == 'installed' || a:info.force
-     !./install.py --clang-completer --clangd-completer --system-libclang --go-completer --ts-completer
-  endif
-endfunction
+" function! BuildYCM(info)
+"   if a:info.status == 'installed' || a:info.force
+"      !./install.py --clang-completer --clangd-completer --system-libclang --go-completer --ts-completer
+"   endif
+" endfunction
 
 function! Cond(cond, ...)
   let opts = get(a:000, 0, {})
@@ -204,7 +200,9 @@ if has('nvim')
   Plug 'goolord/alpha-nvim'
   Plug 'kyazdani42/nvim-web-devicons'
 else
-  Plug 'mhinz/vim-startify'
+  if !s:is_win
+    Plug 'mhinz/vim-startify'
+  endif
 endif
 " Plug 'bagrat/vim-workspace' " tab bar
 
@@ -215,7 +213,9 @@ Plug 'junegunn/fzf', { 'do': { -> fzf#install() } }
 Plug 'junegunn/fzf.vim'
 if has("nvim")
   Plug 'nvim-lua/plenary.nvim'
-  Plug 'nvim-telescope/telescope.nvim', { 'tag': '0.1.0' }
+  Plug 'nvim-telescope/telescope.nvim', { 'branch': '0.1.x' }
+else
+  Plug 'Yggdroot/LeaderF', { 'do': ':LeaderfInstallCExtension' }
 endif
 
 " /* Go */
@@ -331,7 +331,10 @@ set wildmenu
 set ruler
 set showtabline=1
 if has('win32')
-  set guifont=consolas:h14
+  " set guifont=consolas:h14
+  set guifont=Monaco\ Nerd\ Font\ Mono:h12
+  " set guifontwide='Monaco\ Nerd\ Font:h12,consolas:h12'
+  " set guifontwide='Monaco\ Nerd\ Font:h12,consolas:h12'
 else
   set guifont=Monaco\ Nerd\ Font\ Mono\ 12
 endif
@@ -356,12 +359,6 @@ function! EchoIfNotUnix()
   endif
   return '<' . &ff . '>'
 endfunction
-
-" cursor's shape (FIXIT)
-if !has('nvim')
-  let &t_SI = "\e[6 q"
-  let &t_EI = "\e[2 q"
-endif
 
 " /* line number */
 set number
@@ -749,21 +746,19 @@ let g:fzf_action = {
 let g:fzf_preview_window = 'right:60%'
 let g:fzf_buffers_jump = 1
 let g:fzf_tags_command = 'ctags -R'
-let g:fzf_history_dir = '~/.local/share/fzf-history'
 
 if s:is_win
-  let g:fzf_history_dir = '~/.local/share/fzf-history'
   " XXX bash path
   let g:fzf_vim = {
-    \ 'preview_bash': 'C:\Program Files\Git\git-bash.exe',
+    \ 'preview_bash': 'C:\Program\ Files\Git\git-bash.exe',
     \ 'preview_window': ['hidden,right,50%,<70(up,40%)', 'ctrl-/'],
     \ }
-  " let g:fzf_vim.preview_bash = 'C:\Program Files\Git\git-bash.exe'
-  " let g:fzf_vim.preview_window = ['hidden,right,50%,<70(up,40%)', 'ctrl-/']
+else
+  let g:fzf_history_dir = '~/.local/share/fzf-history'
 endif
 
 let s:__use_tmux = v:false
-if !has('win32') && exists('$TMUX')
+if !s:is_win && exists('$TMUX')
   let g:__tmux_version = str2float(matchstr(system('tmux -V'), '\v[0-9]+\.[0-9]+'))
   if g:__tmux_version >= 3.2
     let s:__use_tmux = v:true
@@ -773,9 +768,8 @@ endif
 if s:__use_tmux
   let g:fzf_layout = { 'tmux': '-p90%,60%' }
 else
-  if !s:is_win && (has('nvim') || has("popupwin"))
+  if (has('nvim') || has("popupwin"))
     let g:fzf_layout = { 'window': { 'width': 0.9, 'height': 0.6 } }
-    " let g:fzf_layout = { 'down': '10new' }
   else
     let g:fzf_layout = { 'down': '~51%' }
   endif
@@ -795,11 +789,8 @@ else
     \ 'header':  ['fg', 'Comment'] }
 endif
 
-command! -bang -nargs=* Ag
-      \ call fzf#vim#ag(<q-args>, '--hidden', <bang>0)
-
-command! -bar -nargs=? -bang Maps
-      \ call fzf#vim#maps(<q-args>, <bang>0)
+command! -bang -nargs=* Ag call fzf#vim#ag(<q-args>, '--hidden', <bang>0)
+command! -bar -nargs=? -bang Maps call fzf#vim#maps(<q-args>, <bang>0)
 
 nnoremap <Leader>ff :Files<CR>
 if s:is_win
@@ -813,13 +804,35 @@ nnoremap <Leader>fL :BLines<SPACE>
 nnoremap <Leader>fb :Buffers<CR>
 nnoremap <Leader>fw :Windows<CR>
 nnoremap <Leader>fs :Snippets<CR>
-nnoremap <Leader>fh :History/<CR>
+" nnoremap <Leader>fh :History/<CR>
 nnoremap <Leader>fq :FzfQF<CR>
 
 " /* for devicons */
 let g:WebDevIconsUnicodeDecorateFolderNodes = 1
 let g:DevIconsEnableFoldersOpenClose = 1
 let g:WebDevIconsOS = 'ArchLinux'
+
+" /* LeaderF */
+if s:is_win && has_key(plugs, 'LeaderF')
+  " let g:Lf_ShortcutF = "<leader>ff"
+  let g:Lf_WindowPosition = 'popup'
+  nnoremap <Leader>ff <cmd>Leaderf file<CR>
+  nnoremap <Leader>fg :Leaderf rg<space>
+  nnoremap <Leader>fb :Leaderf buffer<CR>
+  nnoremap <Leader>fL :Leaderf line<CR>
+  nnoremap <Leader>fw :Leaderf windows<CR>
+
+  let g:Lf_CommandMap = {'<C-]>': ['<C-V>']}
+  let g:Lf_UseVersionControlTool = 0
+
+  " nnoremap <Leader>fa <cmd><SPACE>
+  " nnoremap <Leader>fr <cmd>Rg<SPACE>
+  " nnoremap <Leader>fl <cmd>Lines<SPACE>
+  " nnoremap <Leader>fL <cmd>BLines<SPACE>
+  " nnoremap <Leader>fb <cmd>Buffers<CR>
+  " nnoremap <Leader>fw <cmd>Windows<CR>
+endif
+
 
 " /* for vim-easy-align */
 xmap ga <Plug>(EasyAlign)
@@ -844,7 +857,7 @@ let g:UltiSnipsListSnippets = '<F9>'
 " let g:UltiSnipsEditSplit = 'tabdo'
 let g:UltiSnipsEditSplit = 'context'
 let g:UltiSnipsUsePythonVersion = 3
-let g:UltiSnipsSnippetStorageDirectoryForUltiSnipsEdit = $HOME . '/.vim/mysnippets'
+let g:UltiSnipsSnippetStorageDirectoryForUltiSnipsEdit = g:vimroot .. '/mysnippets'
 let g:UltiSnipsSnippetDirectories = ['UltiSnips', 'mysnippets']
 let g:UltiSnipsEnableSnipMate = 1
 let g:snips_author = 'k'
@@ -857,7 +870,7 @@ function! FixSurroundedWhiteSpaces(buffer, lines)
   return map(a:lines, {idx, line -> substitute(line, '\v^(\s*""")\s+(.+)\s+(""")', '\1\2\3', '')})
 endfunction
 
-" only fixers for nvim
+" no linters for nvim
 if has('nvim')
   let g:ale_enabled = 0
 else
@@ -952,9 +965,7 @@ nmap <silent> <Leader>at <Plug>(ale_toggle)
 call s:NoSearchCabbrev("AF", "ALEFix")
 
 " /* for vim-visual-multi */
-if !has('gui_running')
-  map <M-n> <A-n>
-endif
+let g:VM_maps = {"Find Under": '<space>n'}
 
 " /* for vim-markdown | markdown-preview */
 " vim-markdown
@@ -1006,6 +1017,19 @@ function! s:TermExecute(cmd)
   endif
 endfunction
 
+function! GetBrowser() abort
+  if s:is_win
+    let p = 'C:\Program Files\Google\Chrome\Application\chrome.exe'
+    return glob(p)
+  else
+    for p in ['google-chrome', 'google-chrome-stable', 'chroimium', 'fire']
+      if executable(p)
+        return p
+      endif
+    endfor
+  endif
+endfunction
+
 function! s:PreviewWithMLP() abort
   if !executable("mlp")
     echom "mlp not found (Install with: pip install markdown_live_preview)"
@@ -1014,8 +1038,12 @@ function! s:PreviewWithMLP() abort
 
   let mlp_cmd = "mlp --no-browser -p 13333 -o " .. expand("%")
   call s:TermExecute(mlp_cmd)
-  if executable("chromium")
-    call s:TermExecute("chromium http://localhost:13333")
+
+  let b = GetBrowser()
+  if empty(b)
+    echom "Available browser not found."
+  else
+    call s:TermExecute(b .. " http://localhost:13333")
   endif
 endfunction
 
@@ -1292,6 +1320,7 @@ if has_key(plugs, 'coc.nvim')
         \'coc-toml',
         \'coc-go',
         \'coc-pyright',
+        \'coc-lua',
         \]
   if has("win32")
     call add(g:coc_global_extensions, "coc-powershell")
@@ -1349,7 +1378,6 @@ augroup javascript_folding
 augroup END
 
 " /* for vim-go */
-
 let g:go_term_mode = "split"
 let g:go_term_enabled = 1
 let g:go_term_reuse = 1
@@ -1383,22 +1411,21 @@ function! s:EchoWarn(msg)
     echohl None
 endfunction
 
-
-function! InstallRequirements()
+function! InstallRequirements() abort
   let req = {"pip": ['black', 'autopep8', 'isort', 'vint', 'proselint', 'gitlint'],
         \ "npm": ['prettier', 'fixjson', 'importjs', 'vue-language-server'],
-        \ "other": ['ag', 'fzf', 'ctags', 'clang-format']
+        \ "other": ['ag', 'fzf', 'ctags', 'clang-format', 'rg']
         \ }
-  let cmd_map = {"pip": "sudo pip install",
-        \ "npm": "sudo npm install -g"}
-  let pkg_map = {}
+  let cmd_map = {"pip": "pip install",
+        \ "npm": "npm install -g"}
+  let pkg_map = {"rg": "ripgrep"}
 
   " determine by system
   if executable("pacman")
-    let cmd_map["other"] = "sudo pacman -S --noconfirm"
+    let cmd_map["other"] = "pacman -S --noconfirm"
     let pkg_map["ag"] = "the_silver_searcher"
   elseif executable("apt")
-    let cmd_map["other"] = "sudo apt install -y"
+    let cmd_map["other"] = "apt install -y"
     let pkg_map["ag"] = "silversearcher-ag"
   else
     call s:EchoWarn("You must install " . string(req["other"]) . " by yourself.")
@@ -1428,6 +1455,9 @@ function! InstallRequirements()
         else
           let cmd = cmd_map[src] . " " . pkg
         endif
+        if !s:is_win
+          let cmd = "sudo " .. cmd
+        endif
         execute "!" . cmd
         if !s:IsInstalled(src, pkg)
           call s:EchoWarn("Failed to install " . pkg . ". Fix it by yourself.")
@@ -1442,17 +1472,19 @@ endfunction
 if has('win32')
   let s:vimrc_path = glob('~/_vimrc')
   let g:init_vim_path = glob('~/AppData/Local/nvim/init.vim')
+  let g:init_lua_path = glob('~/AppData/Local/nvim/init.lua')
   let g:config_lua_path = glob('~/AppData/Local/nvim/lua/config.lua')
-  let s:extra_vimrc_path = s:vimrc_path . '_local'
-  let g:extra_init_vim_path = g:init_vim_path . '_local'
+  let s:extra_vimrc_path = s:vimrc_path .. '_local'
+  let g:extra_init_vim_path = g:init_vim_path .. '_local'
   let g:coc_settings_json_path = glob('~/vimfiles/coc-settings.json')
 else
   let s:vimrc_path = glob('~/.vimrc')
   let g:init_vim_path = glob('~/.config/nvim/init.vim')
+  let g:init_lua_path = glob('~/.config/nvim/init.lua')
   let g:config_lua_path = glob('~/.config/nvim/lua/config.lua')
   let g:coc_settings_json_path = glob('~/.vim/coc-settings.json')
-  let s:extra_vimrc_path = s:vimrc_path . '.local'
-  let g:extra_init_vim_path = g:init_vim_path . '.local'
+  let s:extra_vimrc_path = s:vimrc_path .. '.local'
+  let g:extra_init_vim_path = g:init_vim_path .. '.local'
 endif
 
 function! EditRcFiles() abort
@@ -1470,8 +1502,9 @@ function! EditRcFiles() abort
 endfunction
 
 function! EditRcFilesV2() abort
-  let fm = [s:vimrc_path, s:extra_vimrc_path, g:init_vim_path, g:extra_init_vim_path, g:config_lua_path, g:coc_settings_json_path]
-  let n = confirm("To edit:", "&1vimrc\n&2vimrc.local\n&3init.vim\n&4init.vim.local\n&5config.lua\n&6coc.json")
+  " let fm = [s:vimrc_path, s:extra_vimrc_path, g:init_vim_path, g:extra_init_vim_path, g:config_lua_path, g:coc_settings_json_path]
+  let fm = [s:vimrc_path, s:extra_vimrc_path, g:init_lua_path, g:coc_settings_json_path]
+  let n = confirm("To edit:", "&1vimrc\n&2vimrc.local\n&3init.lua\n&4coc.json")
   if n == 0
     return
   endif
@@ -1727,19 +1760,8 @@ endif
 
 " gvim on win
 if has("win32")
-  set fileencodings=ucs-bom,utf-8,chinese,cp936
-  set fileencoding=chinese
   source $VIMRUNTIME/delmenu.vim
   source $VIMRUNTIME/menu.vim
-  language messages zh_CN.utf-8
-
-  " broken on Win11
-  " set lines=77  columns=180
-  if executable("pwsh")
-    set shell=pwsh
-  else
-    set shell=powershell
-  endif
 endif
 
 " --------------------------------------------
@@ -1776,6 +1798,7 @@ endif
 
 " fallback
 if !exists('g:colors_name') && !has('nvim')
+  if !s:is_win
     call RandomSetColo([
           \'Tomorrow',
           \'1989',
@@ -1790,8 +1813,19 @@ if !exists('g:colors_name') && !has('nvim')
           \'apprentice',
           \'molokai',
           \])
-  " call SetColorScheme('molokai')
+  else
+    call RandomSetColo([
+          \'NeoSolarized',
+          \'seoul256',
+          \'atomic',
+          \])
+  endif
 endif
 
 " before nvim config .local
 
+if s:is_win && !has('nvim')
+  let &t_SI .= "\<Esc>[6 q"
+  let &t_SR .= "\<Esc>[3 q"
+  let &t_EI .= "\<Esc>[2 q"
+endif

@@ -1,17 +1,17 @@
-# 🐝 dotfiles and scripts
+# 🐝 dotfiles and scripts for my Linux/Win
 
 
 > ArchLinux一键安装脚本[已经迁移至此处](https://github.com/Karmenzind/arch-installation-scripts)，不再维护
 
-| 类别         | 🎨 成分                                                                                                                                                                                                                           |
-|--------------|--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| 系统         | [Archlinux](https://archlinux.org)                                                                                                                                                                                             |
-| GUI          | 桌面：[i3](https://i3wm.org)<br>任务栏：[polybar](https://github.com/polybar/polybar)<br>程序选择器：[rofi](https://github.com/davatorium/rofi)<br>通知：dunst<br>渲染优化：picom<br>输入法：fcitx5<br>截图工具：flameshot<br> |
-| 编辑器       | Vim/Neovim                                                                                                                                                                                                                     |
-| 终端         | [Alacritty](https://github.com/alacritty/alacritty) + Tmux + Zsh                                                                                                                                                               |
-| 词典         | [kd](https://github.com/Karmenzind/kd)                                                                                                                                                                                         |
-| 字体         | [Monaco Nerd](https://github.com/Karmenzind/monaco-nerd-fonts)                                                                                                                                                                 |
-| 其他体验增强 | fzf / ranger / pistol / ag 等等                                                                                                                                                                                                |
+| 类别         | 🎨 成分                                                                                                                                                                                                                    |
+|--------------|----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| 系统         | [Archlinux](https://archlinux.org)                                                                                                                                                                                         |
+| GUI          | 桌面：[i3](https://i3wm.org)<br>任务栏：[polybar](https://github.com/polybar/polybar)<br>程序选择器：[rofi](https://github.com/davatorium/rofi)<br>通知：dunst<br>渲染优化：picom<br>输入法：fcitx5<br>截图工具：flameshot |
+| 编辑器       | Vim/Neovim                                                                                                                                                                                                                 |
+| 终端         | [Alacritty](https://github.com/alacritty/alacritty) + Tmux + Zsh                                                                                                                                                           |
+| 词典         | [kd](https://github.com/Karmenzind/kd)                                                                                                                                                                                     |
+| 字体         | [Monaco Nerd](https://github.com/Karmenzind/monaco-nerd-fonts)                                                                                                                                                             |
+| 其他体验增强 | fzf / ranger / pistol / ag 等等                                                                                                                                                                                            |
 
 
 <!-- 1.  配置文件 -->

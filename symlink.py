@@ -66,7 +66,7 @@ if platform == "win":
         Path("home_k/.vim"),
         Path("home_k/.vimrc"),
         Path("home_k/.gitconfig"),
-        Path("home_k/.config/nvim"),
+        Path("home_k/.config/nvim/init.lua"),
         Path("home_k/.config/alacritty/alacritty.toml"),
         Path("others/powershell/profile.ps1"),
         # "home_k/.golangci.yml",

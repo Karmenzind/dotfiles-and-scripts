@@ -1,19 +1,90 @@
+-- Github: https://github.com/Karmenzind/dotfiles-and-scripts
 vim.g.loaded = 1
 vim.g.loaded_netrw = 1
 vim.g.loaded_netrwPlugin = 1
 vim.opt.termguicolors = true
+vim.opt.completeopt = "menu,menuone,noselect"
 
-if vim.fn.has("win32") then
-    -- vim.opt.shell = "cmd"
+local mopts = { noremap = true, silent = true }
+
+local is_win = vim.fn.has("win32") == 1
+local nvimpid = vim.fn.getpid()
+
+if is_win then
+    vim.o.runtimepath = "~/vimfiles," .. vim.o.runtimepath .. ",~/vimfiles/after"
+    vim.o.packpath = vim.o.runtimepath
+
+    local function find_pyexe()
+        for _, pat in ipairs({
+            [[C:\Program Files\Python3*\python.exe]],
+            [[~\AppData\Local\Programs\Python\Python*\python.exe]],
+        }) do
+            local expanded = vim.fn.glob(pat, false, true)
+            if #expanded ~= 0 then
+                return expanded[#expanded]
+            end
+        end
+        error("Failed to locate python.exe")
+    end
+
+    vim.g.python3_host_prog = find_pyexe()
+    vim.cmd("source ~/_vimrc")
+
+    -- shell
     vim.opt.shell = vim.fn.executable("pwsh") > 0 and "pwsh" or "powershell"
-    vim.opt.shellcmdflag = "-NoLogo -NoProfile -ExecutionPolicy RemoteSigned -Command [Console]::InputEncoding=[Console]::OutputEncoding=[System.Text.Encoding]::UTF8;"
+    vim.opt.shellcmdflag =
+        "-NoLogo -NoProfile -ExecutionPolicy RemoteSigned -Command [Console]::InputEncoding=[Console]::OutputEncoding=[System.Text.Encoding]::UTF8;"
     vim.opt.shellredir = "-RedirectStandardOutput %s -NoNewWindow -Wait"
     vim.opt.shellpipe = "2>&1 | Out-File -Encoding UTF8 %s; exit $LastExitCode"
     vim.opt.shellquote = ""
     vim.opt.shellxquote = ""
+else
+    vim.o.runtimepath = "~/.vim" .. vim.o.runtimepath .. "~/.vim/after"
+    vim.o.packpath = vim.o.runtimepath
+
+    vim.g.python3_host_prog = "/usr/bin/python3"
+    vim.g.ruby_host_prog = vim.fn.trim(vim.fn.system("find $HOME/.gem -regex '.*ruby/[^/]+/bin/neovim-ruby-host'"))
+    vim.cmd("source ~/.vimrc")
 end
 
-local nvimpid = vim.fn.getpid()
+if vim.fn.filereadable(vim.g.extra_init_vim_path) > 0 then
+    vim.cmd("source " .. vim.g.extra_init_vim_path)
+end
+
+local function term_esc()
+    if vim.fn.match(vim.o.filetype, "\v^(fzf|Telescope)") then
+        vim.cmd("close")
+    else
+        vim.api.nvim_feedkeys("")
+    end
+end
+
+local function lazy_esc(_)
+    vim.keymap.set("t", "<Esc>", term_esc, mopts)
+end
+
+vim.api.nvim_create_augroup("fzf", {})
+vim.api.nvim_create_autocmd({ "BufEnter" }, { group = "fzf", pattern = "*", callback = lazy_esc })
+if vim.g.fzf_layout["window"] == nil and vim.g.fzf_layout["tmux"] == nil then
+    vim.api.nvim_create_autocmd({ "BufLeave" }, { group = "fzf", command = "set ls=2 smd ru" })
+    vim.api.nvim_create_autocmd({ "FileType" }, { group = "fzf", pattern = "fzf", command = "setl ls=0 nosmd noru" })
+end
+
+vim.cmd([[
+tnoremap <expr> <C-R> '<C-\><C-N>"'.nr2char(getchar()).'pi'
+" tnoremap <A-h> <C-\><C-N><C-w>h
+" tnoremap <A-j> <C-\><C-N><C-w>j
+" tnoremap <A-k> <C-\><C-N><C-w>k
+" tnoremap <A-l> <C-\><C-N><C-w>l
+" inoremap <A-h> <C-\><C-N><C-w>h
+" inoremap <A-j> <C-\><C-N><C-w>j
+" inoremap <A-k> <C-\><C-N><C-w>k
+" inoremap <A-l> <C-\><C-N><C-w>l
+" nnoremap <A-h> <C-w>h
+" nnoremap <A-j> <C-w>j
+" nnoremap <A-k> <C-w>k
+" nnoremap <A-l> <C-w>l
+]])
 
 local function nvim_tree_on_attach(bufnr)
     local api = require("nvim-tree.api")
@@ -31,15 +102,37 @@ local function nvim_tree_on_attach(bufnr)
     vim.keymap.set("n", "<leader>n", api.tree.close, opts("Close"))
 end
 
-require("nvim-tree").setup({
-    on_attach = nvim_tree_on_attach,
-    view = {
-        float = { enable = false, open_win_config = { border = "double" } },
-    },
-    filters = {
-        git_ignored = false,
+local ts = require("telescope")
+local tsa = require("telescope.actions")
+local tsbuiltin = require("telescope.builtin")
+vim.keymap.set("n", "<leader>ff", tsbuiltin.find_files, mopts)
+vim.keymap.set("n", "<leader>fg", tsbuiltin.live_grep, mopts)
+vim.keymap.set("n", "<leader>fb", tsbuiltin.buffers, mopts)
+vim.keymap.set("n", "<leader>fh", tsbuiltin.help_tags, mopts)
+ts.setup({
+    defaults = {
+        -- layout_config = { prompt_position = "top" },
+        -- sorting_strategy = "ascending",
+        border = true,
+        mappings = {
+            i = {
+                ["<esc>"] = tsa.close,
+                ["<C-j>"] = { tsa.move_selection_next, type = "action", opts = { nowait = true, silent = true } },
+                ["<C-k>"] = { tsa.move_selection_previous, type = "action", opts = { nowait = true, silent = true } },
+                ["<C-f>"] = { tsa.results_scrolling_down, type = "action", opts = { nowait = true, silent = true } },
+                ["<C-b>"] = { tsa.results_scrolling_up, type = "action", opts = { nowait = true, silent = true } },
+            },
+        },
     },
 })
+
+require("nvim-tree").setup({
+    on_attach = nvim_tree_on_attach,
+    view = { float = { enable = false, open_win_config = { border = "double" } } },
+    filters = { git_ignored = false },
+})
+vim.keymap.set("n", "<leader>n", "<cmd>NvimTreeToggle<CR>", mopts)
+vim.keymap.set("n", "<leader>N", "<cmd>NvimTreeFindFile<CR>", mopts)
 
 vim.diagnostic.config({
     virtual_text = {
@@ -61,7 +154,9 @@ vim.diagnostic.config({
 })
 
 require("mason").setup()
-require("mason-lspconfig").setup({ ensure_installed = { "lua_ls", "pyright", "vimls" } })
+require("mason-lspconfig").setup({
+    ensure_installed = { "lua_ls", "pyright", "vimls", "bashls", "marksman", "omnisharp", "gopls", "powershell_es" },
+})
 
 require("alpha").setup(require("alpha.themes.startify").config)
 
@@ -83,7 +178,7 @@ vim.keymap.set("n", "zM", require("ufo").closeAllFolds)
 vim.keymap.set("n", "zr", require("ufo").openFoldsExceptKinds)
 vim.keymap.set("n", "zm", require("ufo").closeFoldsWith) -- closeAllFolds == closeFoldsWith(0)
 
-local handler = function(virtText, lnum, endLnum, width, truncate)
+local ufo_handler = function(virtText, lnum, endLnum, width, truncate)
     local newVirtText = {}
     local suffix = (" ⋯   %d "):format(endLnum - lnum)
     local sufWidth = vim.fn.strdisplaywidth(suffix)
@@ -111,7 +206,7 @@ local handler = function(virtText, lnum, endLnum, width, truncate)
     return newVirtText
 end
 
-require("ufo").setup({ close_fold_kinds = { "imports", "comment" }, fold_virt_text_handler = handler })
+require("ufo").setup({ close_fold_kinds = { "imports", "comment" }, fold_virt_text_handler = ufo_handler })
 
 -- Set up nvim-cmp.
 local cmp = require("cmp")
@@ -131,13 +226,12 @@ local post_move = function(select_result, fallback)
     end
 end
 
-local opts = { noremap = true, silent = true }
--- vim.keymap.set("n", "<space>e", vim.diagnostic.open_float, opts)
-vim.keymap.set("n", "[d", vim.diagnostic.goto_prev, opts)
-vim.keymap.set("n", "]d", vim.diagnostic.goto_next, opts)
-vim.keymap.set("n", "<leader>q", vim.diagnostic.setloclist, opts)
+vim.keymap.set("n", "<leader>ca", vim.lsp.buf.code_action, mopts)
+vim.keymap.set("n", "[d", vim.diagnostic.goto_prev, mopts)
+vim.keymap.set("n", "]d", vim.diagnostic.goto_next, mopts)
+vim.keymap.set("n", "<leader>q", vim.diagnostic.setloclist, mopts)
 
-local on_attach = function(client, bufnr)
+local on_attach = function(_, bufnr)
     -- Enable completion triggered by <c-x><c-o>
     vim.api.nvim_buf_set_option(bufnr, "omnifunc", "v:lua.vim.lsp.omnifunc")
 
@@ -222,7 +316,6 @@ cmp.setup({
     },
 })
 
--- Set configuration for specific filetype.
 cmp.setup.filetype("gitcommit", {
     sources = cmp.config.sources({ { name = "cmp_git" } }, { { name = "buffer" } }),
 })
@@ -240,17 +333,16 @@ cmp.setup.cmdline(":", {
 })
 
 -- Set up lspconfig.
-local capabilities = require("cmp_nvim_lsp").default_capabilities()
-capabilities.textDocument.foldingRange = {
+local lsp_cap = require("cmp_nvim_lsp").default_capabilities()
+lsp_cap.textDocument.foldingRange = {
     dynamicRegistration = false,
     lineFoldingOnly = true,
 }
 
-lsp.pyright.setup({ on_attach = on_attach, capabilities = capabilities })
--- lsp.pylsp.setup({ on_attach = on_attach, capabilities = capabilities })
+lsp.pyright.setup({ on_attach = on_attach, capabilities = lsp_cap })
 lsp.vimls.setup({
     on_attach = on_attach,
-    capabilities = capabilities,
+    capabilities = lsp_cap,
     cmd = { "vim-language-server", "--stdio" },
     filetypes = { "vim" },
     single_file_support = true,
@@ -259,8 +351,8 @@ lsp.vimls.setup({
         indexes = {
             count = 3,
             gap = 100,
-            projectRootPatterns = { "runtime", "nvim", ".git", "autoload", "plugin" },
             runtimepath = true,
+            projectRootPatterns = { "runtime", "nvim", ".git", "autoload", "plugin" },
         },
         isNeovim = true,
         iskeyword = "@,48-57,_,192-255,-#",
@@ -273,7 +365,7 @@ lsp.vimls.setup({
 lsp.gopls.setup({
     cmd = { "gopls" },
     on_attach = on_attach,
-    capabilities = capabilities,
+    capabilities = lsp_cap,
     settings = {
         gopls = {
             experimentalPostfixCompletions = true,
@@ -284,19 +376,9 @@ lsp.gopls.setup({
     init_options = { usePlaceholders = false },
 })
 
--- lsp.lua_ls.setup({
---     settings = {
---         Lua = {
---             runtime = { version = "LuaJIT" },
---             diagnostics = { globals = { "vim" } },
---             workspace = { library = vim.api.nvim_get_runtime_file("", true) },
---             telemetry = { enable = false },
---         },
---     },
--- })
 lsp.lua_ls.setup({
     on_attach = on_attach,
-    capabilities = capabilities,
+    capabilities = lsp_cap,
     settings = {
         Lua = {
             runtime = { version = "LuaJIT" },
@@ -315,37 +397,33 @@ lsp.lua_ls.setup({
 -- })
 lsp.omnisharp.setup({
     on_attach = on_attach,
-    capabilities = capabilities,
-    cmd = {
-        "/bin/OmniSharp",
-        "--languageserver",
-        "--hostPID",
-        tostring(nvimpid),
-    },
-    handlers = {
-        ["textDocument/definition"] = require("omnisharp_extended").handler,
-    },
+    capabilities = lsp_cap,
+    cmd = { "/bin/OmniSharp", "--languageserver", "--hostPID", tostring(nvimpid) },
+    handlers = { ["textDocument/definition"] = require("omnisharp_extended").handler },
 })
-lsp.bashls.setup({ on_attach = on_attach, capabilities = capabilities })
-lsp.dockerls.setup({ on_attach = on_attach, capabilities = capabilities })
-lsp.yamlls.setup({ on_attach = on_attach, capabilities = capabilities })
-lsp.vls.setup({ on_attach = on_attach, capabilities = capabilities })
-lsp.marksman.setup({ on_attach = on_attach, capabilities = capabilities })
-lsp.taplo.setup({ on_attach = on_attach, capabilities = capabilities })
+lsp.bashls.setup({ on_attach = on_attach, capabilities = lsp_cap })
+lsp.dockerls.setup({ on_attach = on_attach, capabilities = lsp_cap })
+lsp.yamlls.setup({ on_attach = on_attach, capabilities = lsp_cap })
+lsp.vls.setup({ on_attach = on_attach, capabilities = lsp_cap })
+lsp.marksman.setup({ on_attach = on_attach, capabilities = lsp_cap })
+lsp.taplo.setup({ on_attach = on_attach, capabilities = lsp_cap })
 lsp.sqlls.setup({
     on_attach = on_attach,
-    capabilities = capabilities,
+    capabilities = lsp_cap,
     cmd = { "sql-language-server", "up", "--method", "stdio" },
 })
 
-require("nvim-autopairs").setup({
-    disable_filetype = { "markdown" },
-})
+if is_win then
+    local ps_bundle_path = "~\\AppData\\Local\\nvim-data\\mason\\packages\\powershell-editor-services"
+    lsp.powershell_es.setup({ bundle_path = ps_bundle_path })
+end
+
+require("nvim-autopairs").setup({ disable_filetype = { "markdown" } })
 local cmp_autopairs = require("nvim-autopairs.completion.cmp")
 cmp.event:on("confirm_done", cmp_autopairs.on_confirm_done())
 
 -- Common Keymaps
-vim.keymap.set("n", "<leader>e", vim.diagnostic.open_float)
+vim.keymap.set("n", "<leader>e", vim.diagnostic.open_float, mopts)
 vim.keymap.set("n", "K", function()
     local winid = require("ufo").peekFoldedLinesUnderCursor()
     if not winid then
@@ -355,24 +433,7 @@ vim.keymap.set("n", "K", function()
         --     vim.lsp.buf.hover()
         -- end
     end
-end)
-
--- themes
-local cololike = function(p)
-    if vim.g.colors_name ~= nil and vim.g.colors_name:find(p, 1, true) == 1 then
-        return true
-    end
-    return false
-end
-
-if cololike("github_") then
-    require("github-theme").setup({
-        dark_float = true,
-        hide_inactive_statusline = false,
-        sidebars = { "qf", "vista_kind", "terminal", "packer", "nerdtree", "vista" },
-        function_style = "italic",
-    })
-end
+end, mopts)
 
 -- more sensible goto
 -- FIXME (k): <2022-10-20> definition else declaration
@@ -400,7 +461,7 @@ vim.keymap.set("n", "<leader>g", function()
     -- -- if vim.fn.winbufnr(origin_wid) == vim.fn.winbufnr(splited_wid) then
     -- --     vim.api.nvim_win_close(splited_wid, 0)
     -- -- end
-end)
+end, mopts)
 
 -- DAP
 local dap = require("dap")
@@ -408,23 +469,9 @@ vim.fn.sign_define("DapBreakpoint", { text = "🛑", texthl = "", linehl = "", n
 dap.defaults.fallback.terminal_win_cmd = "50vsplit new"
 require("dap-python").setup("/usr/bin/python")
 require("dap-go").setup({
-    dap_configurations = {
-        { type = "go", name = "Attach remote", mode = "remote", request = "attach" },
-    },
-    -- -- delve configurations
-    -- delve = {
-    --     -- time to wait for delve to initialize the debug session.
-    --     -- default to 20 seconds
-    --     initialize_timeout_sec = 20,
-    --     -- a string that defines the port to start delve debugger.
-    --     -- default to string "${port}" which instructs nvim-dap
-    --     -- to start the process in a random available port
-    --     port = "${port}",
-    -- },
+    dap_configurations = { { type = "go", name = "Attach remote", mode = "remote", request = "attach" } },
 })
-require("nvim-dap-virtual-text").setup({
-    commented = true,
-})
+require("nvim-dap-virtual-text").setup({ commented = true })
 require("dapui").setup({
     icons = { expanded = "", collapsed = "", current_frame = "" },
     mappings = {
@@ -436,33 +483,10 @@ require("dapui").setup({
         repl = "r",
         toggle = "t",
     },
-    -- Use this to override mappings for specific elements
-    element_mappings = {
-        -- Example:
-        -- stacks = {
-        --   open = "<CR>",
-        --   expand = "o",
-        -- }
-    },
-    -- Expand lines larger than the window
     expand_lines = vim.fn.has("nvim-0.7") == 1,
-    -- Layouts define sections of the screen to place windows.
-    -- The position can be "left", "right", "top" or "bottom".
-    -- The size specifies the height/width depending on position. It can be an Int
-    -- or a Float. Integer specifies height/width directly (i.e. 20 lines/columns) while
-    -- Float value specifies percentage (i.e. 0.3 - 30% of available lines/columns)
-    -- Elements are the elements shown in the layout (in order).
-    -- Layouts are opened in order so that earlier layouts take priority in window sizing.
     layouts = {
         {
-            elements = {
-                -- Elements can be strings or table with id and size keys.
-                "console",
-                "breakpoints",
-                "stacks",
-                "watches",
-                { id = "scopes", size = 0.30 },
-            },
+            elements = { "console", "breakpoints", "stacks", "watches", { id = "scopes", size = 0.30 } },
             size = 40, -- 40 columns
             position = "left",
         },
@@ -473,9 +497,7 @@ require("dapui").setup({
         -- },
     },
     controls = {
-        -- Requires Neovim nightly (or 0.8 when released)
         enabled = true,
-        -- Display controls in this element
         element = "console",
         icons = {
             pause = "",
@@ -488,20 +510,20 @@ require("dapui").setup({
             terminate = "",
         },
     },
-    floating = {
-        max_height = nil, -- These can be integers or a float between 0 and 1.
-        max_width = nil, -- Floats will be treated as percentage of your screen.
-        border = "single", -- Border style. Can be "single", "double" or "rounded"
-        mappings = {
-            close = { "q", "<Esc>" },
-        },
-    },
+    floating = { max_height = nil, max_width = nil, border = "single", mappings = { close = { "q", "<Esc>" } } },
     windows = { indent = 2 },
-    render = {
-        max_type_length = nil, -- Can be integer or nil.
-        max_value_lines = 100, -- Can be integer or nil.
-    },
+    render = { max_type_length = nil, max_value_lines = 100 },
 })
+
+vim.keymap.set("n", "<leader>db", dap.toggle_breakpoint, mopts)
+vim.keymap.set("n", "<leader>dc", '<cmd>lua require"dap".set_breakpoint(vim.fn.input("Condition: "))<cr>', mopts)
+vim.keymap.set("n", "<F5>", dap.continue, mopts)
+vim.keymap.set("n", "<F10>", dap.step_over, mopts)
+vim.keymap.set("n", "<F11>", dap.step_into, mopts)
+vim.keymap.set("n", "<F12>", dap.step_out, mopts)
+vim.keymap.set("n", "<leader>dr", "<cmd>lua require'dapui'.float_element('repl')<cr>", mopts)
+vim.keymap.set("n", "<leader>du", "<cmd>lua require'dapui'.toggle({reset=true})<cr>", mopts)
+vim.keymap.set("n", "<leader>dl", dap.run_last, mopts)
 
 require("registers").setup({})
 
@@ -511,11 +533,7 @@ require("cmp").setup({
     end,
 })
 
-require("cmp").setup.filetype({ "dap-repl", "dapui_watches", "dapui_hover" }, {
-    sources = {
-        { name = "dap" },
-    },
-})
+require("cmp").setup.filetype({ "dap-repl", "dapui_watches", "dapui_hover" }, { sources = { { name = "dap" } } })
 
 -- require("noice").setup({
 --     lsp = {
@@ -544,21 +562,11 @@ require("cmp").setup.filetype({ "dap-repl", "dapui_watches", "dapui_hover" }, {
 
 require("lualine").setup({
     options = {
-        icons_enabled = true,
-        theme = "auto",
         component_separators = { left = "", right = "" },
         section_separators = { left = "", right = "" },
         disabled_filetypes = {
             statusline = { "NvimTree", "vista" },
             winbar = {},
-        },
-        ignore_focus = {},
-        always_divide_middle = true,
-        globalstatus = false,
-        refresh = {
-            statusline = 1000,
-            tabline = 1000,
-            winbar = 1000,
         },
     },
     sections = {
@@ -570,44 +578,60 @@ require("lualine").setup({
                 end,
             },
         },
-        lualine_b = { "branch", "diff", "diagnostics" },
-        lualine_c = { "filename" },
-        lualine_x = { "encoding", "fileformat", "filetype" },
-        lualine_y = { "progress" },
-        lualine_z = { "location" },
-    },
-    inactive_sections = {
-        lualine_a = {},
-        lualine_b = {},
-        lualine_c = { "filename" },
-        lualine_x = { "location" },
-        lualine_y = {},
-        lualine_z = {},
     },
     tabline = {
         lualine_a = {
             {
                 "tabs",
-                -- max_length = vim.o.columns / 2, -- Maximum width of tabs component.
-                mode = 2, -- 0: Shows tab_nr 1: Shows tab_name 2: Shows tab_nr + tab_name
-                -- tabs_color = {
-                --     -- active = "lualine_{section}_normal",
-                --     -- inactive = "lualine_{section}_inactive",
-                -- },
-                -- fmt = function(name, context)
-                --     -- Show + if buffer is modified in tab
-                --     local buflist = vim.fn.tabpagebuflist(context.tabnr)
-                --     local winnr = vim.fn.tabpagewinnr(context.tabnr)
-                --     local bufnr = buflist[winnr]
-                --     local mod = vim.fn.getbufvar(bufnr, "&mod")
-                --     return name .. (mod == 1 and " +" or "")
-                -- end,
+                mode = 2,
+                use_mode_colors = true,
+                tabs_color = { active = "lualine_a_normal", inactive = "lualine_a_inactive" },
             },
         },
-        -- lualine_a = {'buffers'},
         lualine_z = { "tabs" },
     },
-    winbar = {},
-    inactive_winbar = {},
-    extensions = {},
 })
+
+local function rchoose(l)
+    local index = math.random(1, #l)
+    return l[index]
+end
+
+if vim.g.colors_name == nil then
+    vim.g.boo_colorscheme_theme = rchoose({ "sunset_cloud", "radioactive_waste", "forest_stream", "crimson_moonlight" })
+    vim.fn.RandomSetColo({
+        "atomic",
+        "NeoSolarized",
+        "blue-moon",
+        "atomic",
+        "boo",
+        "gruvbox",
+        "github_dark_high_contrast",
+        "github_light_high_contrast",
+        "nord",
+        "kat.nvim",
+        "kat.nwim",
+        "bluloco",
+        "tokyonight-night",
+        "tokyonight-storm",
+        "tokyonight-day",
+        "tokyonight-moon",
+        "seoul256",
+    })
+
+    local cololike = function(p)
+        if vim.g.colors_name ~= nil and vim.g.colors_name:find(p, 1, true) == 1 then
+            return true
+        end
+        return false
+    end
+
+    if cololike("github_") then
+        require("github-theme").setup({
+            dark_float = true,
+            hide_inactive_statusline = false,
+            sidebars = { "qf", "vista_kind", "terminal", "packer", "nerdtree", "vista" },
+            function_style = "italic",
+        })
+    end
+end
