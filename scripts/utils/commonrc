@@ -25,6 +25,18 @@ put_error() {
     cecho "$1" $red
 }
 
+echo_error() {
+    cecho "[✘] $1" $red
+}
+
+echo_warn() {
+    cecho "[⚠ Warn] $1" $red
+}
+
+echo_ok() {
+    cecho "[✔] $1" $green
+}
+
 exit_with_msg() {
     cecho "$1" $red
     exit -1
@@ -50,7 +62,16 @@ put_cutoff() {
 }
 
 do_install() {
-    sudo pacman -S --needed --noconfirm "$@"
+    if [[ $distro == arch ]]; then 
+        sudo pacman -S --needed --noconfirm "$@"
+    else
+        if command -V apt-get >/dev/null; then
+            sudo apt-get install -y "$@"
+        else
+            cecho "[WARN] No available installer. Ignored installing $@"
+            return 1
+        fi
+    fi
 }
 
 display_array() {
@@ -89,6 +110,14 @@ put_suspend() {
 Type Ctrl+C to exit 
 or type any key to continue" $cyan
     read whatever
+}
+
+cmd_not_found() {
+    if command -V $1 >/dev/null; then 
+        return 1
+    else
+        return 0
+    fi
 }
 
 # -----------------------------------------------------------------------------

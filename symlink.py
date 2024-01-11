@@ -20,7 +20,10 @@ import os
 import sys
 import time
 import warnings
+from collections import defaultdict
 from pathlib import Path
+
+rec = defaultdict(list)
 
 if sys.platform == "linux":
     platform = "linux"
@@ -34,7 +37,7 @@ else:
     platform = "unknown"
     VERSION_INFO = ""
 
-new_linked = []
+new_linked = rec["new"]
 
 CUR_TS = int(time.time())
 CUR_TIME = datetime.datetime.now().strftime("%Y%m%d_%H%M")
@@ -150,18 +153,26 @@ def do_symlink(from_: Path, to_: Path):
 
     # A file can be a symlink as well as nonexisted on Win. Fuck Windows
     if os.path.islink(to_):
-        existed_link_to = (
-            os.path.realpath(to_) if sys.platform == "win32" else os.readlink(to_)
-        )
+        existed_link_to = os.path.realpath(to_) if sys.platform == "win32" else os.readlink(to_)
         if existed_link_to == str(from_):
+            if args.delete:
+                os.remove(to_)
+                rec["del"].append(to_)
+                print(f"[✔] removed symlink: {to_}")
+                return
+
             print(f"{to_} is already symlinked to {from_}. Ignored.")
             return
 
         override_msg = f"{to_} exists and is a symlink (-> {existed_link_to!r}). Override it? (file will be mv to {backup_pat})"
-    elif os.path.exists(to_):
-        override_msg = f"{to_} exists and is not a symlink. Override it? (file will be mv to {backup_pat})"
     else:
-        override_msg = ""
+        if os.path.exists(to_):
+            override_msg = f"{to_} exists and is not a symlink. Override it? (file will be mv to {backup_pat})"
+        else:
+            override_msg = ""
+
+    if args.delete:
+        return
 
     if override_msg:
         ans = ask(YN, override_msg)
@@ -251,6 +262,11 @@ def main():
         for i in new_linked:
             print("\t", i)
 
+    if rec["del"]:
+        print("[✔]  Deleted links:")
+        for i in rec["del"]:
+            print("\t", i)
+
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
@@ -259,6 +275,9 @@ if __name__ == "__main__":
     )
     parser.add_argument(
         "-i", "--interactive", action="store_true", help="Let me determine every file"
+    )
+    parser.add_argument(
+        "-d", "--delete", action="store_true", help="remove all symlink files"
     )
     args = parser.parse_args()
     fake = args.fake

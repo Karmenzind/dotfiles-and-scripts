@@ -3,6 +3,7 @@
 
 let s:is_win = has("win32")
 if s:is_win
+  set belloff=all
   set fileencodings=ucs-bom,utf-8,chinese,cp936
   set fileencoding=chinese
   language messages zh_CN.utf-8
@@ -815,7 +816,12 @@ let g:WebDevIconsOS = 'ArchLinux'
 " /* LeaderF */
 if s:is_win && has_key(plugs, 'LeaderF')
   " let g:Lf_ShortcutF = "<leader>ff"
+  " let g:Lf_DefaultExternalTool = "rg"
+  let g:Lf_ExternalCommand =  'fd -t f --strip-cwd-prefix -H -L -E .git -E *.swp %s'
+  let g:Lf_ShowHidden = 1
   let g:Lf_WindowPosition = 'popup'
+  let g:lf_UseMemoryCache = 0
+  let g:lf_UseCache = 0
   nnoremap <Leader>ff <cmd>Leaderf file<CR>
   nnoremap <Leader>fg :Leaderf rg<space>
   nnoremap <Leader>fb :Leaderf buffer<CR>
@@ -1823,7 +1829,6 @@ if !exists('g:colors_name') && !has('nvim')
 endif
 
 " before nvim config .local
-
 if s:is_win && !has('nvim')
   let &t_SI .= "\<Esc>[6 q"
   let &t_SR .= "\<Esc>[3 q"

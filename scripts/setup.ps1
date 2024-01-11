@@ -28,7 +28,7 @@ function Ensure-Tool {
         [string]$packageName
     )
 
-    if (($checkCommand -eq "") -or (Command-Exists $checkCommand)) {
+    if (($checkCommand -ne "") -and (Command-Exists $checkCommand)) {
         Write-Host "[OK] $packageName is already installed."
         return $true
     }
@@ -107,38 +107,48 @@ function Setup-Fonts {
     PressToQuit
 }
 
+# TODO 
+# https://hamidmosalla.com/2022/12/26/how-to-customize-windows-terminal-and-powershell-using-fzf-neovim-and-beautify-it-with-oh-my-posh/
+Install-Module -Name z –Force
+Install-Module -Name Terminal-Icons -Repository PSGallery
+winget install JanDeDobbeleer.OhMyPosh -s winget 
+# Install-Module posh-git -Scope CurrentUser
+# Set-PoshPrompt
+
+
 Write-Host "[>] Checking basic apps..."
-$null = Ensure-Tool "choco" "winget" "chocolatey"
-$null = Ensure-Tool "node" "choco" "nodejs"
-$null = Ensure-Tool "pwsh" "winget" "MicrosoftPowershell"
-$null = Ensure-Tool "git" "winget" "git"
-$pyOk = Ensure-Tool "python" "choco" "python"
+$null = Ensure-Tool "choco"  "winget" "chocolatey"
+$null = Ensure-Tool "node"   "choco"  "nodejs"
+$null = Ensure-Tool "pwsh"   "winget" "MicrosoftPowershell"
+$null = Ensure-Tool "git"    "winget" "git"
+$pyOk = Ensure-Tool "python" "choco"  "python"
 
 Write-Host "[>] Checking Vim/Neovim related apps..."
-$null = Ensure-Tool "vim" "winget" "vim"
-$null = Ensure-Tool "nvim" "choco" "neovim"
-$null = Ensure-Tool "fzf" "choco" "fzf"
-$null = Ensure-Tool "axel" "choco" "axel"
-$null = Ensure-Tool "lua" "winget" "DEVCOM.Lua"
-$null = Ensure-Tool "rg" "winget" "BurntSushi.ripgrep.MSVC"
-$null = Ensure-Tool "bat" "winget" "sharkdp.bat"
-$null = Ensure-Tool "ctags" "choco" "universal-ctags"
-$null = Ensure-Tool "neovide" "choco" "neovide"
+$null = Ensure-Tool "vim"     "winget" "vim"
+$null = Ensure-Tool "nvim"    "choco"  "neovim"
+$null = Ensure-Tool "fzf"     "choco"  "fzf"
+$null = Ensure-Tool "axel"    "choco"  "axel"
+$null = Ensure-Tool "lua"     "winget" "DEVCOM.Lua"
+$null = Ensure-Tool "rg"      "winget" "BurntSushi.ripgrep.MSVC"
+$null = Ensure-Tool "bat"     "winget" "sharkdp.bat"
+$null = Ensure-Tool "ctags"   "choco"  "universal-ctags"
+$null = Ensure-Tool "neovide" "choco"  "neovide"
 
 # linters / fixers
-$null = Ensure-Tool "prettier" "npm" "neovide"
-$null = Ensure-Tool "marksman" "npm" "marksman"
-$null = Ensure-Tool "marksman" "npm" "marksman"
-$null = Ensure-Tool "stylua" "choco" "stylua"
+$null = Ensure-Tool "prettier" "npm"    "neovide"
+$null = Ensure-Tool "marksman" "npm"    "marksman"
+$null = Ensure-Tool "marksman" "npm"    "marksman"
+$null = Ensure-Tool "stylua"   "choco"  "stylua"
+$null = Ensure-Tool "jq"       "winget" "jqlang.jq"
 
 Setup-Fonts
 
 if ($pyOk) {
-    $null = Ensure-Tool "" "pip" "neovim"
-    $null = Ensure-Tool "ipython" "pip" "ipython"
-    $null = Ensure-Tool "autopep8" "pip" "autopep8"
-    $null = Ensure-Tool "black" "pip" "black"
-    $null = Ensure-Tool "isort" "pip" "isort"
+    $null = Ensure-Tool ""          "pip" "neovim"
+    $null = Ensure-Tool "ipython"   "pip" "ipython"
+    $null = Ensure-Tool "autopep8"  "pip" "autopep8"
+    $null = Ensure-Tool "black"     "pip" "black"
+    $null = Ensure-Tool "isort"     "pip" "isort"
     $null = Ensure-Tool "autoflake" "pip" "autoflake"
 }
 
@@ -151,6 +161,7 @@ if ($vimOnly -ne 1) {
 
 Write-Host "[>] Checking regular apps..."
 $null = Ensure-Tool "lf" "winget" "gokcehan.lf"
+$null = Ensure-Tool "" "winget" "appmakes.Typora"
 
 Write-Host ":) Press any key to continue..."
 $null = $Host.UI.RawUI.ReadKey("NoEcho,IncludeKeyDown")

@@ -1,7 +1,10 @@
 #! /usr/bin/env bash
 # https://github.com/Karmenzind/
+#
+# Mainly for ArchLinux
+# Partially support Debian-based system
 
-# delete the app you don't need
+distro=$(cat /etc/os-release | grep '^ID=' | sed 's/ID=//')
 
 # --------------------------------------------
 # apps
@@ -25,31 +28,23 @@ _fonts=(
 	adobe-source-han-sans-cn-fonts
 	adobe-source-han-serif-cn-fonts
 	opendesktop-fonts
-	otf-fira-mono
-	ttf-anonymous-pro
-	ttf-arphic-ukai
-	ttf-arphic-uming
-	ttf-fira-mono
-	ttf-freefont
-	ttf-gentium
-	ttf-hack
-	ttf-hannom
-	ttf-inconsolata
-	ttf-linux-libertine
-	wqy-bitmapfont
 	wqy-zenhei
 	noto-fonts-emoji
+	# otf-fira-mono
+	# ttf-anonymous-pro
+	# ttf-arphic-ukai
+	# ttf-arphic-uming
+	# ttf-fira-mono
+	# ttf-freefont
+	# ttf-gentium
+	# ttf-hack
+	# ttf-hannom
+	# ttf-inconsolata
+	# ttf-linux-libertine
+	# wqy-bitmapfont
 )
 
 _cli=(
-	# rabbitmq
-	# screenfetch
-	w3m
-	github-cli
-	the_silver_searcher
-	tig
-	clash
-	trojan
 	arandr
 	aria2
 	bat
@@ -63,30 +58,33 @@ _cli=(
 	feh
 	fortune-mod
 	fzf
+	github-cli
 	go
-	plocate
+	miniconda
 	neofetch
 	nginx
 	nodejs
 	npm
 	p7zip
+	plocate
 	python-isort
 	python-pip
 	python-pylint
 	python-pynvim
 	python-rope
-	python2
-	python2-pip
 	python3
+	screenfetch
 	scrot
-	shadowsocks
+	the_silver_searcher
 	tig
 	unrar
+	w3m
 	xclip
 	xsel
 	youtube-dl
 	zsh
-	miniconda
+    fish
+    jq
 
     # system service
     udiskie
@@ -97,18 +95,14 @@ _cli=(
 )
 
 _desktop=(
-	# thunar
-	# thunar-archive-plugin
-	# thunar-media-tags-plugin
-	# thunar-volman
 	# libreoffice
 	# fbreader
 	# thunderbird
+	# chromium
 	alacritty
-	compton
+    picom
 	rofi
 	geeqie
-	chromium
 	lxappearance
 	pcmanfm
 	volumeicon
@@ -117,20 +111,15 @@ _desktop=(
 	flameshot
 	remmina
 	typora
-	github-desktop-bin
 	pycharm-community-edition
+	# github-desktop-bin
 )
 
 _aur=(
-	# wewechat
-	# wps-office
-	# bmenu
 	# electronic-wechat
 	# apvlv
 	# crossover
 	# teamviewer
-	# oh-my-zsh-git
-    # netease-cloud-music # already dead
 	emojify
 	sqlint
 	acroread
@@ -139,10 +128,8 @@ _aur=(
 	ttf-monaco-nerd-font-git
 )
 
-# appearance
 _themes=(
 	xcursor-simpleandsoft
-	# ark-icon-theme
 	papirus-icon-theme
 )
 _aur_themes=(
@@ -151,23 +138,24 @@ _aur_themes=(
 	paper-icon-theme-git
 )
 
-# vim
 _required_by_vim=(
 	flake8
 	autopep8
 	prettier
 	ack
 )
+
 _required_by_vim_aur=(
-	#gitlint
-	#python-vint
+	# gitlint
 	shfmt
 	sqlint
 	python-proselint
 )
 
 # pip
-_py_general=()
+_py_general=(
+    bpython
+)
 
 # --------------------------------------------
 # Manually install
@@ -182,7 +170,11 @@ install_aur_app() {
 	local aur_tmp=/tmp/_my_aur
 	[[ -z "$1" ]] && exit_with_msg "Invalid argument: $1"
 	local app=$1
-	do_install git
+    if cmd_not_found git; then
+        if !do_install git; then
+            echo_warn "Failed to install git." 
+        fi
+    fi
 
 	mkdir -p $aur_tmp
 	cd $aur_tmp
@@ -195,14 +187,7 @@ install_aur_app() {
 
 install_yay() {
 	command -v yay >/dev/null && return
-	do_install 'go'
-	install_aur_app 'yay'
-}
-
-install_yaourt() {
-	command -v yaourt >/dev/null && return
-	install_aur_app 'package-query'
-	install_aur_app 'yaourt'
+	do_install 'go' && install_aur_app 'yay'
 }
 
 install_nerd_fonts() {
@@ -226,16 +211,20 @@ install_ranger_and_plugins() {
 	[[ ! $ans = 'y' ]] && return
 
 	# ranger and basic config
-	do_install ranger
-	ranger --copy-config=all
-	# devicons
-	local clonedir=/tmp/ranger_devicons
-	[[ -d $clonedir ]] && rm -rf $clonedir
-	git clone https://github.com/alexanderjeurissen/ranger_devicons $clonedir
-	cd $clonedir
-	make install
-	cd ~
-	rm -rf $clonedir
+	if do_install ranger; then
+        ranger --copy-config=all
+        # devicons
+        local clonedir=/tmp/ranger_devicons
+        [[ -d $clonedir ]] && rm -rf $clonedir
+        git clone https://github.com/alexanderjeurissen/ranger_devicons $clonedir
+        cd $clonedir
+        make install
+        cd ~
+        rm -rfv $clonedir
+    else
+        echo_warn "Failed to install ranger"
+    fi
+
 }
 
 install_wudao_dict() {
@@ -321,7 +310,19 @@ install_ohmyzsh() {
 	sh -c "$(wget -O- https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh)"
 }
 
+install_kd() {
+	echo "Install kd? (Y/n)"
+	check_input yn
+	[[ ! $ans = 'y' ]] && return
+
+    sh -c "$(curl -fsSL https://raw.githubusercontent.com/Karmenzind/kd/master/scripts/install.sh)"
+}
+
 install_zsh_stuff() {
+	echo "Install ohmyzsh and plugins? (Y/n)"
+	check_input yn
+	[[ ! $ans = 'y' ]] && return
+
 	install_ohmyzsh
 	install_zsh_plugin zsh-autosuggestions https://github.com/zsh-users/zsh-autosuggestions
 	install_zsh_plugin conda-zsh-completion https://github.com/esc/conda-zsh-completion
@@ -330,10 +331,43 @@ install_zsh_stuff() {
 
 # --------------------------------------------
 
-install_officials
-install_aurs
+is_wsl() {
+    test -f /proc/sys/fs/binfmt_misc/WSLInterop
+}
+
+apit() {
+    sudo apt install -y "$@"
+}
+
+install_apt_recommandations() {
+    # basic
+    apti nodejs npm git python3 python3-pip vim neovim lua tmux command-not-found wget curl
+
+    # tools
+    apti ripgrep fzf axel batcat universal-ctags jq httpie
+    !is_wsl && apti docker
+}
+
+setup_fish() {
+    cmd_not_found fish && do_install fish
+}
+
+# --------------------------------------------
+
+if [[ $distro == arch ]];; then
+    install_officials
+    install_aurs
+    install_fcitx
+else
+    install_nerd_fonts
+
+    if command -V apt > /dev/null; then
+    else 
+        echo_warn "No pacman/apt. Ignored pkg part."
+    fi
+fi
+
+# --------------------------------------------
+
 install_ranger_and_plugins
-install_wudao_dict
-# install_nerd_fonts
-install_fcitx
 install_zsh_stuff
