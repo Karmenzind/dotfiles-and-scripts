@@ -11,7 +11,7 @@ import sys
 from typing import List
 
 if sys.version_info.major < 3:
-    print("Python3 is required.")
+    print("[✘] Python3 is required.")
 
 import argparse
 import datetime
@@ -41,7 +41,7 @@ new_linked = rec["new"]
 
 CUR_TS = int(time.time())
 CUR_TIME = datetime.datetime.now().strftime("%Y%m%d_%H%M")
-print("Current time: ", CUR_TIME)
+# print("Current time: ", CUR_TIME)
 
 REPO_DIR = Path(os.path.dirname(os.path.abspath(__file__)))
 HOME_DIR = Path(os.path.expanduser("~"))
@@ -61,9 +61,9 @@ if platform == "win":
             powershell_command = f"pwsh {ps_args} $PROFILE.AllUsersCurrentHost"
         else:
             powershell_command = f'pwsh {ps_args} $PROFILE'
-        result = subprocess.run(powershell_command, stdout=subprocess.PIPE, text=True, shell=True)
+        result = subprocess.run(
+            powershell_command, stdout=subprocess.PIPE, text=True, shell=True)
         return result.stdout.strip()
-
 
     TO_SYNC = [
         Path("home_k/.vim"),
@@ -82,7 +82,7 @@ if platform == "win":
         Path("home_k/.vimrc"): HOME_DIR / "_vimrc",
         Path("home_k/.config/nvim"): HOME_DIR / "AppData\\Local\\nvim",
         Path("home_k/.config/alacritty/alacritty.toml"): HOME_DIR / "AppData\\Roaming\\alacritty\\alacritty.toml",
-        Path("others/powershell/profile.ps1") : get_ps_profile_path(),
+        Path("others/powershell/profile.ps1"): get_ps_profile_path(),
         # "home_k/.golangci.yml",
         # "home_k/.gitconfig",
         # "home_k/.agignore",
@@ -105,12 +105,33 @@ SYMLINK_AS_DIR = [
 
 EXCLUDED = [
     Path("home_k/README.md"),
+    Path("home_k/.vim/.ycm_extra_conf.py"),
     Path("local_bin/acpyve"),
     Path("local_bin/docker_manager"),
+    Path("home_k/.config/alacritty/alacritty.yml"),
+]
+
+GUI_PATTERNS = [
+    "alacritty",
+    "picom",
+    "conky",
+    "dunst",
+    "fcitx",
+    "fcitx5",
+    "i3",
+    "i3status",
+    "polybar",
+    "volumeicon",
+    "deadd",
+    "rofi",
+    "xfce4",
+    "fontconfig",
+    ".Xresources",
+    ".xinitrc",
 ]
 
 
-def ask(choices, msg="Continue?"):
+def ask(choices, msg="≫  continue?"):
     ans = None
     msg += " (%s) " % "/".join(choices)
     while ans not in choices:
@@ -120,11 +141,20 @@ def ask(choices, msg="Continue?"):
 
 def validate(src: Path) -> bool:
     ret = True
+    src_str = str(src)
+
+    if src_str.endswith(".md"):
+        return False
+
+    if args.nogui:
+        for p in GUI_PATTERNS:
+            if p in src_str.split(os.sep):
+                return False
+
     if Path(src) in EXCLUDED:
         return False
 
     if platform == "linux":
-        src_str = str(src)
         if "i3/config" in src_str:
             if "manjaro" in VERSION_INFO:
                 ret = src_str.endswith(".manjaro")
@@ -144,16 +174,12 @@ backup_pat = f"*.backup_{CUR_TIME}"
 
 
 def do_symlink(from_: Path, to_: Path):
-    print(f"\n≫  processing: {from_} -> {to_}")
-    if args.interactive and ask(YN) == "n":
-        print("Ignored.")
-        return
-
     from_ = REPO_DIR / from_
 
     # A file can be a symlink as well as nonexisted on Win. Fuck Windows
     if os.path.islink(to_):
-        existed_link_to = os.path.realpath(to_) if sys.platform == "win32" else os.readlink(to_)
+        existed_link_to = os.path.realpath(
+            to_) if sys.platform == "win32" else os.readlink(to_)
         if existed_link_to == str(from_):
             if args.delete:
                 os.remove(to_)
@@ -161,7 +187,7 @@ def do_symlink(from_: Path, to_: Path):
                 print(f"[✔] removed symlink: {to_}")
                 return
 
-            print(f"{to_} is already symlinked to {from_}. Ignored.")
+            print(f"[✔] {to_} is already symlinked to {from_}.")
             return
 
         override_msg = f"{to_} exists and is a symlink (-> {existed_link_to!r}). Override it? (file will be mv to {backup_pat})"
@@ -172,6 +198,11 @@ def do_symlink(from_: Path, to_: Path):
             override_msg = ""
 
     if args.delete:
+        return
+
+    print(f"\n≫  processing: {from_} -> {to_}")
+    if args.interactive and ask(YN) == "n":
+        print("Ignored.")
         return
 
     if override_msg:
@@ -224,6 +255,12 @@ def main():
     :returns: TODO
 
     """
+    if args.delete:
+        print("≫  This action will delete all symlinks")
+        if ask(YN) == "n":
+            print("Canceled.")
+            return
+
     for item in TO_SYNC:
         mapped: Path = get_mapped(item)
         if not accessible(mapped):
@@ -252,7 +289,7 @@ def main():
             for filename in subfiles:
                 src = from_dir / filename
                 if not validate(src):
-                    print("\n≫  Ignored invalid: %s" % src)
+                    print("≫  Ignored invalid/excluded: %s" % src)
                     continue
 
                 do_symlink(src, to_dir / filename)
@@ -269,17 +306,22 @@ def main():
 
 
 if __name__ == "__main__":
-    parser = argparse.ArgumentParser()
-    parser.add_argument(
-        "--fake", action="store_true", help="Only preview what will happen"
-    )
-    parser.add_argument(
-        "-i", "--interactive", action="store_true", help="Let me determine every file"
-    )
-    parser.add_argument(
-        "-d", "--delete", action="store_true", help="remove all symlink files"
-    )
+    parser = argparse.ArgumentParser(description="created symlinks for configuration files in this repo")
+    parser.add_argument("--fake", action="store_true", help="Only preview what will happen")
+    parser.add_argument("-i", "--interactive", action="store_true", help="Let me determine every file")
+    parser.add_argument("-d", "--delete", action="store_true", help="remove all symlink files")
+    parser.add_argument("--nogui", action="store_true", help="only for terminal apps")
+    parser.add_argument("--vimonly", action="store_true", help="only for vim related")
     args = parser.parse_args()
     fake = args.fake
+
+    if args.vimonly:
+        TO_SYNC = [
+            Path("home_k/.vim"),
+            Path("home_k/.vimrc"),
+            Path("home_k/.config/nvim/init.lua"),
+
+            # linters/fixers?
+        ]
 
     main()

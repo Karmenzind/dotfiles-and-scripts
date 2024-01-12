@@ -1,10 +1,13 @@
 #! /usr/bin/env bash
 # https://github.com/Karmenzind/
-#
+
 # Mainly for ArchLinux
 # Partially support Debian-based system
 
-distro=$(cat /etc/os-release | grep '^ID=' | sed 's/ID=//')
+if [[ -z $__loaded_commonrc ]]; then
+    cd $(dirname $0)
+	source $PWD/utils/commonrc
+fi
 
 # --------------------------------------------
 # apps
@@ -83,15 +86,15 @@ _cli=(
 	xsel
 	youtube-dl
 	zsh
-    fish
-    jq
+	fish
+	jq
 
-    # system service
-    udiskie
+	# system service
+	udiskie
 
-    # language server
-    marksman
-    taplo-cli
+	# language server
+	marksman
+	taplo-cli
 )
 
 _desktop=(
@@ -100,7 +103,7 @@ _desktop=(
 	# thunderbird
 	# chromium
 	alacritty
-    picom
+	picom
 	rofi
 	geeqie
 	lxappearance
@@ -154,7 +157,7 @@ _required_by_vim_aur=(
 
 # pip
 _py_general=(
-    bpython
+	bpython
 )
 
 # --------------------------------------------
@@ -170,11 +173,11 @@ install_aur_app() {
 	local aur_tmp=/tmp/_my_aur
 	[[ -z "$1" ]] && exit_with_msg "Invalid argument: $1"
 	local app=$1
-    if cmd_not_found git; then
-        if !do_install git; then
-            echo_warn "Failed to install git." 
-        fi
-    fi
+	if cmd_not_found git; then
+		if !do_install git; then
+			echo_warn "Failed to install git."
+		fi
+	fi
 
 	mkdir -p $aur_tmp
 	cd $aur_tmp
@@ -191,14 +194,13 @@ install_yay() {
 }
 
 install_nerd_fonts() {
-	echo "Install monaco nerd font? (Y/n)"
-	check_input yn
-	[[ ! $ans = 'y' ]] && return
+	echo_run "Install monaco nerd font? (Y/n)"
+	! check_yn && return
 
 	local target_dir='/usr/share/fonts/nerd'
 	local _tmp='/tmp/monaco-nerd-fonts'
 	sudo mkdir -p $target_dir
-	ls ${target_dir}/*Monaco* >/dev/null 2>&1 && echo 'Monaco Nerd Fonts already exists.' && return
+	ls ${target_dir}/*Monaco* >/dev/null 2>&1 && echo_run 'Monaco Nerd Fonts already exists.' && return
 	git clone https://github.com/Karmenzind/monaco-nerd-fonts $_tmp
 	cd $_tmp/fonts && rm -rf *Windows* && sudo cp ./*tf $target_dir
 	cd ~
@@ -206,37 +208,35 @@ install_nerd_fonts() {
 }
 
 install_ranger_and_plugins() {
-	echo "Install ranger and plugins? (Y/n)"
-	check_input yn
-	[[ ! $ans = 'y' ]] && return
+	echo_run "Install ranger and plugins? (Y/n)"
+	! check_yn && return
 
 	# ranger and basic config
 	if do_install ranger; then
-        ranger --copy-config=all
-        # devicons
-        local clonedir=/tmp/ranger_devicons
-        [[ -d $clonedir ]] && rm -rf $clonedir
-        git clone https://github.com/alexanderjeurissen/ranger_devicons $clonedir
-        cd $clonedir
-        make install
-        cd ~
-        rm -rfv $clonedir
-    else
-        echo_warn "Failed to install ranger"
-    fi
+		ranger --copy-config=all
+		# devicons
+		local clonedir=/tmp/ranger_devicons
+		[[ -d $clonedir ]] && rm -rf $clonedir
+		git clone https://github.com/alexanderjeurissen/ranger_devicons $clonedir
+		cd $clonedir
+		make install
+		cd ~
+		rm -rfv $clonedir
+	else
+		echo_warn "Failed to install ranger"
+	fi
 
 }
 
 install_wudao_dict() {
-	echo "Install wudao-dict? (Y/n)"
-	check_input yn
-	[[ ! $ans = 'y' ]] && return
+	echo_run "Install wudao-dict? (Y/n)"
+	! check_yn && return
 
 	command -v 'pip' >/dev/null 2>&1 || do_install 'python-pip'
 	# sudo pip install bs4 lxml requests
 	local target_dir="$HOME/.local/wudao-dict"
 	if [[ -d "$target_dir" ]]; then
-		echo "Delete ${target_dir} and continue?"
+		echo_run "Delete ${target_dir} and continue?"
 		[[ ! $ans = 'y' ]] && return
 		rm -rf $target_dir
 	fi
@@ -246,9 +246,8 @@ install_wudao_dict() {
 }
 
 install_officials() {
-	echo "Install offcial apps with pacman? (Y/n)"
-	check_input yn
-	[[ ! $ans = 'y' ]] && return
+	echo_run "Install offcial apps with pacman? (Y/n)"
+	! check_yn && return
 
 	do_install ${_basic[*]}
 	do_install ${_fonts[*]}
@@ -261,22 +260,20 @@ install_officials() {
 
 install_aurs() {
 	aur_helper=yay
-	echo "Install apps from AUR with $aur_helper? (Y/n)"
-	check_input yn
-	[[ ! $ans = 'y' ]] && return
+	echo_run "Install apps from AUR with $aur_helper? (Y/n)"
+	! check_yn && return
 
 	install_yay
 	$aur_helper -S -v --needed --noconfirm ${_aur[*]}
 	$aur_helper -S -v --needed --noconfirm ${_aur_themes[*]}
-	$aur_helper -S -v --needed --noconfirm ${_required_by_vim_aur[*]}
+	# $aur_helper -S -v --needed --noconfirm ${_required_by_vim_aur[*]}
 	$aur_helper -Sc
 }
 
 install_fcitx() {
 	aur_helper=yay
-	echo "Install fcitx and Chinese input method? (Y/n)"
-	check_input yn
-	[[ ! $ans = 'y' ]] && return
+	echo_run "Install fcitx and Chinese input method? (Y/n)"
+	! check_yn && return
 
 	# do_install fcitx fcitx-im fcitx-configtool fcitx-sunpinyin fcitx-cloudpinyin
 
@@ -288,9 +285,8 @@ install_fcitx() {
 install_zsh_plugin() {
 	local name=$1
 	local url=$2
-	echo "Install/Update zsh plugin: ${name}? (Y/n)"
-	check_input yn
-	[[ ! $ans = 'y' ]] && return
+	echo_run "Install/Update zsh plugin: ${name}? (Y/n)"
+	! check_yn && return
 
 	local targetdir=${ZSH_CUSTOM:-~/.oh-my-zsh/custom}/plugins/${name}
 
@@ -304,24 +300,22 @@ install_zsh_plugin() {
 }
 
 install_ohmyzsh() {
-	echo "Install ohmyzsh? (Y/n)"
-	check_input yn
-	[[ ! $ans = 'y' ]] && return
+	echo_run "Install ohmyzsh? (Y/n)"
+	! check_yn && return
+
 	sh -c "$(wget -O- https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh)"
 }
 
 install_kd() {
-	echo "Install kd? (Y/n)"
-	check_input yn
-	[[ ! $ans = 'y' ]] && return
+	echo_run "Install kd? (Y/n)"
+	! check_yn && return
 
-    sh -c "$(curl -fsSL https://raw.githubusercontent.com/Karmenzind/kd/master/scripts/install.sh)"
+	sh -c "$(curl -fsSL https://raw.githubusercontent.com/Karmenzind/kd/master/scripts/install.sh)"
 }
 
 install_zsh_stuff() {
-	echo "Install ohmyzsh and plugins? (Y/n)"
-	check_input yn
-	[[ ! $ans = 'y' ]] && return
+	echo_run "Install ohmyzsh and plugins? (Y/n)"
+	! check_yn && return
 
 	install_ohmyzsh
 	install_zsh_plugin zsh-autosuggestions https://github.com/zsh-users/zsh-autosuggestions
@@ -331,40 +325,48 @@ install_zsh_stuff() {
 
 # --------------------------------------------
 
-is_wsl() {
-    test -f /proc/sys/fs/binfmt_misc/WSLInterop
-}
-
-apit() {
-    sudo apt install -y "$@"
-}
-
 install_apt_recommandations() {
-    # basic
-    apti nodejs npm git python3 python3-pip vim neovim lua tmux command-not-found wget curl
+	echo_run "Install recommandations via apt-get? (Y/n)"
+	! check_yn && return
 
-    # tools
-    apti ripgrep fzf axel batcat universal-ctags jq httpie
-    !is_wsl && apti docker
+	# basic
+	! [[ -e /etc/apt/sources.list.d/neovim-ppa-ubuntu-unstable-jammy.list ]] && sudo add-apt-repository ppa:neovim-ppa/unstable
+	apti git python3 python3-pip vim neovim tmux command-not-found wget curl unzip
+	# apti golang
+
+	# tools
+	apti ripgrep fzf axel universal-ctags jq httpie
+	! is_wsl && apti docker
+
+	! [[ -e /etc/apt/sources.list/nodesource.list ]] && curl -fsSL https://deb.nodesource.com/setup_21.x | sudo -E bash -
+	apti nodejs npm
+
+	# (n)vim related
+	apti python3-neovim
+}
+
+install_dnf_recommentations() {
+	echo_warn "WIP"
 }
 
 setup_fish() {
-    cmd_not_found fish && do_install fish
+	cmd_not_found fish && do_install fish && chsh $(which fish)
 }
 
 # --------------------------------------------
 
-if [[ $distro == arch ]];; then
-    install_officials
-    install_aurs
-    install_fcitx
+if [[ $distro == arch ]]; then
+	install_officials
+	install_aurs
+	install_fcitx
 else
-    install_nerd_fonts
+	if command -v apt >/dev/null; then
+		install_apt_recommandations
+	else
+		echo_warn "No pacman/apt. Ignored pkg installation."
+	fi
 
-    if command -V apt > /dev/null; then
-    else 
-        echo_warn "No pacman/apt. Ignored pkg part."
-    fi
+	install_nerd_fonts
 fi
 
 # --------------------------------------------

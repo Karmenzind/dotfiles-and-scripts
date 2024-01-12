@@ -12,7 +12,7 @@ if s:is_win
 
   let g:vimroot = glob('~') .. '\vimfiles'
 else
-  let g:vimroot = glob('~') .. '/vim'
+  let g:vimroot = glob('~') .. '/.vim'
 endif
 
 let b:current_hour = strftime('%H')
@@ -800,6 +800,7 @@ else
   nnoremap <Leader>fa :Ag<SPACE>
 endif
 nnoremap <Leader>fr :Rg<SPACE>
+nnoremap <Leader>fg :Rg<SPACE>
 nnoremap <Leader>fl :Lines<SPACE>
 nnoremap <Leader>fL :BLines<SPACE>
 nnoremap <Leader>fb :Buffers<CR>
@@ -924,7 +925,7 @@ let g:ale_fixers = {
       \  'vue': ['eslint', 'prettier'],
       \  'yaml': ['prettier'],
       \  'css': ['prettier'],
-      \  'html': ['html-beautify'],
+      \  'html': ['prettier'],
       \  'lua': ['stylua'],
       \  'php': ['php_cs_fixer'],
       \ }
@@ -933,7 +934,6 @@ let g:ale_maximum_file_size = 1024 * 1024
 " let g:ale_set_balloons_legacy_echo = 1
 
 " hover
-" let g:ale_hover_to_floating_preview = 1
 let g:ale_floating_preview = 1
 let g:ale_hover_to_preview = 1
 let g:ale_hover_to_floating_preview = 1
@@ -1037,6 +1037,11 @@ function! GetBrowser() abort
 endfunction
 
 function! s:PreviewWithMLP() abort
+  if &ft != "markdown" 
+    echom "Only support markdown"
+    return
+  endif
+
   if !executable("mlp")
     echom "mlp not found (Install with: pip install markdown_live_preview)"
     return
@@ -1052,12 +1057,12 @@ function! s:PreviewWithMLP() abort
     call s:TermExecute(b .. " http://localhost:13333")
   endif
 endfunction
+nnoremap <buffer> <Leader>mp :call <SID>PreviewWithMLP()<CR>
 
 " particular keymaps
 augroup for_markdown_ft
   au!
   au FileType markdown
-        \ nnoremap <buffer> <Leader>mp :call <SID>PreviewWithMLP()<CR>     |
         \ let  b:AutoPairs = {'(':')', '[':']', '{':'}',"'":"'",'"':'"'} |
         \ cabbrev <buffer> TF TableFormat
   " FIXME (k): <2022-03-23> no search
@@ -1415,62 +1420,6 @@ function! s:EchoWarn(msg)
     echohl WarningMsg
     echom a:msg
     echohl None
-endfunction
-
-function! InstallRequirements() abort
-  let req = {"pip": ['black', 'autopep8', 'isort', 'vint', 'proselint', 'gitlint'],
-        \ "npm": ['prettier', 'fixjson', 'importjs', 'vue-language-server'],
-        \ "other": ['ag', 'fzf', 'ctags', 'clang-format', 'rg']
-        \ }
-  let cmd_map = {"pip": "pip install",
-        \ "npm": "npm install -g"}
-  let pkg_map = {"rg": "ripgrep"}
-
-  " determine by system
-  if executable("pacman")
-    let cmd_map["other"] = "pacman -S --noconfirm"
-    let pkg_map["ag"] = "the_silver_searcher"
-  elseif executable("apt")
-    let cmd_map["other"] = "apt install -y"
-    let pkg_map["ag"] = "silversearcher-ag"
-  else
-    call s:EchoWarn("You must install " . string(req["other"]) . " by yourself.")
-  endif
-
-  function! s:IsInstalled(s, p)
-    if a:s == 'other'
-      return executable(a:p)
-    else
-      if a:s == 'pip'
-        execute "!pip show " . a:p
-      elseif a:s == 'npm'
-        execute "!npm ls -g " . a:p
-      endif
-        return v:shell_error == 0
-    endif
-  endfunction
-
-  for [src, pkgs] in items(req)
-    for pkg in pkgs
-      echom ">>> checking " . pkg . "..."
-      if s:IsInstalled(src, pkg)
-        echom pkg . " has been already installed."
-      else
-        if has_key(pkg_map, pkg)
-          let cmd = cmd_map[src] . " " . pkg_map[pkg]
-        else
-          let cmd = cmd_map[src] . " " . pkg
-        endif
-        if !s:is_win
-          let cmd = "sudo " .. cmd
-        endif
-        execute "!" . cmd
-        if !s:IsInstalled(src, pkg)
-          call s:EchoWarn("Failed to install " . pkg . ". Fix it by yourself.")
-        endif
-      endif
-    endfor
-  endfor
 endfunction
 
 " edit rc files

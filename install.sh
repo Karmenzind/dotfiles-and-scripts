@@ -1,26 +1,30 @@
 #! /usr/bin/env bash
 # https://github.com/Karmenzind/
 
-clear
-cd `dirname $0`
+cd $(dirname $0)
 repo_dir=$PWD
+
+distro=$(cat /etc/os-release | grep '^ID=' | sed 's/ID=//')
 
 source ./scripts/utils/commonrc
 
-cat << EOF
+echo_run "What do you want to do? (default=1)"
 
-What do you want to do? (default=1)
-1   install recommended apps
-2   install Vim/Neovim and my configuration
-3   symlink configuration files
+cat <<EOF
+
+1)   install recommended apps
+2)   setup Vim/Neovim and configuration files
+3)   symlink all configuration files
 EOF
-check_input 12
+check_input 123
 case $ans in
-    1) source ./scripts/install_apps.sh     ;;
-    2) source ./scripts/install_vim/main.sh ;;
-    3) python symlink.py                    ;;
-    *) echo "No action."                    ;;
+    1)
+        source ./scripts/install_apps.sh
+        source ./scripts/setup_vim.sh
+        ;;
+    2) source ./scripts/setup_vim.sh ;;
+    3) python3 symlink.py ;;
+    *) echo "No action." ;;
 esac
 
-cecho '\nDONE:)' $cyan
-
+echo_ok 'DONE :)' $cyan

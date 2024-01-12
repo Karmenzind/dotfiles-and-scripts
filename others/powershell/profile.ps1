@@ -173,7 +173,7 @@ if (Get-Command 'fzf') {
     } else {
         Write-Host "(PsFZF is Ignored.)"
     }
-    if (Get-Command rg -ErrorAction SilentlyContinue) {
+    if (Get-Command fd -ErrorAction SilentlyContinue) {
         $env:FZF_DEFAULT_COMMAND = 'fd --type f --strip-cwd-prefix --hidden --follow --exclude .git'
     }
     # $env:FZF_DEFAULT_OPTS="--preview 'bat.exe -r:10 {}' --inline-info --height 50% --reverse --border=horizontal --preview-window=right:40% --color fg:yellow,fg+:bright-yellow"

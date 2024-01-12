@@ -39,7 +39,7 @@ if is_win then
     vim.opt.shellquote = ""
     vim.opt.shellxquote = ""
 else
-    vim.o.runtimepath = "~/.vim" .. vim.o.runtimepath .. "~/.vim/after"
+    vim.o.runtimepath = "~/.vim," .. vim.o.runtimepath .. ",~/.vim/after"
     vim.o.packpath = vim.o.runtimepath
 
     vim.g.python3_host_prog = "/usr/bin/python3"
@@ -55,7 +55,7 @@ local function term_esc()
     if vim.fn.match(vim.o.filetype, "\v^(fzf|Telescope)") then
         vim.cmd("close")
     else
-        vim.api.nvim_feedkeys("")
+        vim.api.nvim_feedkeys("", "m", true)
     end
 end
 
@@ -102,34 +102,54 @@ local function nvim_tree_on_attach(bufnr)
     vim.keymap.set("n", "<leader>n", api.tree.close, opts("Close"))
 end
 
-local ts = require("telescope")
-local tsa = require("telescope.actions")
-local tsbuiltin = require("telescope.builtin")
-vim.keymap.set("n", "<leader>ff", tsbuiltin.find_files, mopts)
-vim.keymap.set("n", "<leader>fg", tsbuiltin.live_grep, mopts)
-vim.keymap.set("n", "<leader>fb", tsbuiltin.buffers, mopts)
-vim.keymap.set("n", "<leader>fh", tsbuiltin.help_tags, mopts)
-ts.setup({
-    defaults = {
-        -- layout_config = { prompt_position = "top" },
-        -- sorting_strategy = "ascending",
-        border = true,
-        mappings = {
-            i = {
-                ["<esc>"] = tsa.close,
-                ["<C-j>"] = { tsa.move_selection_next, type = "action", opts = { nowait = true, silent = true } },
-                ["<C-k>"] = { tsa.move_selection_previous, type = "action", opts = { nowait = true, silent = true } },
-                ["<C-f>"] = { tsa.results_scrolling_down, type = "action", opts = { nowait = true, silent = true } },
-                ["<C-b>"] = { tsa.results_scrolling_up, type = "action", opts = { nowait = true, silent = true } },
+if os.getenv("TMUX") == nil or vim.fn.executable("fzf") == 0 then
+    local ts = require("telescope")
+    local tsa = require("telescope.actions")
+    local tsbuiltin = require("telescope.builtin")
+    vim.keymap.set("n", "<leader>ff", tsbuiltin.find_files, mopts)
+    vim.keymap.set("n", "<leader>fg", tsbuiltin.live_grep, mopts)
+    vim.keymap.set("n", "<leader>fb", tsbuiltin.buffers, mopts)
+    vim.keymap.set("n", "<leader>fh", tsbuiltin.help_tags, mopts)
+    ts.setup({
+        defaults = {
+            -- layout_config = { prompt_position = "top" },
+            -- sorting_strategy = "ascending",
+            border = true,
+            mappings = {
+                i = {
+                    ["<esc>"] = tsa.close,
+                    ["<C-j>"] = { tsa.move_selection_next, type = "action", opts = { nowait = true, silent = true } },
+                    ["<C-k>"] = {
+                        tsa.move_selection_previous,
+                        type = "action",
+                        opts = { nowait = true, silent = true },
+                    },
+                    ["<C-f>"] = { tsa.results_scrolling_down, type = "action", opts = { nowait = true, silent = true } },
+                    ["<C-b>"] = { tsa.results_scrolling_up, type = "action", opts = { nowait = true, silent = true } },
+                },
             },
         },
-    },
-    pickers = {
-        find_files = {
-            find_command = { "fd", "--type", "f", "--strip-cwd-prefix", "--hidden", "--follow", "--exclude", ".git" },
-            prompt_prefix = "🔍 ",
+        pickers = {
+            find_files = {
+                find_command = {
+                    "fd",
+                    "--type",
+                    "f",
+                    "--strip-cwd-prefix",
+                    "--hidden",
+                    "--follow",
+                    "--exclude",
+                    ".git",
+                },
+                prompt_prefix = "🔍 ",
+            },
         },
-    },
+    })
+end
+
+require("nvim-treesitter.configs").setup({
+    ensure_installed = { "c", "lua", "vim", "vimdoc", "query" },
+    auto_install = true,
 })
 
 require("nvim-tree").setup({
@@ -239,7 +259,7 @@ vim.keymap.set("n", "<leader>q", vim.diagnostic.setloclist, mopts)
 
 local on_attach = function(_, bufnr)
     -- Enable completion triggered by <c-x><c-o>
-    vim.api.nvim_buf_set_option(bufnr, "omnifunc", "v:lua.vim.lsp.omnifunc")
+    vim.api.nvim_set_option_value("omnifunc", "v:lua.vim.lsp.omnifunc", { buf = bufnr })
 
     local bufopts = { noremap = true, silent = true, buffer = bufnr }
     vim.keymap.set("n", "gD", vim.lsp.buf.declaration, bufopts)
@@ -535,7 +555,7 @@ require("registers").setup({})
 
 require("cmp").setup({
     enabled = function()
-        return vim.api.nvim_buf_get_option(0, "buftype") ~= "prompt" or require("cmp_dap").is_dap_buffer()
+        return vim.api.nvim_get_option_value("buftype", { buf = 0 }) ~= "prompt" or require("cmp_dap").is_dap_buffer()
     end,
 })
 

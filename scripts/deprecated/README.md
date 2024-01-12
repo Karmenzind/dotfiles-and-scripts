@@ -6,7 +6,7 @@
 
 > 22年开始已经不再用YouCompleteMe，目前在Neovim中使用内置LSP和cmp相关插件，在Vim中使用coc。此处仅供参考
 
-- [compile and install YouCompleteMe](./scripts/install_vim/ycm.sh) YouCompleteMe插件编译安装
+- [compile and install YouCompleteMe](./install_vim/ycm.sh) YouCompleteMe插件编译安装
 
 [通过install.sh](#usage)**选择第四项单独安装YouCompleteMe插件**时，需要注意：
 1.  阅读ycm.sh的开头部分
@@ -17,7 +17,7 @@
 
 ### Docker服务管理（archived）
 
-- [docker_manager](./local_bin/docker_manager)
+- [docker_manager](./docker_manager)
 
 方便一堆用Docker容器需要管理的场景<br>
 配合cron使用
@@ -27,7 +27,7 @@
 
 > 已经停止维护，请使用conda/pyenv/virtualenvwrapper
 
-- [acpyve](./local_bin/acpyve)
+- [acpyve](./acpyve)
 
 方便一堆虚拟环境需要切换的场景<br>
 

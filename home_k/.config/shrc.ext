@@ -31,6 +31,10 @@ export PAGER='less -F'
 export VISUAL=$EDITOR
 export SVN_EDITOR=$EDITOR
 
+export PIPX_HOME=/opt/pipx
+export PIPX_BIN_DIR=/usr/local/bin
+export PIPX_MAN_DIR=/usr/local/share/man
+
 for _tmp_terminal in alacritty xfce4-terminal urxvt; do
     export TERMINAL=$(command -v $_tmp_terminal)
     [[ -n $TERMINAL ]] && unset _tmp_terminal && break
@@ -148,10 +152,13 @@ __initialize_my_conda
 # use fd
 # export FZF_DEFAULT_COMMAND="fd --type f --hidden --follow --ignore-file ~/.config/search_ignore"
 # use the silver searcher
-if command -v 'ag' >/dev/null; then
+if command -v 'rg' >/dev/null; then
+    export FZF_DEFAULT_COMMAND="fd --type f --strip-cwd-prefix --hidden --follow --exclude .git"
+# elif command -v 'rg' >/dev/null; then
+elif command -v 'ag' >/dev/null; then
     export FZF_DEFAULT_COMMAND="ag --hidden --nocolor -U -g ''"
 else
-    echo "The silver search needs to be installed"
+    echo "One of fd/rg/ag needs to be installed"
 fi
 
 # for fzf

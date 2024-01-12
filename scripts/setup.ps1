@@ -107,11 +107,11 @@ function Setup-Fonts {
     PressToQuit
 }
 
-# TODO 
+# TODO
 # https://hamidmosalla.com/2022/12/26/how-to-customize-windows-terminal-and-powershell-using-fzf-neovim-and-beautify-it-with-oh-my-posh/
 Install-Module -Name z –Force
 Install-Module -Name Terminal-Icons -Repository PSGallery
-winget install JanDeDobbeleer.OhMyPosh -s winget 
+winget install JanDeDobbeleer.OhMyPosh -s winget
 # Install-Module posh-git -Scope CurrentUser
 # Set-PoshPrompt
 
@@ -134,12 +134,13 @@ $null = Ensure-Tool "bat"     "winget" "sharkdp.bat"
 $null = Ensure-Tool "ctags"   "choco"  "universal-ctags"
 $null = Ensure-Tool "neovide" "choco"  "neovide"
 
-# linters / fixers
+# linters / fixers / etc
 $null = Ensure-Tool "prettier" "npm"    "neovide"
 $null = Ensure-Tool "marksman" "npm"    "marksman"
 $null = Ensure-Tool "marksman" "npm"    "marksman"
 $null = Ensure-Tool "stylua"   "choco"  "stylua"
 $null = Ensure-Tool "jq"       "winget" "jqlang.jq"
+$null = Ensure-Tool "mlp"      "pip"    "markdown_live_preview"
 
 Setup-Fonts
 

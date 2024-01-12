@@ -1,5 +1,7 @@
 #! /usr/bin/env bash
 
+distro=$(cat /etc/os-release | grep '^ID=' | sed 's/ID=//')
+
 bold='\033[1m'
 origin='\033[0m'
 black='\E[30;1m'
@@ -17,107 +19,138 @@ cut_off='--------------------------------------------'
 # $1: message
 # $2: color
 cecho() {
-    echo -e "${2:-${bold}}${1}" 
-    tput sgr0                        # Reset to normal.
-}  
+	echo -e "${2:-${bold}}${1}"
+	tput sgr0 # Reset to normal.
+}
+
+echo_run() {
+	cecho "[≫] $1" ${bold}${cyan}
+}
 
 put_error() {
-    cecho "$1" $red
+	cecho "$1" ${red}
 }
 
 echo_error() {
-    cecho "[✘] $1" $red
+	cecho "[✘] $1" ${red}
+}
+
+echo_wrong() {
+	cecho "[✘] $1" ${red}${bold}
 }
 
 echo_warn() {
-    cecho "[⚠ Warn] $1" $red
+	# cecho "[⚠ Warn] $1" ${yellow}
+	cecho "[⚡] $1" ${yellow}
+
 }
 
 echo_ok() {
-    cecho "[✔] $1" $green
+	cecho "[✔] $1" ${bold}${green}
 }
 
 exit_with_msg() {
-    cecho "$1" $red
-    exit -1
+	cecho "$1" ${bold}${red}
+	exit -1
 }
 
 pacman_conf=/etc/pacman.conf
 
 no_root() {
-    if [[ $USER = 'root' ]]; then
-        echo "Do not use root."
-        exit -1
-    fi
+	if [[ $USER = 'root' ]]; then
+		echo_wrong "Do not use root."
+		exit -1
+	fi
 }
 
 # $1 prompt
 put_cutoff() {
-    _line="\n${cut_off}\n"
-    cecho $_line $cyan
-    if [[ -n "$1" ]]; then
-        echo -e "$1"
-        cecho $_line $cyan
-    fi
+	_line="\n${cut_off}\n"
+	cecho $_line $cyan
+	if [[ -n "$1" ]]; then
+		echo -e "$1"
+		cecho $_line $cyan
+	fi
 }
 
 do_install() {
-    if [[ $distro == arch ]]; then 
-        sudo pacman -S --needed --noconfirm "$@"
-    else
-        if command -V apt-get >/dev/null; then
-            sudo apt-get install -y "$@"
-        else
-            cecho "[WARN] No available installer. Ignored installing $@"
-            return 1
-        fi
-    fi
+	if [[ $distro == arch ]]; then
+		sudo pacman -S --needed --noconfirm "$@"
+	else
+		if command -V apt-get >/dev/null; then
+			sudo apt-get install -y "$@"
+		else
+			cecho "[WARN] No available installer. Ignored installing $@"
+			return 1
+		fi
+	fi
+}
+
+is_wsl() {
+	test -f /proc/sys/fs/binfmt_misc/WSLInterop
+}
+
+apti() {
+	if command -v aptitute >/dev/null; then
+		sudo aptitude install -y "$@"
+	else
+		sudo apt-get install -y "$@"
+	fi
 }
 
 display_array() {
-    local tmp_array=($@)
-    local length=${#tmp_array[@]}
-    for (( i=0; i<$length; i++ )); do
-        echo "$i    ${tmp_array[$i]}"
-    done
-    echo
+	local tmp_array=($@)
+	local length=${#tmp_array[@]}
+	for ((i = 0; i < $length; i++)); do
+		echo "$i    ${tmp_array[$i]}"
+	done
+	echo
 }
 
 # enhanced `read` - name a range for checking
 # $1 input range, e.g. 123 Yn abcd (case insensitive)
 # $2 variable's name
 check_input() {
-    local _range=$1
-    local is_valid=no
-    local _default=${_range:0:1}
+	local _range=$1
+	local is_valid=no
+	local _default=${_range:0:1}
 
-    while [[ $is_valid = 'no' ]]; do
-        read -p "Input: " ans
-        [[ -z "$ans" ]] && ans=$_default
-        ans=`echo $ans | tr '[A-Z]' '[a-z]'`
-        if [[ "$_range" = *$ans* ]]; then
-            is_valid=yes
-        else
-            put_error "Valid answer: $_range (default=$_default):"
-        fi
-    done
+	while [[ $is_valid = 'no' ]]; do
+		read -p "Input: " ans
+		[[ -z "$ans" ]] && ans=$_default
+		ans=$(echo $ans | tr '[A-Z]' '[a-z]')
+		if [[ "$_range" = *$ans* ]]; then
+			is_valid=yes
+		else
+			put_error "Valid answer: $_range (default=$_default):"
+		fi
+	done
 
-    [[ -n $2 ]] && read $2 <<< $ans
+	[[ -n $2 ]] && read $2 <<<$ans
+}
+
+check_yn() {
+	check_input yn
+	if [[ $ans == 'y' ]]; then
+		return 0
+	else
+		return 1
+	fi
 }
 
 put_suspend() {
-    cecho "
+	cecho "
 Type Ctrl+C to exit 
 or type any key to continue" $cyan
-    read whatever
+	read whatever
 }
 
 cmd_not_found() {
-    if command -V $1 >/dev/null; then 
-        return 1
-    else
-        return 0
-    fi
+	if command -V $1 >/dev/null; then
+		return 1
+	else
+		return 0
+	fi
 }
 
 # -----------------------------------------------------------------------------
@@ -125,26 +158,26 @@ cmd_not_found() {
 # -----------------------------------------------------------------------------
 
 enable_multilib() {
-    sudo cat >>/etc/pacman.conf << EOF
+	sudo cat >>/etc/pacman.conf <<EOF
 [multilib]
 Include = /etc/pacman.d/mirrorlist
 EOF
 }
 
 check_multilib_support() {
-    echo 'Check multilib support ...'
-    if [[ -z "grep '^\[multilib\]' $pacman_conf" ]]; then
-        multilib_enabled=0
-        echo "Add multilib repo support? (Y/n)"
-        check_input yn
-        [[ $ans = 'y' ]] && enable_multilib && multilib_enabled=1
-        sudo pacman -Sy
-    else
-        multilib_enabled=1
-    fi
+	echo 'Check multilib support ...'
+	if [[ -z "grep '^\[multilib\]' $pacman_conf" ]]; then
+		multilib_enabled=0
+		echo "Add multilib repo support? (Y/n)"
+		check_input yn
+		[[ $ans = 'y' ]] && enable_multilib && multilib_enabled=1
+		sudo pacman -Sy
+	else
+		multilib_enabled=1
+	fi
 
-    (( multilib_enabled == 0 )) && enable_multilib
-    echo "Support multilib: $multilib_enabled"
+	((multilib_enabled == 0)) && enable_multilib
+	echo "Support multilib: $multilib_enabled"
 }
 
 # -----------------------------------------------------------------------------
@@ -154,7 +187,18 @@ check_multilib_support() {
 # $1 expr that will be passed to bc
 # return 0 if nothing's wrong
 valid_by_bc() {
-    local res
-    res=$(bc <<< "$1")
-    (( res == 1 )) || return 255
+	local res
+	res=$(bc <<<"$1")
+	((res == 1)) || return 255
 }
+
+setup_pipx() {
+	do_install pipx
+	pipx ensurepath
+}
+
+pipx_install() {
+	sudo PIPX_HOME=/opt/pipx PIPX_BIN_DIR=/usr/local/bin PIPX_MAN_DIR=/usr/local/share/man pipx install "$@"
+}
+
+__loaded_commonrc=1

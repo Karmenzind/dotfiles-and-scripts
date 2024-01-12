@@ -1,183 +1,195 @@
 # 🐝 dotfiles and scripts for my Linux/Win
 
+> The ArchLinux installation scripts has been migrated to [this repo](https://github.com/Karmenzind/arch-installation-scripts) and is no longer maintained.
 
-> ArchLinux一键安装脚本[已经迁移至此处](https://github.com/Karmenzind/arch-installation-scripts)，不再维护
+[简体中文](./README_CN.md)
 
-| 类别         | 🎨 成分                                                                                                                                                                                                                    |
-|--------------|----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| 系统         | [Archlinux](https://archlinux.org)                                                                                                                                                                                         |
-| GUI          | 桌面：[i3](https://i3wm.org)<br>任务栏：[polybar](https://github.com/polybar/polybar)<br>程序选择器：[rofi](https://github.com/davatorium/rofi)<br>通知：dunst<br>渲染优化：picom<br>输入法：fcitx5<br>截图工具：flameshot |
-| 编辑器       | Vim/Neovim                                                                                                                                                                                                                 |
-| 终端         | [Alacritty](https://github.com/alacritty/alacritty) + Tmux + Zsh                                                                                                                                                           |
-| 词典         | [kd](https://github.com/Karmenzind/kd)                                                                                                                                                                                     |
-| 字体         | [Monaco Nerd](https://github.com/Karmenzind/monaco-nerd-fonts)                                                                                                                                                             |
-| 其他体验增强 | fzf / ranger / pistol / ag 等等                                                                                                                                                                                            |
+<table>
+	<colgroup align="center">
+    <col width="50" align="center"></col>
+    <col width="70" align="center"></col>
+		<col span="2" width="180" align="center"></col>
+	</colgroup>
+  <thead>
+    <tr>
+      <th colspan=2>🎨</th>
+      <th>Linux</th>
+      <th>Windows</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td align="center" rowspan="5" width="50">Shell</td>
+      <td align="center" >Editor</td>
+      <td align="center">Vim/Neovim</td>
+      <td align="center">Shell: Vim/Neovim<br>GUI: GVim/Neovide</td>
+    </tr>
+    <tr>
+      <td align="center">Terminal</td>
+      <td align="center">
+        <a href="https://github.com/alacritty/alacritty">Alacritty</a> + Tmux + Zsh
+      </td align="center">
+      <td align="center">WindowsTerminal + pwsh(<a href="ohmyposh.dev">OMPosh</a>)</td>
+    </tr>
+    <tr>
+      <td align="center" >Font</td>
+      <td align="center" colspan="2">
+        <a href="https://github.com/Karmenzind/monaco-nerd-fonts">Monaco Nerd</a>
+      </td align="center">
+    </tr>
+    <tr>
+      <td align="center" >Dict</td>
+      <td align="center" colspan="2"><a href="https://github.com/Karmenzind/kd">kd</a></td>
+    </tr>
+    <tr>
+      <td align="center" >Others</td>
+      <td align="center" colspan="2">fzf / fd / ranger / lf / pistol / rg  etc.</td>
+    </tr>
+    <tr>
+      <td align="center" rowspan="7" width="50">GUI</td>
+      <td align="center">Desktop</td>
+      <td align="center"><a href="https://i3wm.org">i3wm</a></td>
+      <td align="center" rowspan="7">-</td>
+    </tr>
+    <tr>
+      <td align="center">Statusbar</td>
+      <td align="center"><a href="https://github.com/polybar/polybar">polybar</a></td>
+    </tr>
+    <tr>
+      <td align="center">Launcher</td>
+      <td align="center"><a href="https://github.com/davatorium/rofi">rofi</a></td>
+    </tr>
+    <tr>
+      <td align="center">Notice</td>
+      <td align="center">dunst</td>
+    </tr>
+    <tr>
+      <td align="center">Enhancement</td>
+      <td align="center">picom</td>
+    </tr>
+    <tr>
+      <td align="center">Input</td>
+      <td align="center">fcitx5</td>
+    </tr>
+    <tr>
+      <td align="center">Screenshot</td>
+      <td align="center">flameshot</td>
+    </tr>
+  </tbody>
+</table>
 
-
-<!-- 1.  配置文件 -->
-<!--     * i3wm、Tmux、ZSH和各种系统/开发工具 -->
-<!--     * Vim/NeoVim两套打磨多年的配置，内部插件有诸多差异但主要行为和快捷键基本一致，主要供日常Python/Golang开发和VimL/Lua/Bash脚本语言编写 --> <!-- 2.  安装脚本 -->
-<!--     *   ArchLinux软件批量安装 -->
-<!--     *   软件编译/安装脚本，如Vim-YCM插件 -->
-<!-- 3.  工具脚本，如Aria2管理等 -->
-
-<!-- <table cellspacing="0" border="0"> -->
-<!-- 	<colgroup width="100"></colgroup> -->
-<!-- 	<!-1- <colgroup width="1025"></colgroup> -1-> -->
-<!--     <tr> -->
-<!--         <td rowspan=2 align="center" valign=middle>配置文件</td> -->
-<!--         <td>i3wm、Tmux、ZSH和各种系统/开发工具</td> -->
-<!--     </tr> -->
-<!--     <tr> -->
-<!--         <td>Vim/NeoVim两套打磨多年的配置，内部插件有诸多差异但主要行为和快捷键基本一致，主要供日常Python/Golang开发和VimL/Lua/Bash脚本编写</td> -->
-<!--     </tr> -->
-<!--     <tr> -->
-<!--         <td rowspan=2 align="center" valign=middle>自用脚本</td> -->
-<!--         <td>工具类：Aria2管理；拉取国内广告屏蔽列表；部分特殊软件自动更新等</td> -->
-<!--     </tr> -->
-<!--     <tr> -->
-<!--         <td>配置类：一键应用本仓库配置；Arch软件批量安装脚本</td> -->
-<!--     </tr> -->
-<!-- </table> -->
-
-
-> 查看[文件目录树](./TREE.md)
+> Check [file tree](./TREE.md)
 
 ## TOC
 
 <!-- vim-markdown-toc GFM -->
 
-* [⚙️ 用法](#-用法)
-    * [一键应用所有](#一键应用所有)
-    * [(Neo)Vim配置](#neovim配置)
-    * [安装常用软件](#安装常用软件)
+* [:gear: usage](#gear-usage)
+    * [apply all configurations](#apply-all-configurations)
+    * [(Neo)Vim configuration and setup](#neovim-configuration-and-setup)
+    * [install recommanded apps](#install-recommanded-apps)
         * [Linux](#linux)
         * [Windows](#windows)
-* [🧰 工具脚本](#-工具脚本)
-    * [Aria2管理和自动更新bt-tracker](#aria2管理和自动更新bt-tracker)
-    * [获取国内适用广告域名列表](#获取国内适用广告域名列表)
-* [🖼️ 效果截图](#-效果截图)
-* [💡 创建你自己的DotFile仓库](#-创建你自己的dotfile仓库)
+* [:toolbox: toolbox scripts](#toolbox-toolbox-scripts)
+    * [manage Aria2 and auto update bt-trackers](#manage-aria2-and-auto-update-bt-trackers)
+    * [fetch advertisement domain list for Chinese users](#fetch-advertisement-domain-list-for-chinese-users)
+* [:frame_with_picture: screenshots](#frame_with_picture-screenshots)
+* [:bulb: create your own Dotfile repo](#bulb-create-your-own-dotfile-repo)
 
 <!-- vim-markdown-toc -->
 
+## :gear: usage
 
+Firstly, **clone** this repo.
 
+### apply all configurations
 
-<!-- - 桌面环境： -->
-<!--     - 桌面：[i3](https://i3wm.org) -->
-<!--     - 任务栏：[polybar](https://github.com/polybar/polybar) -->
-<!--     - 程序选择器：[rofi](https://github.com/davatorium/rofi) -->
-<!--     - 通知：dunst -->
-<!--     - 渲染优化：picom -->
-<!--     - 输入法：fcitx5 -->
-<!--     - 截图工具：flameshot -->
-<!-- - 系统：[Archlinux](https://archlinux.org) -->
-<!-- - 编辑器：Vim/Neovim -->
-<!-- - 终端：[Alacritty](https://github.com/alacritty/alacritty) + Tmux + Zsh -->
-<!-- - 词典：[kd](https://github.com/Karmenzind/kd) -->
-<!-- - 字体：[Monaco Nerd](https://github.com/Karmenzind/monaco-nerd-fonts) -->
-<!-- - 其他体验增强工具：fzf / ranger / pistol / ag 等等 -->
-
-
-
-## ⚙️ 用法
-
-### 一键应用所有
-
-以创建软链接的形式一键安装所有配置（现有文件会询问是否覆盖、自动备份）：
+To apply everything in form of creating symbolic links for them (there will be prompt and backup before overwriting files):
 
 ```bash
-git clone https://github.com/Karmenzind/dotfiles-and-scripts && cd dotfiles-and-scripts && python symlink.py
+python3 symlink.py
 ```
 
-### (Neo)Vim配置
+script parameters：
+-  -h                 show this help message and exit
+-  -i, --interactive  Let me determine each file
+-  -d, --delete       remove all symlink files
+-  --nogui            only for terminal apps
+-  --vimonly          only for vim related apps
 
-Vim/Neovim两套打磨多年的配置，内部插件有诸多差异但主要行为和快捷键基本一致，主要供日常Python/Golang开发和VimL/Lua/Bash脚本编写
+### (Neo)Vim configuration and setup
 
-用交互模式运行symlink.py：
+Here are two sets of well-polished configuration for Vim and Neovim. Spent years refining them. There are some plugin differences, but the basic behaviors and shortcuts are pretty much the same. Mainly for everyday Python and Golang development, as well as whipping up VimL, Lua, and Bash scripts.
+
+Simply run:
 
 ```bash
-git clone https://github.com/Karmenzind/dotfiles-and-scripts && cd dotfiles-and-scripts && python symlink.py -i
+bash scripts/setup_vim.sh
 ```
 
-然后确认同步以下几项（不用Neovim的话可以不要后两个）：
+This script will take care of everything included:
 
+- ensure Vim/Neovim installed
+- created symlinks for configuraion files
+- setup plugin and the manager
+- install related apps (lsp, linters, fixers, fuzzy finders, etc.)
+
+Or if you only need the configuration files, run symlink.py with `vimonly` specified:
+
+```bash
+python3 symlink.py --vimonly
 ```
-home_k/.vimrc
-home_k/.vim/coc-settings.json
-home_k/.config/nvim/init.vim
-home_k/.config/nvim/lua/config.lua
-```
 
-> 使用**root用户**同步Vim配置可能会出问题。我不喜欢给root创建配置，一般是在`/root`目录下创建`.vimrc`和`.vim`的软链接，与普通用户共用一套文件，供参考
+Launch Vim/Neovim and the plugin setup will start automatically.
 
-然后启动Vim/Neovim，会自动开始安装和初始化
+> Syncing Vim configurations directory under **root** might run into issues. I prefer not to create unique configuration for root user. FYI, I will create symlinks for .vimrc and .vim unser /root, sharing the same files with normal user.
 
-部分插件可能会依赖外部工具（比如`fzf`、`ctags`、`ag`等）才能正常工作，打开Vim/Neovim，在命令行模式执行`:call InstallRequirements()`
+### install recommanded apps
 
-### 安装常用软件
-
-包含了我工作开发、日常生活的绝大多数应用程序。
+These are the apps I use for pretty much everything – work, development, and everyday life.
 
 #### Linux
 
-脚本中大部分安装命令调用的是pacman和AUR工具，非ArchLinux系的发行版可能不适用
+[This script](./scripts/install_apps.sh) supports both Arch Linux-based and Debian/Ubuntu-based distributions.
 
 ```bash
-# 执行后，根据提示，选择第一项
-git clone https://github.com/Karmenzind/dotfiles-and-scripts --depth=1 && bash dotfiles-and-scripts/install.sh
+bash scripts/install_apps.sh
 ```
-
-- [install_apps.sh](./scripts/install_apps.sh)
-
-`_fonts`数组中包含了ArchWiki中推荐的所有中文环境所需字体（不含AUR）
 
 #### Windows
 
 ```bash
-git clone https://github.com/Karmenzind/dotfiles-and-scripts --depth=1
 ./dotfiles-and-scripts/scripts/setup.ps1
 ```
 
-<!-- ## ⚙️ 安装脚本部分 -->
+## :toolbox: toolbox scripts
 
-<!-- ### Vim及插件安装 -->
+> the description about some scripts that are no longer maintained can [be found here](./scripts/deprecated/README.md)
 
-<!-- Vim比较特殊，尤其是YCM经常安装失败，所以单独列出来 -->
-
-<!-- 用脚本安装Vim和插件： -->
-<!-- - [complete installation](./scripts/install_vim/main.sh) 直接按照我的Vim配置一键安装Vim和各种插件，无需其他配置 -->
-
-<!-- 如果你已经安装了Vim，需要直接使用我的配置&插件，除了上面的脚本安装外，更简单的方法为直接执行[Usage](#usage)中提到的命令 -->
-
-
-## 🧰 工具脚本
-
-> 此处仅列出在用脚本，部分不再使用/维护的脚本说明，见[脚本目录的README](./local_bin)
-
-### Aria2管理和自动更新bt-tracker
+### manage Aria2 and auto update bt-trackers
 
 - [myaria2](./local_bin/myaria2)
 
-功能：
-- 启动、重启、停止、查看运行状态、查看日志
-- 更新bt-tracker（从ngosang/trackerslist获取）。启动、重启时，配置周期触发更新，也可以通过`myaria2 update`主动更新
-- 转存旧日志
-- 其他一些简单功能
+Function:
 
-结合cron使用
-配置项见脚本注释
+- launch, restart, stop, check status, check log
+- update bt-tracker（from ngosang/trackerslist) periodically. Or via `update` subcommand
+- backup old log files
+- other trivials
 
-### 获取国内适用广告域名列表
+Better combine with cron.
+
+More details can be found in comments of the script.
+
+### fetch advertisement domain list for Chinese users
 
 - [update-adblock-list](./scripts/tools/update-adblock-list.sh)
 
-主要供pihole使用，其实直接在pihole的adlists中加列表域名也是可以的，但pihole的更新经常卡死（可能是旧树莓派的性能原因），所以干脆弄了个手动处理的脚本。
+Mainly for Pi-hole use. Alternatively you can add domain lists directly to Pi-hole's adlists, but Pi-hole updates often get stuck (possibly due to the performance of older Raspberry Pi models). So, I decided to create a manual handling script instead.
 
-综合了比较流行的几个repo中的域名列表，合并去重。我是直接在crontab中weekly运行，然后直接在pihole中拉取本地文件。
+I've mixed together domain lists from a bunch of popular repos, got rid of duplicates, and set it to run weekly in crontab. After that, just add local file link to Pi-hole.
 
-## 🖼️ 效果截图
+## :frame_with_picture: screenshots
 
 - i3 desktop:
     ![](https://raw.githubusercontent.com/Karmenzind/i/master/dotfiles-and-scripts/float.png)
@@ -188,11 +200,6 @@ git clone https://github.com/Karmenzind/dotfiles-and-scripts --depth=1
 
 <!-- ![](https://raw.githubusercontent.com/Karmenzind/i/master/dotfiles-and-scripts/vim_goyo.png) -->
 
+## :bulb: create your own Dotfile repo
 
-## 💡 创建你自己的DotFile仓库
-
-以下脚本用来在系统中直接应用本repo中的配置文件
-
-- [symlink.py](./symlink.py) 以创建软连接的方式（推荐）
-
-你可以fork这个项目，然后借助上述两种方式来同步你自己的配置文件
+You can fork this repo and symlink your configuration files with [symlink.py](./symlink.py).
