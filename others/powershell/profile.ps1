@@ -157,6 +157,10 @@ Set-PSReadLineOption -PredictionViewStyle ListView
 Set-PSReadlineOption -BellStyle None
 Set-PSReadLineOption -EditMode Emacs
 
+if (Get-Command rg -ErrorAction SilentlyContinue) {
+    $env:RIPGREP_CONFIG_PATH = '~\.config\ripgreprc'
+}
+
 if (Get-Command 'fzf') {
     $psVersion = $PSVersionTable.PSVersion.Major
     if ($psVersion -ge 7) {

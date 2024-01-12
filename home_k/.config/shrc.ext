@@ -45,6 +45,8 @@ for _tmp_browser in chromium chrome firefox elinks; do
     [[ -n $BROWSER ]] && unset _tmp_browser && break
 done
 
+export RIPGREP_CONFIG_PATH=~/.config/ripgreprc
+
 # export CATALINA_HOME=/usr/share/tomcat8 # tomcat
 
 # # /* bat */

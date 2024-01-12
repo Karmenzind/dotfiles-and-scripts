@@ -78,6 +78,7 @@ if platform == "win":
     ]
     PATH_MAP = {
         Path("home_k"): HOME_DIR,
+        Path("home_k/.config"): HOME_DIR / ".config",
         Path("home_k/.vim"): HOME_DIR / "vimfiles",
         Path("home_k/.vimrc"): HOME_DIR / "_vimrc",
         Path("home_k/.config/nvim"): HOME_DIR / "AppData\\Local\\nvim",
