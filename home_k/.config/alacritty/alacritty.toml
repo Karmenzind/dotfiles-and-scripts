@@ -1,5 +1,9 @@
-import = ["/home/k/.config/alacritty/local.toml"]
+import = [
+  "~/alacritty_extra.toml",
+  "~/.config/alacritty/extra.toml",
+]
 live_config_reload = true
+# working_directory = "~"
 
 [bell]
 animation = "EaseOutExpo"
@@ -10,6 +14,10 @@ draw_bold_text_with_bright_colors = true
 
 [cursor]
 style = "Block"
+
+[font]
+
+normal = { family = "Monaco Nerd Font", style="Regular" }
 
 [env]
 TERM = "xterm-256color"
@@ -546,7 +554,7 @@ semantic_escape_chars = ",│`|:\"' ()[]{}<>"
 [window]
 decorations = "full"
 dynamic_title = true
-opacity = 0.93
+opacity = 0.95
 
 [window.dimensions]
 columns = 0

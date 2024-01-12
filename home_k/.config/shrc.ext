@@ -154,13 +154,14 @@ __initialize_my_conda
 # use fd
 # export FZF_DEFAULT_COMMAND="fd --type f --hidden --follow --ignore-file ~/.config/search_ignore"
 # use the silver searcher
-if command -v 'rg' >/dev/null; then
+if command -v 'fd' >/dev/null; then
     export FZF_DEFAULT_COMMAND="fd --type f --strip-cwd-prefix --hidden --follow --exclude .git"
-# elif command -v 'rg' >/dev/null; then
+elif command -v 'rg' >/dev/null; then
+    export FZF_DEFAULT_COMMAND="rg -. --sort path -l . -g '!.git/'"
 elif command -v 'ag' >/dev/null; then
     export FZF_DEFAULT_COMMAND="ag --hidden --nocolor -U -g ''"
 else
-    echo "One of fd/rg/ag needs to be installed"
+    echo "fd/ag needs to be installed"
 fi
 
 # for fzf

@@ -93,7 +93,7 @@
 * [:toolbox: toolbox scripts](#toolbox-toolbox-scripts)
     * [manage Aria2 and auto update bt-trackers](#manage-aria2-and-auto-update-bt-trackers)
     * [fetch advertisement domain list for Chinese users](#fetch-advertisement-domain-list-for-chinese-users)
-* [:frame_with_picture: screenshots](#frame_with_picture-screenshots)
+* [:eyes: screenshots](#eyes-screenshots)
 * [:bulb: create your own Dotfile repo](#bulb-create-your-own-dotfile-repo)
 
 <!-- vim-markdown-toc -->
@@ -189,7 +189,7 @@ Mainly for Pi-hole use. Alternatively you can add domain lists directly to Pi-ho
 
 I've mixed together domain lists from a bunch of popular repos, got rid of duplicates, and set it to run weekly in crontab. After that, just add local file link to Pi-hole.
 
-## :frame_with_picture: screenshots
+## :eyes: screenshots
 
 - i3 desktop:
     ![](https://raw.githubusercontent.com/Karmenzind/i/master/dotfiles-and-scripts/float.png)

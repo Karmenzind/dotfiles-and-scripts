@@ -91,7 +91,7 @@
 * [:toolbox: 工具脚本](#toolbox-工具脚本)
     * [Aria2管理和自动更新bt-tracker](#aria2管理和自动更新bt-tracker)
     * [获取国内适用广告域名列表](#获取国内适用广告域名列表)
-* [:frame_with_picture: 效果截图](#frame_with_picture-效果截图)
+* [:eyes: 效果截图](#eyes-效果截图)
 * [:bulb: 创建你自己的DotFile仓库](#bulb-创建你自己的dotfile仓库)
 
 <!-- vim-markdown-toc -->
@@ -181,7 +181,7 @@ bash scripts/install_apps.sh
 
 综合了比较流行的几个repo中的域名列表，合并去重。我是直接在crontab中weekly运行，然后直接在pihole中拉取本地文件。
 
-## :frame_with_picture: 效果截图
+## :eyes: 效果截图
 
 - i3 desktop:
     ![](https://raw.githubusercontent.com/Karmenzind/i/master/dotfiles-and-scripts/float.png)

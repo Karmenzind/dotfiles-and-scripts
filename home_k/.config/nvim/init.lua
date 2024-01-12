@@ -59,6 +59,15 @@ local function term_esc()
     end
 end
 
+local function try_require(mod)
+    local ok, imported = pcall(require, mod)
+    if ok then
+        return imported
+    end
+    vim.fn.EchoWarn("[✘] Failed to load " .. mod)
+    return nil
+end
+
 local function lazy_esc(_)
     vim.keymap.set("t", "<Esc>", term_esc, mopts)
 end
@@ -128,29 +137,32 @@ if os.getenv("TMUX") == nil or vim.fn.executable("fzf") == 0 then
                     ["<C-b>"] = { tsa.results_scrolling_up, type = "action", opts = { nowait = true, silent = true } },
                 },
             },
+            vimgrep_arguments = {
+                "rg",
+                "-u",
+                "-.",
+                "--color=never",
+                "--no-heading",
+                "--line-number",
+                "--column",
+                "--glob",
+                "!{**/.git/*,**/node_modules/*,**/package-lock.json,**/yarn.lock}",
+            },
         },
         pickers = {
             find_files = {
-                find_command = {
-                    "fd",
-                    "--type",
-                    "f",
-                    "--strip-cwd-prefix",
-                    "--hidden",
-                    "--follow",
-                    "--exclude",
-                    ".git",
-                },
-                prompt_prefix = "🔍 ",
+                find_command = { "fd", "-t", "f", "--strip-cwd-prefix", "-H", "-L", "-E", ".git" },
+                prompt_prefix = "📂 ",
             },
+            live_grep = { prompt_prefix = "🔍 " },
         },
     })
 end
 
-require("nvim-treesitter.configs").setup({
-    ensure_installed = { "c", "lua", "vim", "vimdoc", "query" },
-    auto_install = true,
-})
+local tsconf = try_require("nvim-treesitter.configs")
+if tsconf ~= nil then
+    tsconf.setup({ ensure_installed = { "c", "lua", "vim", "vimdoc", "query" }, auto_install = true })
+end
 
 require("nvim-tree").setup({
     on_attach = nvim_tree_on_attach,
@@ -166,17 +178,12 @@ vim.diagnostic.config({
         format = function(diagnostic)
             if diagnostic.user_data and diagnostic.user_data.code then
                 return string.format("%s %s", diagnostic.user_data.code, diagnostic.message)
-            else
-                return diagnostic.message
             end
+            return diagnostic.message
         end,
     },
     signs = true,
-    float = {
-        -- header = "Diagnostics",
-        source = true,
-        -- border = "rounded",
-    },
+    float = { source = true },
 })
 
 require("mason").setup()
@@ -286,17 +293,8 @@ cmp.setup({
             vim.fn["UltiSnips#Anon"](args.body) -- For `ultisnips` users.
         end,
     },
-    window = {
-        -- completion = cmp.config.window.bordered(),
-        documentation = cmp.config.window.bordered(),
-    },
-    formatting = {
-        format = lspkind.cmp_format({
-            -- mode = 'symbol', -- show only symbol annotations
-            maxwidth = 50, -- prevent the popup from showing more than provided characters (e.g 50 will not show more than 50 characters)
-            ellipsis_char = "...", -- when popup menu exceed maxwidth, the truncated part would show ellipsis_char instead (must define maxwidth first)
-        }),
-    },
+    window = { documentation = cmp.config.window.bordered() },
+    formatting = { format = lspkind.cmp_format({ maxwidth = 50, ellipsis_char = "..." }) },
     mapping = cmp.mapping.preset.insert({
         ["<C-b>"] = cmp.mapping.scroll_docs(-4),
         ["<C-f>"] = cmp.mapping.scroll_docs(4),
@@ -337,7 +335,6 @@ cmp.setup({
         { name = "calc" },
         { name = "emoji" },
         { name = "path" },
-        -- FIXME (k): <2022-10-24> pattern didn't work for now
         { name = "tmux", option = { keyword_pattern = [[\w\w\w\+]] }, trigger_characters = {} },
     },
 })
@@ -360,10 +357,7 @@ cmp.setup.cmdline(":", {
 
 -- Set up lspconfig.
 local lsp_cap = require("cmp_nvim_lsp").default_capabilities()
-lsp_cap.textDocument.foldingRange = {
-    dynamicRegistration = false,
-    lineFoldingOnly = true,
-}
+lsp_cap.textDocument.foldingRange = { dynamicRegistration = false, lineFoldingOnly = true }
 
 lsp.pyright.setup({ on_attach = on_attach, capabilities = lsp_cap })
 lsp.vimls.setup({
@@ -439,8 +433,9 @@ lsp.sqlls.setup({
     cmd = { "sql-language-server", "up", "--method", "stdio" },
 })
 
-if is_win then
-    local ps_bundle_path = "~\\AppData\\Local\\nvim-data\\mason\\packages\\powershell-editor-services"
+local ps_bundle_path = is_win and "~\\AppData\\Local\\nvim-data\\mason\\packages\\powershell-editor-services"
+    or "~/.local/share/nvim-data/mason/packages/powershell-editor-services"
+if vim.fn.glob(ps_bundle_path) ~= "" then
     lsp.powershell_es.setup({ bundle_path = ps_bundle_path })
 end
 
@@ -501,7 +496,6 @@ require("nvim-dap-virtual-text").setup({ commented = true })
 require("dapui").setup({
     icons = { expanded = "", collapsed = "", current_frame = "" },
     mappings = {
-        -- Use a table to apply multiple mappings
         expand = { "o", "<2-LeftMouse>", "za" },
         open = "<CR>",
         remove = "d",
@@ -590,10 +584,7 @@ require("lualine").setup({
     options = {
         component_separators = { left = "", right = "" },
         section_separators = { left = "", right = "" },
-        disabled_filetypes = {
-            statusline = { "NvimTree", "vista" },
-            winbar = {},
-        },
+        disabled_filetypes = { statusline = { "NvimTree", "vista" }, winbar = {} },
     },
     sections = {
         lualine_a = {
@@ -619,8 +610,7 @@ require("lualine").setup({
 })
 
 local function rchoose(l)
-    local index = math.random(1, #l)
-    return l[index]
+    return l[math.random(1, #l)]
 end
 
 if vim.g.colors_name == nil then
@@ -646,10 +636,7 @@ if vim.g.colors_name == nil then
     })
 
     local cololike = function(p)
-        if vim.g.colors_name ~= nil and vim.g.colors_name:find(p, 1, true) == 1 then
-            return true
-        end
-        return false
+        return vim.g.colors_name ~= nil and vim.g.colors_name:find(p, 1, true) == 1
     end
 
     if cololike("github_") then

@@ -1,0 +1,4 @@
+shell = "pwsh"
+working_directory = "C:/Users"
+[window]
+blur = true
