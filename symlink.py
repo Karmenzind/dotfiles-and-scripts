@@ -70,12 +70,10 @@ if platform == "win":
         Path("home_k/.vimrc"),
         Path("home_k/.gitconfig"),
         Path("home_k/.config/nvim/init.lua"),
+        Path("home_k/.config/ripgreprc"),
         Path("home_k/.config/alacritty/alacritty.toml"),
         Path("home_k/.config/alacritty/win.toml"),
         Path("others/powershell/profile.ps1"),
-        # "home_k/.golangci.yml",
-        # "home_k/.agignore",
-        # "home_k/.config/mypy",
     ]
     PATH_MAP = {
         Path("home_k"): HOME_DIR,

@@ -158,7 +158,7 @@ Set-PSReadlineOption -BellStyle None
 Set-PSReadLineOption -EditMode Emacs
 
 if (Get-Command rg -ErrorAction SilentlyContinue) {
-    $env:RIPGREP_CONFIG_PATH = '~\.config\ripgreprc'
+    $env:RIPGREP_CONFIG_PATH = "$env:HOMEPATH\.config\ripgreprc"
 }
 
 if (Get-Command 'fzf') {
