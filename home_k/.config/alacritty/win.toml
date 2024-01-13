@@ -1,4 +1,6 @@
 shell = "pwsh"
 working_directory = "C:/Users"
-[window]
-blur = true
+
+[window.dimensions]
+columns = 120
+lines = 30

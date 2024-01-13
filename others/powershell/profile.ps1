@@ -28,11 +28,9 @@ function __setupOhmyposh {
         Write-Host "Oh-My-Posh not installed."
         return
     }
+    $env:POSH_THEMES_PATH = ($IsLinux)? "/usr/share/oh-my-posh/themes/": "$env:HOMEPATH\AppData\Local\Programs\oh-my-posh\themes\"
     $randomTheme = Get-ChildItem $env:POSH_THEMES_PATH | Get-Random
-    Write-Host "Posh theme: $randomTheme"
-    if (($IsLinux) && ($env:POSH_THEMES_PATH -eq "")) {
-        $env:POSH_THEMES_PATH="/usr/share/oh-my-posh/themes/"
-    }
+    Write-Host ">> Posh theme: $(Split-Path $randomTheme -Leaf)"
     # XXX (k): <2024-01-13> check path
     oh-my-posh init pwsh --config "$randomTheme" | Invoke-Expression
     Write-Host ">> Loaded ohmyposh"
@@ -53,7 +51,6 @@ function __setupFzf{
         $psVersion = $PSVersionTable.PSVersion.Major
         if ($psVersion -ge 7) {
             if (Get-Module -ListAvailable -Name PsFZF ) {
-                Write-Host "Found Psfzf. Configuring..."
                 # replace 'Ctrl+t' and 'Ctrl+r' with your preferred bindings:
                 Import-Module PSReadline
                 Set-PsFzfOption -PSReadlineChordProvider 'Ctrl+t' -PSReadlineChordReverseHistory 'Ctrl+r'
@@ -78,7 +75,7 @@ function __setupFzf{
         # if ($isRunningAsAdmin) {
         #     [System.Environment]::SetEnvironmentVariable("FZF_COMPLETION_OPTS", "--border --info=inline", "Machine")
         # }
-        Remove-Variable -Name 'psVersion'
+        Write-Host ">> Configured PsFZF"
     }
 }
 

@@ -81,7 +81,7 @@ if platform == "win":
         Path("home_k/.vimrc"): HOME_DIR / "_vimrc",
         Path("home_k/.config/nvim"): HOME_DIR / "AppData\\Local\\nvim",
         Path("home_k/.config/alacritty/alacritty.toml"): HOME_DIR / "AppData\\Roaming\\alacritty\\alacritty.toml",
-        Path("home_k/.config/alacritty/win.toml"): HOME_DIR / "alacritty_extra.toml",
+        Path("home_k/.config/alacritty/win.toml"): HOME_DIR / ".alacritty_extra.toml",
         Path("others/powershell/profile.ps1"): get_ps_profile_path(),
     }
 else:
@@ -94,6 +94,7 @@ else:
         Path("home_k"): HOME_DIR,
         Path("local_bin"): Path("/usr/local/bin"),
         Path("others/powershell/profile.ps1"): HOME_DIR / ".config/powershell/profile.ps1",
+        Path("home_k/.config/alacritty/linux.toml"): HOME_DIR / ".config/alacritty/extra.toml",
         # Path("others/powershell/profile.ps1"): HOME_DIR / ".config/powershell/Microsoft.PowerShell_profile.ps1"
     }
 

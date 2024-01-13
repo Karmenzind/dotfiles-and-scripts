@@ -83,9 +83,7 @@ if !has("win32")
     autocmd VimEnter * PlugInstall --sync | source $MYVIMRC
   endif
 else
-  if !isdirectory(g:plugged_dir)
-    call mkdir(g:plugged_dir, 'p')
-  endif
+  if !isdirectory(g:plugged_dir) | call mkdir(g:plugged_dir, 'p') | endif
   let g:plugged_dir = glob(g:plugged_dir)
   if !filereadable(glob('~') .. '\vimfiles\autoload\plug.vim')
     echom "Initializing vim-plug..."
@@ -115,11 +113,8 @@ Plug 'junegunn/vim-plug'
 " /* coding tools */
 Plug 'tpope/vim-endwise'
 Plug 'tpope/vim-surround'
-if has('nvim')
-  Plug 'windwp/nvim-autopairs'
-else
-  Plug 'jiangmiao/auto-pairs'
-endif
+
+Plug has('nvim')? 'windwp/nvim-autopairs': 'jiangmiao/auto-pairs'
 Plug 'tpope/vim-commentary'
 Plug 'junegunn/vim-easy-align'
 Plug 'SirVer/ultisnips' | Plug 'honza/vim-snippets'
@@ -297,11 +292,7 @@ if has('nvim')
   Plug 'folke/tokyonight.nvim', { 'branch': 'main' }
 endif
 if !has('win32')
-  if has('nvim')
-    Plug 'kyazdani42/nvim-web-devicons'
-  else
-    Plug 'ryanoasis/vim-devicons' " load after other plugins
-  endif
+  Plug has('nvim')? 'kyazdani42/nvim-web-devicons': 'ryanoasis/vim-devicons' " load after other plugins
 endif
 
 " /* local */
@@ -353,9 +344,7 @@ else
 endif
 
 function! EchoIfNotUnix()
-  if &ff ==? 'unix'
-    return ''
-  endif
+  if &ff ==? 'unix' | return '' | endif
   return '<' . &ff . '>'
 endfunction
 
@@ -363,13 +352,9 @@ endfunction
 set number
 
 function! s:RelNoToggle(mode)
-  if &ft =~? '\v(startify|registers)'
-    return
-  endif
+  if &ft =~? '\v(startify|registers)' | return | endif
   " respect buffer settings
-  if getbufvar(winbufnr(0), '&nu') == 0
-    return
-  endif
+  if getbufvar(winbufnr(0), '&nu') == 0 | return | endif
   if a:mode == "in"
     if &nu | set rnu | else | set nu rnu | endif
   endif
@@ -391,9 +376,7 @@ set splitbelow splitright
 set mouse=a
 set backspace=indent,eol,start  " more powerful backspacing
 " make * reg the default
-if has('clipboard')
-  set clipboard=unnamed
-endif
+if has('clipboard') | set clipboard=unnamed | endif
 if has('gui_running')
   map <S-Insert> <MiddleMouse>
   map! <S-Insert> <MiddleMouse>
@@ -404,8 +387,8 @@ set scrolloff=5
 set foldlevel=99
 let g:fold_offset = 4
 augroup fold_specs
-    au!
-    au FileType vim let b:fold_offset = 5
+  au!
+  au FileType vim let b:fold_offset = 5
 augroup END
 
 
@@ -606,13 +589,13 @@ if has_key(plugs, 'YouCompleteMe')
         \ ]
 
   if !has('nvim')
-      let g:ycm_auto_hover = ''
+    let g:ycm_auto_hover = ''
   endif
 
   augroup ycm_behaviours
-      au!
-      au FileType python,go,sh,vim
-          \ nmap K <plug>(YCMHover)
+    au!
+    au FileType python,go,sh,vim
+        \ nmap K <plug>(YCMHover)
   augroup END
 
   nnoremap <silent> <Leader>g   :YcmCompleter GoTo<CR>
@@ -624,24 +607,22 @@ endif
 
 " /* for XXX */
 function! s:FzfToNERDTree(lines)
-    if len(a:lines) == 0
-        return
+  if len(a:lines) == 0 | return | endif
+  let path = glob(a:lines[0])
+  if empty(path)
+    echoerr "Invalid path: " .. a:lines[0]
+    return
+  endif
+  if has("nvim")
+    " execute 'CHADopen --always-focus ' .. path
+    execute 'NvimTreeFindFile '
+    wincmd p
+  else
+    if get(g:, "loaded_nerd_tree", 0) == 0
+        execute 'NERDTree'
     endif
-    let path = glob(a:lines[0])
-    if empty(path)
-        echoerr "Invalid path: " .. a:lines[0]
-        return
-    endif
-    if has("nvim")
-      " execute 'CHADopen --always-focus ' .. path
-      execute 'NvimTreeFindFile '
-      wincmd p
-    else
-      if get(g:, "loaded_nerd_tree", 0) == 0
-          execute 'NERDTree'
-      endif
-      execute 'NERDTreeFind ' .. path
-    endif
+    execute 'NERDTreeFind ' .. path
+  endif
 endfunction
 
 " /* for NERDTree */
@@ -815,13 +796,13 @@ let g:WebDevIconsOS = 'ArchLinux'
 
 " /* LeaderF */
 if s:is_win && has_key(plugs, 'LeaderF')
-  " let g:Lf_ShortcutF = "<leader>ff"
-  " let g:Lf_DefaultExternalTool = "rg"
-  let g:Lf_ExternalCommand =  'fd -t f --strip-cwd-prefix -H -L -E .git -E *.swp %s'
+  let g:Lf_ExternalCommand = 'fd -t f --strip-cwd-prefix -H -L -E .git -E *.swp %s'
   let g:Lf_ShowHidden = 1
   let g:Lf_WindowPosition = 'popup'
   let g:lf_UseMemoryCache = 0
   let g:lf_UseCache = 0
+  let g:Lf_PopupWidth = 0.5
+  let g:Lf_PopupHeight = 0.6
   nnoremap <Leader>ff <cmd>Leaderf file<CR>
   nnoremap <Leader>fg :Leaderf rg<space>
   nnoremap <Leader>fb :Leaderf buffer<CR>
@@ -830,13 +811,6 @@ if s:is_win && has_key(plugs, 'LeaderF')
 
   let g:Lf_CommandMap = {'<C-]>': ['<C-V>']}
   let g:Lf_UseVersionControlTool = 0
-
-  " nnoremap <Leader>fa <cmd><SPACE>
-  " nnoremap <Leader>fr <cmd>Rg<SPACE>
-  " nnoremap <Leader>fl <cmd>Lines<SPACE>
-  " nnoremap <Leader>fL <cmd>BLines<SPACE>
-  " nnoremap <Leader>fb <cmd>Buffers<CR>
-  " nnoremap <Leader>fw <cmd>Windows<CR>
 endif
 
 
@@ -1015,9 +989,7 @@ function! s:TermExecute(cmd)
   if has_key(environ(), "TMUX")
     call system(printf("tmux split-window \"%s\"", a:cmd))
   else
-    if has("nvim")
-      execute "split"
-    endif
+    if has("nvim") | execute "split" | endif
     execute "terminal " .. a:cmd
   endif
 endfunction
@@ -1028,22 +1000,16 @@ function! GetBrowser() abort
     return glob(p)
   else
     for p in ['google-chrome', 'google-chrome-stable', 'chroimium', 'fire']
-      if executable(p)
-        return p
-      endif
+      if executable(p) | return p | endif
     endfor
   endif
 endfunction
 
 function! s:PreviewWithMLP() abort
-  if &ft != "markdown"
-    echom "Only support markdown"
-    return
-  endif
+  if &ft != "markdown" | echom "Only support markdown" | return | endif
 
   if !executable("mlp")
-    echom "mlp not found (Install with: pip install markdown_live_preview)"
-    return
+    echom "mlp not found (Install with: pip install markdown_live_preview)" | return
   endif
 
   let mlp_cmd = "mlp --no-browser -p 13333 -o " .. expand("%")
@@ -1129,7 +1095,6 @@ let g:startify_lists = [
       \ ]
 
 " /* for vc */
-
 if executable('svn') && has_key(plugs, 'vc-svn.vim')
   let g:vc_browse_cache_all = 1
   map <silent> <leader>vB :VCBlame<CR>
@@ -1155,11 +1120,7 @@ endif
 function! s:goyo_enter()
   silent !tmux set status off
   silent !tmux list-panes -F '\#F' | grep -q Z || tmux resize-pane -Z
-  set nonu
-  set nornu
-  set noshowmode
-  set noshowcmd
-  set scrolloff=999
+  set nonu nornu noshowmode noshowcmd scrolloff=999
   " Limelight
 endfunction
 
@@ -1192,17 +1153,13 @@ if has_key(plugs, 'coc.nvim')
   set nobackup
   set nowritebackup
   set updatetime=300
-  " Always show the signcolumn, otherwise it would shift the text each time diagnostics appear/become resolved.
   set signcolumn=yes
 
   inoremap <expr> <cr> coc#pum#visible() ? coc#pum#confirm() : "\<CR>"
 
-  " Use tab for trigger completion with characters ahead and navigate.
   inoremap <silent><expr> <TAB> coc#pum#visible() ? coc#pum#next(1) : CheckBackspace() ? "\<Tab>" : coc#refresh()
   inoremap <expr><S-TAB> coc#pum#visible() ? coc#pum#prev(1) : "\<C-h>"
 
-  " Make <CR> to accept selected completion item or notify coc.nvim to format
-  " <C-g>u breaks current undo, please make your own choice.
   inoremap <silent><expr> <CR> coc#pum#visible() ? coc#pum#confirm()
         \: "\<C-g>u\<CR>\<c-r>=coc#on_enter()\<CR>"
 
@@ -1214,7 +1171,6 @@ if has_key(plugs, 'coc.nvim')
   nmap <silent> [d <Plug>(coc-diagnostic-prev)
   nmap <silent> ]d <Plug>(coc-diagnostic-next)
 
-  " GoTo code navigation.
   nmap <silent> <leader>g <Plug>(coc-definition)
   " nmap <silent> gy <Plug>(coc-type-definition)
   " nmap <silent> gi <Plug>(coc-implementation)
@@ -1232,34 +1188,23 @@ if has_key(plugs, 'coc.nvim')
     endif
   endfunction
 
-  " Highlight the symbol and its references when holding the cursor.
   autocmd CursorHold * silent call CocActionAsync('highlight')
 
-  " Symbol renaming.
   nmap <leader>rn <Plug>(coc-rename)
 
-  " Formatting selected code.
   xmap <leader>f  <Plug>(coc-format-selected)
   nmap <leader>f  <Plug>(coc-format-selected)
 
   augroup mygroup
     autocmd!
-    " Setup formatexpr specified filetype(s).
     autocmd FileType typescript,json setl formatexpr=CocAction('formatSelected')
-    " Update signature help on jump placeholder.
     autocmd User CocJumpPlaceholder call CocActionAsync('showSignatureHelp')
   augroup end
 
-  " Applying codeAction to the selected region. Example: `<leader>aap` for current paragraph
   xmap <leader>ca  <Plug>(coc-codeaction-selected)
   nmap <leader>ca  <Plug>(coc-codeaction-selected)
-
-  " Remap keys for applying codeAction to the current buffer.
   nmap <leader>ca  <Plug>(coc-codeaction)
-  " Apply AutoFix to problem on the current line.
   nmap <leader>qf  <Plug>(coc-fix-current)
-
-  " Run the Code Lens action on the current line.
   nmap <leader>cl  <Plug>(coc-codelens-action)
 
   " Map function and class text objects
@@ -1273,7 +1218,6 @@ if has_key(plugs, 'coc.nvim')
   xmap ac <Plug>(coc-classobj-a)
   omap ac <Plug>(coc-classobj-a)
 
-  " Remap <C-f> and <C-b> for scroll float windows/popups.
   if has('nvim-0.4.0') || has('patch-8.2.0750')
     nnoremap <silent><nowait><expr> <C-f> coc#float#has_scroll() ? coc#float#scroll(1) : "\<C-f>"
     nnoremap <silent><nowait><expr> <C-b> coc#float#has_scroll() ? coc#float#scroll(0) : "\<C-b>"
@@ -1283,17 +1227,10 @@ if has_key(plugs, 'coc.nvim')
     vnoremap <silent><nowait><expr> <C-b> coc#float#has_scroll() ? coc#float#scroll(0) : "\<C-b>"
   endif
 
-  " Use CTRL-S for selections ranges.
   nmap <silent> <C-s> <Plug>(coc-range-select)
   xmap <silent> <C-s> <Plug>(coc-range-select)
-
-  " Add `:Format` command to format current buffer.
   command! -nargs=0 Format :call CocActionAsync('format')
-
-  " Add `:Fold` command to fold current buffer.
   command! -nargs=? Fold :call CocAction('fold', <f-args>)
-
-  " Add `:OR` command for organize imports of the current buffer.
   command! -nargs=0 OR   :call CocActionAsync('runCommand', 'editor.action.organizeImport')
 
   " Add (Neo)Vim's native statusline support.
@@ -1319,19 +1256,8 @@ if has_key(plugs, 'coc.nvim')
   " " Resume latest coc list.
   " nnoremap <silent><nowait> <space>p  :<C-u>CocListResume<CR>
 
-  " TODO (k): <2022-11-07>
-  " let g:coc_global_extensions=[ 'coc-powershell', ... ]
-  let g:coc_global_extensions=[ 'coc-json',
-        \'coc-git',
-        \'coc-snippets',
-        \'coc-docker',
-        \'coc-sh',
-        \'coc-sql',
-        \'coc-toml',
-        \'coc-go',
-        \'coc-pyright',
-        \'coc-lua',
-        \]
+  let g:coc_global_extensions = [ 'coc-json', 'coc-git', 'coc-snippets', 'coc-docker',
+                \ 'coc-sh', 'coc-sql', 'coc-toml', 'coc-go', 'coc-pyright', 'coc-lua' ]
   if has("win32")
     call add(g:coc_global_extensions, "coc-powershell")
   endif
@@ -1381,7 +1307,6 @@ augroup END
 let g:vue_pre_processors = []
 
 " /* for vim-javascript */
-
 augroup javascript_folding
   au!
   au FileType javascript setlocal foldmethod=syntax
@@ -1416,9 +1341,7 @@ augroup END
 " --------------------------------------------
 
 function! EchoWarn(msg)
-    echohl WarningMsg
-    echom '[✘]' .. a:msg
-    echohl None
+  echohl WarningMsg | echom '[✘]' .. a:msg | echohl None
 endfunction
 
 " edit rc files
@@ -1440,20 +1363,6 @@ else
   let s:extra_vimrc_path = s:vimrc_path .. '.local'
   let g:extra_init_vim_path = g:init_vim_path .. '.local'
 endif
-
-function! EditRcFiles() abort
-  execute 'tabe ' . s:vimrc_path
-  let l:rc_id = win_getid()
-  if has('nvim')
-    execute 'split ' . g:init_vim_path
-    let l:init_id = win_getid()
-    execute 'vsplit '. g:extra_init_vim_path
-  endif
-
-  call win_gotoid(l:rc_id)
-  execute 'vsplit ' . s:extra_vimrc_path
-  call win_gotoid(l:rc_id)
-endfunction
 
 function! EditRcFilesV2() abort
   " let fm = [s:vimrc_path, s:extra_vimrc_path, g:init_vim_path, g:extra_init_vim_path, g:config_lua_path, g:coc_settings_json_path]
@@ -1498,22 +1407,15 @@ endfunction
 " FIXME doesn't work at all
 function! BackgroudToggle()
   let cs = g:colors_name
-  if &background ==? 'dark'
-    set background=light
-  else
-    set background=dark
-  endif
+  let &background = &background ==? 'dark'? 'light': 'dark'
+
   execute 'colorscheme ' . cs
   echom "Color: " . cs . " Background: " . &background
 endfunction
 
 " let background fit the clock
 function! LetBgFitClock()
-  if s:bg_light
-    set background=light
-  else
-    set background=dark
-  endif
+  let &background = s:bg_light? 'light': 'dark'
 endfunction
 
 " try to set termguicolors and return the status
@@ -1526,24 +1428,6 @@ function! InitTermguicolors()
       set termguicolors
     endif
     return &termguicolors
-  endif
-endfunction
-
-" initialize the colorscheme
-function! InitColors()
-  " gruvbox bubblegum birds-of-paradise blaquemagick buddy_modified dante
-  " eclipse darkburn enigma eva01 evening evolution apprentice
-  if $USER == 'k'
-    if has('nvim')
-      colorscheme solarized
-    elseif InitTermguicolors()
-      colorscheme atomic
-    else
-      colorscheme solarized
-    endif
-    call AfterChangeColorscheme()
-  else
-    colorscheme molokai
   endif
 endfunction
 
@@ -1586,11 +1470,11 @@ function! VimScriptFold(lnum)
 endfunction
 
 function! MyFoldText()
-    let nl = v:foldend - v:foldstart + 1
-    let linetext = getline(v:foldstart)
-    let left = substitute(linetext, '\t', repeat(' ', &tabstop), "g")
-    let txt = substitute(left, '^  ', '+ ', 1) .. ' ...     [' .. nl .. ' lines] '
-    return txt
+  let nl = v:foldend - v:foldstart + 1
+  let linetext = getline(v:foldstart)
+  let left = substitute(linetext, '\t', repeat(' ', &tabstop), "g")
+  let txt = substitute(left, '^  ', '+ ', 1) .. ' ...     [' .. nl .. ' lines] '
+  return txt
 endfunction
 set foldtext=MyFoldText()
 
@@ -1608,29 +1492,17 @@ augroup fit_colorscheme
 augroup END
 
 function! s:GetFitAirlineTheme(cname)
-  if a:cname =~ '\v^(default|blackbeauty|gruvbox|blue-moon|boo|github_|kat\.)'
-    return ''
-  endif
+  if a:cname =~ '\v^(default|blackbeauty)' | return '' | endif
+
   let airline_theme = a:cname
-  if a:cname ==? 'NeoSolarized'
-    let airline_theme='solarized'
-  elseif a:cname ==? 'atomic'
-    let airline_theme='atomic'
-  elseif a:cname ==? 'github'
-    let airline_theme = 'minimalist'
+  let m = { 'NeoSolarized': 'solarized', 'atomic': 'atomic', 'github': 'minimalist', 'seoul256': 'seoul256' }
+  if has_key(m, a:cname)
+    let airline_theme = m[a:cname]
   elseif a:cname ==? 'gruvbox'
-    if s:bg_light
-      let airline_theme = 'base16_gruvbox_light_soft'
-    else
-      let airline_theme = 'base16_gruvbox_dark_hard'
-    endif
-  elseif a:cname =~ 'seoul256'
-    let airline_theme = 'seoul256'
+    let airline_theme = s:bg_light? 'base16_gruvbox_light_soft': 'base16_gruvbox_dark_hard'
   endif
   return airline_theme
-
 endfunction
-
 
 function! s:DisableAirline()
   let g:airline#extensions#tabline#enabled = 0
@@ -1650,7 +1522,6 @@ function! SetColorScheme(cname) abort
       let g:atomic_mode = 9  " light soft
     endif
   endif
-  " if v:version < 801 && !has('nvim') call SetTermguiColors('no') | call LetBgFitClock() if s:cname =~ '\vatomic|NeoSolarized|ayu|palenight' call SetTermguiColors('yes') endif endif
   execute 'colorscheme ' . s:cname
 
   if g:line_plugin == 'airline'
@@ -1658,25 +1529,14 @@ function! SetColorScheme(cname) abort
     let airline_theme = s:GetFitAirlineTheme(s:cname)
     if airline_theme == '' || index(airline#util#themes(''), airline_theme) == -1
       call s:DisableAirline()
-      " augroup ColoAirlineAug
-      "   au!
-      "   au User AirlineToggledOn let w:airline_disabled = 1
-      "   au WinEnter,WinNew,BufRead,BufEnter,BufNewFile,FileReadPre,BufWinEnter * if exists("#airline") | let w:airline_disabled = 1 | endif
-      " augroup END
     else
       let g:airline_theme = airline_theme
-      " augroup ColoAirlineAug
-      "   au!
-      " augroup END
     endif
   endif
-
-  " echom "Configured colorscheme: " .. a:cname
 endfunction
 
 function! RandomSetColo(themes)
   let choosen_colo = a:themes[rand() % len(a:themes)]
-  " echo "Choosed color: " .. choosen_colo
   call SetColorScheme(choosen_colo)
 endfunction
 
@@ -1775,6 +1635,7 @@ if !exists('g:colors_name') && !has('nvim')
           \])
   endif
 endif
+
 
 " before nvim config .local
 if s:is_win && !has('nvim')
