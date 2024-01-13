@@ -1,11 +1,11 @@
 #! /usr/bin/env bash
-# https://github.com/Karmenzind/
+# Github: https://github.com/Karmenzind/dotfiles-and-scripts
 
 # Mainly for ArchLinux
 # Partially support Debian-based system
 
 if [[ -z $__loaded_commonrc ]]; then
-    cd $(dirname $0)
+	cd $(dirname $0)
 	source $PWD/utils/commonrc
 fi
 
@@ -254,8 +254,12 @@ install_officials() {
 	do_install ${_cli[*]}
 	do_install ${_desktop[*]}
 	do_install ${_themes[*]}
-	do_install ${_required_by_vim[*]}
+	# do_install ${_required_by_vim[*]}
 	sudo pacman -Sc
+}
+
+auri() {
+	$aur_helper -S -v --needed --noconfirm ${@}
 }
 
 install_aurs() {
@@ -323,6 +327,30 @@ install_zsh_stuff() {
 	install_zsh_plugin zsh-syntax-highlighting https://github.com/zsh-users/zsh-syntax-highlighting.git
 }
 
+pwsh_run() {
+	pwsh -NoLogo -NoProfile -ExecutionPolicy RemoteSigned -Command "$@" && echo_ok "Finished installing ${@}"
+}
+
+setup_pwsh() {
+	echo_run "Install and setup powershell? (Y/n)"
+	! check_yn && return
+
+    if command -v pwsh; then
+        echo_ok "pwsh is already installed"
+    elif [[ $distro == arch ]]; then
+        auri powershell-bin
+        auri oh-my-posh-bin
+    else
+		echo_warn "You should manually install pwsh"
+    # elif command -v apt >/dev/null; then
+		# echo_warn "No pacman/apt. Ignored pwsh installation."
+    fi
+
+	pwsh_run "Install-Module PSReadline"
+	pwsh_run "Install-Module Terminal-Icons"
+	pwsh_run "Install-Module PsFZF"
+}
+
 # --------------------------------------------
 
 install_apt_recommandations() {
@@ -373,3 +401,4 @@ fi
 
 install_ranger_and_plugins
 install_zsh_stuff
+setup_pwsh

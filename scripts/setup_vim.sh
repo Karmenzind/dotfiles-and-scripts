@@ -35,6 +35,7 @@ install_vim_specs() {
 	# linters
 	sudo npm i -g sqlint
 
+	# fixers
 	sudo npm i -g prettier pg-formatter gofmt clang-format eslint
 
 	if [[ $distro == "arch" ]]; then
@@ -64,7 +65,7 @@ install_vim_specs() {
 		black
 		pydocstyle
 		flake8
-        markdown_live_preview
+		markdown_live_preview
 	)
 
 	for pi in ${pipx_pkgs[*]}; do
@@ -96,10 +97,10 @@ symlink_files() {
 install_n_vim
 symlink_files
 
-echo_run "Install Vim plugins?"
+echo_run "Install Vim plugins? (Y/n)"
 check_yn && vim +PlugInstall +qall
 
-echo_run "Install Neovim plugins?"
+echo_run "Install Neovim plugins (Y/n)?"
 check_yn && nvim +PlugInstall +qall
 
 install_vim_specs

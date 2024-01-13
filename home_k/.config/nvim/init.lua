@@ -1,9 +1,7 @@
 -- Github: https://github.com/Karmenzind/dotfiles-and-scripts
--- vim:set et sw=2 ts=2:
 vim.g.loaded = 1
 vim.g.loaded_netrw = 1
 vim.g.loaded_netrwPlugin = 1
-vim.opt.termguicolors = true
 vim.opt.completeopt = "menu,menuone,noselect"
 
 local mopts = { noremap = true, silent = true }
@@ -56,7 +54,7 @@ end
 local function try_require(mod)
     local ok, imported = pcall(require, mod)
     if ok then return imported end
-    vim.fn.EchoWarn("[✘] Failed to load " .. mod)
+    vim.fn.EchoWarn("Failed to load " .. mod)
     return nil
 end
 
@@ -226,7 +224,6 @@ local post_move = function(select_result, fallback)
     end
 end
 
-vim.keymap.set("n", "<leader>ca", vim.lsp.buf.code_action, mopts)
 vim.keymap.set("n", "[d", vim.diagnostic.goto_prev, mopts)
 vim.keymap.set("n", "]d", vim.diagnostic.goto_next, mopts)
 vim.keymap.set("n", "<leader>q", vim.diagnostic.setloclist, mopts)
@@ -246,7 +243,7 @@ local on_attach = function(_, bufnr)
     -- end, bufopts)
     vim.keymap.set("n", "<leader>D", vim.lsp.buf.type_definition, bufopts)
     vim.keymap.set("n", "<leader>rn", vim.lsp.buf.rename, bufopts)
-    vim.keymap.set("n", "<leader>la", vim.lsp.buf.code_action, bufopts)
+    vim.keymap.set("n", "<leader>ca", vim.lsp.buf.code_action, bufopts)
     vim.keymap.set("n", "<leader>rf", vim.lsp.buf.references, bufopts)
     vim.keymap.set("n", "<leader>lf", function() vim.lsp.buf.format({ async = true }) end, bufopts)
 end
@@ -390,8 +387,17 @@ lsp.taplo.setup({ on_attach = on_attach, capabilities = lsp_cap })
 lsp.sqlls.setup({ on_attach = on_attach, capabilities = lsp_cap, cmd = { "sql-language-server", "up", "--method", "stdio" } })
 
 local ps_bundle_path = is_win and "~\\AppData\\Local\\nvim-data\\mason\\packages\\powershell-editor-services"
-    or "~/.local/share/nvim-data/mason/packages/powershell-editor-services"
-if vim.fn.glob(ps_bundle_path) ~= "" then lsp.powershell_es.setup({ bundle_path = ps_bundle_path }) end
+    or "~/.local/share/nvim*/mason/packages/powershell-editor-services"
+if vim.fn.glob(ps_bundle_path) ~= "" then
+    lsp.powershell_es.setup({
+        on_attach = on_attach,
+        capabilities = lsp_cap,
+        bundle_path = ps_bundle_path,
+        settings = { powershell = { codeFormatting = { Preset = "OTBS" } } },
+    })
+else
+    vim.fn.EchoWarn("Invalid ps bundle path")
+end
 
 require("nvim-autopairs").setup({ disable_filetype = { "markdown" } })
 local cmp_autopairs = require("nvim-autopairs.completion.cmp")
@@ -578,3 +584,5 @@ if vim.g.colors_name == nil then
         })
     end
 end
+
+vim.opt.termguicolors = true

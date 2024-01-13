@@ -24,7 +24,7 @@ cecho() {
 }
 
 echo_run() {
-	cecho "[≫] $1" ${bold}${cyan}
+	cecho "≫  $1" ${bold}${cyan}
 }
 
 put_error() {

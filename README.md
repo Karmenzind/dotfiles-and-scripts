@@ -2,13 +2,14 @@
 
 > The ArchLinux installation scripts has been migrated to [this repo](https://github.com/Karmenzind/arch-installation-scripts) and is no longer maintained.
 
-[简体中文](./README_CN.md)
+|[简体中文](./README_CN.md)|
 
 <table>
 	<colgroup align="center">
     <col width="50" align="center"></col>
     <col width="70" align="center"></col>
-		<col span="2" width="180" align="center"></col>
+    <col width="180" align="center"></col>
+    <col width="160" align="center"></col>
 	</colgroup>
   <thead>
     <tr>
@@ -21,8 +22,8 @@
     <tr>
       <td align="center" rowspan="5" width="50">Shell</td>
       <td align="center" >Editor</td>
-      <td align="center">Vim/Neovim</td>
-      <td align="center">Shell: Vim/Neovim<br>GUI: GVim/Neovide</td>
+      <td align="center" colspan=2>Vim/Neovim</td>
+      <!-- <td align="center">Shell: Vim/Neovim<br>GUI: GVim/Neovide</td> -->
     </tr>
     <tr>
       <td align="center">Terminal</td>

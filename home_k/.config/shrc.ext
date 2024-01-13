@@ -412,7 +412,7 @@ export WORKON_HOME=~/.venvs
 #                                 C#                                  #
 #######################################################################
 
-if command -V dotnet >/dev/null; then
+if command -v dotnet >/dev/null; then
     export PATH=$PATH:~/.dotnet/tools
 fi
 

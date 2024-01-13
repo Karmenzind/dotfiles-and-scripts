@@ -332,11 +332,9 @@ set wildmenu
 set ruler
 set showtabline=1
 if has('win32')
-  " set guifont=consolas:h14
   set guifont=Monaco\ Nerd\ Font\ Mono:h12
   " set guifontwide='Monaco\ Nerd\ Font:h12,consolas:h12'
-  " set guifontwide='Monaco\ Nerd\ Font:h12,consolas:h12'
-else
+elseif !exists("g:neovide") " crash on neovide
   set guifont=Monaco\ Nerd\ Font\ Mono\ 12
 endif
 set cursorline cursorcolumn
@@ -1058,7 +1056,7 @@ function! s:PreviewWithMLP() abort
     call s:TermExecute(b .. " http://localhost:13333")
   endif
 endfunction
-nnoremap <buffer> <Leader>mp :call <SID>PreviewWithMLP()<CR>
+nnoremap <Leader>mp :call <SID>PreviewWithMLP()<CR>
 
 " particular keymaps
 augroup for_markdown_ft
@@ -1419,7 +1417,7 @@ augroup END
 
 function! EchoWarn(msg)
     echohl WarningMsg
-    echom a:msg
+    echom '[✘]' .. a:msg
     echohl None
 endfunction
 
