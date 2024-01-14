@@ -68,6 +68,7 @@ if platform == "win":
         Path("home_k/.vim"),
         Path("home_k/.vimrc"),
         Path("home_k/.gitconfig"),
+        Path("home_k/.condarc"),
         Path("home_k/.config/nvim/init.lua"),
         Path("home_k/.config/ripgreprc"),
         Path("home_k/.config/alacritty/alacritty.toml"),

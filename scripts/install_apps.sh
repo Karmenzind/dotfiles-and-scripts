@@ -346,9 +346,6 @@ setup_pwsh() {
 		# echo_warn "No pacman/apt. Ignored pwsh installation."
     fi
 
-	pwsh_run "Install-Module PSReadline"
-	pwsh_run "Install-Module Terminal-Icons"
-	pwsh_run "Install-Module PsFZF"
 }
 
 # --------------------------------------------

@@ -5,18 +5,15 @@ param(
 $isAdminMode = ([Security.Principal.WindowsPrincipal] [Security.Principal.WindowsIdentity]::GetCurrent()).IsInRole([Security.Principal.WindowsBuiltInRole]::Administrator)
 
 function Command-Exists {
-    param (
-        [string]$commandName
-    )
+    param ( [string]$commandName )
     Get-Command -Name $commandName -ErrorAction SilentlyContinue
 }
 
 if (-not $isAdminMode) {
     if (Command-Exists "pwsh") {
-        Start-Process powershell.exe -ArgumentList "-NoProfile -ExecutionPolicy Bypass -File `"$($MyInvocation.MyCommand.Path)`"" -Wait -Verb "RunAs"
-    }
-    else {
         Start-Process pwsh.exe -ArgumentList "-ExecutionPolicy Bypass -File `"$($MyInvocation.MyCommand.Path)`"" -Wait -Verb "RunAs"
+    } else {
+        Start-Process powershell.exe -ArgumentList "-NoProfile -ExecutionPolicy Bypass -File `"$($MyInvocation.MyCommand.Path)`"" -Wait -Verb "RunAs"
     }
     Exit
 }
@@ -55,14 +52,17 @@ function Ensure-Tool {
         }
     }
 
+    if ($checkCommand -eq "") {
+        Write-Host "[OK] Finished installing $packageName."
+        return $true
+    }
     # Check installation result again
-    $commandExistsAfterInstall = Get-Command -Name $checkCommand -ErrorAction SilentlyContinue
+    $commandExistsAfterInstall = $(Get-Command -Name $checkCommand -ErrorAction SilentlyContinue)
 
     if ($commandExistsAfterInstall) {
         Write-Host "[OK] $packageName has been successfully installed."
         return $true
-    }
-    else {
+    } else {
         Write-Host "[x] Failed to install $packageName. Please install it manually."
         return $false
     }
@@ -109,12 +109,10 @@ function Setup-Fonts {
 
 # TODO
 # https://hamidmosalla.com/2022/12/26/how-to-customize-windows-terminal-and-powershell-using-fzf-neovim-and-beautify-it-with-oh-my-posh/
-Install-Module -Name z –Force
-Install-Module -Name Terminal-Icons -Repository PSGallery
-winget install JanDeDobbeleer.OhMyPosh -s winget
-# Install-Module posh-git -Scope CurrentUser
-# Set-PoshPrompt
 
+if (-Not (Get-Command -Name oh-my-posh -ErrorAction SilentlyContinue)) {
+    winget install JanDeDobbeleer.OhMyPosh -s winget
+}
 
 Write-Host "[>] Checking basic apps..."
 $null = Ensure-Tool "choco"  "winget" "chocolatey"
@@ -136,8 +134,7 @@ $null = Ensure-Tool "neovide" "choco"  "neovide"
 
 # linters / fixers / etc
 $null = Ensure-Tool "prettier" "npm"    "neovide"
-$null = Ensure-Tool "marksman" "npm"    "marksman"
-$null = Ensure-Tool "marksman" "npm"    "marksman"
+# $null = Ensure-Tool "marksman" "npm"    "marksman"
 $null = Ensure-Tool "stylua"   "choco"  "stylua"
 $null = Ensure-Tool "jq"       "winget" "jqlang.jq"
 $null = Ensure-Tool "mlp"      "pip"    "markdown_live_preview"
@@ -161,8 +158,10 @@ if ($vimOnly -ne 1) {
 }
 
 Write-Host "[>] Checking regular apps..."
-$null = Ensure-Tool "lf" "winget" "gokcehan.lf"
-$null = Ensure-Tool "" "winget" "appmakes.Typora"
+$null = Ensure-Tool "lf"       "winget" "gokcehan.lf"
+$null = Ensure-Tool ""         "winget" "appmakes.Typora"
+$null = Ensure-Tool "starship" "winget" "Starship.Starship"
+$null = Ensure-Tool "conda"    "winget" "Anaconda.Miniconda3"
 
 Write-Host ":) Press any key to continue..."
 $null = $Host.UI.RawUI.ReadKey("NoEcho,IncludeKeyDown")

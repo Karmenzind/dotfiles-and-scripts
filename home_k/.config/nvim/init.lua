@@ -44,7 +44,7 @@ end
 if vim.fn.filereadable(vim.g.extra_init_vim_path) > 0 then vim.cmd("source " .. vim.g.extra_init_vim_path) end
 
 local function term_esc()
-    if vim.fn.match(vim.o.filetype, "\v^(fzf|Telescope)") then
+    if vim.fn.match(vim.bo.filetype:lower(), [[\v^(fzf|telescope)]]) > -1 then
         vim.cmd("close")
     else
         vim.api.nvim_feedkeys("", "m", true)
