@@ -120,7 +120,7 @@ script parameters：
 
 ### (Neo)Vim configuration and setup
 
-Here are two sets of well-polished configuration for Vim and Neovim. Spent years refining them. There are some plugin differences, but the basic behaviors and shortcuts are pretty much the same. Mainly for everyday Python and Golang development, as well as whipping up VimL, Lua, and Bash scripts.
+Here are two sets of full-featured configuration for Vim and Neovim. Spent years refining them. There are some plugin differences, but the basic behaviors and shortcuts are pretty much the same. Mainly for everyday Python and Golang development, as well as whipping up VimL, Lua, and Bash scripts.
 
 Simply run:
 
@@ -192,14 +192,15 @@ I've mixed together domain lists from a bunch of popular repos, got rid of dupli
 
 ## :eyes: screenshots
 
-- i3 desktop:
+- i3 Desktop on ArchLinux:
     ![](https://raw.githubusercontent.com/Karmenzind/i/master/dotfiles-and-scripts/float.png)
     ![](https://raw.githubusercontent.com/Karmenzind/i/master/dotfiles-and-scripts/desktop.png)
 
-- Vim:
+- (N)Vim:
     ![](https://raw.githubusercontent.com/Karmenzind/i/master/dotfiles-and-scripts/vim.png)
 
-<!-- ![](https://raw.githubusercontent.com/Karmenzind/i/master/dotfiles-and-scripts/vim_goyo.png) -->
+- Windows Terminal & pwsh7:
+    ![](https://raw.githubusercontent.com/Karmenzind/i/master/dotfiles-and-scripts/winterminal.png)
 
 ## :bulb: create your own Dotfile repo
 

@@ -184,14 +184,15 @@ bash scripts/install_apps.sh
 
 ## :eyes: 效果截图
 
-- i3 desktop:
+- i3 Desktop on ArchLinux:
     ![](https://raw.githubusercontent.com/Karmenzind/i/master/dotfiles-and-scripts/float.png)
     ![](https://raw.githubusercontent.com/Karmenzind/i/master/dotfiles-and-scripts/desktop.png)
 
-- Vim:
+- (N)Vim:
     ![](https://raw.githubusercontent.com/Karmenzind/i/master/dotfiles-and-scripts/vim.png)
 
-<!-- ![](https://raw.githubusercontent.com/Karmenzind/i/master/dotfiles-and-scripts/vim_goyo.png) -->
+- Windows Terminal & pwsh7:
+    ![](https://raw.githubusercontent.com/Karmenzind/i/master/dotfiles-and-scripts/winterminal.png)
 
 ## :bulb: 创建你自己的DotFile仓库
 
