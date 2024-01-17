@@ -1,5 +1,6 @@
 " vim:set et sw=2 ts=2 tw=78 ft=vim:
 " Github: https://github.com/Karmenzind/dotfiles-and-scripts
+" Last Modified: 2024-01-18 02:12:27
 
 let s:is_win = has("win32")
 if s:is_win
@@ -123,9 +124,7 @@ Plug 'liuchengxu/vista.vim'
 " Plug 'Shougo/echodoc.vim'
 Plug 'w0rp/ale' " Asynchronous Lint Engine
 if has("nvim")
-  if !has("win32")
-    Plug 'nvim-treesitter/nvim-treesitter', {'do': ':TSUpdate'}
-  endif
+  if !s:is_win | Plug 'nvim-treesitter/nvim-treesitter', {'do': ':TSUpdate'} | endif
 
   Plug 'kevinhwang91/promise-async' | Plug 'kevinhwang91/nvim-ufo'
 
@@ -343,16 +342,13 @@ else
   set statusline=%F%m%r%h%w\ (%{&ff}){%Y}\ [%l,%v][%p%%]
 endif
 
-function! EchoIfNotUnix()
-  if &ff ==? 'unix' | return '' | endif
-  return '<' . &ff . '>'
-endfunction
-
 " /* line number */
 set number
 
 function! s:RelNoToggle(mode)
-  if &ft =~? '\v(startify|registers)' | return | endif
+  if !has('nvim')
+    if &ft =~? '\v(startify|registers|leaderf)' | return | endif
+  endif
   " respect buffer settings
   if getbufvar(winbufnr(0), '&nu') == 0 | return | endif
   if a:mode == "in"
@@ -365,6 +361,9 @@ endfunction
 
 augroup relative_number_toggle
   autocmd!
+  if !has('nvim') && has_key(plugs, "LeaderF")
+    autocmd FileType leaderf setlocal nonu nornu 
+  endif
   autocmd BufEnter,FocusGained,InsertLeave,WinEnter * call s:RelNoToggle("in")
   autocmd BufLeave,FocusLost,InsertEnter,WinLeave   * call s:RelNoToggle("out")
 augroup END
@@ -498,8 +497,21 @@ augroup END
 " Header
 " --------------------------------------------
 
-" /* file headers */
-augroup add_file_headers
+function! s:UpdateHeader() abort
+  let bufpath = resolve(glob('%'))
+  if bufpath =~ '.*dotfiles-and-scripts.*' && !empty(&cms)
+    " let pat = printf(&cms, " ") .. "Last Modified:"
+    let pat = "Last Modified: "
+    let nr = line('$') 
+    let endnr = nr > 10? 10: nr
+    let c = printf("1,%ss/%s.*/%s/", endnr, pat, pat .. strftime("%Y-%m-%d %T"))
+    normal m"
+    call execute(c)
+    normal `"
+  endif
+endfunction
+
+augroup file_headers
   au!
   au BufNewFile *.sh
         \ call setline(1, '#!/usr/bin/env bash')                   |
@@ -523,6 +535,7 @@ augroup add_file_headers
         \ call setline(2, '#define _'.toupper(expand('%:r')).'_H') |
         \ call setline(3, '#endif')                                |
         \ normal! Go
+  au BufWritePre,FileWritePre * call <SID>UpdateHeader()
 augroup END
 
 " --------------------------------------------
@@ -792,7 +805,7 @@ nnoremap <Leader>fq :FzfQF<CR>
 " /* for devicons */
 let g:WebDevIconsUnicodeDecorateFolderNodes = 1
 let g:DevIconsEnableFoldersOpenClose = 1
-let g:WebDevIconsOS = 'ArchLinux'
+if !s:is_win | let g:WebDevIconsOS = 'ArchLinux' | endif
 
 " /* LeaderF */
 if s:is_win && has_key(plugs, 'LeaderF')
@@ -834,12 +847,12 @@ call s:NoSearchCabbrev("UE", "UltiSnipsEdit")
 let g:UltiSnipsExpandTrigger = '<c-j>'
 " FIXME (k): <2022-03-23> doesn't work any more
 let g:UltiSnipsListSnippets = '<F9>'
-" let g:UltiSnipsEditSplit = 'tabdo'
 let g:UltiSnipsEditSplit = 'context'
 let g:UltiSnipsUsePythonVersion = 3
 let g:UltiSnipsSnippetStorageDirectoryForUltiSnipsEdit = g:vimroot .. '/mysnippets'
 let g:UltiSnipsSnippetDirectories = ['UltiSnips', 'mysnippets']
 let g:UltiSnipsEnableSnipMate = 1
+let g:UltiSnipsNoPythonWarning = 1
 let g:snips_author = 'k'
 let g:snips_email = 'valesail7@gmail.com'
 let g:snips_github = 'https://github.com/Karmenzind/'

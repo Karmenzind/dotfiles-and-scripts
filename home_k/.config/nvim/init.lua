@@ -1,4 +1,7 @@
+#!/usr/bin/env lua
 -- Github: https://github.com/Karmenzind/dotfiles-and-scripts
+-- Last Modified: 2024-01-18 02:15:21
+
 vim.g.loaded = 1
 vim.g.loaded_netrw = 1
 vim.g.loaded_netrwPlugin = 1
@@ -128,12 +131,14 @@ if os.getenv("TMUX") == nil or vim.fn.executable("fzf") == 0 then
     })
 end
 
-local tsconf = try_require("nvim-treesitter.configs")
-if tsconf ~= nil then tsconf.setup({ ensure_installed = { "c", "lua", "vim", "vimdoc", "query" }, auto_install = true }) end
+if vim.g.plugs["nvim-treesitter"] ~= nil then
+    local tsconf = try_require("nvim-treesitter.configs")
+    if tsconf ~= nil then tsconf.setup({ ensure_installed = { "c", "lua", "vim", "vimdoc", "query" }, auto_install = true }) end
+end
 
 require("nvim-tree").setup({
     on_attach = nvim_tree_on_attach,
-    view = { float = { enable = false, open_win_config = { border = "double" } } },
+    view = { number = true, float = { enable = false, open_win_config = { border = "double" } } },
     filters = { git_ignored = false },
 })
 vim.keymap.set("n", "<leader>n", "<cmd>NvimTreeToggle<CR>", mopts)

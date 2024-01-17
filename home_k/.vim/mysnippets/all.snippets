@@ -1,17 +1,37 @@
-# https://github.com/Karmenzind/
+# Github: https://github.com/Karmenzind/dotfiles-and-scripts
+# Last Modified: 2024-01-18 02:12:53
+
+global !p
+def commented(snip):
+    b = vim.current.buffer    
+    cms = b.options.get("cms")
+    if not cms:
+        return
+    col = 1
+    pref = cms % ("" if cms.endswith(" %s") else " ")
+    for l in range(snip.snippet_start[0], snip.snippet_end[0]+1):
+        snip.buffer[l] = pref + snip.buffer[l]
+        col = len(snip.buffer[l])
+    snip.cursor.set(snip.snippet_end[0], col)
+endglobal
+
 
 ###########
 #  boxes  #
 ###########
 
+post_expand "commented(snip)"
 snippet lb "line box"
-`!v printf(&cms . &cms, ' --------------------------------------------', ' ')`${1:${VISUAL}}
-`!v printf(&cms, ' --------------------------------------------')`
+--------------------------------------------
+${1:${VISUAL}}
+--------------------------------------------
 endsnippet
 
+post_expand "commented(snip)"
 snippet llb "long line box"
-`!v printf(&cms . &cms, ' -----------------------------------------------------------------------------', ' ')`${1:${VISUAL}}
-`!v printf(&cms, ' -----------------------------------------------------------------------------')`
+-----------------------------------------------------------------------------
+${1:${VISUAL}}
+-----------------------------------------------------------------------------
 endsnippet
 
 ###########
@@ -105,21 +125,34 @@ endsnippet
 #  mark  #
 ##########
 
-# TODO: <2018-10-24, k> 增加自动注释 #
+post_expand "commented(snip)"
 snippet td "todo or other special comments"
-${2:TODO} (${1:`echo $USER`}): <`date +%Y-%m-%d`> ${0:${VISUAL}}
+${2:TODO} (${1:`!v has("win32")? $USERNAME: $USER`}): <`!v strftime("%c")`> ${0:${VISUAL}}
 endsnippet
 
+post_expand "commented(snip)"
 snippet xxx "XXX or other special comments"
-${2:XXX} (${1:`echo $USER`}): <`date +%Y-%m-%d`> ${0:${VISUAL}}
+${2:XXX} (${1:`!v has("win32")? $USERNAME: $USER`}): <`!v strftime("%c")`> ${0:${VISUAL}}
 endsnippet
 
-# TODO: <2018-10-24, k> 增加自动注释 #
+post_expand "commented(snip)"
 snippet fm "FIXME or other special comments"
-${2:FIXME} (${1:`echo $USER`}): <`date +%Y-%m-%d`> ${0:${VISUAL}}
+${2:FIXME} (${1:`!v has("win32")? $USERNAME: $USER`}): <`!v strftime("%c")`> ${0:${VISUAL}}
 endsnippet
 
+post_expand "commented(snip)"
 snippet trm "to delete" b
 These code has been modified or refactored and waiting to be deleted after testing.
 此处已经修改或重构，测试稳定后删除原代码
+endsnippet
+
+
+#################
+#  MyDot Specs  #
+#################
+
+post_expand "commented(snip)"
+snippet mydotheader
+Github: https://github.com/Karmenzind/dotfiles-and-scripts
+Last Modified: `!v strftime("%Y-%m-%d %T")`
 endsnippet
