@@ -84,15 +84,6 @@ workspace_auto_back_and_forth yes
 bindsym $mod+b workspace back_and_forth
 # bindsym $mod+Shift+b move container to workspace back_and_forth; workspace back_and_forth
 
-# reload the configuration file
-# bindsym $mod+Shift+c reload, exec "notify-send Reloaded i3 configs"
-# bindsym $mod+Shift+c exec i3-msg "reload" && "notify-send Reloaded i3 configs"
-bindsym $mod+Shift+c exec i3-msg reload && notify-send 'Reloaded i3 config'
-# restart i3 inplace (preserves your layout/session, can be used to upgrade i3)
-bindsym $mod+Shift+r restart
-# exit i3 (logs you out of your X session)
-bindsym $mod+Shift+e exec "i3-nagbar -t warning -m 'You pressed the exit shortcut. Do you really want to exit i3? This will end your X session.' -b 'Yes, exit i3' 'i3-msg exit'"
-
 # resize window (you can also use the mouse for that)
 mode "resize" {
     bindsym j         resize shrink width  5 px or 5 ppt

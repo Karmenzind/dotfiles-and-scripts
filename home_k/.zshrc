@@ -1,3 +1,6 @@
+# Github: https://github.com/Karmenzind/dotfiles-and-scripts
+# Last Modified: 2024-01-18 16:23:35
+
 # If you come from bash you might have to change your $PATH.
 # export PATH=$HOME/bin:/usr/bin:/usr/local/bin:$PATH
 # XXX (k): <2022-06-16> dirty path

@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
-# -*- coding: utf-8 -*-
+# Github: https://github.com/Karmenzind/dotfiles-and-scripts
+# Last Modified: 2024-01-18 16:18:53
 
 """
 create symlink

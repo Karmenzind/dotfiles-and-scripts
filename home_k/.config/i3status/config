@@ -1,3 +1,6 @@
+# Github: https://github.com/Karmenzind/dotfiles-and-scripts
+# Last Modified: 2024-01-24 17:02:13
+
 # i3status configuration file.
 # see "man i3status" for documentation.
 
@@ -17,7 +20,7 @@ general {
 # order += "ipv6"
 order += "cpu_usage"
 order += "memory"
-# order += "disk /"
+order += "disk /"
 # order += "disk /home"
 order += "wireless _first_"
 order += "ethernet _first_"
@@ -44,7 +47,8 @@ load {
 
 disk "/" {
         # format = " hdd %avail "
-        format = " ⛁ %avail "
+        # format = " ⛁ %avail "
+        format = " ⛁ %percentage_used "
 }
 
 wireless _first_ {

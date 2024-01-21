@@ -26,7 +26,7 @@ alias toboard='xclip -selection clipboard'
 alias xy=proxychains4
 
 # /* others apps */
-export EDITOR=vim
+export EDITOR=nvim
 export PAGER='less -F'
 export VISUAL=$EDITOR
 export SVN_EDITOR=$EDITOR

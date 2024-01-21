@@ -1,5 +1,6 @@
 #! /usr/bin/env bash
-# https://github.com/Karmenzind/
+# Github: https://github.com/Karmenzind/dotfiles-and-scripts
+# Last Modified: 2024-01-18 16:18:16
 
 cd $(dirname $0)
 repo_dir=$PWD

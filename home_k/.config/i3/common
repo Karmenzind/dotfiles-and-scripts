@@ -13,6 +13,7 @@ exec --no-startup-id i3-msg "exec i3-sensible-terminal --title 'my-init-terminal
 # notifier
 # exec_always --no-startup-id "command -v deadd-notification-center && deadd-notification-center & || dunst &"
 exec_always --no-startup-id "killall -9 dunst; dunst &"
+bindsym $mod+m exec dunstctl close
 
 exec_always --no-startup-id killall -9 pcmanfm; pcmanfm -d &
 exec_always --no-startup-id killall -9 udiskie; udiskie --tray &
@@ -20,18 +21,16 @@ exec_always --no-startup-id pamac-tray &
 
 # screenshot
 exec --no-startup-id flameshot &
-# transparency controller
-exec_always --no-startup-id killall picom; picom -b &
 # popup input box for authentication
 exec --no-startup-id /usr/lib/polkit-gnome/polkit-gnome-authentication-agent-1 & eval $(gnome-keyring-daemon -s --components=pkcs11,secrets,ssh,gpg) &
 # xflux
 exec_always --no-startup-id killall -9 xflux; xflux -l '30.2443314184' -g '120.1665687561' &
 # arrange monitors
 # exec_always xrandr --output HDMI3 --off --output HDMI2 --off --output HDMI1 --mode 1920x1080 --pos 1920x0 --rotate normal --output VIRTUAL1 --off --output DP1 --primary --mode 1920x1080 --pos 0x0 --rotate normal
-exec_always bash $HOME/.screenlayout/default.sh
+# exec_always bash $HOME/.screenlayout/default.sh
 
 # a cat chasing the mouse
-# exec_always --no-startup-id bash $HOME/.config/i3/run_oneko.sh &
+exec_always --no-startup-id bash $HOME/.config/i3/run_oneko.sh &
 # exec_always --no-startup-id command -v oneko && killall -9 oneko && oneko -tofocus &
 
 # /* with tray icons */
@@ -68,7 +67,7 @@ set $ws6 6
 set $ws7 7
 set $ws8 8
 set $ws9 9
-set $ws0 0
+set $ws0 " "
 
 # switch to workspace
 bindsym $mod+1 workspace $ws1
@@ -212,7 +211,8 @@ set $wallpaper_dir $HOME/Pictures/LOCKSCREENS
 # background
 exec_always --no-startup-id ls $HOME/Pictures/BACKGROUND.* && feh --bg-max `ls $HOME/Pictures/BACKGROUND.*` &
 # change background
-bindsym $mod+Shift+w exec --no-startup-id feh --bg-max `[[ -d $wallpaper_dir ]] && (find $wallpaper_dir -type f | sort -R | head -1) || echo $wallpaper_png` &
+# bindsym $mod+Shift+w exec --no-startup-id feh --bg-max `[[ -d $wallpaper_dir ]] && (find $wallpaper_dir -type f | sort -R | head -1) || echo $wallpaper_png` &
+bindsym $mod+Shift+w exec --no-startup-id bash $i3_config_dir/change_background.sh
 # auto lock
 # exec_always --no-startup-id xautolock -time 20 -locker i3lock -t -i $wallpaper_png &
 exec_always --no-startup-id xautolock -time 15 -locker blurlock &
@@ -224,12 +224,25 @@ bindsym $mod+Ctrl+l exec --no-startup-id i3lock -t -i `[ -d $wallpaper_dir ] && 
 # lock with random pic from internet (random picture source: https://www.zhihu.com/question/21168322)
 # ...todo
 
+# reload the configuration file
+# bindsym $mod+Shift+c reload, exec "notify-send Reloaded i3 configs"
+# bindsym $mod+Shift+c exec i3-msg "reload" && "notify-send Reloaded i3 configs"
+bindsym $mod+Shift+c exec i3-msg reload && notify-send 'Reloaded i3 config'
+# restart i3 inplace (preserves your layout/session, can be used to upgrade i3)
+bindsym $mod+Shift+r restart
+# exit i3 (logs you out of your X session)
+bindsym $mod+Shift+e exec "i3-nagbar -t warning -m 'You pressed the exit shortcut. Do you really want to exit i3? This will end your X session.' -b 'Yes, exit i3' 'i3-msg exit'"
+
+
 # generated with i3-style
 client.focused #586e75 #586e75 #fdf6e3 #268bd2
 client.focused_inactive #073642 #073642 #93a1a1 #002b36
 client.unfocused #002b36 #002b36 #586e75 #002b36
 client.urgent #dc322f #dc322f #fdf6e3 #dc322f
 
-exec_always --no-startup-id "notify-send 'Loaded common config'"
 # scripts
 exec_always --no-startup-id bash $HOME/.config/i3/post_start.sh &
+
+exec_always --no-startup-id "notify-send 'Loaded common config'"
+
+include ~/.config/i3/local.conf

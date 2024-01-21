@@ -1,5 +1,6 @@
 #! /usr/bin/env bash
 # Github: https://github.com/Karmenzind/dotfiles-and-scripts
+# Last Modified: 2024-01-25 00:25:53
 
 $psVersion = $PSVersionTable.PSVersion.Major
 
@@ -7,7 +8,11 @@ if ($psVersion -lt 7) {
     Write-Warning "You are using powershell $psVersion"
 }
 
-$env:PROJECT_PATHS = "C:\Users\vales\Workspace"
+if ($IsWindows) {
+    $env:PROJECT_PATHS = "~/Workspace;~/Localworks"
+} else {
+    $env:PROJECT_PATHS = "C:\Users\vales\Workspace"
+}
 # $DebugPreference = "Continue"
 
 function Check-PJRootNotSet {

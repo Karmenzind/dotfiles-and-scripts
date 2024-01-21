@@ -1,4 +1,8 @@
 #! /usr/bin/env bash
+# Github: https://github.com/Karmenzind/dotfiles-and-scripts
+# Last Modified: 2024-01-18 16:22:14
+
+aur_helper=yay
 
 distro=$(cat /etc/os-release | grep '^ID=' | sed 's/ID=//')
 

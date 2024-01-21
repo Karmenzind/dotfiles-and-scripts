@@ -1,6 +1,7 @@
 # Github: https://github.com/Karmenzind/dotfiles-and-scripts
-# Last Modified: 2024-01-18 02:12:53
+# Last Modified: 2024-01-26 01:05:39
 
+# FIXME (k): <2024年01月25日 星期四 16时19分37秒> leading tabs
 global !p
 def commented(snip):
     b = vim.current.buffer    
@@ -125,17 +126,14 @@ endsnippet
 #  mark  #
 ##########
 
-post_expand "commented(snip)"
 snippet td "todo or other special comments"
-${2:TODO} (${1:`!v has("win32")? $USERNAME: $USER`}): <`!v strftime("%c")`> ${0:${VISUAL}}
+${2:TODO} (${1:`!v has("win32")? $USERNAME: $USER`}): <`!v strftime("%Y-%m-%d %H:%M")`> ${0:${VISUAL}}
 endsnippet
 
-post_expand "commented(snip)"
 snippet xxx "XXX or other special comments"
 ${2:XXX} (${1:`!v has("win32")? $USERNAME: $USER`}): <`!v strftime("%c")`> ${0:${VISUAL}}
 endsnippet
 
-post_expand "commented(snip)"
 snippet fm "FIXME or other special comments"
 ${2:FIXME} (${1:`!v has("win32")? $USERNAME: $USER`}): <`!v strftime("%c")`> ${0:${VISUAL}}
 endsnippet

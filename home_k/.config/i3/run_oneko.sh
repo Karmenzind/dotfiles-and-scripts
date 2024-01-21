@@ -1,3 +1,5 @@
+((${ENABLE_ONEKO:-0==0})) && exit
+
 command -V oneko || exit 1
 
 killall oneko

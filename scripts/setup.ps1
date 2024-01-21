@@ -1,3 +1,6 @@
+# Github: https://github.com/Karmenzind/dotfiles-and-scripts
+# Last Modified: 2024-01-18 16:21:14
+
 param(
     [int]$vimOnly
 )
@@ -132,12 +135,12 @@ $null = Ensure-Tool "bat"     "winget" "sharkdp.bat"
 $null = Ensure-Tool "ctags"   "choco"  "universal-ctags"
 $null = Ensure-Tool "neovide" "choco"  "neovide"
 
-# linters / fixers / etc
+# linters / fixers / dap / etc
 $null = Ensure-Tool "prettier" "npm"    "neovide"
-# $null = Ensure-Tool "marksman" "npm"    "marksman"
 $null = Ensure-Tool "stylua"   "choco"  "stylua"
 $null = Ensure-Tool "jq"       "winget" "jqlang.jq"
 $null = Ensure-Tool "mlp"      "pip"    "markdown_live_preview"
+$null = Ensure-Tool "debugpy"  "pip"    "debugpy"
 
 Setup-Fonts
 
