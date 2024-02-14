@@ -1,6 +1,6 @@
 #!/usr/bin/env lua
 -- Github: https://github.com/Karmenzind/dotfiles-and-scripts
--- Last Modified: 2024-01-25 16:02:04
+-- Last Modified: 2024-02-02 11:18:29
 
 vim.g.loaded = 1
 vim.g.loaded_netrw = 1
@@ -98,6 +98,7 @@ local function nvim_tree_on_attach(bufnr)
 
     api.config.mappings.default_on_attach(bufnr)
 
+    vim.keymap.del("n", "<C-e>", { buffer = bufnr })
     vim.keymap.del("n", "s", { buffer = bufnr })
     vim.keymap.set("n", "s", api.node.open.vertical, opts("Split"))
     vim.keymap.set("n", "i", api.node.open.horizontal, opts("VSplit"))
@@ -328,7 +329,7 @@ cmp.setup({
 })
 
 cmp.setup.filetype("gitcommit", {
-    sources = cmp.config.sources({ { name = "cmp_git" } }, { { name = "buffer" } }),
+    sources = cmp.config.sources({ { name = "cmp_git" }, {name = "emoji"} }, { { name = "buffer" } }),
 })
 
 -- Use buffer source for `/` and `?` (if you enabled `native_menu`, this won't work anymore).
@@ -402,6 +403,10 @@ lsp.lua_ls.setup({
 --     capabilities = capabilities,
 --     init_options = { ["language_server_phpstan.enabled"] = false, ["language_server_psalm.enabled"] = false },
 -- })
+-- lsp.java_language_server.setup({})
+-- lsp.autotools_ls.setup{}
+lsp.denols.setup({ on_attach = on_attach, capabilities = lsp_cap })
+lsp.jdtls.setup({ on_attach = on_attach, capabilities = lsp_cap }) -- java >=17
 lsp.omnisharp.setup({
     on_attach = on_attach,
     capabilities = lsp_cap,
@@ -582,12 +587,14 @@ require("lualine").setup({
         disabled_filetypes = { statusline = { "NvimTree", "vista" }, winbar = {} },
     },
     sections = {
-        lualine_a = { {
-            "mode",
-            fmt = function(str)
-                return str:sub(1, 1)
-            end,
-        } },
+        lualine_a = {
+            {
+                "mode",
+                fmt = function(str)
+                    return str:sub(1, 1)
+                end,
+            },
+        },
     },
     tabline = {
         lualine_a = {

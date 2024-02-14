@@ -1,6 +1,6 @@
 " vim:set et sw=2 ts=2 tw=78 ft=vim:
 " Github: https://github.com/Karmenzind/dotfiles-and-scripts
-" Last Modified: 2024-01-25 16:09:47
+" Last Modified: 2024-02-02 14:04:55
 
 let s:is_win = has("win32")
 if s:is_win
@@ -23,7 +23,17 @@ let g:plugged_dir = g:vimroot .. '/plugged'
 " --------------------------------------------
 " general keymaps and abbreviations
 " --------------------------------------------
-if $__MYKEYBOARD == "hhkb"
+
+function s:IsHHKB() abort
+  " TODO (k): <2024-02-14 19:50> windows
+  if !s:is_win && !empty(system("grep 'HHKB' /proc/bus/input/devices"))
+      return v:true
+  endif
+  return v:false
+endfunction
+let s:is_hhkb = s:IsHHKB()
+
+if s:is_hhkb
   noremap <BACKSPACE> <NOP>
   map <BACKSPACE> <Leader>
 endif
@@ -362,7 +372,7 @@ endfunction
 augroup relative_number_toggle
   autocmd!
   if !has('nvim') && has_key(plugs, "LeaderF")
-    autocmd FileType leaderf setlocal nonu nornu 
+    autocmd FileType leaderf setlocal nonu nornu
   endif
   autocmd BufEnter,FocusGained,InsertLeave,WinEnter * call s:RelNoToggle("in")
   autocmd BufLeave,FocusLost,InsertEnter,WinLeave   * call s:RelNoToggle("out")
@@ -449,6 +459,8 @@ augroup filetype_formats
   au FileType help setlocal nu
 
   au FileType make setlocal noexpandtab
+
+  au BufNewFile,BufRead Jenkinsfile setf groovy
 
   au BufNewFile,BufRead *.{vim},*vimrc
         \ setlocal tabstop=2          |
@@ -1068,7 +1080,7 @@ let g:SimpylFold_fold_import = 1
 " /* for vim-tmuxlike */
 " nmap <silent> <c-\> <Plug>(tmuxlike-prefix)
 nmap <c-\> <Plug>(tmuxlike-prefix)
-if $__MYKEYBOARD == "hhkb"
+if s:is_hhkb
   " XXX (k): <2022-06-23> <C-BS> didn't work
   nmap  <Plug>(tmuxlike-prefix)
 endif
@@ -1275,8 +1287,9 @@ if has_key(plugs, 'coc.nvim')
   " " Resume latest coc list.
   " nnoremap <silent><nowait> <space>p  :<C-u>CocListResume<CR>
 
-  let g:coc_global_extensions = [ 'coc-json', 'coc-git', 'coc-snippets', 'coc-docker',
-                \ 'coc-sh', 'coc-sql', 'coc-toml', 'coc-go', 'coc-pyright', 'coc-lua' ]
+  let g:coc_global_extensions = [ 'coc-json', 'coc-git', 'coc-snippets',
+        \ 'coc-docker', 'coc-sh', 'coc-sql', 'coc-toml', 'coc-go',
+        \ 'coc-pyright', 'coc-lua', 'coc-tsserver' ]
   if has("win32")
     call add(g:coc_global_extensions, "coc-powershell")
   endif

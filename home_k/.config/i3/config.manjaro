@@ -7,7 +7,6 @@
 # *: custom
 
 # Set mod key (Mod1=<Alt>, Mod4=<Super>)
-set $mod Mod1
 set $i3_config_dir $HOME/.config/i3/
 
 # include ~/.config/i3/local.conf

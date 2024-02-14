@@ -1,5 +1,5 @@
 # Github: https://github.com/Karmenzind/dotfiles-and-scripts
-# Last Modified: 2024-01-26 01:05:39
+# Last Modified: 2024-01-26 17:20:10
 
 # FIXME (k): <2024年01月25日 星期四 16时19分37秒> leading tabs
 global !p
@@ -131,11 +131,11 @@ ${2:TODO} (${1:`!v has("win32")? $USERNAME: $USER`}): <`!v strftime("%Y-%m-%d %H
 endsnippet
 
 snippet xxx "XXX or other special comments"
-${2:XXX} (${1:`!v has("win32")? $USERNAME: $USER`}): <`!v strftime("%c")`> ${0:${VISUAL}}
+${2:XXX} (${1:`!v has("win32")? $USERNAME: $USER`}): <`!v strftime("%Y-%m-%d %H:%M")`> ${0:${VISUAL}}
 endsnippet
 
 snippet fm "FIXME or other special comments"
-${2:FIXME} (${1:`!v has("win32")? $USERNAME: $USER`}): <`!v strftime("%c")`> ${0:${VISUAL}}
+${2:FIXME} (${1:`!v has("win32")? $USERNAME: $USER`}): <`!v strftime("%Y-%m-%d %H:%M")`> ${0:${VISUAL}}
 endsnippet
 
 post_expand "commented(snip)"

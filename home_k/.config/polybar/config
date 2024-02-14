@@ -87,24 +87,24 @@ cursor-scroll = ns-resize
 
 bottom = false
 
-[bar/left]
+[bar/trileft]
 inherit = bar/base
 modules-left = eth
 ;modules-center = i3
 modules-right = updates-pacman-aurhelper vpn
-monitor = ${env:MONITOR:DVI-D-1}
+monitor = ${env:MONITOR:}
 
-[bar/main]
+[bar/tricenter]
 inherit = bar/base
 modules-left = 
 ;modules-center = i3
 modules-right = date 
 
-monitor = ${env:MONITOR:HDMI-1}
+monitor = ${env:MONITOR:}
 
-[bar/right]
+[bar/triright]
 inherit = bar/base
-monitor = ${env:MONITOR:DP-1}
+monitor = ${env:MONITOR:}
 ;modules-left = bspwm i3
 modules-left = cpu memory wlan temperature
 ;modules-center = i3
@@ -114,11 +114,11 @@ tray-position = right
 tray-padding = 2
 tray-background = #0063ff
 
-[bar/homesingle]
+[bar/single]
 inherit = bar/base
 modules-left = eth cpu memory temperature
 modules-right = date notifications
-# monitor = ${env:MONITOR:HDMI-A-0}
+monitor = ${env:MONITOR:}
 # can be started with
 # MONITOR=$(polybar -m|tail -1|sed -e 's/:.*$//g')
 
@@ -131,24 +131,24 @@ tray-position = right
 tray-padding = 2
 tray-background = #0063ff
 
-[bar/homeleft]
+[bar/dualleft]
 inherit = bar/base
-modules-left = eth
+modules-left = eth wlan
 ;modules-center = i3
 modules-right = date 
 
-monitor = ${env:MONITOR:HDMI-1}
+monitor = ${env:MONITOR:}
 
 height=28
 font-0 = "Tamsyn:pixelsize=14;0"
 font-1 = "Noto Sans:size=14;1"
 font-2 = "Monaco Nerd Font:size=14:weight=bold;2"
 
-[bar/homeright]
+[bar/dualright]
 inherit = bar/base
-monitor = ${env:MONITOR:VGA-1}
+monitor = ${env:MONITOR:}
 ;modules-left = bspwm i3
-modules-left = cpu memory temperature
+modules-left = cpu memory temperature battery
 ;modules-center = i3
 modules-right = notifications
 height=18
@@ -394,12 +394,13 @@ ramp-free-7 = █
 
 [module/wlan]
 type = internal/network
-interface = net1
-interval = 3.0
+interface-type = wireless
+interface = ${env:POLY_IW}
+interval = 5
 
 format-connected = <ramp-signal> <label-connected>
 format-connected-underline = #9f78e1
-label-connected = %essid%
+label-connected = " (%essid%) %local_ip%"
 
 format-disconnected =
 ;format-disconnected = <label-disconnected>
@@ -407,16 +408,23 @@ format-disconnected =
 ;label-disconnected = %ifname% disconnected
 ;label-disconnected-foreground = ${colors.foreground-alt}
 
-ramp-signal-0 = 
-ramp-signal-1 = 
-ramp-signal-2 = 
-ramp-signal-3 = 
-ramp-signal-4 = 
+; ramp-signal-0 = 
+; ramp-signal-1 = 
+; ramp-signal-2 = 
+; ramp-signal-3 = 
+; ramp-signal-4 = 
 ramp-signal-foreground = ${colors.foreground-alt}
+
+ramp-signal-0 = 😱
+ramp-signal-1 = 😠
+ramp-signal-2 = 😒
+ramp-signal-3 = 😊
+ramp-signal-4 = 😃
+ramp-signal-5 = 😈
 
 [module/eth]
 type = internal/network
-interface = enp0s31f6
+interface = ${env:POLY_ETH}
 interval = 3.0
 
 format-connected = <label-connected>
@@ -444,7 +452,7 @@ interval = 5
 date = " %a %m/%d"
 date-alt = " %W-%a %Y-%m-%d "
 
-time = %H:%M
+time = "%H:%M "
 time-alt = %H:%M:%S
 
 format = 🕓 <label>
@@ -521,9 +529,14 @@ bar-volume-empty-foreground = ${colors.foreground-alt}
 
 [module/battery]
 type = internal/battery
-battery = BAT0
-adapter = ADP1
 full-at = 98
+low-at = 10
+poll-interval = 5
+
+; Use the following command to list batteries and adapters:
+; $ ls -1 /sys/class/power_supply/
+adapter = ${env:POLY_BATTERY_ADAPTER}
+battery = ${env:POLY_BATTERY}
 
 format-charging = <animation-charging> <label-charging>
 format-charging-underline = #ffb52a

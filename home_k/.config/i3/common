@@ -220,7 +220,7 @@ exec_always --no-startup-id xautolock -time 15 -locker blurlock &
 # lock with random pic of specific dir
 # bindsym $mod+Ctrl+l exec --no-startup-id i3lock -t -i `[ -d $wallpaper_dir ] && (find $wallpaper_dir -type f -name '*png' | sort -R | head -1) || echo $wallpaper_png` &
 # bindsym $mod+Ctrl+l exec --no-startup-id i3lock -t -i `[ -d $wallpaper_dir ] && (find $wallpaper_dir -type f -name '*png' | sort -R | head -1) || echo $wallpaper_png` &
-bindsym $mod+Ctrl+l exec --no-startup-id i3lock -t -i `[ -d $wallpaper_dir ] && (find $wallpaper_dir -type f -name '*png' | shuf -n 1) || echo $wallpaper_png` &
+bindsym $mod+Ctrl+l exec --no-startup-id i3lock -t -i `[ -d $wallpaper_dir ] && (find -L $wallpaper_dir -type f -name '*png' | shuf -n 1) || echo $wallpaper_png` &
 # lock with random pic from internet (random picture source: https://www.zhihu.com/question/21168322)
 # ...todo
 

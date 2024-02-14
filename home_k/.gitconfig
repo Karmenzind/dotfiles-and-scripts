@@ -3,7 +3,7 @@
 	name = K
 
 [core]
-	editor = vim
+	editor = $EDITOR
 
 [alias]
     a = add --all

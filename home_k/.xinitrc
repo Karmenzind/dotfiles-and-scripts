@@ -16,28 +16,28 @@ sysmodmap=/etc/X11/xinit/.Xmodmap
 # merge in defaults and keymaps
 
 if [ -f $sysresources ]; then
-    xrdb -merge $sysresources
+	xrdb -merge $sysresources
 fi
 
 if [ -f $sysmodmap ]; then
-    xmodmap $sysmodmap
+	xmodmap $sysmodmap
 fi
 
 if [ -f "$userresources" ]; then
-    xrdb -merge "$userresources"
+	xrdb -merge "$userresources"
 fi
 
 if [ -f "$usermodmap" ]; then
-    xmodmap "$usermodmap"
+	xmodmap "$usermodmap"
 fi
 
 # start some nice programs
 
 if [ -d /etc/X11/xinit/xinitrc.d ]; then
-    for f in /etc/X11/xinit/xinitrc.d/*; do
-        [ -x "$f" ] && . "$f"
-    done
-    unset f
+	for f in /etc/X11/xinit/xinitrc.d/*; do
+		[ -x "$f" ] && . "$f"
+	done
+	unset f
 fi
 
 xrdb -load ~/.Xresources
@@ -59,4 +59,20 @@ xmodmap -e 'keycode 66 = Hyper_L'
 log_dir=~/Logs
 mkdir -p $log_dir
 log_file=$log_dir/i3log-$(date -Id)
-exec i3 -V >> $log_file 2>&1
+
+if grep '^set $mod ' ~/.config/i3/config; then 
+    i3config=~/.config/i3/config
+else
+    i3config=~/.config/i3/config.working
+    cat >$i3config <<EOF
+# vim:set noet ft=i3config:
+# Don't modify this file unless you know what you are doing
+include ~/.config/i3/config
+EOF
+    if grep 'HHKB' /proc/bus/input/devices; then
+        echo 'set $mod Mod1' >> $i3config
+    else
+        echo 'set $mod Mod4' >> $i3config
+    fi
+fi
+exec i3 -c $i3config -V >>$log_file 2>&1

@@ -1,8 +1,6 @@
 # vim:set noet ft=i3config:
 # Github: https://github.com/Karmenzind/dotfiles-and-scripts
-# Last Modified: 2024-01-24 17:02:13
 
-set $mod Mod4
 include ~/.config/i3/config.local
 set $i3_config_dir $HOME/.config/i3/
 
@@ -137,27 +135,27 @@ new_window pixel $local_pixel
 bindsym $mod+Shift+m bar mode toggle
 
 # Start i3bar to display a workspace bar
-bar {
-    status_command i3status
-    # status_command bash $i3_config_dir/conky_status.sh
-    i3bar_command i3bar
-    # separator_symbol " "
-    # strip_workspace_numbers yes
-    # top|bottom
-    position top
-    # font -misc-fixed-medium-r-normal--13-120-75-75-C-70-iso10646-1
-    # font pango:WenQuanYi WenQuanYi Bitmap Song 10
-    font pango:Monaco Nerd Font 9
-    colors {
-      separator #586e75
-      background #002b36
-      statusline #aea79f
-      focused_workspace #586e75 #586e75 #ffffff
-      active_workspace #073642 #073642 #ffffff
-      inactive_workspace #002b36 #002b36 #aea79f
-      urgent_workspace #77216f #77216f #ffffff
-    }
-}
+# bar {
+#     status_command i3status
+#     # status_command bash $i3_config_dir/conky_status.sh
+#     i3bar_command i3bar
+#     # separator_symbol " "
+#     # strip_workspace_numbers yes
+#     # top|bottom
+#     position top
+#     # font -misc-fixed-medium-r-normal--13-120-75-75-C-70-iso10646-1
+#     # font pango:WenQuanYi WenQuanYi Bitmap Song 10
+#     font pango:Monaco Nerd Font 9
+#     colors {
+#       separator #586e75
+#       background #002b36
+#       statusline #aea79f
+#       focused_workspace #586e75 #586e75 #ffffff
+#       active_workspace #073642 #073642 #ffffff
+#       inactive_workspace #002b36 #002b36 #aea79f
+#       urgent_workspace #77216f #77216f #ffffff
+#     }
+# }
 
 # -----------------------------------------------------------------------------
 # i3-gaps
@@ -224,6 +222,8 @@ client.urgent #dc322f #dc322f #fdf6e3 #dc322f
 #######################################################################
 #                             for laptop                              #
 #######################################################################
+
+exec_always --no-startup-id blueman-applet
 
 bindsym XF86MonBrightnessDown exec --no-startup-id brightnessctl set 5%-
 bindsym XF86MonBrightnessUp exec --no-startup-id brightnessctl set +5%

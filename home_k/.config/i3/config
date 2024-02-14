@@ -1,7 +1,6 @@
 # vim:set noet ft=i3config:
 # Github: https://github.com/Karmenzind/dotfiles-and-scripts
 
-set $mod Mod1
 include ~/.config/i3/config.local
 set $i3_config_dir $HOME/.config/i3/
 
