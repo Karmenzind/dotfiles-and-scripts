@@ -20,8 +20,11 @@
 ;background = ${xrdb:color0:#222}
 ;foreground = ${xrdb:color7:#222}
 
-background = #222
-background-alt = #444
+background = #aa2F343F
+background-alt = #aa2F343F
+
+; background = #222
+; background-alt = #444
 foreground = #dfdfdf
 foreground-alt = #555
 secondary = #e60053
@@ -116,7 +119,7 @@ tray-background = #0063ff
 
 [bar/single]
 inherit = bar/base
-modules-left = eth cpu memory temperature
+modules-left =  battery eth wlan cpu memory temperature
 modules-right = date notifications
 monitor = ${env:MONITOR:}
 # can be started with
@@ -745,7 +748,7 @@ format-offset =
 ; Enables pseudo-transparency for the bar
 ; If set to true the bar can be transparent without a compositor.
 ; pseudo-transparency = false
-pseudo-transparency = false
+pseudo-transparency = true
 
 [global/wm]
 margin-top = 5

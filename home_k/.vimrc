@@ -1,6 +1,5 @@
 " vim:set et sw=2 ts=2 tw=78 ft=vim:
 " Github: https://github.com/Karmenzind/dotfiles-and-scripts
-" Last Modified: 2024-02-02 14:04:55
 
 let s:is_win = has("win32")
 if s:is_win
@@ -224,7 +223,7 @@ else
 endif
 
 " /* Go */
-Plug 'fatih/vim-go', { 'do': ':GoUpdateBinaries' }
+" Plug 'fatih/vim-go', { 'do': ':GoUpdateBinaries' }
 
 " /* Python */
 Plug 'tmhedberg/SimpylFold', { 'for': 'python' } " code folding
@@ -314,6 +313,9 @@ runtime macros/matchit.vim
 " runtime! ftplugin/man.vim
 runtime! ftplugin/qf.vim
 
+function! Plugged(name) abort
+  return has_key(g:plugs, a:name)
+endfunction
 " --------------------------------------------
 " basic
 " --------------------------------------------
@@ -826,7 +828,7 @@ let g:DevIconsEnableFoldersOpenClose = 1
 if !s:is_win | let g:WebDevIconsOS = 'ArchLinux' | endif
 
 " /* LeaderF */
-if s:is_win && has_key(plugs, 'LeaderF')
+if s:is_win && Plugged('LeaderF')
   let g:Lf_ExternalCommand = 'fd -t f --strip-cwd-prefix -H -L -E .git -E *.swp %s'
   let g:Lf_ShowHidden = 1
   let g:Lf_WindowPosition = 'popup'
@@ -1126,7 +1128,7 @@ let g:startify_lists = [
       \ ]
 
 " /* for vc */
-if executable('svn') && has_key(plugs, 'vc-svn.vim')
+if executable('svn') && Plugged('vc-svn.vim')
   let g:vc_browse_cache_all = 1
   map <silent> <leader>vB :VCBlame<CR>
   map <silent> <leader>vd :VCDiff<CR>
@@ -1317,7 +1319,7 @@ if has('nvim')
     \ 'yaml': 'nvim_lsp',
     \ 'toml': 'nvim_lsp',
     \ }
-elseif has_key(plugs, "coc.nvim")
+elseif Plugged("coc.nvim")
   let g:vista_executive_for = {
     \ 'lua': 'coc',
     \ 'yaml': 'coc',
@@ -1345,29 +1347,30 @@ augroup javascript_folding
 augroup END
 
 " /* for vim-go */
-let g:go_term_mode = "split"
-let g:go_term_enabled = 1
-let g:go_term_reuse = 1
-let g:go_term_close_on_exit = 0
-let g:go_term_height = 20
-let g:go_term_width = 30
-let g:go_doc_balloon = 0
-let g:go_doc_keywordprg_enabled = 0
+if Plugged("vim-go")
+  let g:go_term_mode = "split"
+  let g:go_term_enabled = 1
+  let g:go_term_reuse = 1
+  let g:go_term_close_on_exit = 0
+  let g:go_term_height = 20
+  let g:go_term_width = 30
+  let g:go_doc_balloon = 0
+  let g:go_doc_keywordprg_enabled = 0
 
-let g:go_code_completion_enabled = 1
+  let g:go_code_completion_enabled = 1
 
-let g:go_fmt_autosave = 0
-let g:go_mod_fmt_autosave = 0
+  let g:go_fmt_autosave = 0
+  let g:go_mod_fmt_autosave = 0
 
-augroup go_map
-  au!
-  au FileType go nmap <leader>rt <Plug>(go-run-tab)
-  au FileType go nmap <leader>rs <Plug>(go-run-split)
-  au FileType go nmap <leader>rv <Plug>(go-run-vertical)
-  au FileType go call s:NoSearchCabbrev("GI", "GoImport")
-  au FileType go call s:NoSearchCabbrev("GR", "GoRun")
-augroup END
-
+  augroup go_map
+    au!
+    au FileType go nmap <leader>rt <Plug>(go-run-tab)
+    au FileType go nmap <leader>rs <Plug>(go-run-split)
+    au FileType go nmap <leader>rv <Plug>(go-run-vertical)
+    au FileType go call s:NoSearchCabbrev("GI", "GoImport")
+    au FileType go call s:NoSearchCabbrev("GR", "GoRun")
+  augroup END
+endif
 " --------------------------------------------
 " Functions
 " --------------------------------------------

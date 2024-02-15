@@ -142,11 +142,7 @@ if os.getenv("TMUX") == nil or vim.fn.executable("fzf") == 0 then
     })
 end
 
-local function plugged(p)
-    return vim.g.plugs[p] ~= nil
-end
-
-if plugged("nvim-treesitter") then
+if vim.fn.Plugged("nvim-treesitter") then
     local tsconf = try_require("nvim-treesitter.configs")
     if tsconf ~= nil then
         tsconf.setup({ ensure_installed = { "c", "lua", "vim", "vimdoc", "query", "python" }, auto_install = true })

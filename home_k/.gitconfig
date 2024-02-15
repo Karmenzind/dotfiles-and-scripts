@@ -1,6 +1,6 @@
 [user]
 	email = valesail7@gmail.com
-	name = K
+	name = _kmz
 
 [core]
 	editor = $EDITOR
@@ -62,3 +62,10 @@
     path = ~/.gitconfig.local
 [pull]
 	rebase = true
+
+# [credential "https://github.com"]
+# 	helper = 
+# 	helper = !/usr/bin/gh auth git-credential
+# [credential "https://gist.github.com"]
+# 	helper = 
+# 	helper = !/usr/bin/gh auth git-credential

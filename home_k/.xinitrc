@@ -67,7 +67,7 @@ else
     cat >$i3config <<EOF
 # vim:set noet ft=i3config:
 # Don't modify this file unless you know what you are doing
-include ~/.config/i3/config
+
 EOF
     if grep 'HHKB' /proc/bus/input/devices; then
         echo 'set $mod Mod1' >> $i3config
@@ -75,4 +75,5 @@ EOF
         echo 'set $mod Mod4' >> $i3config
     fi
 fi
+echo 'include ~/.config/i3/config' >> $i3config
 exec i3 -c $i3config -V >>$log_file 2>&1
