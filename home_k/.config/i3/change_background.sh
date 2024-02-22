@@ -2,6 +2,10 @@
 tmpbgfile=/tmp/__current_bg_filename
 [[ -e $tmpbgfile ]] && curbg=$(cat $tmpbgfile)
 # notify-send "Curbg: $curbg"
+if ! command -v feh; then
+    nodify-send "feh is not installed"
+    exit 1
+fi
 
 wallpaper_dir=$(realpath ~/Pictures/LOCKSCREENS)
 if ! [[ -d $wallpaper_dir ]]; then
@@ -9,7 +13,7 @@ if ! [[ -d $wallpaper_dir ]]; then
 	exit 1
 fi
 
-num=$(find $wallpaper_dir -type f | wc -l)
+num=$(find -L $wallpaper_dir -type f | wc -l)
 
 if (($num <= 1)); then
 	notify-send "Canceled. Pic num <= 1."

@@ -1,0 +1,234 @@
+# vim:set noet ft=i3config:
+# Github: https://github.com/Karmenzind/dotfiles-and-scripts
+
+include ~/.config/i3/config.local
+set $i3_config_dir $HOME/.config/i3/
+
+# -----------------------------------------------------------------------------
+# basics
+# -----------------------------------------------------------------------------
+
+# Font for window titles. Also as a fallback for bar
+# font -misc-fixed-medium-r-normal--13-120-75-75-C-70-iso10646-1
+# font pango:MV Boli Regular 10
+font pango:Tahoma Regular 10
+
+# Use Mouse+$mod to drag floating windows to their wanted position
+floating_modifier $mod
+
+# start a terminal
+bindsym $mod+Return exec i3-sensible-terminal &
+
+# kill focused window
+bindsym $mod+Shift+q kill
+
+# change focus
+bindsym $mod+j focus left
+bindsym $mod+k focus down
+bindsym $mod+l focus up
+bindsym $mod+semicolon focus right
+bindsym $mod+Left focus left
+bindsym $mod+Down focus down
+bindsym $mod+Up focus up
+bindsym $mod+Right focus right
+
+# move focused window
+bindsym $mod+Shift+j move left
+bindsym $mod+Shift+k move down
+bindsym $mod+Shift+l move up
+bindsym $mod+Shift+semicolon move right
+bindsym $mod+Shift+Left move left
+bindsym $mod+Shift+Down move down
+bindsym $mod+Shift+Up move up
+bindsym $mod+Shift+Right move right
+
+# split in horizontal orientation
+bindsym $mod+h split h
+
+# split in vertical orientation
+bindsym $mod+v split v
+
+# enter fullscreen mode for the focused container
+bindsym $mod+f fullscreen toggle
+
+# change container layout (stacked, tabbed, toggle split)
+bindsym $mod+s layout stacking
+bindsym $mod+w layout tabbed
+bindsym $mod+e layout toggle split
+
+# toggle tiling / floating
+bindsym $mod+Shift+space floating toggle
+
+# change focus between tiling / floating windows
+bindsym $mod+space focus mode_toggle
+
+# focus the parent container
+bindsym $mod+a focus parent
+# focus the child container
+bindsym $mod+c focus child
+
+# change workspace
+bindsym $mod+comma workspace prev
+bindsym $mod+period workspace next
+
+# workspace back and forth (with/without active container)
+workspace_auto_back_and_forth yes
+bindsym $mod+b workspace back_and_forth
+# bindsym $mod+Shift+b move container to workspace back_and_forth; workspace back_and_forth
+
+# resize window (you can also use the mouse for that)
+mode "resize" {
+    bindsym j         resize shrink width  5 px or 5 ppt
+    bindsym k         resize grow   height 5 px or 5 ppt
+    bindsym l         resize shrink height 5 px or 5 ppt
+    bindsym semicolon resize grow   width  5 px or 5 ppt
+
+    bindsym Left      resize shrink width  5 px or 5 ppt
+    bindsym Down      resize grow   height 5 px or 5 ppt
+    bindsym Up        resize shrink height 5 px or 5 ppt
+    bindsym Right     resize grow   width  5 px or 5 ppt
+
+    bindsym Return mode "default"
+    bindsym Escape mode "default"
+}
+
+bindsym $mod+r mode "resize"
+
+# /* colors */
+set_from_resource $darkred     color1  #000000
+set_from_resource $red         color9  #000000
+set_from_resource $darkgreen   color2  #000000
+set_from_resource $green       color10 #000000
+set_from_resource $darkyellow  color3  #000000
+set_from_resource $yellow      color11 #000000
+set_from_resource $darkblue    color4  #000000
+set_from_resource $blue        color12 #000000
+set_from_resource $darkmagenta color5  #000000
+set_from_resource $magenta     color13 #000000
+set_from_resource $darkcyan    color6  #000000
+set_from_resource $cyan        color14 #000000
+set_from_resource $darkwhite   color7  #000000
+set_from_resource $white       color15 #000000
+
+# Use custom colors for black
+set $black       #282828
+set $darkblack   #1d2021
+set $transparent #00000000
+
+# /* borders */
+# border style <normal|1pixel|pixel xx|none|pixel>
+set $local_pixel 3
+new_window pixel $local_pixel
+# default_border pixel $local_pixel
+# default_floating_border none
+# Hide borders
+# hide_edge_borders vertical
+# change borders
+# bindsym $mod+u border none
+# bindsym $mod+y border pixel $local_pixel
+# # bindsym $mod+n border normal
+
+# -----------------------------------------------------------------------------
+# bar
+# -----------------------------------------------------------------------------
+
+bindsym $mod+Shift+m bar mode toggle
+
+# Start i3bar to display a workspace bar
+# bar {
+#     status_command i3status
+#     # status_command bash $i3_config_dir/conky_status.sh
+#     i3bar_command i3bar
+#     # separator_symbol " "
+#     # strip_workspace_numbers yes
+#     # top|bottom
+#     position top
+#     # font -misc-fixed-medium-r-normal--13-120-75-75-C-70-iso10646-1
+#     # font pango:WenQuanYi WenQuanYi Bitmap Song 10
+#     font pango:Monaco Nerd Font 9
+#     colors {
+#       separator #586e75
+#       background #002b36
+#       statusline #aea79f
+#       focused_workspace #586e75 #586e75 #ffffff
+#       active_workspace #073642 #073642 #ffffff
+#       inactive_workspace #002b36 #002b36 #aea79f
+#       urgent_workspace #77216f #77216f #ffffff
+#     }
+# }
+
+# -----------------------------------------------------------------------------
+# i3-gaps
+# -----------------------------------------------------------------------------
+
+gaps inner 6
+gaps outer 0
+smart_gaps on
+smart_borders on
+
+set $mode_gaps gaps
+set $mode_gaps_outer outer gaps
+set $mode_gaps_inner inner gaps
+bindsym $mod+Shift+g mode "$mode_gaps"
+
+mode "$mode_gaps" {
+    bindsym o      mode "$mode_gaps_outer"
+    bindsym i      mode "$mode_gaps_inner"
+
+    bindsym 0      mode "default", exec --no-startup-id i3-msg "gaps inner current set 0" && i3-msg "gaps outer current set 0"
+    bindsym d      mode "default", exec --no-startup-id i3-msg "gaps inner current set $default_gaps_inner" && i3-msg "gaps outer current set $default_gaps_outer"
+
+    bindsym Return mode "default"
+    bindsym Escape mode "default"
+}
+
+mode "$mode_gaps_inner" {
+    bindsym plus  gaps inner current plus 5
+    bindsym minus gaps inner current minus 5
+    bindsym 0     mode "default", gaps inner current set 0
+    bindsym d     mode "default", gaps inner current set $default_gaps_inner
+
+    bindsym Shift+plus  gaps inner all plus 5
+    bindsym Shift+minus gaps inner all minus 5
+    bindsym Shift+0     mode "default", gaps inner all set 0
+    bindsym Shift+d     mode "default", gaps inner all set $default_gaps_inner
+
+    bindsym Return mode "default"
+    bindsym Escape mode "default"
+}
+
+mode "$mode_gaps_outer" {
+    bindsym plus  gaps outer current plus 5
+    bindsym minus gaps outer current minus 5
+    bindsym 0     mode "default", gaps outer current set 0
+    bindsym d     mode "default", gaps outer current set $default_gaps_outer
+
+    bindsym Shift+plus  gaps outer all plus 5
+    bindsym Shift+minus gaps outer all minus 5
+    bindsym Shift+0     mode "default", gaps outer all set 0
+    bindsym Shift+d     mode "default", gaps outer all set $default_gaps_outer
+
+    bindsym Return mode "default"
+    bindsym Escape mode "default"
+}
+
+# generated with i3-style
+client.focused #586e75 #586e75 #fdf6e3 #268bd2
+client.focused_inactive #073642 #073642 #93a1a1 #002b36
+client.unfocused #002b36 #002b36 #586e75 #002b36
+client.urgent #dc322f #dc322f #fdf6e3 #dc322f
+
+
+#######################################################################
+#                             for laptop                              #
+#######################################################################
+
+exec_always --no-startup-id blueman-applet
+
+bindsym XF86MonBrightnessDown exec --no-startup-id brightnessctl set 5%-
+bindsym XF86MonBrightnessUp exec --no-startup-id brightnessctl set +5%
+
+# bindsym XF86MonBrightnessUp exec "xbacklight -inc 10; notify-send 'brightness up'"
+# bindsym XF86MonBrightnessDown exec "xbacklight -dec 10; notify-send 'brightness down'"
+
+include ~/.config/i3/common

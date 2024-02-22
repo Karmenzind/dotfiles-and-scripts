@@ -40,14 +40,17 @@ install_vim_specs() {
 	sudo npm i -g prettier pg-formatter gofmt clang-format eslint
 
 	if [[ $distro == "arch" ]]; then
+        # FIXME
 		$aur_helper -S -v --needed --noconfirm ${_required_by_vim_aur[*]}
 	else
 		do_install shfmt
 	fi
 
-	if command -v cargo >/dev/null; then
+    if [[ $distro == "arch" ]]; then
+		do_install stylua
+	elif command -v cargo >/dev/null; then
 		sudo cargo install stylua
-	else
+    else
 		sudo npm i -g @johnnymorganz/stylua-bin
 	fi
 
@@ -77,6 +80,12 @@ install_vim_specs() {
 			pipx_install $pi
 		fi
 	done
+    
+    # for neovim
+    if [[ $distro == "arch" ]]; then
+		do_install python-pynvim
+    # TODO else
+    fi
 }
 
 symlink_files() {

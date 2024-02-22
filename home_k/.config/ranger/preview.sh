@@ -13,7 +13,7 @@ extension="${filename##*.}"
 filename="${filename%.*}"
 
 case $extension in
-jpg | png | jpeg)
+jpg | png | jpeg | webp | gif)
 	bash $scope_path $@
 	;;
 # mobi | azw3 | epub)

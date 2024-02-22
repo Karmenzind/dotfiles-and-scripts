@@ -1,6 +1,6 @@
 #!/usr/bin/env lua
 -- Github: https://github.com/Karmenzind/dotfiles-and-scripts
--- Last Modified: 2024-02-02 11:18:29
+-- Last Modified: 2024-02-26 10:38:24
 
 vim.g.loaded = 1
 vim.g.loaded_netrw = 1
@@ -175,7 +175,7 @@ vim.diagnostic.config({
 
 require("mason").setup()
 require("mason-lspconfig").setup({
-    ensure_installed = { "lua_ls", "pyright", "vimls", "bashls", "marksman", "omnisharp", "gopls" },
+    ensure_installed = { "lua_ls", "pyright", "vimls", "bashls", "marksman", "gopls" },
 })
 -- XXX (k): <2024年01月24日 星期三 17时01分39秒> powershell_es
 

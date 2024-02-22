@@ -80,6 +80,17 @@ endsnippet
 # logger
 # --------------------------------------------
 
+snippet simplelogging "description"
+import logging
+LOGGER = logging.getLogger()
+LOGGER.setLevel(logging.DEBUG)
+ch = logging.StreamHandler()
+ch.setLevel(logging.DEBUG)
+ch.setFormatter(logging.Formatter('%(asctime)s [%(levelname)s] %(message)s'))
+LOGGER.addHandler(ch)
+endsnippet
+    
+
 snippet Lihl
 $2.info("%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%")
 ${2:LOGGER}.info("${1:${VISUAL}}")
