@@ -80,7 +80,7 @@ endsnippet
 # logger
 # --------------------------------------------
 
-snippet simplelogging "description"
+snippet loggingsimple "description"
 import logging
 LOGGER = logging.getLogger()
 LOGGER.setLevel(logging.DEBUG)
@@ -89,7 +89,7 @@ ch.setLevel(logging.DEBUG)
 ch.setFormatter(logging.Formatter('%(asctime)s [%(levelname)s] %(message)s'))
 LOGGER.addHandler(ch)
 endsnippet
-    
+
 
 snippet Lihl
 $2.info("%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%")
@@ -409,4 +409,40 @@ print(project_dir)
 sys.path.append(project_dir)
 os.environ.setdefault('DJANGO_SETTINGS_MODULE', '${0:projectname}.settings')
 django.setup()
+endsnippet
+
+# --------------------------------------------
+# Pytest
+# --------------------------------------------
+
+snippet acase "Allure Case"
+import allure
+
+@allure.title("${1}")
+@allure.feature("${2}")
+@allure.story("`!p snip.rv = snip.fn.replace("test_", "").replace(".py", "").capitalize()`")
+def test_`!p snip.rv = t[1].replace(" ", "_").lower()`(session):
+    ${0:pass}
+endsnippet
+
+
+# snippet ocase "Allure Order Case"
+# @allure.title("${1}")
+# @allure.feature("Order")
+# @allure.story("Transaction")
+# def test_`!p snip.rv = t[1].replace(" ", "_").lower()`(session):
+#     _, rd = request_api("post", postfix2url("/order/`!p snip.rv = t[1].replace(" ", "_").lower()`"), session)
+#     assert rd.get("message") == "SUCCESS"
+# endsnippet
+
+
+snippet prtz "Pytest Parametrize"
+import pytest
+
+@pytest.mark.parametrize(
+    "$1", [
+        $2,
+        pytest.param($3, marks=pytest.mark.xfail(reason="$4")),
+    ]
+)
 endsnippet

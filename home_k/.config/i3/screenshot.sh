@@ -27,7 +27,9 @@ do_scrot() {
 
 flameshot_area() {
     flameshot_before 
-    flameshot gui -p $flameshot_dir -c
+    # https://github.com/flameshot-org/flameshot/issues/2275#issuecomment-1015073816
+    # flameshot gui -p $flameshot_dir -c
+    flameshot gui
 }
 
 prompt() {

@@ -167,6 +167,7 @@ if has("nvim")
   " debug
   Plug 'mfussenegger/nvim-dap'
   Plug 'mfussenegger/nvim-dap-python'
+  Plug 'nvim-neotest/nvim-nio'
   Plug 'leoluz/nvim-dap-go'
   Plug 'rcarriga/nvim-dap-ui'
   Plug 'rcarriga/cmp-dap'
@@ -926,8 +927,8 @@ let g:ale_fixers = {
       \  'sh': ['shfmt'],
       \  'go': ['gofmt', 'goimports'],
       \  'python': ['isort', 'autopep8', 'FixSurroundedWhiteSpaces', 'autoflake'],
-      \  'json': ['prettier'],
-      \  'sql': ['pgformatter'],
+      \  'json': ['jq'],
+      \  'sql': ['sqlfluff'],
       \  'vue': ['eslint', 'prettier'],
       \  'yaml': ['prettier'],
       \  'css': ['prettier'],
@@ -977,7 +978,8 @@ nmap <silent> <Leader>at <Plug>(ale_toggle)
 call s:NoSearchCabbrev("AF", "ALEFix")
 
 " /* for vim-visual-multi */
-let g:VM_maps = {"Find Under": '<space>n'}
+" let g:VM_maps = {"Find Under": '<space>n'}
+let g:VM_maps = {"Find Under": '<leader><leader>n'}
 
 " /* for vim-markdown | markdown-preview */
 " vim-markdown

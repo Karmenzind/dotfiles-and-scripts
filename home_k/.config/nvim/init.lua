@@ -1,6 +1,5 @@
 #!/usr/bin/env lua
 -- Github: https://github.com/Karmenzind/dotfiles-and-scripts
--- Last Modified: 2024-02-26 10:38:24
 
 vim.g.loaded = 1
 vim.g.loaded_netrw = 1
@@ -154,7 +153,10 @@ end
 require("nvim-tree").setup({
     on_attach = nvim_tree_on_attach,
     view = { number = true, float = { enable = false, open_win_config = { border = "double" } } },
-    filters = { git_ignored = false },
+    filters = {
+        git_ignored = false,
+        custom = {[[\v(__pycache__|^\..*cache$)]]},
+    },
 })
 vim.keymap.set("n", "<leader>n", "<cmd>NvimTreeToggle<CR>", mopts)
 vim.keymap.set("n", "<leader>N", "<cmd>NvimTreeFindFile<CR>", mopts)
@@ -201,7 +203,7 @@ vim.keymap.set("n", "zm", require("ufo").closeFoldsWith) -- closeAllFolds == clo
 
 local ufo_handler = function(virtText, lnum, endLnum, width, truncate)
     local newVirtText = {}
-    local suffix = (" ⋯   %d "):format(endLnum - lnum)
+    local suffix = (' ⋯  󰁂 %d '):format(endLnum - lnum)
     local sufWidth = vim.fn.strdisplaywidth(suffix)
     local targetWidth = width - sufWidth
     local curWidth = 0
@@ -213,21 +215,19 @@ local ufo_handler = function(virtText, lnum, endLnum, width, truncate)
         else
             chunkText = truncate(chunkText, targetWidth - curWidth)
             local hlGroup = chunk[2]
-            table.insert(newVirtText, { chunkText, hlGroup })
+            table.insert(newVirtText, {chunkText, hlGroup})
             chunkWidth = vim.fn.strdisplaywidth(chunkText)
             -- str width returned from truncate() may less than 2nd argument, need padding
             if curWidth + chunkWidth < targetWidth then
-                suffix = suffix .. (" "):rep(targetWidth - curWidth - chunkWidth)
+                suffix = suffix .. (' '):rep(targetWidth - curWidth - chunkWidth)
             end
             break
         end
         curWidth = curWidth + chunkWidth
     end
-    table.insert(newVirtText, { suffix, "MoreMsg" })
+    table.insert(newVirtText, {suffix, 'MoreMsg'})
     return newVirtText
 end
-
-require("ufo").setup({ close_fold_kinds = { "imports", "comment" }, fold_virt_text_handler = ufo_handler })
 
 -- Set up nvim-cmp.
 local cmp = require("cmp")
@@ -325,7 +325,7 @@ cmp.setup({
 })
 
 cmp.setup.filetype("gitcommit", {
-    sources = cmp.config.sources({ { name = "cmp_git" }, {name = "emoji"} }, { { name = "buffer" } }),
+    sources = cmp.config.sources({ { name = "cmp_git" }, { name = "emoji" } }, { { name = "buffer" } }),
 })
 
 -- Use buffer source for `/` and `?` (if you enabled `native_menu`, this won't work anymore).
@@ -340,7 +340,8 @@ cmp.setup.cmdline(":", {
     sources = cmp.config.sources({ { name = "path" } }, { { name = "cmdline" } }),
 })
 
-local lsp_cap = require("cmp_nvim_lsp").default_capabilities()
+-- local lsp_cap = require("cmp_nvim_lsp").default_capabilities()
+local lsp_cap = vim.lsp.protocol.make_client_capabilities()
 lsp_cap.textDocument.foldingRange = { dynamicRegistration = false, lineFoldingOnly = true }
 
 lsp.pyright.setup({ on_attach = on_attach, capabilities = lsp_cap })
@@ -401,6 +402,7 @@ lsp.lua_ls.setup({
 -- })
 -- lsp.java_language_server.setup({})
 -- lsp.autotools_ls.setup{}
+lsp.robotframework_ls.setup({})
 lsp.denols.setup({ on_attach = on_attach, capabilities = lsp_cap })
 lsp.jdtls.setup({ on_attach = on_attach, capabilities = lsp_cap }) -- java >=17
 lsp.omnisharp.setup({
@@ -604,6 +606,10 @@ require("lualine").setup({
         lualine_z = { "tabs" },
     },
 })
+
+-- FIXME (k): <2024-05-02 22:24> 
+-- require("ufo").setup({ close_fold_kinds_for_ft = { "imports", "comment" }, fold_virt_text_handler = ufo_handler })
+require('ufo').setup()
 
 local function rchoose(l)
     return l[math.random(1, #l)]

@@ -49,6 +49,7 @@ _fonts=(
 )
 
 _cli=(
+    brightnessctl
 	arandr
 	aria2
 	bat
@@ -328,6 +329,15 @@ install_zsh_stuff() {
 	install_zsh_plugin zsh-syntax-highlighting https://github.com/zsh-users/zsh-syntax-highlighting.git
 }
 
+setup_bluetooth() {
+	echo_run "Setup bluetooth? (Y/n)"
+	! check_yn && return
+
+    do_install bluez bluez-utils
+    systemctl enable --now bluetooth.service
+
+}
+
 pwsh_run() {
 	pwsh -NoLogo -NoProfile -ExecutionPolicy RemoteSigned -Command "$@" && echo_ok "Finished installing ${@}"
 }
@@ -400,3 +410,5 @@ fi
 install_ranger_and_plugins
 install_zsh_stuff
 setup_pwsh
+
+setup_bluetooth

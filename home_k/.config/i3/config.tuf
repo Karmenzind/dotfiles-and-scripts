@@ -226,9 +226,18 @@ client.urgent #dc322f #dc322f #fdf6e3 #dc322f
 exec_always --no-startup-id blueman-applet
 
 bindsym XF86MonBrightnessDown exec --no-startup-id brightnessctl set 5%-
-bindsym XF86MonBrightnessUp exec --no-startup-id brightnessctl set +5%
+bindsym XF86MonBrightnessUp   exec --no-startup-id brightnessctl set +5%
 
 # bindsym XF86MonBrightnessUp exec "xbacklight -inc 10; notify-send 'brightness up'"
 # bindsym XF86MonBrightnessDown exec "xbacklight -dec 10; notify-send 'brightness down'"
 
 include ~/.config/i3/common
+
+
+set $scratch_width 1920
+set $scratch_height 1200
+
+exec_always --no-startup-id rog-control-center
+for_window [title="my-init-terminal"]  resize set $scratch_width $scratch_height
+# bindcode 210 exec --no-startup-id rog-control-center
+bindsym XF86Launch3 exec --no-startup-id rog-control-center

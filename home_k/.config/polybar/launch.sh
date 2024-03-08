@@ -5,7 +5,7 @@ ENV_TAG=${K_ENV_TAG}
 noti_aggr=
 
 battery_vals=($(ls -1 /sys/class/power_supply/))
-if ((${#battery_vals[@]}==2)) ; then
+if ((${#battery_vals[@]}>=2)) ; then
     export POLY_BATTERY_ADAPTER=${battery_vals[0]}
     export POLY_BATTERY=${battery_vals[1]}
 fi
@@ -21,6 +21,7 @@ fi
 
 # Terminate already running bar instances
 killall -q polybar
+sleep 1
 # If all your bars have ipc enabled, you can also use
 # polybar-msg cmd quit
 

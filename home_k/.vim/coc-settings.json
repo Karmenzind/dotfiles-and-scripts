@@ -40,5 +40,6 @@
   },
   "[python]": {
     "inlayHint.enable": false
-  }
+  },
+  "snippets.ultisnips.pythonPrompt": false
 }
