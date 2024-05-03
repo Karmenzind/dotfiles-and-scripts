@@ -1,6 +1,8 @@
 #!/usr/bin/env lua
 -- Github: https://github.com/Karmenzind/dotfiles-and-scripts
 
+-- vim.env.JAVA_HOME = "/usr/lib/jvm/java-21-openjdk"
+
 vim.g.loaded = 1
 vim.g.loaded_netrw = 1
 vim.g.loaded_netrwPlugin = 1
@@ -104,6 +106,7 @@ local function nvim_tree_on_attach(bufnr)
     vim.keymap.set("n", "t", api.node.open.tab, opts("NewTab"))
     vim.keymap.set("n", "?", api.tree.toggle_help, opts("Help"))
     vim.keymap.set("n", "<leader>n", api.tree.close, opts("Close"))
+    vim.keymap.set("n", "A", "<Cmd>NvimTreeResize +50<CR>", { buffer = bufnr })
 end
 
 if os.getenv("TMUX") == nil or vim.fn.executable("fzf") == 0 then
@@ -155,7 +158,7 @@ require("nvim-tree").setup({
     view = { number = true, float = { enable = false, open_win_config = { border = "double" } } },
     filters = {
         git_ignored = false,
-        custom = {[[\v(__pycache__|^\..*cache$)]]},
+        custom = { [[\v(__pycache__|^\..*cache$)]] },
     },
 })
 vim.keymap.set("n", "<leader>n", "<cmd>NvimTreeToggle<CR>", mopts)
@@ -404,7 +407,11 @@ lsp.lua_ls.setup({
 -- lsp.autotools_ls.setup{}
 lsp.robotframework_ls.setup({})
 lsp.denols.setup({ on_attach = on_attach, capabilities = lsp_cap })
-lsp.jdtls.setup({ on_attach = on_attach, capabilities = lsp_cap }) -- java >=17
+lsp.jdtls.setup({
+    on_attach = on_attach,
+    capabilities = lsp_cap,
+    use_lombok_agent = true,
+}) -- java >=17
 lsp.omnisharp.setup({
     on_attach = on_attach,
     capabilities = lsp_cap,

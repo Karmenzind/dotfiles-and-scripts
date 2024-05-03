@@ -255,9 +255,9 @@ if has('nvim')
   Plug 'folke/todo-comments.nvim', {'branch': 'main'}
   " Plug 'gennaro-tedesco/nvim-peekup'
   Plug 'tversteeg/registers.nvim', {'branch': 'main'}
-else
-  " Plug 'utubo/vim-registers-lite.nvim'
-  Plug 'karmenzind/registers.vim', {'branch': 'dev', 'frozen': 1}
+" else
+"   " Plug 'utubo/vim-registers-lite.nvim'
+"   Plug 'karmenzind/registers.vim', {'branch': 'dev', 'frozen': 1}
 endif
 Plug 'karmenzind/vim-tmuxlike', {'branch': 'dev', 'frozen': 1}
 Plug 'skywind3000/vim-quickui'
@@ -923,18 +923,19 @@ endif
 let g:ale_fixers = {
       \  '*': ['trim_whitespace'],
       \  'c': ['clang-format'],
-      \  'javascript': ['prettier', 'importjs'],
-      \  'sh': ['shfmt'],
-      \  'go': ['gofmt', 'goimports'],
-      \  'python': ['isort', 'autopep8', 'FixSurroundedWhiteSpaces', 'autoflake'],
-      \  'json': ['jq'],
-      \  'sql': ['sqlfluff'],
-      \  'vue': ['eslint', 'prettier'],
-      \  'yaml': ['prettier'],
       \  'css': ['prettier'],
+      \  'go': ['gofmt', 'goimports'],
       \  'html': ['prettier'],
+      \  'java': ['clang-format'],
+      \  'javascript': ['prettier', 'importjs'],
+      \  'json': ['jq'],
       \  'lua': ['stylua'],
       \  'php': ['php_cs_fixer'],
+      \  'python': ['isort', 'autopep8', 'FixSurroundedWhiteSpaces', 'autoflake'],
+      \  'sh': ['shfmt'],
+      \  'sql': ['pgformatter'],
+      \  'vue': ['eslint', 'prettier'],
+      \  'yaml': ['prettier'],
       \ }
 
 let g:ale_maximum_file_size = 1024 * 1024
@@ -951,7 +952,7 @@ let g:ale_python_mypy_options = '--incremental'
 let g:ale_python_pylint_options = '--max-line-length=120 --rcfile $HOME/.config/pylintrc'
 " let g:ale_python_autopep8_options = '--max-line-length=120'
 let g:ale_python_flake8_options = '--max-line-length=120 --extend-ignore=E722,E741,E402,E501'
-let g:ale_python_pydocstyle_options = '--ignore=D200,D203,D204,D205,D211,D212,D213,D400,D401,D403,D415'
+let g:ale_python_pydocstyle_options = '--ignore=D103,D200,D203,D204,D205,D211,D212,D213,D400,D401,D403,D415'
 let g:ale_python_autoflake_options = '--remove-all-unused-imports --ignore-init-module-imports'
 " let g:ale_javascript_prettier_options = '-c'
 " let g:ale_javascript_eslint_options = '--ext .js,.vue'
@@ -961,6 +962,7 @@ let g:ale_sql_sqlfmt_options = '-u'
 let g:ale_lua_stylua_options = '--indent-type Spaces'
 let g:ale_dprint_config = '$HOME/.dprint.json'
 let g:ale_dprint_use_global = 1
+let g:ale_c_clangformat_style_option = '{ BasedOnStyle: Google, IndentWidth: 4, ColumnLimit: 180, AllowShortBlocksOnASingleLine: Empty, AllowShortFunctionsOnASingleLine: Empty, BreakAfterJavaFieldAnnotations: true, }'
 
 " others
 let g:ale_c_parse_compile_commands = 1
@@ -971,6 +973,10 @@ let g:ale_hover_cursor = 1
 let g:ale_set_balloons = 1
 let g:ale_hover_to_preview = 1
 let g:ale_floating_preview = 1
+
+" temp
+let g:ale_history_log_output = 1
+let g:ale_sql_sqlfluff_options = '--dialect mysql'
 
 nmap <silent> <Leader>al <Plug>(ale_lint)
 nmap <silent> <Leader>af <Plug>(ale_fix)
@@ -1317,7 +1323,6 @@ let g:vista_echo_cursor_strategy = 'both'
 if has('nvim')
   let g:vista_executive_for = {
     \ 'go': 'nvim_lsp',
-    \ 'lua': 'nvim_lsp',
     \ 'yaml': 'nvim_lsp',
     \ 'toml': 'nvim_lsp',
     \ }
@@ -1675,7 +1680,7 @@ endif
 
 
 " before nvim config .local
-if s:is_win && !has('nvim')
+if !has('nvim')
   let &t_SI .= "\<Esc>[6 q"
   let &t_SR .= "\<Esc>[3 q"
   let &t_EI .= "\<Esc>[2 q"

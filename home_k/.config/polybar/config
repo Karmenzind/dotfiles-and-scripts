@@ -562,7 +562,7 @@ label-full = Fully charged
 ;   %percentage_raw%
 ;   %time%
 ;   %consumption% (shows current discharge rate in watts)
-label-low = BATTERY LOW
+label-low = BATTERY LOW %percentage%%
 
 ; Use the following command to list batteries and adapters:
 ; $ ls -1 /sys/class/power_supply/
@@ -579,7 +579,7 @@ format-full-prefix = " "
 format-full-prefix-foreground = ${colors.foreground-alt}
 format-full-underline = ${self.format-charging-underline}
 
-format-low = <label-low> <animation-low>
+format-low = "<label-low> <animation-low>"
 
 ; Only applies if <ramp-capacity> is used
 ; ramp-capacity-0 = 
@@ -617,8 +617,8 @@ animation-discharging-framerate = 750
 
 ; Only applies if <animation-low> is used
 ; New in version 3.6.0
-animation-low-0 = ❗️
-animation-low-1 = 
+animation-low-0 = 
+animation-low-1 = 
 animation-low-framerate = 300
 
 [module/temperature]

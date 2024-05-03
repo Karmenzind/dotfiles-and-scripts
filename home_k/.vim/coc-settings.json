@@ -1,11 +1,13 @@
 // vim: filetype=jsonc
 // Github: https://github.com/Karmenzind/dotfiles-and-scripts
-// Last Modified: 2024-01-18 16:34:40
+// Last Modified: 2024-04-11 11:58:47
 
 {
   "suggest.virtualText": true,
   "suggest.enablePreselect": true,
   "suggest.snippetIndicator": "",
+
+  "tsserver.enable": true,
 
   "powershell.integratedConsole.showOnStartup": false,
   "coc.preferences.jumpCommand": ":sp",

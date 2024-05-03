@@ -13,9 +13,10 @@ alias py2=python2
 alias ipy=ipython
 alias ipy3=ipython3
 alias ipy2=ipython2
-alias bpy=bpython
-alias bpy3=bpython3
-alias bpy2=bpython2
+alias bpy='python -m bpython'
+# alias bpy=bpython
+# alias bpy3=bpython3
+# alias bpy2=bpython2
 
 alias vi=vim
 alias nv=nvim
