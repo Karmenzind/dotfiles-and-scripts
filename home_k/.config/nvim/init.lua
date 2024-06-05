@@ -348,12 +348,6 @@ local lsp_cap = require("cmp_nvim_lsp").default_capabilities()
 lsp_cap.textDocument.foldingRange = { dynamicRegistration = false, lineFoldingOnly = true }
 
 local lsp = require("lspconfig")
--- lsp.pylsp.setup({ on_attach = on_attach, capabilities = lsp_cap })
--- lsp.jedi_language_server.setup({ on_attach = on_attach, capabilities = lsp_cap })
-lsp.pyright.setup({
-    on_attach = on_attach,
-    capabilities = lsp_cap
-})
 lsp.vimls.setup({
     on_attach = on_attach,
     capabilities = lsp_cap,
@@ -409,32 +403,27 @@ lsp.lua_ls.setup({
 --     capabilities = capabilities,
 --     init_options = { ["language_server_phpstan.enabled"] = false, ["language_server_psalm.enabled"] = false },
 -- })
--- lsp.java_language_server.setup({})
--- lsp.autotools_ls.setup{}
-lsp.robotframework_ls.setup({})
-lsp.denols.setup({ on_attach = on_attach, capabilities = lsp_cap })
-lsp.jdtls.setup({
-    on_attach = on_attach,
-    capabilities = lsp_cap,
-    use_lombok_agent = true,
-}) -- java >=17
+lsp.jdtls.setup({ on_attach = on_attach, capabilities = lsp_cap, use_lombok_agent = true }) -- java >=17
 lsp.omnisharp.setup({
     on_attach = on_attach,
     capabilities = lsp_cap,
     cmd = { "/bin/OmniSharp", "--languageserver", "--hostPID", tostring(nvimpid) },
     handlers = { ["textDocument/definition"] = require("omnisharp_extended").handler },
 })
-lsp.bashls.setup({ on_attach = on_attach, capabilities = lsp_cap })
-lsp.dockerls.setup({ on_attach = on_attach, capabilities = lsp_cap })
-lsp.yamlls.setup({ on_attach = on_attach, capabilities = lsp_cap })
-lsp.vls.setup({ on_attach = on_attach, capabilities = lsp_cap })
-lsp.marksman.setup({ on_attach = on_attach, capabilities = lsp_cap })
-lsp.taplo.setup({ on_attach = on_attach, capabilities = lsp_cap })
 lsp.sqlls.setup({
     on_attach = on_attach,
     capabilities = lsp_cap,
     cmd = { "sql-language-server", "up", "--method", "stdio" },
 })
+-- no special config
+-- lsp.pylsp.setup({ on_attach = on_attach, capabilities = lsp_cap })
+-- lsp.jedi_language_server.setup({ on_attach = on_attach, capabilities = lsp_cap })
+-- lsp.java_language_server.setup({})
+-- lsp.autotools_ls.setup{}
+-- lsp.robotframework_ls.setup({})
+for _, lspname in ipairs({ "pyright", "bashls", "dockerls", "yamlls", "vls", "marksman", "taplo", "denols" }) do
+    lsp[lspname].setup({ on_attach = on_attach, capabilities = lsp_cap })
+end
 
 local ps_bundle_path = is_win and "~\\AppData\\Local\\nvim-data\\mason\\packages\\powershell-editor-services"
     or "~/.local/share/nvim*/mason/packages/powershell-editor-services"
@@ -647,6 +636,10 @@ if vim.g.colors_name == nil then
         "github_dark_high_contrast",
         "github_light_high_contrast",
         "default",
+        "zenburn",
+        "lyla",
+        "madeofcode",
+        "obsidian",
     })
 
     local cololike = function(p)

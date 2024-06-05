@@ -327,6 +327,9 @@ install_zsh_stuff() {
 	install_zsh_plugin zsh-autosuggestions https://github.com/zsh-users/zsh-autosuggestions
 	install_zsh_plugin conda-zsh-completion https://github.com/esc/conda-zsh-completion
 	install_zsh_plugin zsh-syntax-highlighting https://github.com/zsh-users/zsh-syntax-highlighting.git
+
+    mkdir -p $ZSH_CUSTOM/plugins/poetry
+    poetry completions zsh > $ZSH_CUSTOM/plugins/poetry/_poetry
 }
 
 setup_bluetooth() {

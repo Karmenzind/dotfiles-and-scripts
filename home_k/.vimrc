@@ -804,7 +804,8 @@ else
 endif
 
 command! -bang -nargs=* Ag call fzf#vim#ag(<q-args>, '--hidden', <bang>0)
-command! -bang -nargs=* Rg call fzf#vim#grep("rg --column --line-number --no-heading --color=always -- ".fzf#shellescape(<q-args>), fzf#vim#with_preview(), <bang>0)
+" command! -bang -nargs=* Rg call fzf#vim#grep("rg --column --line-number --no-heading --color=always -- ".fzf#shellescape(<q-args>), fzf#vim#with_preview(), <bang>0)
+command! -bang -nargs=* Rg call fzf#vim#grep("rg --column --line-number --no-heading --color=always -- ".fzf#shellescape(<q-args>), {}, <bang>0)
 command! -bar -nargs=? -bang Maps call fzf#vim#maps(<q-args>, <bang>0)
 
 nnoremap <Leader>ff :Files<CR>

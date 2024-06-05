@@ -1,5 +1,4 @@
 # Github: https://github.com/Karmenzind/dotfiles-and-scripts
-# Last Modified: 2024-01-18 16:23:35
 
 # If you come from bash you might have to change your $PATH.
 # export PATH=$HOME/bin:/usr/bin:/usr/local/bin:$PATH
@@ -114,6 +113,7 @@ plugins=(
   'pip'
   'pj'
   'python'
+  'poetry'
   'conda-zsh-completion'  # install manually
 
   # 'redis-cli'
@@ -142,5 +142,4 @@ fi
 
 # Custom here
 [[ -e ~/.config/shrc.ext ]] && source ~/.config/shrc.ext && echo "Loaded ~/.config/shrc.ext"
-
 # eval "$(starship init zsh)" && echo "Loaded starship"
