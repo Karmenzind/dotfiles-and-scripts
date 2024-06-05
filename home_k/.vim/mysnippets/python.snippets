@@ -283,6 +283,16 @@ endsnippet
 
 
 # --------------------------------------------
+# class
+# --------------------------------------------
+
+snippet defi "def __init__" b
+def __init__(self, *args, **kwargs):
+    super().__init__(*args, **kwargs)
+    $0
+endsnippet
+
+# --------------------------------------------
 # func
 # --------------------------------------------
 
@@ -376,23 +386,21 @@ conn = pymysql.connect(
     password="${4}",
     db="${5:mysql}",
     charset='utf8',
-    cursorclass=pymysql.cursors.DictCursor,
+    # cursorclass=pymysql.cursors.DictCursor,
 )
-
-sql = """
-${0}
-"""
-
-args = None
 
 try:
     with conn.cursor() as cursor:
+        sql = """
+        ${0}
+        """
+        args = None
         cursor.execute(sql, args)
-        LOGGER.debug("Executed %s", cursor._last_executed)
-        ret = cursor.fetchall()
-    conn.commit()
-except:
-    LOGGER.warning("Failed when trying sql: %s with args: %s.", sql, args)
+        LOGGER.debug("Executed %s", cursor.mogrify(sql, args))
+        # ret = cursor.fetchall()
+    # conn.commit()
+except Exception as e:
+    LOGGER.warning("Failed when executing sql %r. Error: %s", cursor.mogrify(sql, args), e)
 finally:
     conn.close()
 endsnippet

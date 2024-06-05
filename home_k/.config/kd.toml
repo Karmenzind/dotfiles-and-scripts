@@ -1,5 +1,7 @@
 debug = true
 paging = true
+
+
 # pager_command = "more asdfsadga"
 # pager_command = "more asdf"
 pager_command = "less -F"
@@ -14,5 +16,5 @@ freq_alert = false
 [logging]
   enable = true
   path = ""
-  level = "debug"
+  level = "DEBUG"
   stderr = false

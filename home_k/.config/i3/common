@@ -1,13 +1,12 @@
 # vim:set noet ft=i3config:
+# Shared between sway & i3
 
 # -----------------------------------------------------------------------------
 # apps
 # -----------------------------------------------------------------------------
-
+set $i3_config_dir $HOME/.config/i3
 # start apps with wm
-# exec --no-startup-id i3-msg "workspace 3; exec chromium; workspace 2; exec i3-sensible-terminal; workspace 1; exec i3-sensible-terminal" &
-exec --no-startup-id i3-msg "exec i3-sensible-terminal --title 'my-init-terminal' -e tmux new -As t" &
-# exec --no-startup-id electronic-wechat &
+# exec --no-startup-id i3-msg "exec i3-sensible-terminal --title 'my-init-terminal' -e tmux new -As t" &
 
 # /* system tools */
 # notifier
@@ -31,7 +30,6 @@ exec_always test -f $HOME/.screenlayout/default.sh && bash $HOME/.screenlayout/d
 
 # a cat chasing the mouse
 exec_always --no-startup-id bash $HOME/.config/i3/run_oneko.sh &
-# exec_always --no-startup-id command -v oneko && killall -9 oneko && oneko -tofocus &
 
 # /* with tray icons */
 exec --no-startup-id volumeicon &
@@ -204,33 +202,14 @@ bindsym --release Shift+Print exec bash $i3_config_dir/screenshot.sh full
 # area with flameshot
 # bindsym --release $mod+Shift+Print exec bash $i3_config_dir/screenshot.sh area_fs
 
-# /* background and screen lock*/
-set $wallpaper_png $HOME/Pictures/LOCKSCREEN.png
-set $wallpaper_dir $HOME/Pictures/LOCKSCREENS
-# background
-exec_always --no-startup-id ls $HOME/Pictures/BACKGROUND.* && feh --bg-max `ls $HOME/Pictures/BACKGROUND.*` &
-# change background
-# bindsym $mod+Shift+w exec --no-startup-id feh --bg-max `[[ -d $wallpaper_dir ]] && (find $wallpaper_dir -type f | sort -R | head -1) || echo $wallpaper_png` &
-bindsym $mod+Shift+w exec --no-startup-id bash $i3_config_dir/change_background.sh
 # auto lock
-# exec_always --no-startup-id xautolock -time 20 -locker i3lock -t -i $wallpaper_png &
-exec_always --no-startup-id xautolock -time 15 -locker blurlock &
 # bindsym $mod+Ctrl+l exec --no-startup-id i3lock -t -i $wallpaper_png
 # lock with random pic of specific dir
 # bindsym $mod+Ctrl+l exec --no-startup-id i3lock -t -i `[ -d $wallpaper_dir ] && (find $wallpaper_dir -type f -name '*png' | sort -R | head -1) || echo $wallpaper_png` &
 # bindsym $mod+Ctrl+l exec --no-startup-id i3lock -t -i `[ -d $wallpaper_dir ] && (find $wallpaper_dir -type f -name '*png' | sort -R | head -1) || echo $wallpaper_png` &
-bindsym $mod+Ctrl+l exec --no-startup-id i3lock -t -i `[ -d $wallpaper_dir ] && (find -L $wallpaper_dir -type f -name '*png' | shuf -n 1) || echo $wallpaper_png` &
+bindsym $mod+Ctrl+l exec --no-startup-id bash $HOME/.config/i3/lock.sh &
 # lock with random pic from internet (random picture source: https://www.zhihu.com/question/21168322)
 # ...todo
-
-# reload the configuration file
-# bindsym $mod+Shift+c reload, exec "notify-send Reloaded i3 configs"
-# bindsym $mod+Shift+c exec i3-msg "reload" && "notify-send Reloaded i3 configs"
-bindsym $mod+Shift+c exec i3-msg reload && notify-send 'Reloaded i3 config'
-# restart i3 inplace (preserves your layout/session, can be used to upgrade i3)
-bindsym $mod+Shift+r restart
-# exit i3 (logs you out of your X session)
-bindsym $mod+Shift+e exec "i3-nagbar -t warning -m 'You pressed the exit shortcut. Do you really want to exit i3? This will end your X session.' -b 'Yes, exit i3' 'i3-msg exit'"
 
 
 # generated with i3-style

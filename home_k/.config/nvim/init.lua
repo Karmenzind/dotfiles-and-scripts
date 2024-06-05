@@ -1,8 +1,6 @@
 #!/usr/bin/env lua
 -- Github: https://github.com/Karmenzind/dotfiles-and-scripts
 
--- vim.env.JAVA_HOME = "/usr/lib/jvm/java-21-openjdk"
-
 vim.g.loaded = 1
 vim.g.loaded_netrw = 1
 vim.g.loaded_netrwPlugin = 1
@@ -10,10 +8,14 @@ vim.opt.completeopt = "menu,menuone,noselect"
 
 local mopts = { noremap = true, silent = true }
 
-local is_win = vim.fn.has("win32") == 1
+local is_win = vim.loop.os_uname().version:match("Windows")
 local nvimpid = vim.fn.getpid()
 
 local function find_pybin()
+    local preset = vim.fn.getenv("MY_VIM_PYTHON_PATH")
+    if preset ~= vim.NIL and preset ~= "" then
+        return preset
+    end
     if is_win then
         for _, pat in ipairs({
             [[C:\Program Files\Python3*\python.exe]],
@@ -182,7 +184,6 @@ require("mason").setup()
 require("mason-lspconfig").setup({
     ensure_installed = { "lua_ls", "pyright", "vimls", "bashls", "marksman", "gopls" },
 })
--- XXX (k): <2024年01月24日 星期三 17时01分39秒> powershell_es
 
 require("alpha").setup(require("alpha.themes.startify").config)
 
@@ -206,7 +207,7 @@ vim.keymap.set("n", "zm", require("ufo").closeFoldsWith) -- closeAllFolds == clo
 
 local ufo_handler = function(virtText, lnum, endLnum, width, truncate)
     local newVirtText = {}
-    local suffix = (' ⋯  󰁂 %d '):format(endLnum - lnum)
+    local suffix = (" ⋯  󰁂 %d "):format(endLnum - lnum)
     local sufWidth = vim.fn.strdisplaywidth(suffix)
     local targetWidth = width - sufWidth
     local curWidth = 0
@@ -218,23 +219,22 @@ local ufo_handler = function(virtText, lnum, endLnum, width, truncate)
         else
             chunkText = truncate(chunkText, targetWidth - curWidth)
             local hlGroup = chunk[2]
-            table.insert(newVirtText, {chunkText, hlGroup})
+            table.insert(newVirtText, { chunkText, hlGroup })
             chunkWidth = vim.fn.strdisplaywidth(chunkText)
             -- str width returned from truncate() may less than 2nd argument, need padding
             if curWidth + chunkWidth < targetWidth then
-                suffix = suffix .. (' '):rep(targetWidth - curWidth - chunkWidth)
+                suffix = suffix .. (" "):rep(targetWidth - curWidth - chunkWidth)
             end
             break
         end
         curWidth = curWidth + chunkWidth
     end
-    table.insert(newVirtText, {suffix, 'MoreMsg'})
+    table.insert(newVirtText, { suffix, "MoreMsg" })
     return newVirtText
 end
 
 -- Set up nvim-cmp.
 local cmp = require("cmp")
-local lsp = require("lspconfig")
 local lspkind = require("lspkind")
 local has_words_before = function()
     local line, col = unpack(vim.api.nvim_win_get_cursor(0))
@@ -343,11 +343,17 @@ cmp.setup.cmdline(":", {
     sources = cmp.config.sources({ { name = "path" } }, { { name = "cmdline" } }),
 })
 
--- local lsp_cap = require("cmp_nvim_lsp").default_capabilities()
-local lsp_cap = vim.lsp.protocol.make_client_capabilities()
+local lsp_cap = require("cmp_nvim_lsp").default_capabilities()
+-- local lsp_cap = vim.lsp.protocol.make_client_capabilities()
 lsp_cap.textDocument.foldingRange = { dynamicRegistration = false, lineFoldingOnly = true }
 
-lsp.pyright.setup({ on_attach = on_attach, capabilities = lsp_cap })
+local lsp = require("lspconfig")
+-- lsp.pylsp.setup({ on_attach = on_attach, capabilities = lsp_cap })
+-- lsp.jedi_language_server.setup({ on_attach = on_attach, capabilities = lsp_cap })
+lsp.pyright.setup({
+    on_attach = on_attach,
+    capabilities = lsp_cap
+})
 lsp.vimls.setup({
     on_attach = on_attach,
     capabilities = lsp_cap,
@@ -443,7 +449,6 @@ else
     vim.fn.EchoWarn("Invalid ps_bundle_path")
 end
 lsp.docker_compose_language_service.setup({})
-
 -- lsp.java_language_server.setup({})
 
 require("nvim-autopairs").setup({ disable_filetype = { "markdown" } })
@@ -452,15 +457,14 @@ cmp.event:on("confirm_done", cmp_autopairs.on_confirm_done())
 
 -- Common Keymaps
 vim.keymap.set("n", "<leader>e", vim.diagnostic.open_float, mopts)
-vim.keymap.set("n", "K", function()
-    local winid = require("ufo").peekFoldedLinesUnderCursor()
-    if not winid then
-        vim.lsp.buf.hover() -- _, winid = vim.diagnostic.open_float()
-        -- if not winid then
-        --     vim.lsp.buf.hover()
-        -- end
-    end
-end, mopts)
+if vim.fn.has("nvim-0.10") ~= 1 then
+    vim.keymap.set("n", "K", function()
+        local winid = require("ufo").peekFoldedLinesUnderCursor()
+        if not winid then
+            vim.lsp.buf.hover()
+        end
+    end, mopts)
+end
 
 -- more sensible goto
 -- FIXME (k): <2022-10-20> definition else declaration
@@ -553,12 +557,12 @@ vim.keymap.set("n", "<leader>dl", dap.run_last, mopts)
 
 require("registers").setup({})
 
-require("cmp").setup({
+cmp.setup({
     enabled = function()
         return vim.api.nvim_get_option_value("buftype", { buf = 0 }) ~= "prompt" or require("cmp_dap").is_dap_buffer()
     end,
 })
-require("cmp").setup.filetype({ "dap-repl", "dapui_watches", "dapui_hover" }, { sources = { { name = "dap" } } })
+cmp.setup.filetype({ "dap-repl", "dapui_watches", "dapui_hover" }, { sources = { { name = "dap" } } })
 
 -- require("noice").setup({
 --     lsp = {
@@ -614,9 +618,9 @@ require("lualine").setup({
     },
 })
 
--- FIXME (k): <2024-05-02 22:24> 
+-- FIXME (k): <2024-05-02 22:24>
 -- require("ufo").setup({ close_fold_kinds_for_ft = { "imports", "comment" }, fold_virt_text_handler = ufo_handler })
-require('ufo').setup()
+require("ufo").setup()
 
 local function rchoose(l)
     return l[math.random(1, #l)]
@@ -642,6 +646,7 @@ if vim.g.colors_name == nil then
         "seoul256",
         "github_dark_high_contrast",
         "github_light_high_contrast",
+        "default",
     })
 
     local cololike = function(p)
@@ -658,4 +663,17 @@ if vim.g.colors_name == nil then
     end
 end
 
-vim.opt.termguicolors = true
+-- -- auto change root
+-- vim.api.nvim_create_autocmd("BufEnter", {
+--   callback = function(ctx)
+--     local root = vim.fs.root(ctx.buf, { ".git", ".svn", "Makefile", "mvnw", "package.json" })
+--     if root and root ~= "." and root ~= vim.fn.getcwd() then
+--       ---@diagnostic disable-next-line: undefined-field
+--       vim.cmd.cd(root)
+--       vim.notify("Set CWD to " .. root)
+--     end
+--   end,
+-- })
+
+-- vim.lsp.set_log_level("debug")
+-- vim.opt.termguicolors = true

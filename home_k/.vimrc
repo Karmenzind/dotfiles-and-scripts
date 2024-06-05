@@ -125,7 +125,9 @@ Plug 'tpope/vim-endwise'
 Plug 'tpope/vim-surround'
 
 Plug has('nvim')? 'windwp/nvim-autopairs': 'jiangmiao/auto-pairs'
-Plug 'tpope/vim-commentary'
+if !has("nvim-0.10")
+  Plug 'tpope/vim-commentary'
+endif
 Plug 'junegunn/vim-easy-align'
 Plug 'SirVer/ultisnips' | Plug 'honza/vim-snippets'
 Plug 'Shougo/context_filetype.vim'
@@ -309,9 +311,7 @@ endif
 
 call plug#end()
 
-" internal plugins
 runtime macros/matchit.vim
-" runtime! ftplugin/man.vim
 runtime! ftplugin/qf.vim
 
 function! Plugged(name) abort
@@ -1668,6 +1668,7 @@ if !exists('g:colors_name') && !has('nvim')
           \'evening',
           \'apprentice',
           \'molokai',
+          \'default',
           \])
   else
     call RandomSetColo([

@@ -1,0 +1,23 @@
+# vim:set noet ft=i3config:
+
+# /* background and screen lock*/
+set $wallpaper_png $HOME/Pictures/LOCKSCREEN.png
+set $wallpaper_dir $HOME/Pictures/LOCKSCREENS
+
+# background
+exec_always --no-startup-id ls $HOME/Pictures/BACKGROUND.* && feh --bg-max `ls $HOME/Pictures/BACKGROUND.*` &
+# change background
+# bindsym $mod+Shift+w exec --no-startup-id feh --bg-max `[[ -d $wallpaper_dir ]] && (find $wallpaper_dir -type f | sort -R | head -1) || echo $wallpaper_png` &
+bindsym $mod+Shift+w exec --no-startup-id bash $i3_config_dir/change_background.sh
+
+# exec_always --no-startup-id xautolock -time 20 -locker i3lock -t -i $wallpaper_png &
+exec_always --no-startup-id xautolock -time 15 -locker blurlock &
+
+# reload the configuration file
+# bindsym $mod+Shift+c reload, exec "notify-send Reloaded i3 configs"
+# bindsym $mod+Shift+c exec i3-msg "reload" && "notify-send Reloaded i3 configs"
+bindsym $mod+Shift+c exec i3-msg reload && notify-send 'Reloaded i3 config'
+# restart i3 inplace (preserves your layout/session, can be used to upgrade i3)
+bindsym $mod+Shift+r restart
+# exit i3 (logs you out of your X session)
+bindsym $mod+Shift+e exec "i3-nagbar -t warning -m 'You pressed the exit shortcut. Do you really want to exit i3? This will end your X session.' -b 'Yes, exit i3' 'i3-msg exit'"
