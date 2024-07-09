@@ -135,6 +135,30 @@ ${2:LOGGER}.info(__import__("pprint").pformat(${1:${VISUAL}}))
 endsnippet
 
 # --------------------------------------------
+# loguru
+# --------------------------------------------
+
+snippet lgu "load loguru's logger"
+from loguru import logger
+endsnippet
+
+snippet lgd
+${2:logger}.debug("${1:${VISUAL}}")
+endsnippet
+
+snippet lgi
+${2:logger}.info("${1:${VISUAL}}")
+endsnippet
+
+snippet lgw
+${2:logger}.warning("${1:${VISUAL}}")
+endsnippet
+
+snippet lge
+${2:logger}.error("${1:${VISUAL}}")
+endsnippet
+
+# --------------------------------------------
 # loop
 # --------------------------------------------
 
@@ -418,6 +442,16 @@ sys.path.append(project_dir)
 os.environ.setdefault('DJANGO_SETTINGS_MODULE', '${0:projectname}.settings')
 django.setup()
 endsnippet
+
+# --------------------------------------------
+# Async
+# --------------------------------------------
+
+snippet afor "async for"
+async for ${1:i} in ${2:l}:
+    ${0}
+endsnippet
+    
 
 # --------------------------------------------
 # Pytest

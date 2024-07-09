@@ -119,7 +119,7 @@ tray-background = #0063ff
 
 [bar/single]
 inherit = bar/base
-modules-left =  battery eth wlan cpu memory temperature
+modules-left =  battery wlan cpu memory temperature
 modules-right = date notifications
 monitor = ${env:MONITOR:}
 # can be started with
@@ -136,7 +136,7 @@ tray-background = #0063ff
 
 [bar/dualleft]
 inherit = bar/base
-modules-left = battery eth wlan
+modules-left = battery wlan
 ;modules-center = i3
 modules-right = date 
 

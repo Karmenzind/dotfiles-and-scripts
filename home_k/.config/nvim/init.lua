@@ -90,6 +90,7 @@ if vim.g.fzf_layout["window"] == nil and vim.g.fzf_layout["tmux"] == nil then
     vim.api.nvim_create_autocmd({ "BufLeave" }, { group = "fzf", command = "set ls=2 smd ru" })
     vim.api.nvim_create_autocmd({ "FileType" }, { group = "fzf", pattern = "fzf", command = "setl ls=0 nosmd noru" })
 end
+-- require('fzf-lua').setup({'fzf-tmux'})
 
 vim.cmd([[tnoremap <expr> <C-R> '<C-\><C-N>"'.nr2char(getchar()).'pi']])
 
@@ -156,6 +157,20 @@ else
 end
 
 require("nvim-tree").setup({
+    hijack_netrw = true,
+    hijack_directories = {
+        enable = true,
+        auto_open = true,
+    },
+    -- disable_netrw = true,
+    hijack_unnamed_buffer_when_opening = true,
+    update_focused_file = {
+        enable = true,
+        update_root = {
+            enable = true,
+            ignore_list = {},
+        },
+    },
     on_attach = nvim_tree_on_attach,
     view = { number = true, float = { enable = false, open_win_config = { border = "double" } } },
     filters = {
@@ -252,6 +267,13 @@ end
 
 vim.keymap.set("n", "[d", vim.diagnostic.goto_prev, mopts)
 vim.keymap.set("n", "]d", vim.diagnostic.goto_next, mopts)
+vim.keymap.set("n", "]t", function()
+    if vim.diagnostic.is_enabled() then
+        vim.diagnostic.enable(false)
+    else
+        vim.diagnostic.enable()
+    end
+end, mopts)
 vim.keymap.set("n", "<leader>q", vim.diagnostic.setloclist, mopts)
 
 local on_attach = function(_, bufnr)
@@ -415,13 +437,28 @@ lsp.sqlls.setup({
     capabilities = lsp_cap,
     cmd = { "sql-language-server", "up", "--method", "stdio" },
 })
+lsp.tsserver.setup({
+    on_attach = on_attach,
+    capabilities = lsp_cap,
+    init_options = {
+        plugins = {
+            {
+                name = "@vue/typescript-plugin", --  TODO (k): <2024-07-09 16:52> IMPORTANT: It is crucial to ensure that @vue/typescript-plugin and volar are of identical versions.
+                location = "/usr/local/lib/node_modules/@vue/typescript-plugin",
+                languages = { "javascript", "typescript", "vue" },
+            },
+        },
+    },
+    filetypes = { "javascript", "typescript", "vue" },
+})
 -- no special config
 -- lsp.pylsp.setup({ on_attach = on_attach, capabilities = lsp_cap })
 -- lsp.jedi_language_server.setup({ on_attach = on_attach, capabilities = lsp_cap })
 -- lsp.java_language_server.setup({})
 -- lsp.autotools_ls.setup{}
 -- lsp.robotframework_ls.setup({})
-for _, lspname in ipairs({ "pyright", "bashls", "dockerls", "yamlls", "vls", "marksman", "taplo", "denols" }) do
+-- denols
+for _, lspname in ipairs({ "pyright", "bashls", "dockerls", "yamlls", "vls", "marksman", "taplo" }) do
     lsp[lspname].setup({ on_attach = on_attach, capabilities = lsp_cap })
 end
 
@@ -624,7 +661,8 @@ if vim.g.colors_name == nil then
         "atomic",
         "boo",
         "gruvbox",
-        "nord",
+        -- "nord",
+        -- "molokai",
         "kat.nvim",
         "kat.nwim",
         "bluloco",
@@ -640,6 +678,7 @@ if vim.g.colors_name == nil then
         "lyla",
         "madeofcode",
         "obsidian",
+        "nightfox",
     })
 
     local cololike = function(p)
