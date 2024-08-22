@@ -1,6 +1,5 @@
 #!/usr/bin/env python3
 # Github: https://github.com/Karmenzind/dotfiles-and-scripts
-# Last Modified: 2024-01-18 16:18:53
 
 """
 create symlink
@@ -71,6 +70,7 @@ if platform == "win":
         Path("home_k/.gitconfig"),
         Path("home_k/.condarc"),
         Path("home_k/.config/nvim/init.lua"),
+        Path("home_k/.config/nvim/lua"),
         Path("home_k/.config/ripgreprc"),
         Path("home_k/.config/alacritty/alacritty.toml"),
         Path("home_k/.config/alacritty/win.toml"),

@@ -8,6 +8,23 @@ vim.opt.completeopt = "menu,menuone,noselect"
 
 local mopts = { noremap = true, silent = true }
 
+local function contains(l, s)
+    for _, value in ipairs(l) do
+        if value == s then
+            return true
+        end
+    end
+    return false
+end
+
+local function plug(name, tags)
+    cfg = cfg or {}
+    if vim.g.vscode and contains(tags, "novscode") then
+        return
+    end
+    return require(name)
+end
+
 local is_win = vim.loop.os_uname().version:match("Windows")
 local nvimpid = vim.fn.getpid()
 
@@ -94,6 +111,12 @@ end
 
 vim.cmd([[tnoremap <expr> <C-R> '<C-\><C-N>"'.nr2char(getchar()).'pi']])
 
+local kache = { tree_resized = false }
+local function toggle_nvim_tree_resize()
+    vim.cmd(kache.tree_resized and "NvimTreeResize -50" or "NvimTreeResize +50")
+    kache.tree_resized = not kache.tree_resized
+end
+
 local function nvim_tree_on_attach(bufnr)
     local api = require("nvim-tree.api")
     local function opts(desc)
@@ -109,10 +132,22 @@ local function nvim_tree_on_attach(bufnr)
     vim.keymap.set("n", "t", api.node.open.tab, opts("NewTab"))
     vim.keymap.set("n", "?", api.tree.toggle_help, opts("Help"))
     vim.keymap.set("n", "<leader>n", api.tree.close, opts("Close"))
-    vim.keymap.set("n", "A", "<Cmd>NvimTreeResize +50<CR>", { buffer = bufnr })
+    vim.keymap.set("n", "A", toggle_nvim_tree_resize, { buffer = bufnr })
 end
 
-if os.getenv("TMUX") == nil or vim.fn.executable("fzf") == 0 then
+local function vscode_cmd(cmd)
+    return function()
+        return require("vscode").call(cmd)
+    end
+end
+
+if vim.g.vscode then
+    vim.keymap.set("n", "<leader>ff", vscode_cmd("workbench.action.quickOpen"), mopts)
+    vim.keymap.set("n", "<leader>fa", vscode_cmd("workbench.action.findInFiles"), mopts)
+    vim.keymap.set("n", "<leader>fg", vscode_cmd("workbench.action.findInFiles"), mopts)
+    -- vim.keymap.set("n", "<leader>fb", require("vscode").action("workbench.action.quickOpen"), mopts)
+    -- vim.keymap.set("n", "<leader>fh", require("vscode").action("workbench.action.quickOpen"), mopts)
+elseif os.getenv("TMUX") == nil or vim.fn.executable("fzf") == 0 then
     local ts = require("telescope")
     local tsa = require("telescope.actions")
     local tsbuiltin = require("telescope.builtin")
@@ -156,30 +191,35 @@ else
     vim.fn.EchoWarn("treesitter not imported")
 end
 
-require("nvim-tree").setup({
-    hijack_netrw = true,
-    hijack_directories = {
-        enable = true,
-        auto_open = true,
-    },
-    -- disable_netrw = true,
-    hijack_unnamed_buffer_when_opening = true,
-    update_focused_file = {
-        enable = true,
-        update_root = {
+if not vim.g.vscode then
+    require("nvim-tree").setup({
+        hijack_netrw = true,
+        hijack_directories = {
             enable = true,
-            ignore_list = {},
+            auto_open = true,
         },
-    },
-    on_attach = nvim_tree_on_attach,
-    view = { number = true, float = { enable = false, open_win_config = { border = "double" } } },
-    filters = {
-        git_ignored = false,
-        custom = { [[\v(__pycache__|^\..*cache$)]] },
-    },
-})
-vim.keymap.set("n", "<leader>n", "<cmd>NvimTreeToggle<CR>", mopts)
-vim.keymap.set("n", "<leader>N", "<cmd>NvimTreeFindFile<CR>", mopts)
+        -- disable_netrw = true,
+        hijack_unnamed_buffer_when_opening = true,
+        update_focused_file = {
+            enable = true,
+            update_root = {
+                enable = true,
+                ignore_list = {},
+            },
+        },
+        on_attach = nvim_tree_on_attach,
+        view = { number = true, float = { enable = false, open_win_config = { border = "double" } } },
+        filters = {
+            git_ignored = false,
+            custom = { [[\v(__pycache__|^\..*cache$)]] },
+        },
+    })
+    vim.keymap.set("n", "<leader>n", "<cmd>NvimTreeToggle<CR>", mopts)
+    vim.keymap.set("n", "<leader>N", "<cmd>NvimTreeFindFile<CR>", mopts)
+else
+    vim.keymap.set("n", "<leader>n", vscode_cmd("workbench.action.toggleSidebarVisibility"), mopts)
+    vim.keymap.set("n", "<leader>N", vscode_cmd("workbench.action.toggleSidebarVisibility"), mopts)
+end
 
 vim.diagnostic.config({
     virtual_text = {
@@ -365,117 +405,133 @@ cmp.setup.cmdline(":", {
     sources = cmp.config.sources({ { name = "path" } }, { { name = "cmdline" } }),
 })
 
-local lsp_cap = require("cmp_nvim_lsp").default_capabilities()
--- local lsp_cap = vim.lsp.protocol.make_client_capabilities()
-lsp_cap.textDocument.foldingRange = { dynamicRegistration = false, lineFoldingOnly = true }
+-- LSP Configs
+if not vim.g.vscode then
+    local lsp_cap = require("cmp_nvim_lsp").default_capabilities()
+    -- local lsp_cap = vim.lsp.protocol.make_client_capabilities()
+    lsp_cap.textDocument.foldingRange = { dynamicRegistration = false, lineFoldingOnly = true }
+    -- lsp_cap.textDocument.completion.completionItem.snippetSupport = true
 
-local lsp = require("lspconfig")
-lsp.vimls.setup({
-    on_attach = on_attach,
-    capabilities = lsp_cap,
-    cmd = { "vim-language-server", "--stdio" },
-    filetypes = { "vim" },
-    single_file_support = true,
-    init_options = {
-        diagnostic = { enable = true },
-        indexes = {
-            count = 3,
-            gap = 100,
-            runtimepath = true,
-            projectRootPatterns = { "runtime", "nvim", ".git", "autoload", "plugin" },
-        },
-        isNeovim = true,
-        iskeyword = "@,48-57,_,192-255,-#",
-        runtimepath = "",
-        suggest = { fromRuntimepath = true, fromVimruntime = true },
-        vimruntime = "",
-    },
-})
-
-lsp.gopls.setup({
-    cmd = { "gopls" },
-    on_attach = on_attach,
-    capabilities = lsp_cap,
-    settings = {
-        gopls = {
-            experimentalPostfixCompletions = true,
-            analyses = { unusedparams = true, shadow = true },
-            staticcheck = true,
-        },
-    },
-    init_options = { usePlaceholders = false },
-})
-
-lsp.lua_ls.setup({
-    on_attach = on_attach,
-    capabilities = lsp_cap,
-    settings = {
-        Lua = {
-            runtime = { version = "LuaJIT" },
-            diagnostics = { globals = { "vim" } },
-            workspace = { library = vim.api.nvim_get_runtime_file("", true) },
-            telemetry = { enable = false },
-        },
-    },
-})
-
--- other lsp
--- lsp.phpactor.setup({
---     on_attach = on_attach,
---     capabilities = capabilities,
---     init_options = { ["language_server_phpstan.enabled"] = false, ["language_server_psalm.enabled"] = false },
--- })
-lsp.jdtls.setup({ on_attach = on_attach, capabilities = lsp_cap, use_lombok_agent = true }) -- java >=17
-lsp.omnisharp.setup({
-    on_attach = on_attach,
-    capabilities = lsp_cap,
-    cmd = { "/bin/OmniSharp", "--languageserver", "--hostPID", tostring(nvimpid) },
-    handlers = { ["textDocument/definition"] = require("omnisharp_extended").handler },
-})
-lsp.sqlls.setup({
-    on_attach = on_attach,
-    capabilities = lsp_cap,
-    cmd = { "sql-language-server", "up", "--method", "stdio" },
-})
-lsp.tsserver.setup({
-    on_attach = on_attach,
-    capabilities = lsp_cap,
-    init_options = {
-        plugins = {
-            {
-                name = "@vue/typescript-plugin", --  TODO (k): <2024-07-09 16:52> IMPORTANT: It is crucial to ensure that @vue/typescript-plugin and volar are of identical versions.
-                location = "/usr/local/lib/node_modules/@vue/typescript-plugin",
-                languages = { "javascript", "typescript", "vue" },
-            },
-        },
-    },
-    filetypes = { "javascript", "typescript", "vue" },
-})
--- no special config
--- lsp.pylsp.setup({ on_attach = on_attach, capabilities = lsp_cap })
--- lsp.jedi_language_server.setup({ on_attach = on_attach, capabilities = lsp_cap })
--- lsp.java_language_server.setup({})
--- lsp.autotools_ls.setup{}
--- lsp.robotframework_ls.setup({})
--- denols
-for _, lspname in ipairs({ "pyright", "bashls", "dockerls", "yamlls", "vls", "marksman", "taplo" }) do
-    lsp[lspname].setup({ on_attach = on_attach, capabilities = lsp_cap })
-end
-
-local ps_bundle_path = is_win and "~\\AppData\\Local\\nvim-data\\mason\\packages\\powershell-editor-services"
-    or "~/.local/share/nvim*/mason/packages/powershell-editor-services"
-if vim.fn.glob(ps_bundle_path) ~= "" then
-    lsp.powershell_es.setup({
+    local lsp = require("lspconfig")
+    lsp.vimls.setup({
         on_attach = on_attach,
         capabilities = lsp_cap,
-        bundle_path = ps_bundle_path,
-        settings = { powershell = { codeFormatting = { Preset = "OTBS" } } },
+        cmd = { "vim-language-server", "--stdio" },
+        filetypes = { "vim" },
+        single_file_support = true,
+        init_options = {
+            diagnostic = { enable = true },
+            indexes = {
+                count = 3,
+                gap = 100,
+                runtimepath = true,
+                projectRootPatterns = { "runtime", "nvim", ".git", "autoload", "plugin" },
+            },
+            isNeovim = true,
+            iskeyword = "@,48-57,_,192-255,-#",
+            runtimepath = "",
+            suggest = { fromRuntimepath = true, fromVimruntime = true },
+            vimruntime = "",
+        },
     })
+
+    lsp.gopls.setup({
+        cmd = { "gopls" },
+        on_attach = on_attach,
+        capabilities = lsp_cap,
+        settings = {
+            gopls = {
+                experimentalPostfixCompletions = true,
+                analyses = { unusedparams = true, shadow = true },
+                staticcheck = true,
+            },
+        },
+        init_options = { usePlaceholders = false },
+    })
+
+    lsp.lua_ls.setup({
+        on_attach = on_attach,
+        capabilities = lsp_cap,
+        settings = {
+            Lua = {
+                runtime = { version = "LuaJIT" },
+                diagnostics = { globals = { "vim" } },
+                workspace = { library = vim.api.nvim_get_runtime_file("", true) },
+                telemetry = { enable = false },
+            },
+        },
+    })
+
+    -- other lsp
+    -- lsp.phpactor.setup({
+    --     on_attach = on_attach,
+    --     capabilities = capabilities,
+    --     init_options = { ["language_server_phpstan.enabled"] = false, ["language_server_psalm.enabled"] = false },
+    -- })
+    lsp.jdtls.setup({ on_attach = on_attach, capabilities = lsp_cap, use_lombok_agent = true }) -- java >=17
+    lsp.omnisharp.setup({
+        on_attach = on_attach,
+        capabilities = lsp_cap,
+        cmd = { "/bin/OmniSharp", "--languageserver", "--hostPID", tostring(nvimpid) },
+        handlers = { ["textDocument/definition"] = require("omnisharp_extended").handler },
+    })
+    lsp.sqlls.setup({
+        on_attach = on_attach,
+        capabilities = lsp_cap,
+        cmd = { "sql-language-server", "up", "--method", "stdio" },
+    })
+    lsp.tsserver.setup({
+        on_attach = on_attach,
+        capabilities = lsp_cap,
+        init_options = {
+            plugins = {
+                {
+                    name = "@vue/typescript-plugin", --  TODO (k): <2024-07-09 16:52> IMPORTANT: It is crucial to ensure that @vue/typescript-plugin and volar are of identical versions.
+                    location = "/usr/local/lib/node_modules/@vue/typescript-plugin",
+                    languages = { "javascript", "typescript", "vue" },
+                },
+            },
+        },
+        filetypes = { "javascript", "typescript", "vue" },
+    })
+    -- no special config
+    -- lsp.pylsp.setup({ on_attach = on_attach, capabilities = lsp_cap })
+    -- lsp.jedi_language_server.setup({ on_attach = on_attach, capabilities = lsp_cap })
+    -- lsp.java_language_server.setup({})
+    -- lsp.autotools_ls.setup{}
+    -- lsp.robotframework_ls.setup({})
+    -- denols
+    for _, lspname in ipairs({
+        "pyright",
+        "bashls",
+        "dockerls",
+        "yamlls",
+        "vls",
+        "marksman",
+        "taplo",
+        "html",
+        "emmet_language_server",
+    }) do
+        lsp[lspname].setup({ on_attach = on_attach, capabilities = lsp_cap })
+    end
+
+    local ps_bundle_path = is_win and "~\\AppData\\Local\\nvim-data\\mason\\packages\\powershell-editor-services"
+        or "~/.local/share/nvim*/mason/packages/powershell-editor-services"
+    if vim.fn.glob(ps_bundle_path) ~= "" then
+        lsp.powershell_es.setup({
+            on_attach = on_attach,
+            capabilities = lsp_cap,
+            bundle_path = ps_bundle_path,
+            settings = { powershell = { codeFormatting = { Preset = "OTBS" } } },
+        })
+    else
+        vim.fn.EchoWarn("Invalid ps_bundle_path")
+    end
+    lsp.docker_compose_language_service.setup({})
+    -- lsp.java_language_server.setup({})
 else
-    vim.fn.EchoWarn("Invalid ps_bundle_path")
+    vim.keymap.set("n", "<leader>rn", vscode_cmd("editor.action.rename"), mopts)
 end
-lsp.docker_compose_language_service.setup({})
--- lsp.java_language_server.setup({})
 
 require("nvim-autopairs").setup({ disable_filetype = { "markdown" } })
 local cmp_autopairs = require("nvim-autopairs.completion.cmp")
@@ -521,67 +577,71 @@ vim.keymap.set("n", "<leader>g", function()
 end, mopts)
 
 -- DAP
-local dap = require("dap")
-vim.fn.sign_define("DapBreakpoint", { text = "🛑", texthl = "", linehl = "", numhl = "" })
-dap.defaults.fallback.terminal_win_cmd = "50vsplit new"
-require("dap-python").setup(py3bin)
-require("dap-go").setup({
-    dap_configurations = { { type = "go", name = "Attach remote", mode = "remote", request = "attach" } },
-})
-require("nvim-dap-virtual-text").setup({ commented = true })
-require("dapui").setup({
-    icons = { expanded = "", collapsed = "", current_frame = "" },
-    mappings = {
-        expand = { "o", "<2-LeftMouse>", "za" },
-        open = "<CR>",
-        remove = "d",
-        edit = "e",
-        repl = "r",
-        toggle = "t",
-    },
-    expand_lines = vim.fn.has("nvim-0.7") == 1,
-    layouts = {
-        {
-            elements = { "console", "breakpoints", "stacks", "watches", { id = "scopes", size = 0.30 } },
-            size = 40, -- 40 columns
-            position = "left",
+if not vim.g.vscode then
+    local dap = require("dap")
+    vim.fn.sign_define("DapBreakpoint", { text = "🛑", texthl = "", linehl = "", numhl = "" })
+    dap.defaults.fallback.terminal_win_cmd = "50vsplit new"
+    require("dap-python").setup(py3bin)
+    require("dap-go").setup({
+        dap_configurations = { { type = "go", name = "Attach remote", mode = "remote", request = "attach" } },
+    })
+    require("nvim-dap-virtual-text").setup({ commented = true })
+    require("dapui").setup({
+        icons = { expanded = "", collapsed = "", current_frame = "" },
+        mappings = {
+            expand = { "o", "<2-LeftMouse>", "za" },
+            open = "<CR>",
+            remove = "d",
+            edit = "e",
+            repl = "r",
+            toggle = "t",
         },
-        -- {
-        --     elements = { "repl", "console" },
-        --     size = 0.25, -- 25% of total lines
-        --     position = "bottom",
-        -- },
-    },
-    controls = {
-        enabled = true,
-        element = "console",
-        icons = {
-            pause = "",
-            play = "",
-            step_into = "",
-            step_over = "",
-            step_out = "",
-            step_back = "",
-            run_last = "",
-            terminate = "",
+        expand_lines = vim.fn.has("nvim-0.7") == 1,
+        layouts = {
+            {
+                elements = { "console", "breakpoints", "stacks", "watches", { id = "scopes", size = 0.30 } },
+                size = 40, -- 40 columns
+                position = "left",
+            },
+            -- {
+            --     elements = { "repl", "console" },
+            --     size = 0.25, -- 25% of total lines
+            --     position = "bottom",
+            -- },
         },
-    },
-    floating = { max_height = nil, max_width = nil, border = "single", mappings = { close = { "q", "<Esc>" } } },
-    windows = { indent = 2 },
-    render = { max_type_length = nil, max_value_lines = 100 },
-})
+        controls = {
+            enabled = true,
+            element = "console",
+            icons = {
+                pause = "",
+                play = "",
+                step_into = "",
+                step_over = "",
+                step_out = "",
+                step_back = "",
+                run_last = "",
+                terminate = "",
+            },
+        },
+        floating = { max_height = nil, max_width = nil, border = "single", mappings = { close = { "q", "<Esc>" } } },
+        windows = { indent = 2 },
+        render = { max_type_length = nil, max_value_lines = 100 },
+    })
 
-vim.keymap.set("n", "<leader>db", dap.toggle_breakpoint, mopts)
-vim.keymap.set("n", "<leader>dc", '<cmd>lua require"dap".set_breakpoint(vim.fn.input("Condition: "))<cr>', mopts)
-vim.keymap.set("n", "<F5>", dap.continue, mopts)
-vim.keymap.set("n", "<F10>", dap.step_over, mopts)
-vim.keymap.set("n", "<F11>", dap.step_into, mopts)
-vim.keymap.set("n", "<F12>", dap.step_out, mopts)
-vim.keymap.set("n", "<leader>dr", "<cmd>lua require'dapui'.float_element('repl')<cr>", mopts)
-vim.keymap.set("n", "<leader>du", "<cmd>lua require'dapui'.toggle({reset=true})<cr>", mopts)
-vim.keymap.set("n", "<leader>dl", dap.run_last, mopts)
+    vim.keymap.set("n", "<leader>db", dap.toggle_breakpoint, mopts)
+    vim.keymap.set("n", "<leader>dc", '<cmd>lua require"dap".set_breakpoint(vim.fn.input("Condition: "))<cr>', mopts)
+    vim.keymap.set("n", "<F5>", dap.continue, mopts)
+    vim.keymap.set("n", "<F10>", dap.step_over, mopts)
+    vim.keymap.set("n", "<F11>", dap.step_into, mopts)
+    vim.keymap.set("n", "<F12>", dap.step_out, mopts)
+    vim.keymap.set("n", "<leader>dr", "<cmd>lua require'dapui'.float_element('repl')<cr>", mopts)
+    vim.keymap.set("n", "<leader>du", "<cmd>lua require'dapui'.toggle({reset=true})<cr>", mopts)
+    vim.keymap.set("n", "<leader>dl", dap.run_last, mopts)
+end
 
-require("registers").setup({})
+if not vim.g.vscode then
+    require("registers").setup({})
+end
 
 cmp.setup({
     enabled = function()
@@ -706,6 +766,12 @@ end
 --     end
 --   end,
 -- })
+
+if vim.g.vscode then
+    vim.g.clipboard = vim.g.vscode_clipboard
+    pcall(vim.keymap.del, "n", "<leader>n")
+    pcall(vim.keymap.del, "n", "<leader>N")
+end
 
 -- vim.lsp.set_log_level("debug")
 -- vim.opt.termguicolors = true

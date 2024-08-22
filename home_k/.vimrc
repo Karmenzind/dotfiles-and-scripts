@@ -143,7 +143,6 @@ if has("nvim")
 
   Plug 'neovim/nvim-lspconfig'
 
-  " lspkind adds vscode-like pictograms to neovim built-in lsp:
   Plug 'onsails/lspkind.nvim'
 
   Plug 'kosayoda/nvim-lightbulb'  " show code action symbol
@@ -663,21 +662,23 @@ function! s:FzfToNERDTree(lines)
 endfunction
 
 " /* for NERDTree */
-nnoremap <silent> <leader>N :NERDTreeFind<CR>
-nnoremap <silent> <Leader>n :NERDTreeToggle<CR>
-let g:NERDTreeIgnore = ['\.pyc$', '\~$', '__pycache__[[dir]]', '\.swp$']
-let g:NERDTreeShowBookmarks = 1
-let g:NERDTreeNaturalSort = 1
-let g:NERDTreeShowLineNumbers = 1
-let g:NERDTreeShowHidden = 1
+if !has("nvim")
+  nnoremap <silent> <leader>N :NERDTreeFind<CR>
+  nnoremap <silent> <Leader>n :NERDTreeToggle<CR>
+  let g:NERDTreeIgnore = ['\.pyc$', '\~$', '__pycache__[[dir]]', '\.swp$']
+  let g:NERDTreeShowBookmarks = 1
+  let g:NERDTreeNaturalSort = 1
+  let g:NERDTreeShowLineNumbers = 1
+  let g:NERDTreeShowHidden = 1
 
-augroup nerd_behaviours
-  au!
-  autocmd StdinReadPre * let s:std_in = 1
-  autocmd VimEnter * if argc() == 1 && isdirectory(argv()[0]) && !exists("s:std_in") | exe 'NERDTree' argv()[0] | wincmd p | ene | endif
-  autocmd bufenter * if (winnr("$") == 1 && exists("b:NERDTree") && b:NERDTree.isTabTree()) | q | endif
-  autocmd tableave * if exists('g:loaded_nerd_tree') | execute 'NERDTreeClose' | endif
-augroup END
+  augroup nerd_behaviours
+    au!
+    autocmd StdinReadPre * let s:std_in = 1
+    autocmd VimEnter * if argc() == 1 && isdirectory(argv()[0]) && !exists("s:std_in") | exe 'NERDTree' argv()[0] | wincmd p | ene | endif
+    autocmd bufenter * if (winnr("$") == 1 && exists("b:NERDTree") && b:NERDTree.isTabTree()) | q | endif
+    autocmd tableave * if exists('g:loaded_nerd_tree') | execute 'NERDTreeClose' | endif
+  augroup END
+endif
 
 " /* For vim-airline */
 if g:line_plugin == 'airline'
@@ -775,7 +776,7 @@ else
 endif
 
 let s:__use_tmux = v:false
-if !s:is_win && exists('$TMUX')
+if !s:is_win && !exists("g:vscode") && exists('$TMUX')
   let g:__tmux_version = str2float(matchstr(system('tmux -V'), '\v[0-9]+\.[0-9]+'))
   if g:__tmux_version >= 3.2
     let s:__use_tmux = v:true
@@ -983,14 +984,20 @@ let g:ale_floating_preview = 1
 let g:ale_history_log_output = 1
 let g:ale_sql_sqlfluff_options = '--dialect mysql'
 
-nmap <silent> <Leader>al <Plug>(ale_lint)
-nmap <Leader>af <Plug>(ale_fix)
-nmap <silent> <Leader>at <Plug>(ale_toggle)
-call s:NoSearchCabbrev("AF", "ALEFix")
+if exists("g:vscode")
+  nnoremap <Leader>af <CMD>lua require('vscode').call('editor.action.formatDocument')<CR>
+else
+  nmap <silent> <Leader>al <Plug>(ale_lint)
+  nmap <Leader>af <Plug>(ale_fix)
+  nmap <silent> <Leader>at <Plug>(ale_toggle)
+  call s:NoSearchCabbrev("AF", "ALEFix")
+endif
 
 " /* for vim-visual-multi */
 " let g:VM_maps = {"Find Under": '<space>n'}
-let g:VM_maps = {"Find Under": '<leader><leader>n'}
+if !exists("vscode")
+  let g:VM_maps = {"Find Under": '<leader><leader>n'}
+endif
 
 " /* for vim-markdown | markdown-preview */
 " vim-markdown
@@ -1317,38 +1324,42 @@ if has_key(plugs, 'coc.nvim')
 endif
 
 
-" /* for vista.vim */
-noremap <Leader>V :Vista!!<CR>
-noremap <Leader>fc :Vista finder<CR>
-let g:vista_sidebar_width = 40
-let g:vista_echo_cursor = 0
-let g:vista_echo_cursor_strategy = 'both'
-" let g:vista_highlight_whole_line = 1
+" /* Outline & vista.vim */
+if !exists("vscode")
+  noremap <Leader>V :Vista!!<CR>
+  noremap <Leader>fc :Vista finder<CR>
+  let g:vista_sidebar_width = 40
+  let g:vista_echo_cursor = 0
+  let g:vista_echo_cursor_strategy = 'both'
+  " let g:vista_highlight_whole_line = 1
 
-if has('nvim')
-  let g:vista_executive_for = {
-    \ 'go': 'nvim_lsp',
-    \ 'yaml': 'nvim_lsp',
-    \ 'toml': 'nvim_lsp',
-    \ 'typescript': 'nvim_lsp',
-    \ }
-elseif Plugged("coc.nvim")
-  let g:vista_executive_for = {
-    \ 'lua': 'coc',
-    \ 'yaml': 'coc',
-    \ 'toml': 'coc',
-    \ 'ps1': 'coc',
-    \ 'tsx': 'coc',
-    \ 'typescriptreact': 'coc',
-    \ }
+  if has('nvim')
+    let g:vista_executive_for = {
+      \ 'go': 'nvim_lsp',
+      \ 'yaml': 'nvim_lsp',
+      \ 'toml': 'nvim_lsp',
+      \ 'typescript': 'nvim_lsp',
+      \ }
+  elseif Plugged("coc.nvim")
+    let g:vista_executive_for = {
+      \ 'lua': 'coc',
+      \ 'yaml': 'coc',
+      \ 'toml': 'coc',
+      \ 'ps1': 'coc',
+      \ 'tsx': 'coc',
+      \ 'typescriptreact': 'coc',
+      \ }
+  endif
+
+  augroup vista_aug
+    au!
+    au FileType vista,vista_kind set nu rnu
+    au FileType vista,vista_kind nnoremap <buffer> <silent> K :<c-u>call vista#cursor#TogglePreview()<CR>
+
+  augroup END
+else
+  nnoremap <Leader>V <Cmd>lua require('vscode').action('workbench.view.extension.outline-map')<CR>
 endif
-
-augroup vista_aug
-  au!
-  au FileType vista,vista_kind set nu rnu
-  au FileType vista,vista_kind nnoremap <buffer> <silent> K :<c-u>call vista#cursor#TogglePreview()<CR>
-
-augroup END
 
 " /* for vim-vue */
 let g:vue_pre_processors = []
