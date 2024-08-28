@@ -135,6 +135,14 @@ Plug 'liuchengxu/vista.vim'
 " Plug 'Shougo/echodoc.vim'
 Plug 'w0rp/ale' " Asynchronous Lint Engine
 if has("nvim")
+  Plug 'nvim-java/lua-async-await'
+  Plug 'nvim-java/nvim-java-refactor'
+  Plug 'nvim-java/nvim-java-core'
+  Plug 'nvim-java/nvim-java-test'
+  Plug 'nvim-java/nvim-java-dap'
+
+  Plug 'MunifTanjim/nui.nvim'
+
   Plug 'nvim-treesitter/nvim-treesitter', {'do': ':TSUpdate'}
 
   Plug 'kevinhwang91/promise-async' | Plug 'kevinhwang91/nvim-ufo'
@@ -173,6 +181,9 @@ if has("nvim")
   Plug 'rcarriga/nvim-dap-ui'
   Plug 'rcarriga/cmp-dap'
   Plug 'theHamsta/nvim-dap-virtual-text'
+
+  Plug 'nvim-java/nvim-java'
+  Plug 'JavaHello/spring-boot.nvim'
 else
   Plug 'neoclide/coc.nvim', {'branch': 'release'}
   " if has("win32")
@@ -205,10 +216,8 @@ Plug 't9md/vim-choosewin'
 if has('nvim')
   Plug 'goolord/alpha-nvim'
   Plug 'kyazdani42/nvim-web-devicons'
-else
-  if !s:is_win
-    Plug 'mhinz/vim-startify'
-  endif
+elseif !s:is_win
+  Plug 'mhinz/vim-startify'
 endif
 " Plug 'bagrat/vim-workspace' " tab bar
 
@@ -351,7 +360,7 @@ set nowrap
 
 " set noshowmode
 " set whichwrap+=<,>,h,l
-if has_key(plugs, 'vim-devicons')
+if Plugged('vim-devicons')
   set statusline=%f\ %{WebDevIconsGetFileTypeSymbol()}\ %h%w%m%r\ %=%(%l,%c%V\ %Y\ %=\ %P%)
 else
   set statusline=%F%m%r%h%w\ (%{&ff}){%Y}\ [%l,%v][%p%%]
@@ -889,6 +898,18 @@ function! FixSurroundedWhiteSpaces(buffer, lines)
   return map(a:lines, {idx, line -> substitute(line, '\v^(\s*""")\s+(.+)\s+(""")', '\1\2\3', '')})
 endfunction
 
+function! FixLeadingTabs(buffer, lines) abort
+    let l:fixed_lines = []
+    for l:line in a:lines
+        if l:line =~ '^\t'
+          call add(l:fixed_lines, substitute(l:line, '^\t\+', '\=repeat(" ", &tabstop * len(submatch(0)))', 'g'))
+        else
+          call add(l:fixed_lines, l:line)
+        endif
+    endfor
+    return l:fixed_lines
+endfunction
+
 " no linters for nvim
 if has('nvim')
   let g:ale_enabled = 0
@@ -938,7 +959,7 @@ let g:ale_fixers = {
       \  'lua': ['stylua'],
       \  'php': ['php_cs_fixer'],
       \  'python': ['isort', 'autopep8', 'FixSurroundedWhiteSpaces', 'autoflake'],
-      \  'sh': ['shfmt'],
+      \  'sh': ['shfmt', 'FixLeadingTabs'],
       \  'sql': ['pgformatter'],
       \  'vue': ['eslint', 'prettier'],
       \  'yaml': ['prettier'],
@@ -962,7 +983,8 @@ let g:ale_python_pydocstyle_options = '--ignore=D103,D200,D203,D204,D205,D211,D2
 let g:ale_python_autoflake_options = '--remove-all-unused-imports --ignore-init-module-imports'
 " let g:ale_javascript_prettier_options = '-c'
 " let g:ale_javascript_eslint_options = '--ext .js,.vue'
-let g:ale_sql_sqlfmt_executable = exepath("sqlfmt")
+" let g:ale_sql_sqlfmt_executable = exepath("sqlfmt")
+" let g:ale_shfmt_options = '-p --indent=4 --case-indent --space-redirects --keep-padding'
 
 let g:ale_sql_sqlfmt_options = '-u'
 let g:ale_lua_stylua_options = '--indent-type Spaces'
@@ -1114,38 +1136,35 @@ noremap <Leader>ps :PlugStatus<CR>
 noremap <Leader>pc :PlugClean<CR>
 
 " /* for startify */
-let g:startify_update_oldfiles = 1
-let g:startify_files_number = 7
-let g:startify_change_to_dir = 0
-let g:startify_session_persistence = 1
-let g:startify_session_before_save = [ 'silent! NERDTreeClose' ]
+if Plugged("vim-startify")
+  let g:startify_update_oldfiles = 1
+  let g:startify_files_number = 7
+  let g:startify_change_to_dir = 0
+  let g:startify_session_persistence = 1
+  let g:startify_session_before_save = [ 'silent! NERDTreeClose' ]
 
-augroup startify_aug
-  au!
-  au FileType startify IndentLinesDisable
-augroup END
+  augroup startify_aug
+    au!
+    au FileType startify IndentLinesDisable
+  augroup END
 
-" with devicons
-" function! StartifyEntryFormat()
-"   return 'WebDevIconsGetFileTypeSymbol(absolute_path) ." ". entry_path'
-" endfunction
+  function! s:list_commits()
+    let l:not_repo = str2nr(system("git rev-parse >/dev/null 2>&1; echo $?"))
+    if l:not_repo | return | endif
+    let list_cmd = 'git log --oneline | head -n7'
+    if executable('emojify') | let list_cmd .= ' | emojify' | endif
+    let commits = systemlist(list_cmd)
+    return map(commits, '{"line": matchstr(v:val, "\\s\\zs.*"), "cmd": "Git show ". matchstr(v:val, "^\\x\\+") }')
+    " return map(commits, '{"line": {matchstr(v:val, "^\\x\\+"): matchstr(v:val, "\\s\\zs.*")}, "cmd": "Git show ". matchstr(v:val, "^\\x\\+") }')
+  endfunction
 
-function! s:list_commits()
-  let l:not_repo = str2nr(system("git rev-parse >/dev/null 2>&1; echo $?"))
-  if l:not_repo | return | endif
-  let list_cmd = 'git log --oneline | head -n7'
-  if executable('emojify') | let list_cmd .= ' | emojify' | endif
-  let commits = systemlist(list_cmd)
-  return map(commits, '{"line": matchstr(v:val, "\\s\\zs.*"), "cmd": "Git show ". matchstr(v:val, "^\\x\\+") }')
-  " return map(commits, '{"line": {matchstr(v:val, "^\\x\\+"): matchstr(v:val, "\\s\\zs.*")}, "cmd": "Git show ". matchstr(v:val, "^\\x\\+") }')
-endfunction
-
-let g:startify_lists = [
-      \ { 'header': ['   » SESSIONS    '], 'type': 'sessions' },
-      \ { 'header': ['   » RECENT FILES @ '. getcwd()], 'type': 'dir' },
-      \ { 'header': ['   » RECENT FILES'],   'type': 'files' },
-      \ { 'header': ['   » REPO HISTORY '],  'type': function('s:list_commits') },
-      \ ]
+  let g:startify_lists = [
+        \ { 'header': ['   » SESSIONS    '], 'type': 'sessions' },
+        \ { 'header': ['   » RECENT FILES @ '. getcwd()], 'type': 'dir' },
+        \ { 'header': ['   » RECENT FILES'],   'type': 'files' },
+        \ { 'header': ['   » REPO HISTORY '],  'type': function('s:list_commits') },
+        \ ]
+endif
 
 " /* for vc */
 if executable('svn') && Plugged('vc-svn.vim')

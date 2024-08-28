@@ -5,13 +5,29 @@ root = true
 
 # Unix-style newlines with a newline ending every file
 [*]
-end_of_line = lf
+end_of_line          = lf
 insert_final_newline = true
+indent_style         = space
+indent_size          = 4
+
+# [*.sh]
+# indent_size        = 4
+# indent_style       = space
+# shell_variant      = posix
+# binary_next_line   = false
+#
+# switch_case_indent = true
+# space_redirects    = true
+# keep_padding       = false
+#
+# function_next_line = false
 
 # Matches multiple files with brace expansion notation
 # Set default charset
-[*.{js,py}]
+[*.{js,py,ts}]
 charset = utf-8
+indent_style = space
+indent_size = 2
 
 # 4 space indentation
 [*.py]
@@ -20,7 +36,7 @@ indent_size = 4
 
 # Tab indentation (no size specified)
 [Makefile]
-indent_style = tab
+indent_style = space
 
 # Indentation override for all JS under lib directory
 [lib/**.js]

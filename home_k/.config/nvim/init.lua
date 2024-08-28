@@ -235,7 +235,13 @@ vim.diagnostic.config({
     float = { source = true },
 })
 
-require("mason").setup()
+require("mason").setup({
+    PATH = "append",
+    registries = { "github:nvim-java/mason-registry", "github:mason-org/mason-registry" },
+    ui = { check_outdated_packages_on_open = false },
+    -- log_level = vim.log.levels.DEBUG,
+})
+require("java").setup({ jdk = { auth_install = false } })
 require("mason-lspconfig").setup({
     ensure_installed = { "lua_ls", "pyright", "vimls", "bashls", "marksman", "gopls" },
 })
@@ -463,12 +469,12 @@ if not vim.g.vscode then
     })
 
     -- other lsp
-    -- lsp.phpactor.setup({
-    --     on_attach = on_attach,
-    --     capabilities = capabilities,
-    --     init_options = { ["language_server_phpstan.enabled"] = false, ["language_server_psalm.enabled"] = false },
-    -- })
-    lsp.jdtls.setup({ on_attach = on_attach, capabilities = lsp_cap, use_lombok_agent = true }) -- java >=17
+    lsp.phpactor.setup({
+        on_attach = on_attach,
+        capabilities = capabilities,
+        init_options = { ["language_server_phpstan.enabled"] = false, ["language_server_psalm.enabled"] = false },
+    })
+    lsp.jdtls.setup({ on_attach = on_attach, capabilities = lsp_cap, use_lombok_agent = true, cmd = { "jdtls" } }) -- java >=17
     lsp.omnisharp.setup({
         on_attach = on_attach,
         capabilities = lsp_cap,
@@ -747,10 +753,14 @@ if vim.g.colors_name == nil then
 
     if cololike("github_") then
         require("github-theme").setup({
-            dark_float = true,
-            hide_inactive_statusline = false,
-            sidebars = { "qf", "vista_kind", "terminal", "packer", "nerdtree", "vista" },
-            function_style = "italic",
+            options = {
+                darken = {
+                    sidebars = { "qf", "vista_kind", "terminal", "packer", "nerdtree", "vista" },
+                    floats = false,
+                },
+                hide_nc_statusline = false,
+                styles = { functions = "italic" },
+            },
         })
     end
 end
@@ -768,7 +778,8 @@ end
 -- })
 
 if vim.g.vscode then
-    vim.g.clipboard = vim.g.vscode_clipboard
+    -- vim.g.clipboard = vim.g.vscode_clipboard
+    vim.opt.clipboard:append("unnamedplus")
     pcall(vim.keymap.del, "n", "<leader>n")
     pcall(vim.keymap.del, "n", "<leader>N")
 end

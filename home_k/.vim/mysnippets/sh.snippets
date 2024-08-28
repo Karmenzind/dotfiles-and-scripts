@@ -1,6 +1,6 @@
 
 snippet curdir "current dir path"
-${0:CURDIR}=$(cd \`dirname \$0\`; pwd)
+${0:CURDIR}=$(cd \`dirname \$0\` && pwd)
 endsnippet
 
 snippet sb "bash shebang" b

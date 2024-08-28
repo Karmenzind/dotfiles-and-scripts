@@ -1,5 +1,4 @@
 # vim:set et ft=sh sw=4 ts=4:
-
 export __MYKEYBOARD=${__MYKEYBOARD:-common}
 
 # [[ -n $__LOADED_SHRC_EXT ]] && echo "[WARNING] shrc.ext already loaded. Stopped." && return
@@ -132,7 +131,7 @@ __initialize_my_conda() {
     [[ -z $__my_conda_root ]] && return
     echo "[conda] Found conda dir: $__my_conda_root . Initializing..."
 
-    __conda_setup="$('${__my_conda_root}/bin/conda' 'shell.zsh' 'hook' 2> /dev/null)"
+    __conda_setup="$('${__my_conda_root}/bin/conda' 'shell.zsh' 'hook' 2>/dev/null)"
     if [ $? -eq 0 ]; then
         eval "$__conda_setup"
     else
@@ -583,7 +582,7 @@ fi
 #                               Wayland                               #
 #######################################################################
 export XMODIFIERS="@im=fcitx"
-export QT_IM_MODULE=fcitx 
+export QT_IM_MODULE=fcitx
 #######################################################################
 #                                DEBUG                                #
 #######################################################################

@@ -1,6 +1,5 @@
 #! /usr/bin/env bash
 # Github: https://github.com/Karmenzind/dotfiles-and-scripts
-# Last Modified: 2024-01-18 16:20:34
 
 # Mainly for ArchLinux
 # Partially support Debian-based system
