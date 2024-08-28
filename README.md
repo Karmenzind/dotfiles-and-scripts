@@ -22,7 +22,7 @@
     <tr>
       <td align="center" rowspan="5" width="50">Shell</td>
       <td align="center" >Editor</td>
-      <td align="center" colspan=2>Vim/Neovim</td>
+      <td align="center" colspan=2>Vim / Neovim (compatible with vscode-neovim)</td>
       <!-- <td align="center">Shell: Vim/Neovim<br>GUI: GVim/Neovide</td> -->
     </tr>
     <tr>
@@ -120,7 +120,7 @@ script parameters：
 
 ### (Neo)Vim configuration and setup
 
-Here are two sets of full-featured configuration for Vim and Neovim. Spent years refining them. There are some plugin differences, but the basic behaviors and shortcuts are pretty much the same. Mainly for everyday Python and Golang development, as well as whipping up VimL, Lua, and Bash scripts.
+Here are two sets of **full-featured** configuration for Vim and Neovim (compatible with vscode-neovim). Spent years optimizing them. There are many plugin differences, but the basic behaviors and keybindings are pretty much the same. Mainly for everyday **Python/Golang/Java/Javascript/Typescript** development, as well as whipping up **VimL/Lua/Bash** scripts.
 
 Simply run:
 

@@ -20,7 +20,7 @@
     <tr>
       <td align="center" rowspan="5" width="50">Shell</td>
       <td align="center" >Editor</td>
-      <td align="center" colspan=2>Vim/Neovim</td>
+      <td align="center" colspan=2>Vim / Neovim （兼容vscode-neovim）</td>
       <!-- <td align="center">Shell: Vim/Neovim<br>GUI: GVim/Neovide</td> -->
     </tr>
     <tr>
@@ -116,7 +116,7 @@ python3 symlink.py
 
 ### (Neo)Vim配置和相关应用
 
-Vim/Neovim两套打磨多年的配置，内部插件有诸多差异但主要行为和快捷键基本一致，主要供日常Python/Golang开发和VimL/Lua/Bash脚本编写
+Vim/Neovim（兼容vscode-neovim）两套打磨多年的配置，内部插件有诸多差异但主要行为和快捷键基本一致，主要供日常 **Python/Golang/Java/Javascript/Typescript** 开发和 **VimL/Lua/Bash** 脚本编写
 
 最简单的方式：
 
