@@ -469,14 +469,12 @@ augroup filetype_formats
         \ setlocal softtabstop=4
 
   au FileType yaml.docker-compose setlocal sts=2 ts=2 sw=2
-
   au FileType help setlocal nu
-
   au FileType make setlocal noexpandtab
 
-  au BufNewFile,BufRead Jenkinsfile setf groovy
+  au FileType,BufNewFile,BufRead Jenkinsfile setf groovy
 
-  au BufNewFile,BufRead *.{vim},*vimrc
+  au FileType,BufNewFile,BufRead *.{vim},*vimrc
         \ setlocal tabstop=2          |
         \ setlocal softtabstop=2      |
         \ setlocal shiftwidth=2       |
@@ -485,10 +483,10 @@ augroup filetype_formats
         \ setlocal foldmethod=expr    |
         \ setlocal foldexpr=VimScriptFold(v:lnum)
 
-  au BufNewFile,BufRead *.go
+  au FileType,BufNewFile,BufRead *.go
         \ setlocal foldmethod=syntax
 
-  au BufNewFile,BufRead *.py
+  au FileType,BufNewFile,BufRead *.py
         \ setlocal autoindent            |
         \ setlocal sidescroll=5          |
         \ setlocal cc=120                |
@@ -500,22 +498,19 @@ augroup filetype_formats
   " \ set listchars+=precedes:<,extends:>
   " \ set textwidth=79 |
 
-  au BufNewFile,BufRead *.js,*.ts,*.html,*.css,*.yml,*.toml,*.vue
+  au FileType,BufNewFile,BufRead *.js,*.ts,*.html,*.css,*.yml,*.toml,*.vue
         \ setlocal tabstop=2     |
         \ setlocal softtabstop=2 |
         \ setlocal shiftwidth=2
 
-  au BufNewFile,BufRead *.json
+  au FileType,BufNewFile,BufRead *.json
         \ setlocal tabstop=2     |
         \ setlocal softtabstop=2 |
         \ setlocal shiftwidth=2  |
         \ setlocal foldmethod=syntax
 
-  " autocmd BufNewFile,BufRead *.{md,mkd,mkdn,mark*}
-  "   \ set filetype=markdown
-
   " useless whitespaces
-  au BufRead,BufNewFile *.py,*.pyw,*.c,*.h,*.{vim,vimrc}
+  au FileType,BufRead,BufNewFile *.py,*.pyw,*.c,*.h,*.{vim,vimrc}
         \ highlight BadWhitespace ctermbg=red guibg=darkred |
         \ match BadWhitespace /\s\+$/
 
@@ -898,6 +893,10 @@ function! FixSurroundedWhiteSpaces(buffer, lines)
   return map(a:lines, {idx, line -> substitute(line, '\v^(\s*""")\s+(.+)\s+(""")', '\1\2\3', '')})
 endfunction
 
+function! ChangeTab2Spaces(buffer, lines)
+  return map(a:lines, {idx, line -> substitute(line, '\v^([^"]*"[^"]*")*\t+', '\=repeat(" ", &tabstop * len(submatch(0)))', 'g')})
+endfunction
+
 function! FixLeadingTabs(buffer, lines) abort
     let l:fixed_lines = []
     for l:line in a:lines
@@ -950,7 +949,7 @@ let g:ale_fixers = {
       \  '*': ['trim_whitespace'],
       \  'c': ['clang-format'],
       \  'css': ['prettier'],
-      \  'go': ['gofmt', 'goimports'],
+      \  'go': ['gofmt', 'goimports', 'FixLeadingTabs'],
       \  'html': ['prettier'],
       \  'java': ['clang-format'],
       \  'javascript': ['prettier', 'importjs'],

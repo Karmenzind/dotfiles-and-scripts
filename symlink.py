@@ -1,6 +1,5 @@
 #!/usr/bin/env python3
 # Github: https://github.com/Karmenzind/dotfiles-and-scripts
-
 """
 create symlink
 """
