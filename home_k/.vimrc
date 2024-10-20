@@ -165,6 +165,7 @@ if has("nvim")
   Plug 'hrsh7th/cmp-calc',                    {'branch': 'main'}
   Plug 'hrsh7th/cmp-cmdline',                 {'branch': 'main'}
   Plug 'hrsh7th/cmp-emoji',                   {'branch': 'main'}
+  Plug 'SergioRibera/cmp-dotenv'
   if exists('$TMUX')
     Plug 'andersevenrud/cmp-tmux'
   endif

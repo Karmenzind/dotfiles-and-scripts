@@ -392,6 +392,7 @@ cmp.setup({
         { name = "emoji" },
         { name = "path" },
         { name = "tmux", option = { keyword_pattern = [[\w\w\w\+]] }, trigger_characters = {} },
+        { name = "dotenv" },
     },
 })
 
