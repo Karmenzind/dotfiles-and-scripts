@@ -14,5 +14,7 @@ if [ "$battery_level" -lt 30 ]; then
         export DBUS_SESSION_BUS_ADDRESS=$(grep -z DBUS_SESSION_BUS_ADDRESS /proc/$(pgrep -u $LOGNAME i3)/environ | cut -d= -f2-)
         # export DBUS_SESSION_BUS_ADDRESS=$(dbus-launch --exit-with-session --sh-syntax --config-file=/path/to/dunst.conf)
     fi
-    notify-send -u critical "Battery Low" "$battery_level% left" >> /tmp/alert.log 2>&1
+    if acpi -a | grep -q 'off-line'; then
+        notify-send -u critical "Battery Low" "$battery_level% left" >> /tmp/alert.log 2>&1
+    fi
 fi

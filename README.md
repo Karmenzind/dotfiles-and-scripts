@@ -108,7 +108,7 @@ Firstly, **clone** this repo.
 To apply everything in form of creating symbolic links for them (there will be prompt and backup before overwriting files):
 
 ```bash
-python3 symlink.py
+python symlink.py
 ```
 
 script parameters：
@@ -138,7 +138,7 @@ This script will take care of everything included:
 Or if you only need the configuration files, run symlink.py with `vimonly` specified:
 
 ```bash
-python3 symlink.py --vimonly
+python symlink.py --vimonly
 ```
 
 Launch Vim/Neovim and the plugin setup will start automatically.

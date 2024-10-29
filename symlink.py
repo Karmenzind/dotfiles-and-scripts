@@ -1,17 +1,18 @@
-#!/usr/bin/env python3
+#!/usr/bin/env python
 # Github: https://github.com/Karmenzind/dotfiles-and-scripts
 """
-create symlink
+apply everything in form of
+creating symbolic links for them
+(there will be prompt and backup before overwriting files)
 """
 
 from __future__ import annotations, print_function, unicode_literals
 
 import sys
-from typing import List
-
 if sys.version_info.major < 3:
     print("[✘] Python3 is required.")
 
+from typing import List
 import argparse
 import datetime
 import getpass
@@ -324,8 +325,8 @@ def main():
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="created symlinks for configuration files in this repo")
-    parser.add_argument("--fake", action="store_true", help="Only preview what will happen")
-    parser.add_argument("-i", "--interactive", action="store_true", help="Let me determine every file")
+    parser.add_argument("--fake", action="store_true", help="only preview what will happen")
+    parser.add_argument("-i", "--interactive", action="store_true", help="let me determine each file")
     parser.add_argument("-d", "--delete", action="store_true", help="remove all symlink files")
     parser.add_argument("--nogui", action="store_true", help="only for terminal apps")
     parser.add_argument("--vimonly", action="store_true", help="only for vim related")

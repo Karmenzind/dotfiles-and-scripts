@@ -152,7 +152,6 @@ disable=print-statement,
         attribute-defined-outside-init,
         no-name-in-module,
         ungrouped-imports,
-        logging-fstring-interpolation,
         unused-wildcard-import,
         bad-continuation,
         too-many-branches,
@@ -167,6 +166,7 @@ disable=print-statement,
         line-too-long,
         using-constant-test,
         consider-using-dict-items
+        # logging-fstring-interpolation,
         # no-member,
 
 # Enable the message, report, category or checker with the given id(s). You can

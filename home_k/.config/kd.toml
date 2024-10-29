@@ -1,9 +1,6 @@
 debug = true
 paging = true
 
-
-# pager_command = "more asdfsadga"
-# pager_command = "more asdf"
 pager_command = "less -F"
 
 auto_clear = false

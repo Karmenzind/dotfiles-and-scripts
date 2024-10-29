@@ -106,7 +106,7 @@
 以创建软链接的形式一键安装所有配置（现有文件会询问是否覆盖、自动备份）（兼容Linux/Win）：
 
 ```bash
-python3 symlink.py
+python symlink.py
 ```
 
 支持参数：
@@ -127,7 +127,7 @@ bash scripts/setup_vim.sh
 如果需要配置文件，用交互模式运行symlink.py：
 
 ```bash
-python3 symlink.py --vimonly
+python symlink.py --vimonly
 ```
 
 然后启动Vim/Neovim，会自动开始安装和初始化

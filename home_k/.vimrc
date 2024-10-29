@@ -150,11 +150,15 @@ if has("nvim")
   Plug 'williamboman/mason.nvim' | Plug 'williamboman/mason-lspconfig.nvim'
 
   Plug 'neovim/nvim-lspconfig'
+  Plug 'nvimdev/lspsaga.nvim',
 
   Plug 'onsails/lspkind.nvim'
 
   Plug 'kosayoda/nvim-lightbulb'  " show code action symbol
   Plug 'weilbith/nvim-code-action-menu', {'on': 'CodeActionMenu'}
+
+  Plug 'ray-x/lsp_signature.nvim'
+  Plug 'stevearc/aerial.nvim'
 
   " cmp
   Plug 'hrsh7th/nvim-cmp',                    {'branch': 'main'}
@@ -243,7 +247,7 @@ endif
 Plug 'tmhedberg/SimpylFold', { 'for': 'python' } " code folding
 Plug 'raimon49/requirements.txt.vim'
 Plug 'vim-scripts/indentpython.vim'
-Plug 'tweekmonster/django-plus.vim', { 'for': 'python' }
+" Plug 'tweekmonster/django-plus.vim', { 'for': 'python' }
 
 " /* Write doc */
 Plug 'godlygeek/tabular'
@@ -260,11 +264,7 @@ Plug 'Traap/vim-helptags'
 " Plug 'vipul-sharma20/vim-registers'
 Plug 'dahu/vim-lotr'
 if has('nvim')
-  " Plug 'MunifTanjim/nui.nvim'
   " Plug 'folke/noice.nvim'
-  " Plug 'MunifTanjim/nui.nvim'
-
-  Plug 'nvim-lua/plenary.nvim'
   Plug 'folke/todo-comments.nvim', {'branch': 'main'}
   " Plug 'gennaro-tedesco/nvim-peekup'
   Plug 'tversteeg/registers.nvim', {'branch': 'main'}
@@ -295,6 +295,10 @@ Plug 'flazz/vim-colorschemes'
 if has('nvim')
   let g:line_plugin = 'lualine'
   Plug 'nvim-lualine/lualine.nvim'
+  Plug 'nanozuki/tabby.nvim'
+  "Plug 'lewis6991/gitsigns.nvim' " OPTIONAL: for git status
+  "Plug 'romgrk/barbar.nvim'
+  " barbar?
 else
   let g:line_plugin = 'airline'
   Plug 'vim-airline/vim-airline'
@@ -305,6 +309,7 @@ Plug 'icymind/NeoSolarized'
 Plug 'KKPMW/sacredforest-vim'
 Plug 'junegunn/seoul256.vim'
 Plug 'arcticicestudio/nord-vim'
+Plug 'aktersnurra/no-clown-fiesta.nvim'
 if has('nvim')
   Plug 'katawful/kat.nvim', { 'tag': '3.0' }
   Plug 'projekt0n/github-nvim-theme'
@@ -323,8 +328,8 @@ endif
 
 call plug#end()
 
-runtime macros/matchit.vim
-runtime! ftplugin/qf.vim
+"runtime macros/matchit.vim
+"runtime! ftplugin/qf.vim
 
 function! Plugged(name) abort
   return has_key(g:plugs, a:name)
@@ -361,10 +366,10 @@ set nowrap
 
 " set noshowmode
 " set whichwrap+=<,>,h,l
-if Plugged('vim-devicons')
-  set statusline=%f\ %{WebDevIconsGetFileTypeSymbol()}\ %h%w%m%r\ %=%(%l,%c%V\ %Y\ %=\ %P%)
-else
+if has('nvim')
   set statusline=%F%m%r%h%w\ (%{&ff}){%Y}\ [%l,%v][%p%%]
+elseif Plugged('vim-devicons')
+  set statusline=%f\ %{WebDevIconsGetFileTypeSymbol()}\ %h%w%m%r\ %=%(%l,%c%V\ %Y\ %=\ %P%)
 endif
 
 " /* line number */
@@ -469,7 +474,8 @@ augroup filetype_formats
         \ setlocal tabstop=4         |
         \ setlocal softtabstop=4
 
-  au FileType yaml.docker-compose setlocal sts=2 ts=2 sw=2
+  au FileType yaml.docker-compose,toml setlocal sts=2 ts=2 sw=2
+
   au FileType help setlocal nu
   au FileType make setlocal noexpandtab
 
@@ -963,6 +969,7 @@ let g:ale_fixers = {
       \  'sql': ['pgformatter'],
       \  'vue': ['eslint', 'prettier'],
       \  'yaml': ['prettier'],
+      \  'xml': ['xmlint'],
       \ }
 
 let g:ale_maximum_file_size = 1024 * 1024
@@ -1356,7 +1363,7 @@ if !exists("vscode")
     let g:vista_executive_for = {
       \ 'go': 'nvim_lsp',
       \ 'yaml': 'nvim_lsp',
-      \ 'toml': 'nvim_lsp',
+      \ 'toml': 'ctags',
       \ 'typescript': 'nvim_lsp',
       \ }
   elseif Plugged("coc.nvim")
@@ -1414,6 +1421,12 @@ if Plugged("vim-go")
     au FileType go call s:NoSearchCabbrev("GR", "GoRun")
   augroup END
 endif
+
+augroup custom_nginx
+  autocmd!
+  autocmd FileType nginx setlocal iskeyword+=$ | let b:coc_additional_keywords = ['$']
+augroup end
+
 " --------------------------------------------
 " Functions
 " --------------------------------------------
@@ -1651,7 +1664,7 @@ endif
 " --------------------------------------------
 
 " gvim on win
-if has("win32")
+if has("win32") && has('gui_running')
   source $VIMRUNTIME/delmenu.vim
   source $VIMRUNTIME/menu.vim
 endif

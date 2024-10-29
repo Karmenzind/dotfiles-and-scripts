@@ -13,14 +13,26 @@ indent_style         = space
 # [*.sh]
 # indent_size        = 4
 # indent_style       = space
-# shell_variant      = posix
+# shell_variant      = bash
 # binary_next_line   = false
 #
 # switch_case_indent = true
 # space_redirects    = true
-# keep_padding       = false
+# keep_padding       = true
 #
 # function_next_line = false
+
+[*.sh]
+indent_size        = 4
+indent_style       = space
+shell_variant      = posix
+binary_next_line   = false
+
+switch_case_indent = true
+space_redirects    = true
+keep_padding       = false
+
+function_next_line = false
 
 # Matches multiple files with brace expansion notation
 # Set default charset

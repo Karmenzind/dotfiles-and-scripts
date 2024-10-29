@@ -550,8 +550,8 @@ emoji-fzf() {
 #     done
 # }
 
-PATH="$PATH:$HOME/.local/bin"
-PATH="$(perl -e 'print join(":", grep { not $seen{$_}++ } split(/:/, $ENV{PATH}))')"
+export PATH="$PATH:$HOME/.local/bin"
+export PATH="$(perl -e 'print join(":", grep { not $seen{$_}++ } split(/:/, $ENV{PATH}))')"
 
 #######################################################################
 #                                 NVM                                 #

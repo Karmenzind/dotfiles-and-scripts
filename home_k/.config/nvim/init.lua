@@ -191,7 +191,14 @@ else
     vim.fn.EchoWarn("treesitter not imported")
 end
 
+-- Structure / Files / Outline
 if not vim.g.vscode then
+    require("aerial").setup({
+        -- autojump = true,
+        show_guides = true,
+    })
+    vim.keymap.set("n", "<leader>A", "<cmd>AerialToggle!<CR>")
+
     require("nvim-tree").setup({
         hijack_netrw = true,
         hijack_directories = {
@@ -200,13 +207,7 @@ if not vim.g.vscode then
         },
         -- disable_netrw = true,
         hijack_unnamed_buffer_when_opening = true,
-        update_focused_file = {
-            enable = true,
-            update_root = {
-                enable = true,
-                ignore_list = {},
-            },
-        },
+        -- update_focused_file = { enable = true, update_root = { enable = true, ignore_list = {} } },
         on_attach = nvim_tree_on_attach,
         view = { number = true, float = { enable = false, open_win_config = { border = "double" } } },
         filters = {
@@ -322,27 +323,6 @@ vim.keymap.set("n", "]t", function()
 end, mopts)
 vim.keymap.set("n", "<leader>q", vim.diagnostic.setloclist, mopts)
 
-local on_attach = function(_, bufnr)
-    vim.api.nvim_set_option_value("omnifunc", "v:lua.vim.lsp.omnifunc", { buf = bufnr })
-
-    local bufopts = { noremap = true, silent = true, buffer = bufnr }
-    vim.keymap.set("n", "gD", vim.lsp.buf.declaration, bufopts)
-    vim.keymap.set("n", "gi", vim.lsp.buf.implementation, bufopts)
-    -- vim.keymap.set("n", "<leader>k", vim.lsp.buf.signature_help, bufopts)
-    -- vim.keymap.set("n", "<space>wa", vim.lsp.buf.add_workspace_folder, bufopts)
-    -- vim.keymap.set("n", "<space>wr", vim.lsp.buf.remove_workspace_folder, bufopts)
-    -- vim.keymap.set("n", "<space>wl", function()
-    --     print(vim.inspect(vim.lsp.buf.list_workspace_folders()))
-    -- end, bufopts)
-    vim.keymap.set("n", "<leader>D", vim.lsp.buf.type_definition, bufopts)
-    vim.keymap.set("n", "<leader>rn", vim.lsp.buf.rename, bufopts)
-    vim.keymap.set("n", "<leader>ca", vim.lsp.buf.code_action, bufopts)
-    vim.keymap.set("n", "<leader>rf", vim.lsp.buf.references, bufopts)
-    vim.keymap.set("n", "<leader>lf", function()
-        vim.lsp.buf.format({ async = true })
-    end, bufopts)
-end
-
 cmp.setup({
     preselect = cmp.PreselectMode.None,
     snippet = {
@@ -418,6 +398,33 @@ if not vim.g.vscode then
     -- local lsp_cap = vim.lsp.protocol.make_client_capabilities()
     lsp_cap.textDocument.foldingRange = { dynamicRegistration = false, lineFoldingOnly = true }
     -- lsp_cap.textDocument.completion.completionItem.snippetSupport = true
+    --
+    local on_attach = function(client, bufnr)
+        vim.api.nvim_set_option_value("omnifunc", "v:lua.vim.lsp.omnifunc", { buf = bufnr })
+
+        local bufopts = { noremap = true, silent = true, buffer = bufnr }
+        vim.keymap.set("n", "gD", vim.lsp.buf.declaration, bufopts)
+        vim.keymap.set("n", "gi", vim.lsp.buf.implementation, bufopts)
+        -- vim.keymap.set("n", "<leader>k", vim.lsp.buf.signature_help, bufopts)
+        -- vim.keymap.set("n", "<space>wa", vim.lsp.buf.add_workspace_folder, bufopts)
+        -- vim.keymap.set("n", "<space>wr", vim.lsp.buf.remove_workspace_folder, bufopts)
+        -- vim.keymap.set("n", "<space>wl", function()
+        --     print(vim.inspect(vim.lsp.buf.list_workspace_folders()))
+        -- end, bufopts)
+        vim.keymap.set("n", "<leader>D", vim.lsp.buf.type_definition, bufopts)
+        -- vim.keymap.set("n", "<leader>rn", vim.lsp.buf.rename, bufopts)
+        -- vim.keymap.set("n", "<leader>ca", vim.lsp.buf.code_action, bufopts)
+        -- vim.keymap.set("n", "<leader>rf", vim.lsp.buf.references, bufopts)
+        -- vim.keymap.set("n", "<leader>rn", "<cmd>Lspsaga rename ++project<CR>", bufopts)
+        vim.keymap.set("n", "<leader>rn", "<cmd>Lspsaga rename<CR>", bufopts)
+        vim.keymap.set("n", "<leader>ca", "<cmd>Lspsaga code_action<CR>", bufopts)
+        vim.keymap.set("n", "<leader>rf", "<cmd>Lspsaga finder def+ref<CR>", bufopts)
+        vim.keymap.set("n", "<leader>lf", function()
+            vim.lsp.buf.format({ async = true })
+        end, bufopts)
+
+        -- require("lsp_signature").on_attach(client, bufnr) -- conflict with nvim_lsp_signature_help below
+    end
 
     local lsp = require("lspconfig")
     lsp.vimls.setup({
@@ -472,7 +479,7 @@ if not vim.g.vscode then
     -- other lsp
     lsp.phpactor.setup({
         on_attach = on_attach,
-        capabilities = capabilities,
+        capabilities = lsp_cap,
         init_options = { ["language_server_phpstan.enabled"] = false, ["language_server_psalm.enabled"] = false },
     })
     lsp.jdtls.setup({ on_attach = on_attach, capabilities = lsp_cap, use_lombok_agent = true, cmd = { "jdtls" } }) -- java >=17
@@ -487,13 +494,13 @@ if not vim.g.vscode then
         capabilities = lsp_cap,
         cmd = { "sql-language-server", "up", "--method", "stdio" },
     })
-    lsp.tsserver.setup({
+    lsp.ts_ls.setup({
         on_attach = on_attach,
         capabilities = lsp_cap,
         init_options = {
             plugins = {
                 {
-                    name = "@vue/typescript-plugin", --  TODO (k): <2024-07-09 16:52> IMPORTANT: It is crucial to ensure that @vue/typescript-plugin and volar are of identical versions.
+                    name = "@vue/typescript-plugin",
                     location = "/usr/local/lib/node_modules/@vue/typescript-plugin",
                     languages = { "javascript", "typescript", "vue" },
                 },
@@ -501,14 +508,18 @@ if not vim.g.vscode then
         },
         filetypes = { "javascript", "typescript", "vue" },
     })
+    lsp.nginx_language_server.setup({
+        on_attach = on_attach,
+        capabilities = lsp_cap,
+        single_file_support = true,
+        filetypes = { "nginx" },
+    })
     -- no special config
-    -- lsp.pylsp.setup({ on_attach = on_attach, capabilities = lsp_cap })
-    -- lsp.jedi_language_server.setup({ on_attach = on_attach, capabilities = lsp_cap })
-    -- lsp.java_language_server.setup({})
-    -- lsp.autotools_ls.setup{}
-    -- lsp.robotframework_ls.setup({})
-    -- denols
     for _, lspname in ipairs({
+        -- "pylsp",
+        -- "pylyzer",
+        -- "basedpyright",
+        -- "jedi_language_server",
         "pyright",
         "bashls",
         "dockerls",
@@ -536,6 +547,11 @@ if not vim.g.vscode then
     end
     lsp.docker_compose_language_service.setup({})
     -- lsp.java_language_server.setup({})
+
+    require("lspsaga").setup({
+        finder = { keys = { toggle_or_open = "<cr>" } },
+        lightbulb = { virtual_text = true, sign = false },
+    })
 else
     vim.keymap.set("n", "<leader>rn", vscode_cmd("editor.action.rename"), mopts)
 end
@@ -546,14 +562,14 @@ cmp.event:on("confirm_done", cmp_autopairs.on_confirm_done())
 
 -- Common Keymaps
 vim.keymap.set("n", "<leader>e", vim.diagnostic.open_float, mopts)
-if vim.fn.has("nvim-0.10") ~= 1 then
-    vim.keymap.set("n", "K", function()
-        local winid = require("ufo").peekFoldedLinesUnderCursor()
-        if not winid then
-            vim.lsp.buf.hover()
-        end
-    end, mopts)
-end
+-- if vim.fn.has("nvim-0.10") ~= 1 then
+vim.keymap.set("n", "K", function()
+    local winid = require("ufo").peekFoldedLinesUnderCursor()
+    if not winid then
+        -- vim.lsp.buf.hover()
+        vim.fn.execute("Lspsaga hover_doc")
+    end
+end, mopts)
 
 -- more sensible goto
 -- FIXME (k): <2022-10-20> definition else declaration
@@ -698,18 +714,22 @@ require("lualine").setup({
             },
         },
     },
-    tabline = {
-        lualine_a = {
-            {
-                "tabs",
-                mode = 2,
-                use_mode_colors = true,
-                tabs_color = { active = "lualine_a_normal", inactive = "lualine_a_inactive" },
-            },
-        },
-        lualine_z = { "tabs" },
-    },
+    -- tabline = {
+    --     lualine_a = {
+    --         {
+    --             "tabs",
+    --             mode = 1,
+    --             use_mode_colors = true,
+    --             tabs_color = { active = "lualine_a_normal", inactive = "lualine_a_inactive" },
+    --             show_modified_status = true,
+    --         },
+    --     },
+    --     lualine_z = { "tabs" },
+    -- },
 })
+
+-- require("barbar").setup()
+require("tabby").setup()
 
 -- FIXME (k): <2024-05-02 22:24>
 -- require("ufo").setup({ close_fold_kinds_for_ft = { "imports", "comment" }, fold_virt_text_handler = ufo_handler })
@@ -719,13 +739,12 @@ local function rchoose(l)
     return l[math.random(1, #l)]
 end
 
-if vim.g.colors_name == nil then
+if vim.g.colors_name == nil and not vim.g.vscode then
     vim.g.boo_colorscheme_theme = rchoose({ "sunset_cloud", "radioactive_waste", "forest_stream", "crimson_moonlight" })
     vim.fn.RandomSetColo({
-        "atomic",
         "NeoSolarized",
         "blue-moon",
-        "atomic",
+        -- "atomic",
         "boo",
         "gruvbox",
         -- "nord",
@@ -746,6 +765,7 @@ if vim.g.colors_name == nil then
         "madeofcode",
         "obsidian",
         "nightfox",
+        "no-clown-fiesta",
     })
 
     local cololike = function(p)
