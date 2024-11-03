@@ -2,6 +2,7 @@ debug = true
 paging = true
 
 pager_command = "less -F"
+# pager_command = "bat"
 
 auto_clear = false
 max_cached = 1000000

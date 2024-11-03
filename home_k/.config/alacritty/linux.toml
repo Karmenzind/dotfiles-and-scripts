@@ -1,3 +1,4 @@
+[terminal]
 shell = "zsh"
 
 [window.dimensions]
