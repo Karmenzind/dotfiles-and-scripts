@@ -457,7 +457,7 @@ syntax enable
 " syntax on
 " filetype plugin indent on
 
-set termencoding=utf-8
+if !has('nvim') | set termencoding=utf-8 | endif
 set fileencodings=utf8,ucs-bom,gbk,cp936,gb2312,gb18030
 set encoding=utf-8
 
