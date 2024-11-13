@@ -32,3 +32,8 @@ else if command -v 'rg' >/dev/null
 else if command -v 'ag' >/dev/null
     set -x FZF_DEFAULT_COMMAND "ag --hidden --nocolor -U -g ''"
 end
+
+set -gx pure_show_system_time true
+set -gx pure_separate_prompt_on_error false
+set -gx pure_enable_single_line_prompt false
+set -gx pure_show_prefix_root_prompt false
