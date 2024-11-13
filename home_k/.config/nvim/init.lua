@@ -127,7 +127,7 @@ if vim.g.vscode then
     vim.keymap.set("n", "<leader>fg", vscode_cmd("workbench.action.findInFiles"), mopts)
     -- vim.keymap.set("n", "<leader>fb", require("vscode").action("workbench.action.quickOpen"), mopts)
     -- vim.keymap.set("n", "<leader>fh", require("vscode").action("workbench.action.quickOpen"), mopts)
-elseif os.getenv("TMUX") == nil or vim.fn.executable("fzf") == 0 then
+elseif os.getenv("TMUX") == nil or vim.fn.executable("fzf") == 0 or os.getenv("NVIM_FUZZY_TOOL") == "telescope" then
     local ts = require("telescope")
     local tsa = require("telescope.actions")
     local tsbuiltin = require("telescope.builtin")
