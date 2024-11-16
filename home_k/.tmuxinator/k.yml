@@ -39,29 +39,33 @@ windows:
       panes:
         - neofetch
         - sudo -i
-  - logs: 
-      layout: tiled
-      root: /var/log
-      panes:
-        - tail -f /home/k/Logs/i3log*
-        -
-        - journalctl -xef
-  - myDot:
-      layout: even-horizontal
-      root: ~/Localworks/dotfiles-and-scripts
-      panes:
-        - 
-        - git status
+        # - logs: 
+        #     layout: tiled
+        #     root: /var/log
+        #     panes:
+        #       - tail -f /home/k/Logs/i3log*
+        #       -
+        #       - journalctl -xef
+        # - myDot:
+        #     layout: even-horizontal
+        #     root: ~/Localworks/dotfiles-and-scripts
+        #     panes:
+        #       - 
+        #       - git status
   # - tmuxinator:
   #     layout: even-horizontal
   #     root: ~/.tmuxinator
   #     panes:
   #       - ls
   #       - cd ~ 
-  - others:
+  - A:
       layout: even-horizontal
-      root: ~
+      root: ~/Localworks
       panes:
         - 
+  - B:
+      layout: even-horizontal
+      root: ~/Localworks
+      panes:
         - 
 
