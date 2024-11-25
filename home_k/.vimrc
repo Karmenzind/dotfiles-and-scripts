@@ -653,7 +653,7 @@ if has_key(plugs, 'YouCompleteMe')
 endif
 
 " /* for XXX */
-function! s:FzfToNERDTree(lines)
+function! s:Fzf2Nerdtree(lines)
   if len(a:lines) == 0 | return | endif
   let path = glob(a:lines[0])
   if empty(path)
@@ -739,20 +739,11 @@ if g:line_plugin == 'airline'
 
   let g:airline#extensions#tabline#show_close_button = 0
   let g:airline#extensions#tabline#buffer_idx_format = {
-        \ '0': '0 ',
-        \ '1': '1 ',
-        \ '2': '2 ',
-        \ '3': '3 ',
-        \ '4': '4 ',
-        \ '5': '5 ',
-        \ '6': '6 ',
-        \ '7': '7 ',
-        \ '8': '8 ',
-        \ '9': '9 '
+        \ '0': '0 ', '1': '1 ', '2': '2 ', '3': '3 ', '4': '4 ',
+        \ '5': '5 ', '6': '6 ', '7': '7 ', '8': '8 ', '9': '9 '
         \}
 
   let g:airline#extensions#tabline#tab_nr_type = 2
-
   let g:airline#extensions#tabline#show_buffers = 0
   let g:airline#extensions#tabline#tabs_label = 't'
   let g:airline#extensions#tabline#buffers_label = 'b'
@@ -766,22 +757,20 @@ function! s:build_quickfix_list(lines)
 endfunction
 
 let g:fzf_action = {
-  \ 'ctrl-n': function('s:FzfToNERDTree'),
+  \ 'ctrl-n': function('s:Fzf2Nerdtree'),
   \ 'ctrl-q': function('s:build_quickfix_list'),
-  \ 'ctrl-t': 'tab split',
-  \ 'ctrl-x': 'split',
-  \ 'ctrl-v': 'vsplit' }
+  \ 'ctrl-t': 'tab split', 'ctrl-x': 'split', 'ctrl-v': 'vsplit'
+  \}
 
-let g:fzf_preview_window = 'right:60%'
-let g:fzf_buffers_jump = 1
-let g:fzf_tags_command = 'ctags -R'
+let g:fzf_vim = {
+    \ 'preview_window': ['hidden,right,50%,<70(up,40%)', 'ctrl-/'],
+    \ 'buffers_jump': 1, 'tags_command': 'ctags -R',
+    \}
 
 if s:is_win
-  " XXX bash path
-  let g:fzf_vim = {
-    \ 'preview_bash': 'C:\Program\ Files\Git\git-bash.exe',
-    \ 'preview_window': ['hidden,right,50%,<70(up,40%)', 'ctrl-/'],
-    \ }
+  if filereadable('C:\Program\ Files\Git\git-bash.exe')
+    let g:fzf_vim.preview_bash = 'C:\Program\ Files\Git\git-bash.exe'
+  endif
 else
   let g:fzf_history_dir = '~/.local/share/fzf-history'
 endif
@@ -818,9 +807,8 @@ else
     \ 'header':  ['fg', 'Comment'] }
 endif
 
-command! -bang -nargs=* Ag call fzf#vim#ag(<q-args>, '--hidden', <bang>0)
+" command! -bang -nargs=* Ag call fzf#vim#ag(<q-args>, '--hidden', <bang>0)
 " command! -bang -nargs=* Rg call fzf#vim#grep("rg --column --line-number --no-heading --color=always -- ".fzf#shellescape(<q-args>), fzf#vim#with_preview(), <bang>0)
-command! -bang -nargs=* Rg call fzf#vim#grep("rg --column --line-number --no-heading --color=always -- ".fzf#shellescape(<q-args>), {}, <bang>0)
 command! -bar -nargs=? -bang Maps call fzf#vim#maps(<q-args>, <bang>0)
 
 nnoremap <Leader>ff :Files<CR>

@@ -161,8 +161,9 @@ def validate(src: Path) -> bool:
     ret = True
     src_str = str(src)
 
-    if src_str.endswith(".md"):
-        return False
+    for suffix in [".md", ".swp"]:
+        if src_str.endswith(suffix):
+            return False
 
     if args.nogui:
         for p in GUI_PATTERNS:

@@ -24,7 +24,7 @@ set -x PIPX_MAN_DIR /usr/local/share/man
 
 # fzf
 set -x FZF_TMUX 1
-set -x FZF_TMUX_OTPS '-p 80%,60%'
+set -x FZF_TMUX_OPTS '-p 80%,60%'
 if command -v 'fd' >/dev/null
     set -x FZF_DEFAULT_COMMAND 'fd --type f --strip-cwd-prefix --hidden --follow --exclude .git'
 else if command -v 'rg' >/dev/null
@@ -37,3 +37,8 @@ set -gx pure_show_system_time true
 set -gx pure_separate_prompt_on_error false
 set -gx pure_enable_single_line_prompt false
 set -gx pure_show_prefix_root_prompt false
+
+set config_dir (dirname (status -f))
+if test -e $config_dir/local.fish
+    source $config_dir/local.fish
+end

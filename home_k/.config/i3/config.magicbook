@@ -232,3 +232,4 @@ bindsym XF86MonBrightnessUp exec --no-startup-id brightnessctl set +5%
 # bindsym XF86MonBrightnessDown exec "xbacklight -dec 10; notify-send 'brightness down'"
 
 include ~/.config/i3/common
+include ~/.config/i3/common-i3
