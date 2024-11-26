@@ -60,7 +60,6 @@ if is_win then
 else
     vim.o.runtimepath = "~/.vim," .. vim.o.runtimepath .. ",~/.vim/after"
     vim.o.packpath = vim.o.runtimepath
-
     vim.g.python3_host_prog = py3bin
     vim.g.ruby_host_prog = vim.fn.trim(vim.fn.system("find $HOME/.gem -regex '.*ruby/[^/]+/bin/neovim-ruby-host'"))
     vim.cmd("source ~/.vimrc")

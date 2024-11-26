@@ -170,7 +170,7 @@ fi
 # --color 'fg:#bbccdd,fg+:#ddeeff,bg:#334455,preview-bg:#223344,border:#778899'
 # export FZF_DEFAULT_OPTS="--inline-info --height 50% --reverse --border=horizontal --preview-window=down:50% --color fg:yellow,fg+:bright-yellow"
 export FZF_DEFAULT_OPTS="--inline-info --height 50% --reverse --border=horizontal --preview-window=down:50% --color fg:yellow,fg+:bright-yellow"
-export FZF_CTRL_T_OPTS="--preview '(highlight -O ansi -l {} 2> /dev/null || cat {} || tree -C {}) 2> /dev/null | head -200'"
+export FZF_CTRL_T_OPTS="--preview 'bash -c \"(highlight -O ansi -l {} 2> /dev/null || cat {} || tree -C {}) 2> /dev/null | head -200\"'"
 export FZF_CTRL_R_OPTS="--preview 'echo {}' --preview-window down:3:hidden:wrap --bind '?:toggle-preview'"
 export FZF_TMUX=1
 export FZF_TMUX_OPTS="-p 80%,60%"
