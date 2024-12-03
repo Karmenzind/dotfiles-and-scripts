@@ -9,33 +9,37 @@ creating symbolic links for them
 from __future__ import annotations, print_function, unicode_literals
 
 import sys
+
 if sys.version_info.major < 3:
     print("[✘] Python3 is required.")
 
-from typing import List
 import argparse
 import datetime
 import getpass
 import os
+import platform
 import sys
 import time
 import warnings
 from collections import defaultdict
 from pathlib import Path
+from typing import List, Set
 
 rec = defaultdict(list)
 
+PLATFORM_VERSION = SYSTEM_VERION_NO = ""
 if sys.platform == "linux":
-    platform = "linux"
+    osname = "linux"
     with open("/proc/version", "r") as f:
-        VERSION_INFO = f.read().lower()
+        PLATFORM_VERSION = f.read().lower()
 elif sys.platform == "win32":
-    platform = "win"
-    VERSION_INFO = ""
+    osname = "win"
+elif sys.platform == "darwin":
+    osname = "mac"
+    SYSTEM_VERION_NO = platform.mac_ver()[0]
 else:
-    warnings.warn("Not tested on this platform: %s" % platform)
-    platform = "unknown"
-    VERSION_INFO = ""
+    osname = "unknown"
+    warnings.warn("Not tested on this platform: %s" % sys.platform)
 
 new_linked = rec["new"]
 
@@ -44,6 +48,7 @@ CUR_TIME = datetime.datetime.now().strftime("%Y%m%d_%H%M")
 
 REPO_DIR = Path(os.path.dirname(os.path.abspath(__file__)))
 HOME_DIR = Path(os.path.expanduser("~"))
+SRC_HOME = Path("home_k")
 os.chdir(REPO_DIR)
 
 TAB = " " * 4
@@ -51,8 +56,23 @@ YN = ("y", "n")
 YNI = ("y", "n", "i")
 LINE = "\n" + "-" * 44 + "\n"
 
-TO_SYNC: List[Path]
-if platform == "win":
+TO_SYNC: Set[Path] = {
+    SRC_HOME / ".vim",
+    SRC_HOME / ".vimrc",
+    SRC_HOME / ".condarc",
+    SRC_HOME / ".gitconfig",
+    SRC_HOME / "isort.cfg",
+    SRC_HOME / "pycodestyle",
+    SRC_HOME / "pylintrc",
+    SRC_HOME / "ripgreprc",
+    SRC_HOME / ".config/nvim/init.lua",
+    SRC_HOME / ".config/mypy",
+    SRC_HOME / ".config/ripgreprc",
+    SRC_HOME / ".config/alacritty/alacritty.toml",
+    Path("others/powershell/profile.ps1"),
+}
+
+if osname == "win":
     def get_ps_profile_path(all_users=False):
         import subprocess
         ps_args = "-NoLogo -NoProfile -ExecutionPolicy RemoteSigned -Command"
@@ -64,53 +84,57 @@ if platform == "win":
             powershell_command, stdout=subprocess.PIPE, text=True, shell=True)
         return result.stdout.strip()
 
-    TO_SYNC = [
-        Path("home_k/.vim"),
-        Path("home_k/.vimrc"),
-        Path("home_k/.gitconfig"),
-        Path("home_k/.condarc"),
-        Path("home_k/.config/nvim/init.lua"),
-        Path("home_k/.config/nvim/lua"),
-        Path("home_k/.config/ripgreprc"),
-        Path("home_k/.config/alacritty/alacritty.toml"),
-        Path("home_k/.config/alacritty/win.toml"),
+    TO_SYNC.update([
+        SRC_HOME / ".config/alacritty/win.toml",
         Path("others/powershell/profile.ps1"),
-    ]
+    ])
     PATH_MAP = {
-        Path("home_k"): HOME_DIR,
-        Path("home_k/.config"): HOME_DIR / ".config",
-        Path("home_k/.vim"): HOME_DIR / "vimfiles",
-        Path("home_k/.vimrc"): HOME_DIR / "_vimrc",
-        Path("home_k/.config/nvim"): HOME_DIR / "AppData\\Local\\nvim",
-        Path("home_k/.config/alacritty/alacritty.toml"): HOME_DIR / "AppData\\Roaming\\alacritty\\alacritty.toml",
-        Path("home_k/.config/alacritty/win.toml"): HOME_DIR / ".alacritty_extra.toml",
+        SRC_HOME: HOME_DIR,
+        SRC_HOME / ".config": HOME_DIR / ".config",
+        SRC_HOME / ".vim": HOME_DIR / "vimfiles",
+        SRC_HOME / ".vimrc": HOME_DIR / "_vimrc",
+        SRC_HOME / ".config/nvim": HOME_DIR / "AppData\\Local\\nvim",
+        SRC_HOME / ".config/alacritty/alacritty.toml": HOME_DIR / "AppData\\Roaming\\alacritty\\alacritty.toml",
+        SRC_HOME / ".config/alacritty/win.toml": HOME_DIR / ".alacritty_extra.toml",
         Path("others/powershell/profile.ps1"): get_ps_profile_path(),
     }
-else:
-    TO_SYNC = [
+elif osname == "mac":
+    TO_SYNC.update([
+        SRC_HOME / ".config/fish",
+        SRC_HOME / ".config/ranger",
+        SRC_HOME / ".config/mypy",
+        SRC_HOME / ".config/alacritty/mac.toml",
+    ])
+    PATH_MAP = {
+        SRC_HOME: HOME_DIR,
+        Path("others/powershell/profile.ps1"): HOME_DIR / ".config/powershell/profile.ps1",
+        SRC_HOME / ".config/alacritty/mac.toml": HOME_DIR / ".config/alacritty/extra.toml",
+    }
+else:  # linux like
+    TO_SYNC.update([
         Path("home_k"),
         Path("local_bin"),
         Path("others/powershell/profile.ps1"),
-    ]
+    ])
     PATH_MAP = {
-        Path("home_k"): HOME_DIR,
+        SRC_HOME: HOME_DIR,
         Path("local_bin"): Path("/usr/local/bin"),
         Path("others/powershell/profile.ps1"): HOME_DIR / ".config/powershell/profile.ps1",
-        Path("home_k/.config/alacritty/linux.toml"): HOME_DIR / ".config/alacritty/extra.toml",
+        SRC_HOME / ".config/alacritty/linux.toml": HOME_DIR / ".config/alacritty/extra.toml",
         # Path("others/powershell/profile.ps1"): HOME_DIR / ".config/powershell/Microsoft.PowerShell_profile.ps1"
     }
 
 
 # dirs
 SYMLINK_AS_DIR = [
-    Path("home_k/.vim/mysnippets"),
+    SRC_HOME / ".vim/mysnippets",
 ]
 
 EXCLUDED = [
-    Path("home_k/.config/alacritty/alacritty.yml"),
-    Path("home_k/.config/fontconfig"),
-    Path("home_k/.config/fctix"),
-    Path("home_k/.vim/.ycm_extra_conf.py"),
+    SRC_HOME / ".config/alacritty/alacritty.yml",
+    SRC_HOME / ".config/fontconfig",
+    SRC_HOME / ".config/fctix",
+    SRC_HOME / ".vim/.ycm_extra_conf.py",
     Path("local_bin/acpyve"),
     Path("local_bin/docker_manager"),
 ]
@@ -145,7 +169,7 @@ def ask(choices, msg="≫  continue?"):
 
 def display(p: Path):
     ret = str(p)
-    if platform == "win":
+    if osname == "win":
         return ret
 
     repo_dir = str(REPO_DIR)
@@ -173,9 +197,9 @@ def validate(src: Path) -> bool:
     if Path(src) in EXCLUDED:
         return False
 
-    if platform == "linux":
+    if osname == "linux":
         if "i3/config" in src_str:
-            if "manjaro" in VERSION_INFO:
+            if "manjaro" in PLATFORM_VERSION:
                 ret = src_str.endswith(".manjaro")
             else:
                 ret = not src_str.endswith(".manjaro")
@@ -190,9 +214,14 @@ def ensure_pardir(filepath):
 
 
 backup_pat = f"*.backup_{CUR_TIME}"
+__processed = set()
 
 
 def do_symlink(from_: Path, to_: Path):
+    if (from_, to_) in __processed:
+        return
+    __processed.add((from_, to_))
+
     from_ = REPO_DIR / from_
 
     # A file can be a symlink as well as nonexisted on Win. Fuck Windows
@@ -247,7 +276,7 @@ def do_symlink(from_: Path, to_: Path):
 
 
 def accessible(p):
-    if platform == "linux":
+    if osname == "linux":
         if not str(p).startswith("/home") and not getpass.getuser() == "root":
             return False
     return True
@@ -335,12 +364,11 @@ if __name__ == "__main__":
     fake = args.fake
 
     if args.vimonly:
-        TO_SYNC = [
-            Path("home_k/.vim"),
-            Path("home_k/.vimrc"),
-            Path("home_k/.config/nvim/init.lua"),
-
+        TO_SYNC = {
+            SRC_HOME / ".vim",
+            SRC_HOME / ".vimrc",
+            SRC_HOME / ".config/nvim/init.lua",
             # linters/fixers?
-        ]
+        }
 
     main()

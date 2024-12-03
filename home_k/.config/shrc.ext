@@ -125,7 +125,7 @@ ex() {
 __initialize_my_conda() {
     local __my_conda_root
     local __conda_setup
-    for p in /opt/miniconda /opt/miniconda3 ${HOME}/.local/miniconda ${HOME}/.local/miniconda3; do
+    for p in /opt/miniconda /opt/miniconda3 ${HOME}/.local/miniconda ${HOME}/.local/miniconda3 /opt/homebrew/Caskroom/miniconda/base; do
         [[ -d $p ]] && __my_conda_root=$p && break
     done
     [[ -z $__my_conda_root ]] && return

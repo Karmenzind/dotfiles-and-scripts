@@ -1,0 +1,6 @@
+[terminal]
+shell = "zsh"
+
+[window.dimensions]
+columns = 0
+lines = 0
