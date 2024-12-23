@@ -262,6 +262,7 @@ Plug 'Traap/vim-helptags'
 " if !has('clipboard') | Plug 'kana/vim-fakeclip' | endif
 " Plug 'junegunn/limelight.vim'
 " Plug 'vipul-sharma20/vim-registers'
+Plug 'SilverofLight/kd_translate.nvim'
 Plug 'dahu/vim-lotr'
 if has('nvim')
   " Plug 'folke/noice.nvim'

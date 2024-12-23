@@ -149,66 +149,79 @@ __initialize_my_conda
 #                                 fzf                                 #
 #######################################################################
 
-[ -f ~/.fzf.zsh ] && source ~/.fzf.zsh && echo "[fzf] Sourced ~/.fzf.zsh"
+if command -v fzf >/dev/null; then
+    if [ -f ~/.fzf.zsh ]; then
+        source ~/.fzf.zsh
+        echo "[fzf] Sourced ~/.fzf.zsh"
+    else
+        source <(fzf --zsh)
+        echo "[fzf] Loaded via 'fzf --zsh'"
+        # TODO (k): <2024-12-05 14:27> fix zsh plugin
+    fi
 
-# use fd
-# export FZF_DEFAULT_COMMAND="fd --type f --hidden --follow --ignore-file ~/.config/search_ignore"
-# use the silver searcher
-if command -v 'fd' >/dev/null; then
-    export FZF_DEFAULT_COMMAND="fd --type f --strip-cwd-prefix --hidden --follow --exclude .git"
-elif command -v 'rg' >/dev/null; then
-    export FZF_DEFAULT_COMMAND="rg -. --sort path -l . -g '!.git/'"
-elif command -v 'ag' >/dev/null; then
-    export FZF_DEFAULT_COMMAND="ag --hidden --nocolor -U -g ''"
-else
-    echo "fd/ag needs to be installed"
+    # use fd
+    # export FZF_DEFAULT_COMMAND="fd --type f --hidden --follow --ignore-file ~/.config/search_ignore"
+    # use the silver searcher
+    if command -v 'fd' >/dev/null; then
+        export FZF_DEFAULT_COMMAND="fd --type f --strip-cwd-prefix --hidden --follow --exclude .git"
+    elif command -v 'rg' >/dev/null; then
+        export FZF_DEFAULT_COMMAND="rg -. --sort path -l . -g '!.git/'"
+    elif command -v 'ag' >/dev/null; then
+        export FZF_DEFAULT_COMMAND="ag --hidden --nocolor -U -g ''"
+    else
+        echo "fd/ag needs to be installed"
+    fi
+    export FZF_CTRL_T_COMMAND=$FZF_DEFAULT_COMMAND
+
+    # for fzf
+    # export FZF_DEFAULT_OPTS="--preview '[ -f {} ] && file {} && head -30 {} '
+    # export FZF_DEFAULT_OPTS="--preview 'bat --style=numbers --color=always --line-range :50 {}'"
+    # --color 'fg:#bbccdd,fg+:#ddeeff,bg:#334455,preview-bg:#223344,border:#778899'
+    # export FZF_DEFAULT_OPTS="--inline-info --height 50% --reverse --border=horizontal --preview-window=down:50% --color fg:yellow,fg+:bright-yellow"
+    fzf_opts_basic="--bind 'ctrl-/:toggle-preview'"
+    export FZF_DEFAULT_OPTS="${fzf_opts_basic} --inline-info --height 50% --reverse --border=horizontal --preview-window=down:50%:hidden --color fg:yellow,fg+:bright-yellow"
+    # export FZF_CTRL_T_OPTS="${fzf_opts_basic} --preview 'bash -c \"(bat --color=always --style=snip --theme=gruvbox-dark --line-range :40 {} || highlight -O ansi -l {} 2> /dev/null || cat {} || tree -C {}) 2> /dev/null | head -40\"'"
+    # export FZF_CTRL_R_OPTS="--preview 'echo {}' --preview-window down:3:hidden:wrap --bind '?:toggle-preview'"
+    export FZF_CTRL_T_OPTS="${fzf_opts_basic} --preview 'sh -c \"(bat --color=always --style=snip --theme=gruvbox-dark --line-range :40 {} || highlight -O ansi -l {} 2> /dev/null || cat {} || tree -C {}) 2> /dev/null | head -40\"'"
+    export FZF_CTRL_R_OPTS="${fzf_opts_basic} --preview 'echo {} | bat --color=always --style=snip --theme=gruvbox-dark --language=zsh' --preview-window down:3:hidden:wrap"
+    export FZF_TMUX=1
+    export FZF_TMUX_OPTS="-p 80%,60%"
+    # export FZF_COMPLETION_OPTS='--border --info=inline'
+
+    # - The first argument to the function ($1) is the base path to start traversal
+    # - See the source code (completion.{bash,zsh}) for the details.
+    # _fzf_compgen_path() {
+    #   fd --hidden --follow --exclude ".git" . "$1"
+    # }
+
+    # # Use fd to generate the list for directory completion
+    # _fzf_compgen_dir() {
+    #   fd --type d --hidden --follow --exclude ".git" . "$1"
+    # }
+
+    # (EXPERIMENTAL) Advanced customization of fzf options via _fzf_comprun function
+    # - The first argument to the function is the name of the command.
+    # - You should make sure to pass the rest of the arguments to fzf.
+    _fzf_comprun() {
+        local command=$1
+        shift
+
+        case "$command" in
+        cd) fzf "$@" --preview 'tree -C {} | head -200' ;;
+        export | unset) fzf "$@" --preview "eval 'echo \$'{}" ;;
+        ssh) fzf "$@" --preview 'dig {}' ;;
+        *) fzf "$@" ;;
+        esac
+    }
+
+    _fzf_complete_pj() {
+        _fzf_complete --multi --reverse --prompt="pj> " -- "$@" < <(
+            for bd in $PROJECT_PATHS; do
+                ls $bd
+            done
+        )
+    }
 fi
-
-# for fzf
-# export FZF_DEFAULT_OPTS="--preview '[ -f {} ] && file {} && head -30 {} '
-# export FZF_DEFAULT_OPTS="--preview 'bat --style=numbers --color=always --line-range :50 {}'"
-# --color 'fg:#bbccdd,fg+:#ddeeff,bg:#334455,preview-bg:#223344,border:#778899'
-# export FZF_DEFAULT_OPTS="--inline-info --height 50% --reverse --border=horizontal --preview-window=down:50% --color fg:yellow,fg+:bright-yellow"
-export FZF_DEFAULT_OPTS="--inline-info --height 50% --reverse --border=horizontal --preview-window=down:50% --color fg:yellow,fg+:bright-yellow"
-export FZF_CTRL_T_OPTS="--preview 'bash -c \"(highlight -O ansi -l {} 2> /dev/null || cat {} || tree -C {}) 2> /dev/null | head -200\"'"
-export FZF_CTRL_R_OPTS="--preview 'echo {}' --preview-window down:3:hidden:wrap --bind '?:toggle-preview'"
-export FZF_TMUX=1
-export FZF_TMUX_OPTS="-p 80%,60%"
-# export FZF_COMPLETION_OPTS='--border --info=inline'
-
-# - The first argument to the function ($1) is the base path to start traversal
-# - See the source code (completion.{bash,zsh}) for the details.
-# _fzf_compgen_path() {
-#   fd --hidden --follow --exclude ".git" . "$1"
-# }
-
-# # Use fd to generate the list for directory completion
-# _fzf_compgen_dir() {
-#   fd --type d --hidden --follow --exclude ".git" . "$1"
-# }
-
-# (EXPERIMENTAL) Advanced customization of fzf options via _fzf_comprun function
-# - The first argument to the function is the name of the command.
-# - You should make sure to pass the rest of the arguments to fzf.
-_fzf_comprun() {
-    local command=$1
-    shift
-
-    case "$command" in
-    cd) fzf "$@" --preview 'tree -C {} | head -200' ;;
-    export | unset) fzf "$@" --preview "eval 'echo \$'{}" ;;
-    ssh) fzf "$@" --preview 'dig {}' ;;
-    *) fzf "$@" ;;
-    esac
-}
-
-_fzf_complete_pj() {
-    _fzf_complete --multi --reverse --prompt="pj> " -- "$@" < <(
-        for bd in $PROJECT_PATHS; do
-            ls $bd
-        done
-    )
-}
 
 # --------------------------------------------
 # funcs

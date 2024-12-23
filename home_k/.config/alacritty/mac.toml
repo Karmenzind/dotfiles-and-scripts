@@ -1,6 +1,21 @@
+# TODO (k): <2024-12-04 09:44> 
+# use platform specific file
+# as main config and original config as extra config
 [terminal]
 shell = "zsh"
+
+[window]
+decorations = "full"
+dynamic_title = true
+opacity = 0.9
+blur = true
+startup_mode = "Windowed"
+resize_increments = true
 
 [window.dimensions]
 columns = 0
 lines = 0
+
+# [font]
+# size = 16.0
+# normal = { family = "Monaco Nerd Font", style="Regular" }

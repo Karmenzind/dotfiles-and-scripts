@@ -4,7 +4,7 @@
 # export PATH=$HOME/bin:/usr/bin:/usr/local/bin:$PATH
 # XXX (k): <2022-06-16> dirty path
 if [[ "$(uname)" == "Darwin" ]]; then
-    export PATH=/usr/local/bin:/bin:/usr/bin:/sbin:/usr/sbin:/usr/local/sbin:/usr/bin/vendor_perl:$PATH
+    export PATH=/usr/local/bin:/bin:/usr/bin:/sbin:/usr/sbin:/usr/local/sbin:/usr/bin/vendor_perl:/opt/homebrew/bin:$PATH
 else
     export PATH=/usr/local/bin:/bin:/usr/bin:/sbin:/usr/sbin:/usr/local/sbin:/usr/bin/vendor_perl
 fi

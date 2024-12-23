@@ -1,6 +1,12 @@
 [terminal]
 shell = "zsh"
 
+[window]
+decorations = "full"
+dynamic_title = true
+opacity = 0.9
+blur = true
+
 [window.dimensions]
 columns = 0
 lines = 0

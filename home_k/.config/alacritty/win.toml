@@ -1,6 +1,12 @@
 shell = "pwsh"
 working_directory = "C:/Users"
 
+[window]
+decorations = "full"
+dynamic_title = true
+opacity = 0.9
+blur = true
+
 [window.dimensions]
 columns = 120
 lines = 30

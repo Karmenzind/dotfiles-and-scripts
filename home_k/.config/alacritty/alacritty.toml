@@ -1,11 +1,3 @@
-[general]
-import = [
-  "~/.alacritty_extra.toml",
-  "~/.config/alacritty/extra.toml",
-  "~/.config/alacritty/local.toml",
-]
-live_config_reload = true
-
 [bell]
 animation = "EaseOutExpo"
 duration = 0
@@ -551,12 +543,20 @@ multiplier = 3
 [selection]
 semantic_escape_chars = ",│`|:\"' ()[]{}<>"
 
-[window]
-decorations = "full"
-dynamic_title = true
-opacity = 0.95
-blur = true
+# [window]
+# decorations = "full"
+# dynamic_title = true
+# opacity = 0.95
+# blur = true
 
 [window.padding]
 x = 2
 y = 2
+
+[general]
+import = [
+  "~/.alacritty_extra.toml",
+  "~/.config/alacritty/extra.toml",
+  "~/.config/alacritty/local.toml",
+]
+live_config_reload = true

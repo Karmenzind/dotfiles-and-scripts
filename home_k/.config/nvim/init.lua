@@ -769,3 +769,6 @@ end
 
 -- vim.lsp.set_log_level("debug")
 -- vim.opt.termguicolors = true
+
+vim.keymap.set("n", "<leader>kd", ":TranslateNormal<CR>")
+vim.keymap.set("v", "<leader>kd", ":TranslateVisual<CR>")
