@@ -88,11 +88,13 @@ endsnippet
 # --------------------------------------------
 
 snippet loggingsimple "description"
+import os
 import logging
+level = os.environ.get("LOGGING_LEVEL", "DEBUG")
 LOGGER = logging.getLogger()
-LOGGER.setLevel(logging.DEBUG)
+LOGGER.setLevel(level)
 ch = logging.StreamHandler()
-ch.setLevel(logging.DEBUG)
+ch.setLevel(level)
 ch.setFormatter(logging.Formatter('%(asctime)s [%(levelname)s] %(message)s'))
 LOGGER.addHandler(ch)
 endsnippet
