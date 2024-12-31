@@ -451,7 +451,7 @@ if not vim.g.vscode then
         capabilities = lsp_cap,
         init_options = { ["language_server_phpstan.enabled"] = false, ["language_server_psalm.enabled"] = false },
     })
-    lsp.jdtls.setup({ on_attach = on_attach, capabilities = lsp_cap, use_lombok_agent = true, cmd = { "jdtls" } }) -- java >=17
+    lsp.jdtls.setup({ on_attach = on_attach, capabilities = lsp_cap }) -- java >=17
     lsp.omnisharp.setup({
         on_attach = on_attach,
         capabilities = lsp_cap,
