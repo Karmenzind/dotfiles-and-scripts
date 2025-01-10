@@ -40,7 +40,7 @@ local function find_pybin()
     end
 end
 local py3bin = find_pybin()
-if py3bin == nil or not vim.fn.executable(py3bin) then error("Failed to locate python.exe") end
+if py3bin == nil or not vim.fn.executable(py3bin) then error("Failed to locate python executable") end
 
 if is_win then
     vim.o.runtimepath = "~/vimfiles," .. vim.o.runtimepath .. ",~/vimfiles/after"
