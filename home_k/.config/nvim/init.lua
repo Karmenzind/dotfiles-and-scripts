@@ -498,6 +498,8 @@ if not vim.g.vscode then
         "taplo",
         "html",
         "emmet_language_server",
+        "vuels",
+        "csharp_ls",
     }) do
         lsp[lspname].setup({ on_attach = on_attach, capabilities = lsp_cap })
     end
