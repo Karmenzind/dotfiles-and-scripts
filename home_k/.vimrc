@@ -945,7 +945,7 @@ let g:ale_fixers = {
       \  '*': ['trim_whitespace'],
       \  'c': ['clang-format'],
       \  'css': ['prettier'],
-      \  'go': ['gofmt', 'goimports', 'FixLeadingTabs'],
+      \  'go': ['gofmt', 'goimports'],
       \  'html': ['prettier'],
       \  'java': ['clang-format'],
       \  'javascript': ['prettier', 'importjs'],
@@ -1002,14 +1002,10 @@ let g:ale_floating_preview = 1
 let g:ale_history_log_output = 1
 let g:ale_sql_sqlfluff_options = '--dialect mysql'
 
-if exists("g:vscode")
-  nnoremap <Leader>af <CMD>lua require('vscode').call('editor.action.formatDocument')<CR>
-else
-  nmap <silent> <Leader>al <Plug>(ale_lint)
-  nmap <Leader>af <Plug>(ale_fix)
-  nmap <silent> <Leader>at <Plug>(ale_toggle)
-  call s:NoSearchCabbrev("AF", "ALEFix")
-endif
+nmap <silent> <Leader>al <Plug>(ale_lint)
+nmap <Leader>af <Plug>(ale_fix)
+nmap <silent> <Leader>at <Plug>(ale_toggle)
+call s:NoSearchCabbrev("AF", "ALEFix")
 
 " /* for vim-visual-multi */
 " let g:VM_maps = {"Find Under": '<space>n'}

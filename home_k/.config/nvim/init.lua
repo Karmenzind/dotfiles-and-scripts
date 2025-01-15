@@ -427,6 +427,7 @@ if not vim.g.vscode then
                 experimentalPostfixCompletions = true,
                 analyses = { unusedparams = true, shadow = true },
                 staticcheck = true,
+                gofumpt = true,
             },
         },
         init_options = { usePlaceholders = false },
@@ -762,11 +763,14 @@ end
 --   end,
 -- })
 
+-- Other vscode specs
 if vim.g.vscode then
     -- vim.g.clipboard = vim.g.vscode_clipboard
     vim.opt.clipboard:append("unnamedplus")
     pcall(vim.keymap.del, "n", "<leader>n")
     pcall(vim.keymap.del, "n", "<leader>N")
+
+    vim.keymap.set("n", "<leader>vf", vscode_cmd('editor.action.formatDocument'), mopts)
 end
 
 -- vim.lsp.set_log_level("debug")
