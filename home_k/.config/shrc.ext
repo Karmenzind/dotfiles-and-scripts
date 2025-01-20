@@ -588,7 +588,7 @@ else
     echo ":x: nvm init failed"
 fi
 
-
+[[ -s "$HOME/.gvm/scripts/gvm" ]] && source "$HOME/.gvm/scripts/gvm" && echo "[gvm] loaded"
 
 #######################################################################
 #                                 kd                                  #
