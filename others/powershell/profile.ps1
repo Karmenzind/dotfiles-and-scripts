@@ -1,12 +1,14 @@
 #! /usr/bin/env bash
 # Github: https://github.com/Karmenzind/dotfiles-and-scripts
-# Last Modified: 2024-01-25 00:25:53
+# Last Modified: 2025-01-11 21:19:00
 
 $psVersion = $PSVersionTable.PSVersion.Major
 
 if ($psVersion -lt 7) {
     Write-Warning "You are using powershell $psVersion"
 }
+
+$env:EDITOR = "nvim.exe"
 
 if ($IsWindows) {
     $env:PROJECT_PATHS = "~/Workspace;~/Localworks"
