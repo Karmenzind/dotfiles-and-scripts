@@ -58,7 +58,6 @@ endfunction
 noremap <Leader>E  :call EditRcFilesV2()<CR>
 noremap <Leader>R  :source $MYVIMRC<CR> :echom 'Vimrc reloaded :)'<CR>
 noremap <Leader>S  :source %<CR> :echom expand('%') . ' sourced :)'<CR>
-" noremap <Leader>T  :terminal<CR>
 noremap <Leader>T  <cmd>call <SID>OpenTerm()<CR>
 
 " /* command */
@@ -105,12 +104,6 @@ else
     autocmd VimEnter * PlugInstall --sync | source $MYVIMRC
   endif
 endif
-
-" function! BuildYCM(info)
-"   if a:info.status == 'installed' || a:info.force
-"      !./install.py --clang-completer --clangd-completer --system-libclang --go-completer --ts-completer
-"   endif
-" endfunction
 
 function! Cond(cond, ...)
   let opts = get(a:000, 0, {})
@@ -570,7 +563,7 @@ augroup file_headers
         \ call setline(2, '#define _'.toupper(expand('%:r')).'_H') |
         \ call setline(3, '#endif')                                |
         \ normal! Go
-  au BufWritePre,FileWritePre * call <SID>UpdateHeader()
+  " au BufWritePre,FileWritePre * call <SID>UpdateHeader()
 augroup END
 
 " --------------------------------------------
@@ -1712,7 +1705,6 @@ if !exists('g:colors_name') && !has('nvim')
           \])
   endif
 endif
-
 
 " before nvim config .local
 if !has('nvim')
