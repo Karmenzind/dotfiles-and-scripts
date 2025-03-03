@@ -476,7 +476,7 @@ if not vim.g.vscode then
                 },
             },
         },
-        filetypes = { "javascript", "typescript", "vue" },
+        -- filetypes = { "javascript", "typescript", "vue" },
     })
     lsp.nginx_language_server.setup({
         on_attach = on_attach,
