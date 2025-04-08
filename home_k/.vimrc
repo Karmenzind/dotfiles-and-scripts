@@ -942,7 +942,7 @@ let g:ale_fixers = {
       \  'html': ['prettier'],
       \  'java': ['clang-format'],
       \  'javascript': ['prettier', 'importjs'],
-      \  'typescript': ['prettier', 'importjs'],
+      \  'typescript': ['prettier'],
       \  'json': ['jq'],
       \  'lua': ['stylua'],
       \  'php': ['php_cs_fixer'],

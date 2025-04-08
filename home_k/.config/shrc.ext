@@ -182,8 +182,8 @@ if command -v fzf >/dev/null; then
     export FZF_DEFAULT_OPTS="${fzf_opts_basic} --inline-info --height 50% --reverse --border=horizontal --preview-window=down:50%:hidden --color fg:yellow,fg+:bright-yellow"
     # export FZF_CTRL_T_OPTS="${fzf_opts_basic} --preview 'bash -c \"(bat --color=always --style=snip --theme=gruvbox-dark --line-range :40 {} || highlight -O ansi -l {} 2> /dev/null || cat {} || tree -C {}) 2> /dev/null | head -40\"'"
     # export FZF_CTRL_R_OPTS="--preview 'echo {}' --preview-window down:3:hidden:wrap --bind '?:toggle-preview'"
-    export FZF_CTRL_T_OPTS="${fzf_opts_basic} --preview 'sh -c \"(bat --color=always --style=snip --theme=gruvbox-dark --line-range :40 {} || highlight -O ansi -l {} 2> /dev/null || cat {} || tree -C {}) 2> /dev/null | head -40\"'"
-    export FZF_CTRL_R_OPTS="${fzf_opts_basic} --preview 'echo {} | bat --color=always --style=snip --theme=gruvbox-dark --language=zsh' --preview-window down:3:hidden:wrap"
+    export FZF_CTRL_T_OPTS="${fzf_opts_basic} --preview 'sh -c \"(bat --color=always --style=snip --theme=Github --line-range :40 {} || highlight -O ansi -l {} 2> /dev/null || cat {} || tree -C {}) 2> /dev/null | head -40\"'"
+    export FZF_CTRL_R_OPTS="${fzf_opts_basic} --preview 'echo {} | bat --color=always --style=snip --theme=Github --language=zsh' --preview-window down:3:hidden:wrap"
     export FZF_TMUX=1
     export FZF_TMUX_OPTS="-p 80%,60%"
     # export FZF_COMPLETION_OPTS='--border --info=inline'
@@ -611,3 +611,8 @@ export QT_IM_MODULE=fcitx
 #######################################################################
 
 export TERMINFO=/usr/share/terminfo
+
+
+#THIS MUST BE AT THE END OF THE FILE FOR SDKMAN TO WORK!!!
+export SDKMAN_DIR="$HOME/.sdkman"
+[[ -s "$HOME/.sdkman/bin/sdkman-init.sh" ]] && source "$HOME/.sdkman/bin/sdkman-init.sh"
