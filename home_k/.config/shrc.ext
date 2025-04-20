@@ -616,3 +616,16 @@ export TERMINFO=/usr/share/terminfo
 #THIS MUST BE AT THE END OF THE FILE FOR SDKMAN TO WORK!!!
 export SDKMAN_DIR="$HOME/.sdkman"
 [[ -s "$HOME/.sdkman/bin/sdkman-init.sh" ]] && source "$HOME/.sdkman/bin/sdkman-init.sh"
+
+cd() {
+    if builtin cd "$@"; then
+        if [ -f .venv/bin/activate ]; then
+            source .venv/bin/activate
+        elif [ -f .sdkmanrc ]; then
+            sdk env
+        elif [ -f .nvmrc ]; then
+            nvm use
+        fi
+    fi
+}
+
