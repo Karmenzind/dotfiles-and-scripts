@@ -1,6 +1,5 @@
 #! /usr/bin/env bash
 # Github: https://github.com/Karmenzind/dotfiles-and-scripts
-# Last Modified: 2025-01-11 21:19:00
 
 $psVersion = $PSVersionTable.PSVersion.Major
 
@@ -124,10 +123,10 @@ if (Test-Path $condaRoot) {
 
 function __installMyModules {
     Install-Module -Name z –Force
-    Install-Module -Name Terminal-Icons -Repository PSGallery
-    Install-Module PSReadline
+    Install-Module -Name Terminal-Icons -Repository PSGallery -Force
+    Install-Module PSReadline -Force
     # Install-Module Terminal-Icons
-    Install-Module PsFZF
+    Install-Module PsFZF -Force
 }
 
 function __loadModule {

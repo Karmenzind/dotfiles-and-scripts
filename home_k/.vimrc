@@ -1614,7 +1614,7 @@ endfunction
 " compatible with gui
 " --------------------------------------------
 
-if has('gui_running')
+if has('gui_running') && !exists('g:vscode')
   set lines=77
   set columns=150
 
@@ -1642,7 +1642,7 @@ endif
 " --------------------------------------------
 
 " gvim on win
-if has("win32") && has('gui_running')
+if has("win32") && has('gui_running') && !exists('g:vscode')
   source $VIMRUNTIME/delmenu.vim
   source $VIMRUNTIME/menu.vim
 endif
