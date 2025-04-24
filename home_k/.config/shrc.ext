@@ -617,15 +617,20 @@ export TERMINFO=/usr/share/terminfo
 export SDKMAN_DIR="$HOME/.sdkman"
 [[ -s "$HOME/.sdkman/bin/sdkman-init.sh" ]] && source "$HOME/.sdkman/bin/sdkman-init.sh"
 
-cd() {
-    if builtin cd "$@"; then
-        if [ -f .venv/bin/activate ]; then
-            source .venv/bin/activate
-        elif [ -f .sdkmanrc ]; then
-            sdk env
-        elif [ -f .nvmrc ]; then
-            nvm use
-        fi
+__active_envs() {
+    if [ -f .venv/bin/activate ]; then
+        source .venv/bin/activate
+    elif [ -f .sdkmanrc ]; then
+        sdk env
+    elif [ -f .nvmrc ]; then
+        nvm use
     fi
 }
 
+cd() {
+    if builtin cd "$@"; then
+        __active_envs
+    fi
+}
+
+__active_envs
