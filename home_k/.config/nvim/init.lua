@@ -10,14 +10,18 @@ local mopts = { noremap = true, silent = true }
 
 local function contains(l, s)
     for _, value in ipairs(l) do
-        if value == s then return true end
+        if value == s then
+            return true
+        end
     end
     return false
 end
 
 local function plug(name, tags)
     cfg = cfg or {}
-    if vim.g.vscode and contains(tags, "novscode") then return end
+    if vim.g.vscode and contains(tags, "novscode") then
+        return
+    end
     return require(name)
 end
 
@@ -26,21 +30,27 @@ local nvimpid = vim.fn.getpid()
 
 local function find_pybin()
     local preset = vim.fn.getenv("MY_VIM_PYTHON_PATH")
-    if preset ~= vim.NIL and preset ~= "" then return preset end
+    if preset ~= vim.NIL and preset ~= "" then
+        return preset
+    end
     if is_win then
         for _, pat in ipairs({
             [[C:\Program Files\Python3*\python.exe]],
             [[~\AppData\Local\Programs\Python\Python*\python.exe]],
         }) do
             local expanded = vim.fn.glob(pat, false, true)
-            if #expanded ~= 0 then return expanded[#expanded] end
+            if #expanded ~= 0 then
+                return expanded[#expanded]
+            end
         end
     else
         return "/usr/bin/python3"
     end
 end
 local py3bin = find_pybin()
-if py3bin == nil or not vim.fn.executable(py3bin) then error("Failed to locate python executable") end
+if py3bin == nil or not vim.fn.executable(py3bin) then
+    error("Failed to locate python executable")
+end
 
 if is_win then
     vim.o.runtimepath = "~/vimfiles," .. vim.o.runtimepath .. ",~/vimfiles/after"
@@ -65,7 +75,9 @@ else
     vim.cmd("source ~/.vimrc")
 end
 
-if vim.fn.filereadable(vim.g.extra_init_vim_path) > 0 then vim.cmd("source " .. vim.g.extra_init_vim_path) end
+if vim.fn.filereadable(vim.g.extra_init_vim_path) > 0 then
+    vim.cmd("source " .. vim.g.extra_init_vim_path)
+end
 
 local function term_esc()
     if vim.fn.match(vim.bo.filetype:lower(), [[\v^(fzf|telescope)]]) > -1 then
@@ -77,12 +89,16 @@ end
 
 local function try_require(mod)
     local ok, imported = pcall(require, mod)
-    if ok then return imported end
+    if ok then
+        return imported
+    end
     vim.fn.EchoWarn("Failed to load " .. mod)
     return nil
 end
 
-local function lazy_esc(_) vim.keymap.set("t", "<Esc>", term_esc, mopts) end
+local function lazy_esc(_)
+    vim.keymap.set("t", "<Esc>", term_esc, mopts)
+end
 
 vim.api.nvim_create_augroup("fzf", {})
 vim.api.nvim_create_autocmd({ "BufEnter" }, { group = "fzf", pattern = "*", callback = lazy_esc })
@@ -102,7 +118,9 @@ end
 
 local function nvim_tree_on_attach(bufnr)
     local api = require("nvim-tree.api")
-    local function opts(desc) return { desc = "nvim-tree: " .. desc, buffer = bufnr, noremap = true, silent = true, nowait = true } end
+    local function opts(desc)
+        return { desc = "nvim-tree: " .. desc, buffer = bufnr, noremap = true, silent = true, nowait = true }
+    end
 
     api.config.mappings.default_on_attach(bufnr)
 
@@ -117,7 +135,9 @@ local function nvim_tree_on_attach(bufnr)
 end
 
 local function vscode_cmd(cmd)
-    return function() return require("vscode").call(cmd) end
+    return function()
+        return require("vscode").call(cmd)
+    end
 end
 
 if vim.g.vscode then
@@ -163,7 +183,9 @@ end
 
 if vim.fn.Plugged("nvim-treesitter") then
     local tsconf = try_require("nvim-treesitter.configs")
-    if tsconf ~= nil then tsconf.setup({ ensure_installed = { "c", "lua", "vim", "vimdoc", "query", "python" }, auto_install = true }) end
+    if tsconf ~= nil then
+        tsconf.setup({ ensure_installed = { "c", "lua", "vim", "vimdoc", "query", "python" }, auto_install = true })
+    end
 else
     vim.fn.EchoWarn("treesitter not imported")
 end
@@ -261,7 +283,9 @@ local ufo_handler = function(virtText, lnum, endLnum, width, truncate)
             table.insert(newVirtText, { chunkText, hlGroup })
             chunkWidth = vim.fn.strdisplaywidth(chunkText)
             -- str width returned from truncate() may less than 2nd argument, need padding
-            if curWidth + chunkWidth < targetWidth then suffix = suffix .. (" "):rep(targetWidth - curWidth - chunkWidth) end
+            if curWidth + chunkWidth < targetWidth then
+                suffix = suffix .. (" "):rep(targetWidth - curWidth - chunkWidth)
+            end
             break
         end
         curWidth = curWidth + chunkWidth
@@ -332,8 +356,12 @@ cmp.setup({
             post_move(r, fallback)
         end,
 
-        ["<Tab>"] = function(fallback) post_move(cmp.select_next_item(), fallback) end,
-        ["<S-Tab>"] = function(fallback) post_move(cmp.select_prev_item(), fallback) end,
+        ["<Tab>"] = function(fallback)
+            post_move(cmp.select_next_item(), fallback)
+        end,
+        ["<S-Tab>"] = function(fallback)
+            post_move(cmp.select_prev_item(), fallback)
+        end,
     }),
     sources = {
         { name = "nvim_lsp_signature_help" },
@@ -390,7 +418,9 @@ if not vim.g.vscode then
         vim.keymap.set("n", "<leader>rn", "<cmd>Lspsaga rename<CR>", bufopts)
         vim.keymap.set("n", "<leader>ca", "<cmd>Lspsaga code_action<CR>", bufopts)
         vim.keymap.set("n", "<leader>rf", "<cmd>Lspsaga finder def+ref<CR>", bufopts)
-        vim.keymap.set("n", "<leader>lf", function() vim.lsp.buf.format({ async = true }) end, bufopts)
+        vim.keymap.set("n", "<leader>lf", function()
+            vim.lsp.buf.format({ async = true })
+        end, bufopts)
 
         -- require("lsp_signature").on_attach(client, bufnr) -- conflict with nvim_lsp_signature_help below
     end
@@ -471,7 +501,8 @@ if not vim.g.vscode then
             plugins = {
                 {
                     name = "@vue/typescript-plugin",
-                    location = "/usr/local/lib/node_modules/@vue/typescript-plugin",
+                    location = vim.fn.getenv("MY_VIM_TYPESCRIPT_PLUGIN_PATH")
+                        or "/usr/local/lib/node_modules/@vue/typescript-plugin",
                     languages = { "javascript", "typescript", "vue" },
                 },
             },
@@ -499,7 +530,7 @@ if not vim.g.vscode then
         "taplo",
         "html",
         "emmet_language_server",
-        "vuels",
+        -- "vuels",
         "csharp_ls",
     }) do
         lsp[lspname].setup({ on_attach = on_attach, capabilities = lsp_cap })
@@ -637,10 +668,14 @@ if not vim.g.vscode then
     vim.keymap.set("n", "<leader>dl", dap.run_last, mopts)
 end
 
-if not vim.g.vscode then require("registers").setup({}) end
+if not vim.g.vscode then
+    require("registers").setup({})
+end
 
 cmp.setup({
-    enabled = function() return vim.api.nvim_get_option_value("buftype", { buf = 0 }) ~= "prompt" or require("cmp_dap").is_dap_buffer() end,
+    enabled = function()
+        return vim.api.nvim_get_option_value("buftype", { buf = 0 }) ~= "prompt" or require("cmp_dap").is_dap_buffer()
+    end,
 })
 cmp.setup.filetype({ "dap-repl", "dapui_watches", "dapui_hover" }, { sources = { { name = "dap" } } })
 
@@ -679,7 +714,9 @@ require("lualine").setup({
         lualine_a = {
             {
                 "mode",
-                fmt = function(str) return str:sub(1, 1) end,
+                fmt = function(str)
+                    return str:sub(1, 1)
+                end,
             },
         },
     },
@@ -704,7 +741,9 @@ require("tabby").setup()
 -- require("ufo").setup({ close_fold_kinds_for_ft = { "imports", "comment" }, fold_virt_text_handler = ufo_handler })
 require("ufo").setup()
 
-local function rchoose(l) return l[math.random(1, #l)] end
+local function rchoose(l)
+    return l[math.random(1, #l)]
+end
 
 if vim.g.colors_name == nil and not vim.g.vscode then
     vim.g.boo_colorscheme_theme = rchoose({ "sunset_cloud", "radioactive_waste", "forest_stream", "crimson_moonlight" })
@@ -735,7 +774,9 @@ if vim.g.colors_name == nil and not vim.g.vscode then
         "no-clown-fiesta",
     })
 
-    local cololike = function(p) return vim.g.colors_name ~= nil and vim.g.colors_name:find(p, 1, true) == 1 end
+    local cololike = function(p)
+        return vim.g.colors_name ~= nil and vim.g.colors_name:find(p, 1, true) == 1
+    end
 
     if cololike("github_") then
         require("github-theme").setup({
@@ -770,7 +811,7 @@ if vim.g.vscode then
     pcall(vim.keymap.del, "n", "<leader>n")
     pcall(vim.keymap.del, "n", "<leader>N")
 
-    vim.keymap.set("n", "<leader>vf", vscode_cmd('editor.action.formatDocument'), mopts)
+    vim.keymap.set("n", "<leader>vf", vscode_cmd("editor.action.formatDocument"), mopts)
 end
 
 -- vim.lsp.set_log_level("debug")
