@@ -4,6 +4,10 @@
 apply everything in form of
 creating symbolic links for them
 (there will be prompt and backup before overwriting files)
+
+
+TO FIX:
+    - WinError 1314 (permission error?)
 """
 
 from __future__ import annotations, print_function, unicode_literals
@@ -61,6 +65,7 @@ TO_SYNC: Set[Path] = {
     SRC_HOME / ".vimrc",
     SRC_HOME / ".condarc",
     SRC_HOME / ".gitconfig",
+    SRC_HOME / ".editorconfig",
     SRC_HOME / "isort.cfg",
     SRC_HOME / "pycodestyle",
     SRC_HOME / "pylintrc",
