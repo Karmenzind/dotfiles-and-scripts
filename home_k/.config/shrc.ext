@@ -619,10 +619,13 @@ export SDKMAN_DIR="$HOME/.sdkman"
 
 __active_envs() {
     if [ -f .venv/bin/activate ]; then
+        echo "Activating .venv ..."
         source .venv/bin/activate
     elif [ -f .sdkmanrc ]; then
+        echo "Activating .sdkmanrc ..."
         sdk env
     elif [ -f .nvmrc ]; then
+        echo "Activating .nvmrc ..."
         nvm use
     fi
 }
