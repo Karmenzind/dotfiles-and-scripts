@@ -242,8 +242,10 @@ require("mason").setup({
     -- log_level = vim.log.levels.DEBUG,
 })
 require("java").setup({ jdk = { auth_install = false } })
+
 require("mason-lspconfig").setup({
     ensure_installed = { "lua_ls", "pyright", "vimls", "bashls", "marksman", "gopls" },
+    -- automatic_enable = true,
 })
 
 require("alpha").setup(require("alpha.themes.startify").config)

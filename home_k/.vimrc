@@ -140,7 +140,8 @@ if has("nvim")
 
   Plug 'kevinhwang91/promise-async' | Plug 'kevinhwang91/nvim-ufo'
 
-  Plug 'williamboman/mason.nvim' | Plug 'williamboman/mason-lspconfig.nvim'
+  Plug 'williamboman/mason.nvim', {'branch': 'v1.x'}
+  Plug 'williamboman/mason-lspconfig.nvim', {'tag': 'v1.x'}
 
   Plug 'neovim/nvim-lspconfig'
   Plug 'nvimdev/lspsaga.nvim',
