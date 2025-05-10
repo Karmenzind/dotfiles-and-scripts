@@ -83,7 +83,7 @@ local function term_esc()
     if vim.fn.match(vim.bo.filetype:lower(), [[\v^(fzf|telescope)]]) > -1 then
         vim.cmd("close")
     else
-        vim.api.nvim_feedkeys("", "m", true)
+        vim.api.nvim_feedkeys("", "m", true)
     end
 end
 
@@ -222,6 +222,7 @@ else
 end
 
 vim.diagnostic.config({
+    jump = { float = true },
     virtual_text = {
         -- source = true,
         format = function(diagnostic)
@@ -241,7 +242,16 @@ require("mason").setup({
     ui = { check_outdated_packages_on_open = false },
     -- log_level = vim.log.levels.DEBUG,
 })
-require("java").setup({ jdk = { auth_install = false } })
+
+require("java").setup({
+    jdk = { auto_install = false },
+    java_debug_adapter = {
+        enable = false,
+    },
+    notifications = {
+        dap = false,
+    },
+})
 
 require("mason-lspconfig").setup({
     ensure_installed = { "lua_ls", "pyright", "vimls", "bashls", "marksman", "gopls" },
@@ -313,8 +323,6 @@ local post_move = function(select_result, fallback)
     end
 end
 
-vim.keymap.set("n", "[d", vim.diagnostic.goto_prev, mopts)
-vim.keymap.set("n", "]d", vim.diagnostic.goto_next, mopts)
 vim.keymap.set("n", "]t", function()
     if vim.diagnostic.is_enabled() then
         vim.diagnostic.enable(false)
@@ -412,14 +420,14 @@ if not vim.g.vscode then
         -- vim.keymap.set("n", "<space>wl", function()
         --     print(vim.inspect(vim.lsp.buf.list_workspace_folders()))
         -- end, bufopts)
+        vim.keymap.set("n", "<leader>e", vim.diagnostic.open_float, bufopts)
         vim.keymap.set("n", "<leader>D", vim.lsp.buf.type_definition, bufopts)
         -- vim.keymap.set("n", "<leader>rn", vim.lsp.buf.rename, bufopts)
-        -- vim.keymap.set("n", "<leader>ca", vim.lsp.buf.code_action, bufopts)
-        -- vim.keymap.set("n", "<leader>rf", vim.lsp.buf.references, bufopts)
-        -- vim.keymap.set("n", "<leader>rn", "<cmd>Lspsaga rename ++project<CR>", bufopts)
         vim.keymap.set("n", "<leader>rn", "<cmd>Lspsaga rename<CR>", bufopts)
+        -- vim.keymap.set("n", "<leader>ca", vim.lsp.buf.code_action, bufopts)
         vim.keymap.set("n", "<leader>ca", "<cmd>Lspsaga code_action<CR>", bufopts)
-        vim.keymap.set("n", "<leader>rf", "<cmd>Lspsaga finder def+ref<CR>", bufopts)
+        vim.keymap.set("n", "<leader>rf", vim.lsp.buf.references, bufopts)
+        -- vim.keymap.set("n", "<leader>rf", "<cmd>Lspsaga finder def+ref<CR>", bufopts)
         vim.keymap.set("n", "<leader>lf", function()
             vim.lsp.buf.format({ async = true })
         end, bufopts)
@@ -427,10 +435,37 @@ if not vim.g.vscode then
         -- require("lsp_signature").on_attach(client, bufnr) -- conflict with nvim_lsp_signature_help below
     end
 
-    local lsp = require("lspconfig")
-    lsp.vimls.setup({
-        on_attach = on_attach,
-        capabilities = lsp_cap,
+    vim.api.nvim_create_autocmd("LspAttach", {
+        group = vim.api.nvim_create_augroup("my.lsp", {}),
+        callback = function(args)
+            local client = assert(vim.lsp.get_client_by_id(args.data.client_id))
+            on_attach(client, args.buf)
+        end,
+    })
+
+    vim.lsp.enable({
+        "gopls",
+        "pyright",
+        "bashls",
+        "dockerls",
+        "yamlls",
+        "vls",
+        "marksman",
+        "taplo",
+        "html",
+        "emmet_language_server",
+        -- "vuels",
+        "jdtls",
+        "csharp_ls",
+        "lua_ls",
+        "sqlls",
+        "ts_ls",
+        "nginx_language_server",
+        "docker_compose_language_service",
+    })
+    vim.lsp.config("*", { capabilities = lsp_cap })
+
+    vim.lsp.config("vimls", {
         cmd = { "vim-language-server", "--stdio" },
         filetypes = { "vim" },
         single_file_support = true,
@@ -450,10 +485,8 @@ if not vim.g.vscode then
         },
     })
 
-    lsp.gopls.setup({
+    vim.lsp.config("gopls", {
         cmd = { "gopls" },
-        on_attach = on_attach,
-        capabilities = lsp_cap,
         settings = {
             gopls = {
                 experimentalPostfixCompletions = true,
@@ -465,93 +498,68 @@ if not vim.g.vscode then
         init_options = { usePlaceholders = false },
     })
 
-    lsp.lua_ls.setup({
-        on_attach = on_attach,
-        capabilities = lsp_cap,
+    vim.lsp.config("lua_ls", {
+        on_init = function(client)
+            if client.workspace_folders then
+                local path = client.workspace_folders[1].name
+                if
+                    path ~= vim.fn.stdpath("config")
+                    and (vim.uv.fs_stat(path .. "/.luarc.json") or vim.uv.fs_stat(path .. "/.luarc.jsonc"))
+                then
+                    return
+                end
+            end
+
+            client.config.settings.Lua = vim.tbl_deep_extend("force", client.config.settings.Lua, {
+                runtime = {
+                    version = "LuaJIT",
+                    path = {
+                        "lua/?.lua",
+                        "lua/?/init.lua",
+                    },
+                },
+                workspace = {
+                    checkThirdParty = false,
+                    library = {
+                        vim.env.VIMRUNTIME,
+                    },
+                },
+            })
+        end,
         settings = {
-            Lua = {
-                runtime = { version = "LuaJIT" },
-                diagnostics = { globals = { "vim" } },
-                workspace = { library = vim.api.nvim_get_runtime_file("", true) },
-                telemetry = { enable = false },
-            },
+            Lua = {},
         },
     })
 
-    -- other lsp
-    lsp.phpactor.setup({
-        on_attach = on_attach,
-        capabilities = lsp_cap,
-        init_options = { ["language_server_phpstan.enabled"] = false, ["language_server_psalm.enabled"] = false },
-    })
-    lsp.jdtls.setup({ on_attach = on_attach, capabilities = lsp_cap }) -- java >=17
-    lsp.omnisharp.setup({
-        on_attach = on_attach,
-        capabilities = lsp_cap,
+    vim.lsp.config("omnisharp", {
         cmd = { "/bin/OmniSharp", "--languageserver", "--hostPID", tostring(nvimpid) },
         handlers = { ["textDocument/definition"] = require("omnisharp_extended").handler },
     })
-    lsp.sqlls.setup({
-        on_attach = on_attach,
-        capabilities = lsp_cap,
-        cmd = { "sql-language-server", "up", "--method", "stdio" },
+    vim.lsp.config("sqlls", { cmd = { "sql-language-server", "up", "--method", "stdio" } })
+    vim.lsp.config("ts_ls", {
+        -- init_options = {
+        --     plugins = {
+        --         {
+        --             name = "@vue/typescript-plugin",
+        --             location = vim.fn.getenv("MY_VIM_TYPESCRIPT_PLUGIN_PATH")
+        --                 or "/usr/local/lib/node_modules/@vue/typescript-plugin",
+        --             languages = { "javascript", "typescript", "vue" },
+        --         },
+        --     },
+        -- },
     })
-    lsp.ts_ls.setup({
-        on_attach = on_attach,
-        capabilities = lsp_cap,
-        init_options = {
-            plugins = {
-                {
-                    name = "@vue/typescript-plugin",
-                    location = vim.fn.getenv("MY_VIM_TYPESCRIPT_PLUGIN_PATH")
-                        or "/usr/local/lib/node_modules/@vue/typescript-plugin",
-                    languages = { "javascript", "typescript", "vue" },
-                },
-            },
-        },
-        -- filetypes = { "javascript", "typescript", "vue" },
-    })
-    lsp.nginx_language_server.setup({
-        on_attach = on_attach,
-        capabilities = lsp_cap,
-        single_file_support = true,
-        filetypes = { "nginx" },
-    })
-    -- no special config
-    for _, lspname in ipairs({
-        -- "pylsp",
-        -- "pylyzer",
-        -- "basedpyright",
-        -- "jedi_language_server",
-        "pyright",
-        "bashls",
-        "dockerls",
-        "yamlls",
-        "vls",
-        "marksman",
-        "taplo",
-        "html",
-        "emmet_language_server",
-        -- "vuels",
-        "csharp_ls",
-    }) do
-        lsp[lspname].setup({ on_attach = on_attach, capabilities = lsp_cap })
-    end
+    vim.lsp.config("nginx_language_server", { single_file_support = true })
 
     local ps_bundle_path = is_win and "~\\AppData\\Local\\nvim-data\\mason\\packages\\powershell-editor-services"
         or "~/.local/share/nvim*/mason/packages/powershell-editor-services"
     if vim.fn.glob(ps_bundle_path) ~= "" then
-        lsp.powershell_es.setup({
-            on_attach = on_attach,
-            capabilities = lsp_cap,
+        vim.lsp.config("powershell_es", {
             bundle_path = ps_bundle_path,
             settings = { powershell = { codeFormatting = { Preset = "OTBS" } } },
         })
     else
         vim.fn.EchoWarn("Invalid ps_bundle_path")
     end
-    lsp.docker_compose_language_service.setup({})
-    -- lsp.java_language_server.setup({})
 
     require("lspsaga").setup({
         finder = { keys = { toggle_or_open = "<cr>" } },
@@ -566,8 +574,7 @@ local cmp_autopairs = require("nvim-autopairs.completion.cmp")
 cmp.event:on("confirm_done", cmp_autopairs.on_confirm_done())
 
 -- Common Keymaps
-vim.keymap.set("n", "<leader>e", vim.diagnostic.open_float, mopts)
--- if vim.fn.has("nvim-0.10") ~= 1 then
+-- vim.keymap.set("n", "<leader>e", vim.diagnostic.open_float, mopts)
 vim.keymap.set("n", "K", function()
     local winid = require("ufo").peekFoldedLinesUnderCursor()
     if not winid then
@@ -752,11 +759,11 @@ if vim.g.colors_name == nil and not vim.g.vscode then
     vim.fn.RandomSetColo({
         "NeoSolarized",
         "blue-moon",
-        -- "atomic",
+        "atomic",
         "boo",
         "gruvbox",
-        -- "nord",
-        -- "molokai",
+        "nord",
+        "molokai",
         "kat.nvim",
         "kat.nwim",
         "bluloco",

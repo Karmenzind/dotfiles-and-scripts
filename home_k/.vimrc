@@ -140,8 +140,8 @@ if has("nvim")
 
   Plug 'kevinhwang91/promise-async' | Plug 'kevinhwang91/nvim-ufo'
 
-  Plug 'williamboman/mason.nvim', {'branch': 'v1.x'}
-  Plug 'williamboman/mason-lspconfig.nvim', {'tag': 'v1.x'}
+  Plug 'mason-org/mason.nvim'
+  Plug 'mason-org/mason-lspconfig.nvim'
 
   Plug 'neovim/nvim-lspconfig'
   Plug 'nvimdev/lspsaga.nvim',
@@ -700,10 +700,10 @@ if g:line_plugin == 'airline'
         \ 'c'  : 'C',
         \ 'v'  : 'V',
         \ 'V'  : 'V',
-        \ '' : 'V',
+        \ '' : 'V',
         \ 's'  : 'S',
         \ 'S'  : 'S',
-        \ '' : 'S',
+        \ '' : 'S',
         \ 't'  : 'T',
         \ }
   let g:airline_highlighting_cache = 1
@@ -1112,7 +1112,7 @@ let g:SimpylFold_fold_import = 1
 nmap <c-\> <Plug>(tmuxlike-prefix)
 if s:is_hhkb
   " XXX (k): <2022-06-23> <C-BS> didn't work
-  nmap  <Plug>(tmuxlike-prefix)
+  nmap  <Plug>(tmuxlike-prefix)
 endif
 
 " /* for vim-plug */
@@ -1670,8 +1670,8 @@ vnoremap <Leader>cm :<C-u>call CycleModes()<CR>:colorscheme atomic<CR>gv
 " set background=dark
 
 " italic
-set t_ZH=[3m
-set t_ZR=[23m
+set t_ZH=[3m
+set t_ZR=[23m
 
 " load local configuration
 if filereadable(s:extra_vimrc_path)
@@ -1713,3 +1713,4 @@ if !has('nvim')
   let &t_SR .= "\<Esc>[3 q"
   let &t_EI .= "\<Esc>[2 q"
 endif
+
