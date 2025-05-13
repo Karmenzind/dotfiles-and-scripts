@@ -975,6 +975,7 @@ let g:ale_python_autoflake_options = '--remove-all-unused-imports --ignore-init-
 " let g:ale_javascript_eslint_options = '--ext .js,.vue'
 " let g:ale_sql_sqlfmt_executable = exepath("sqlfmt")
 " let g:ale_shfmt_options = '-p --indent=4 --case-indent --space-redirects --keep-padding'
+let g:ale_python_isort_options = '-l 120'
 
 let g:ale_sql_sqlfmt_options = '-u'
 let g:ale_lua_stylua_options = '--indent-type Spaces'
