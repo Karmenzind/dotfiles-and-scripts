@@ -1624,18 +1624,22 @@ if has('gui_running') && !exists('g:vscode')
   " lang
   set langmenu=en_US
   let $LANG = 'en_US.UTF-8'
-  " window / tab / bar / ...
-  set guioptions+=v
-  " set guioptions+=e
-  set guioptions+=i
-  " set guioptions+=!
-  set guioptions+=g
-  set guioptions-=T
-  set guioptions-=m
-  set guioptions-=L
-  set guioptions-=r
-  set guioptions-=b
-  set guioptions-=e
+
+  if !has('nvim')
+    " window / tab / bar / ...
+    set guioptions+=v
+    " set guioptions+=e
+    set guioptions+=i
+    " set guioptions+=!
+    set guioptions+=g
+    set guioptions-=T
+    set guioptions-=m
+    set guioptions-=L
+    set guioptions-=r
+    set guioptions-=b
+    set guioptions-=e
+  endif
+
   set nolist
 endif
 

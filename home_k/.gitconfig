@@ -5,6 +5,7 @@
 [core]
 	editor = $EDITOR
 
+	autocrlf = input
 [alias]
     a = add --all
     c = commit
