@@ -908,7 +908,7 @@ else
         \ }
   let g:ale_linters = {
         \ 'vim': ['vint'],
-        \ 'python': ['pylint', 'pydocstyle', 'flake8'],
+        \ 'python': ['ruff'],
         \ 'markdown': ['mdl', 'prettier', 'proselint', 'alex'],
         \ 'text': ['proselint', 'alex', 'redpen'],
         \ 'vue': ['htmlhint', 'jshint', 'stylelint'],
@@ -947,7 +947,7 @@ let g:ale_fixers = {
       \  'json': ['jq'],
       \  'lua': ['stylua'],
       \  'php': ['php_cs_fixer'],
-      \  'python': ['isort', 'autopep8', 'FixSurroundedWhiteSpaces', 'autoflake'],
+      \  'python': ['ruff_format', 'FixSurroundedWhiteSpaces'],
       \  'sh': ['shfmt', 'FixLeadingTabs'],
       \  'sql': ['pgformatter'],
       \  'vue': ['eslint', 'prettier'],
@@ -971,6 +971,10 @@ let g:ale_python_pylint_options = '--max-line-length=120 --rcfile $HOME/.config/
 let g:ale_python_flake8_options = '--max-line-length=120 --extend-ignore=E722,E741,E402,E501'
 let g:ale_python_pydocstyle_options = '--ignore=D103,D200,D203,D204,D205,D211,D212,D213,D400,D401,D403,D415'
 let g:ale_python_autoflake_options = '--remove-all-unused-imports --ignore-init-module-imports'
+" let g:ale_python_ruff_options = '--ignore=D103,D200,D203,D204,D205,D211,D212,D213,D400,D401,D403,D415'
+" let g:ale_python_ruff_options = '--config \'ignore = ["E402"]\''
+let g:ale_python_ruff_format_options = '--config ~/.config/ruff.toml'
+
 " let g:ale_javascript_prettier_options = '-c'
 " let g:ale_javascript_eslint_options = '--ext .js,.vue'
 " let g:ale_sql_sqlfmt_executable = exepath("sqlfmt")

@@ -446,6 +446,7 @@ if not vim.g.vscode then
     vim.lsp.enable({
         "gopls",
         "pyright",
+        "ruff",
         "bashls",
         "dockerls",
         "yamlls",
@@ -465,6 +466,7 @@ if not vim.g.vscode then
     })
     vim.lsp.config("*", { capabilities = lsp_cap })
 
+    vim.lsp.config("ruff", { init_options = { configuration = "~/.config/ruff.toml" } })
     vim.lsp.config("vimls", {
         cmd = { "vim-language-server", "--stdio" },
         filetypes = { "vim" },
@@ -759,11 +761,11 @@ if vim.g.colors_name == nil and not vim.g.vscode then
     vim.fn.RandomSetColo({
         "NeoSolarized",
         "blue-moon",
-        "atomic",
+        -- "atomic",
         "boo",
         "gruvbox",
         "nord",
-        "molokai",
+        -- "molokai",
         "kat.nvim",
         "kat.nwim",
         "bluloco",
