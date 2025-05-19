@@ -495,7 +495,6 @@ augroup filetype_formats
         \ let b:python_highlight_all = 1 |
         \ setlocal complete+=t           |
         \ setlocal formatoptions-=t      |
-        \ setlocal commentstring=#%s     |
         \ setlocal define=^\s*\\(def\\\\|class\\)
   " \ set listchars+=precedes:<,extends:>
   " \ set textwidth=79 |
