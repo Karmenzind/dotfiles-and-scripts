@@ -235,6 +235,12 @@ require("lazy").setup({
         { "kyazdani42/blue-moon" }, -- no airline theme
         { "folke/tokyonight.nvim", branch = "main" },
         { "EdenEast/nightfox.nvim" },
+        { "flazz/vim-colorschemes" },
+        { "gerardbm/vim-atomic" },
+        { "icymind/NeoSolarized" },
+        { "KKPMW/sacredforest-vim" },
+        { "junegunn/seoul256.vim" },
+        { "aktersnurra/no-clown-fiesta.nvim" },
 
         -- LSP and Mason
         {
@@ -344,14 +350,6 @@ require("lazy").setup({
             "lukas-reineke/indent-blankline.nvim",
             main = "ibl",
         },
-
-        -- Appearance
-        { "flazz/vim-colorschemes" },
-        { "gerardbm/vim-atomic" },
-        { "icymind/NeoSolarized" },
-        { "KKPMW/sacredforest-vim" },
-        { "junegunn/seoul256.vim" },
-        { "aktersnurra/no-clown-fiesta.nvim" },
     },
     -- Configure any other settings here. See the documentation for more details.
     -- colorscheme that will be used when installing plugins.
