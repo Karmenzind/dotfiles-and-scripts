@@ -764,7 +764,7 @@ if vim.g.colors_name == nil and not vim.g.vscode then
         -- "atomic",
         "boo",
         "gruvbox",
-        "nord",
+        "nordern",
         -- "molokai",
         "kat.nvim",
         "kat.nwim",

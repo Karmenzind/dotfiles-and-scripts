@@ -303,7 +303,11 @@ Plug 'gerardbm/vim-atomic'
 Plug 'icymind/NeoSolarized'
 Plug 'KKPMW/sacredforest-vim'
 Plug 'junegunn/seoul256.vim'
-Plug 'arcticicestudio/nord-vim'
+if has("nvim")
+  Plug 'fcancelinha/nordern.nvim'
+else
+  Plug 'arcticicestudio/nord-vim'
+endif
 Plug 'aktersnurra/no-clown-fiesta.nvim'
 if has('nvim')
   Plug 'katawful/kat.nvim', { 'tag': '3.0' }
