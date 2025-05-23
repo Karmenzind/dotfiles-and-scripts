@@ -16,27 +16,6 @@ else
 end
 local plugged_dir = my_vimroot .. "/plugged"
 
-function _G.Plugged(name)
-    return require("lazy.core.config").plugins[name] ~= nil
-end
-
-local function contains(l, s)
-    for _, value in ipairs(l) do
-        if value == s then
-            return true
-        end
-    end
-    return false
-end
-
-local function plug(name, tags)
-    cfg = cfg or {}
-    if vim.g.vscode and contains(tags, "novscode") then
-        return
-    end
-    return require(name)
-end
-
 local is_win = vim.loop.os_uname().version:match("Windows")
 local nvimpid = vim.fn.getpid()
 
@@ -120,19 +99,43 @@ require("lazy").setup({
     spec = {
         { "nvim-tree/nvim-tree.lua" },
 
-        { "goolord/alpha-nvim" },
-        { "kyazdani42/nvim-web-devicons" },
-
-        { "nvim-lualine/lualine.nvim" },
-        { "nanozuki/tabby.nvim" },
-
-        { "windwp/nvim-autopairs" },
         {
-            "tpope/vim-commentary",
-            cond = function()
-                return not vim.fn.has("nvim-0.10") == 1
+            "goolord/alpha-nvim",
+            config = function()
+                require("alpha").setup(require("alpha.themes.startify").config)
             end,
         },
+        { "kyazdani42/nvim-web-devicons" },
+
+        {
+            "nvim-lualine/lualine.nvim",
+            config = function()
+                require("lualine").setup({
+                    options = {
+                        component_separators = { left = "", right = "" },
+                        section_separators = { left = "", right = "" },
+                        disabled_filetypes = { statusline = { "NvimTree", "vista" }, winbar = {} },
+                    },
+                    sections = {
+                        lualine_a = {
+                            {
+                                "mode",
+                                fmt = function(str)
+                                    return str:sub(1, 1)
+                                end,
+                            },
+                        },
+                    },
+                })
+            end,
+        },
+        {
+            "nanozuki/tabby.nvim",
+            config = function()
+                require("tabby").setup()
+            end,
+        },
+        { "windwp/nvim-autopairs" },
 
         -- Coding tools
         { "tpope/vim-endwise" },
@@ -164,7 +167,16 @@ require("lazy").setup({
         { "nvim-lua/plenary.nvim" },
         { "nvim-telescope/telescope.nvim", branch = "0.1.x" },
 
-        { "folke/todo-comments.nvim", branch = "main" },
+        {
+            "folke/todo-comments.nvim",
+            branch = "main",
+            config = function()
+                require("todo-comments").setup({
+                    highlight = { pattern = [[.*<(KEYWORDS)\s*]] },
+                    search = { pattern = [[\b(KEYWORDS)\b]] },
+                })
+            end,
+        },
 
         { "tversteeg/registers.nvim", branch = "main" },
 
@@ -179,16 +191,43 @@ require("lazy").setup({
 
         -- UI and UX
         { "MunifTanjim/nui.nvim" },
-        { "nvim-treesitter/nvim-treesitter", build = ":TSUpdate" },
+        {
+            "nvim-treesitter/nvim-treesitter",
+            build = ":TSUpdate",
+            config = function()
+                local tsconf = require("nvim-treesitter.configs")
+                tsconf.setup({
+                    ensure_installed = { "c", "lua", "vim", "vimdoc", "query", "python" },
+                    auto_install = true,
+                })
+            end,
+        },
         {
             "kevinhwang91/nvim-ufo",
-            dependencies = { "kevinhwang91/promise-async" },
+            lazy = false,
+            dependencies = {
+                "kevinhwang91/promise-async",
+            },
+            config = function()
+                -- vim.o.fillchars = [[eob: ,fold: ,foldopen:,foldsep: ,foldclose:]]
+                vim.o.fillchars = [[eob: ,fold: ,foldopen:,foldclose:]]
+                vim.o.foldcolumn = "1" -- '0' is not bad
+                vim.o.foldlevel = 99 -- Using ufo provider need a large value, feel free to decrease the value
+                vim.o.foldlevelstart = 99
+                vim.o.foldenable = true
+                -- Using ufo provider need remap `zR` and `zM`. If Neovim is 0.6.1, remap yourself
+                vim.keymap.set("n", "zR", require("ufo").openAllFolds)
+                vim.keymap.set("n", "zM", require("ufo").closeAllFolds)
+                vim.keymap.set("n", "zr", require("ufo").openFoldsExceptKinds)
+                vim.keymap.set("n", "zm", require("ufo").closeFoldsWith) -- closeAllFolds == closeFoldsWith(0)
+                require("ufo").setup()
+            end,
         },
         { "kyazdani42/nvim-web-devicons" },
 
         -- Colorschemes
         { "fcancelinha/nordern.nvim" },
-        { "katawful/kat.nvim", tag = "3.0" },
+        { "katawful/kat.nvim", tag = "3.1" },
         { "projekt0n/github-nvim-theme" },
         { "uloco/bluloco.nvim" },
         { "rktjmp/lush.nvim" },
@@ -198,8 +237,26 @@ require("lazy").setup({
         { "EdenEast/nightfox.nvim" },
 
         -- LSP and Mason
-        { "mason-org/mason.nvim" },
-        { "mason-org/mason-lspconfig.nvim" },
+        {
+            "mason-org/mason.nvim",
+            config = function()
+                require("mason").setup({
+                    PATH = "append",
+                    registries = { "github:nvim-java/mason-registry", "github:mason-org/mason-registry" },
+                    ui = { check_outdated_packages_on_open = false },
+                    -- log_level = vim.log.levels.DEBUG,
+                })
+            end,
+        },
+        {
+            "mason-org/mason-lspconfig.nvim",
+            config = function()
+                require("mason-lspconfig").setup({
+                    ensure_installed = { "lua_ls", "pyright", "vimls", "bashls", "marksman", "gopls" },
+                    -- automatic_enable = true,
+                })
+            end,
+        },
         { "neovim/nvim-lspconfig" },
         { "nvimdev/lspsaga.nvim" },
         { "onsails/lspkind.nvim" },
@@ -241,14 +298,6 @@ require("lazy").setup({
         { "rcarriga/cmp-dap" },
         { "theHamsta/nvim-dap-virtual-text" },
 
-        -- Commenting
-        {
-            "tpope/vim-commentary",
-            cond = function()
-                return not vim.fn.has("nvim-0.10") == 1
-            end,
-        },
-
         -- Version control
         { "tpope/vim-fugitive" },
         { "tiagofumo/vim-nerdtree-syntax-highlight" },
@@ -257,13 +306,11 @@ require("lazy").setup({
         -- Search
         { "easymotion/vim-easymotion" },
         { "junegunn/vim-slash" },
-        { "junegunn/fzf", build = "fzf#install" },
-        { "junegunn/fzf.vim" },
+        { "junegunn/fzf", build = "fzf#install", lazy = false },
+        { "junegunn/fzf.vim", lazy = false },
 
         -- Python
-        { "tmhedberg/SimpylFold", ft = "python" },
         { "raimon49/requirements.txt.vim" },
-        { "vim-scripts/indentpython.vim" },
 
         -- Documentation tools
         { "godlygeek/tabular" },
@@ -290,10 +337,13 @@ require("lazy").setup({
         -- Syntax & fold
         { "posva/vim-vue" },
         { "cespare/vim-toml" },
-        { "Yggdroot/indentLine" },
         { "chr4/nginx.vim" },
         { "pangloss/vim-javascript" },
         { "mtdl9/vim-log-highlighting" },
+        {
+            "lukas-reineke/indent-blankline.nvim",
+            main = "ibl",
+        },
 
         -- Appearance
         { "flazz/vim-colorschemes" },
@@ -417,15 +467,6 @@ elseif os.getenv("TMUX") == nil or vim.fn.executable("fzf") == 0 or os.getenv("N
     })
 end
 
-if vim.fn.Plugged("nvim-treesitter") then
-    local tsconf = try_require("nvim-treesitter.configs")
-    if tsconf ~= nil then
-        tsconf.setup({ ensure_installed = { "c", "lua", "vim", "vimdoc", "query", "python" }, auto_install = true })
-    end
-else
-    vim.fn.EchoWarn("treesitter not imported")
-end
-
 -- Structure / Files / Outline
 if not vim.g.vscode then
     require("aerial").setup({
@@ -472,13 +513,6 @@ vim.diagnostic.config({
     float = { source = true },
 })
 
-require("mason").setup({
-    PATH = "append",
-    registries = { "github:nvim-java/mason-registry", "github:mason-org/mason-registry" },
-    ui = { check_outdated_packages_on_open = false },
-    -- log_level = vim.log.levels.DEBUG,
-})
-
 -- require("java").setup({
 --     jdk = { auto_install = false },
 --     java_debug_adapter = {
@@ -488,31 +522,6 @@ require("mason").setup({
 --         dap = false,
 --     },
 -- })
-
-require("mason-lspconfig").setup({
-    ensure_installed = { "lua_ls", "pyright", "vimls", "bashls", "marksman", "gopls" },
-    -- automatic_enable = true,
-})
-
-require("alpha").setup(require("alpha.themes.startify").config)
-
-require("todo-comments").setup({
-    highlight = { pattern = [[.*<(KEYWORDS)\s*]] },
-    search = { pattern = [[\b(KEYWORDS)\b]] },
-})
-
--- vim.o.fillchars = [[eob: ,fold: ,foldopen:,foldsep: ,foldclose:]]
-vim.o.fillchars = [[eob: ,fold: ,foldopen:,foldclose:]]
-vim.o.foldcolumn = "1" -- '0' is not bad
-vim.o.foldlevel = 99 -- Using ufo provider need a large value, feel free to decrease the value
-vim.o.foldlevelstart = 99
-vim.o.foldenable = true
-
--- Using ufo provider need remap `zR` and `zM`. If Neovim is 0.6.1, remap yourself
-vim.keymap.set("n", "zR", require("ufo").openAllFolds)
-vim.keymap.set("n", "zM", require("ufo").closeAllFolds)
-vim.keymap.set("n", "zr", require("ufo").openFoldsExceptKinds)
-vim.keymap.set("n", "zm", require("ufo").closeFoldsWith) -- closeAllFolds == closeFoldsWith(0)
 
 local ufo_handler = function(virtText, lnum, endLnum, width, truncate)
     local newVirtText = {}
@@ -832,24 +841,6 @@ vim.keymap.set("n", "<leader>g", function()
     -- local origin_wid = vim.fn.win_getid()
     vim.cmd("split")
     vim.lsp.buf.definition({ reuse_win = false })
-    -- local splited_wid = vim.api.nvim_get_current_win()
-    -- vim.cmd(("echom 'origin %d splited %d'"):format(origin_wid, splited_wid))
-    -- vim.lsp.buf_request_sync(0, 'textDocument/definition', {reuse_win = true})
-
-    -- -- vim.lsp.buf.definition({reuse_win = true})
-    -- vim.cmd(("echom 'current buffer %d'"):format(vim.api.nvim_get_current_buf()))
-    -- vim.cmd(("echom 'current win %d'"):format(vim.api.nvim_get_current_win()))
-    -- vim.cmd(("echom 'vim.fn: origin buffer %d splited buffer %d'"):format(
-    --     vim.fn.winbufnr(origin_wid),
-    --     vim.fn.winbufnr(splited_wid)
-    -- ))
-    -- vim.cmd(("echom 'nvim.api: origin buffer %d splited buffer %d'"):format(
-    --     vim.api.nvim_win_get_buf(origin_wid),
-    --     vim.api.nvim_win_get_buf(splited_wid)
-    -- ))
-    -- -- if vim.fn.winbufnr(origin_wid) == vim.fn.winbufnr(splited_wid) then
-    -- --     vim.api.nvim_win_close(splited_wid, 0)
-    -- -- end
 end, mopts)
 
 -- DAP
@@ -951,42 +942,10 @@ cmp.setup.filetype({ "dap-repl", "dapui_watches", "dapui_hover" }, { sources = {
 --     },
 -- })
 
-require("lualine").setup({
-    options = {
-        component_separators = { left = "", right = "" },
-        section_separators = { left = "", right = "" },
-        disabled_filetypes = { statusline = { "NvimTree", "vista" }, winbar = {} },
-    },
-    sections = {
-        lualine_a = {
-            {
-                "mode",
-                fmt = function(str)
-                    return str:sub(1, 1)
-                end,
-            },
-        },
-    },
-    -- tabline = {
-    --     lualine_a = {
-    --         {
-    --             "tabs",
-    --             mode = 1,
-    --             use_mode_colors = true,
-    --             tabs_color = { active = "lualine_a_normal", inactive = "lualine_a_inactive" },
-    --             show_modified_status = true,
-    --         },
-    --     },
-    --     lualine_z = { "tabs" },
-    -- },
-})
-
 -- require("barbar").setup()
-require("tabby").setup()
 
 -- FIXME (k): <2024-05-02 22:24>
 -- require("ufo").setup({ close_fold_kinds_for_ft = { "imports", "comment" }, fold_virt_text_handler = ufo_handler })
-require("ufo").setup()
 
 local function rchoose(l)
     return l[math.random(1, #l)]
