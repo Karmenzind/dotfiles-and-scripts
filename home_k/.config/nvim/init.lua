@@ -8,6 +8,18 @@ vim.opt.completeopt = "menu,menuone,noselect"
 
 local mopts = { noremap = true, silent = true }
 
+local my_vimroot
+if vim.fn.has("win32") == 1 then
+    my_vimroot = vim.fn.glob("~") .. "\\vimfiles"
+else
+    my_vimroot = vim.fn.glob("~") .. "/.vim"
+end
+local plugged_dir = my_vimroot .. "/plugged"
+
+function _G.Plugged(name)
+    return require("lazy.core.config").plugins[name] ~= nil
+end
+
 local function contains(l, s)
     for _, value in ipairs(l) do
         if value == s then
@@ -52,12 +64,30 @@ if py3bin == nil or not vim.fn.executable(py3bin) then
     error("Failed to locate python executable")
 end
 
+-- Bootstrap lazy.nvim
+-- local lazypath = vim.fn.stdpath("data") .. "/lazy/lazy.nvim"
+local lazypath = plugged_dir .. "/lazy.nvim"
+if not (vim.uv or vim.loop).fs_stat(lazypath) then
+    local lazyrepo = "https://github.com/folke/lazy.nvim.git"
+    local out = vim.fn.system({ "git", "clone", "--filter=blob:none", "--branch=stable", lazyrepo, lazypath })
+    if vim.v.shell_error ~= 0 then
+        vim.api.nvim_echo({
+            { "Failed to clone lazy.nvim:\n", "ErrorMsg" },
+            { out, "WarningMsg" },
+            { "\nPress any key to exit..." },
+        }, true, {})
+        vim.fn.getchar()
+        os.exit(1)
+    end
+end
+vim.opt.rtp:prepend(lazypath)
+
+local my_vimrc_path
 if is_win then
     vim.o.runtimepath = "~/vimfiles," .. vim.o.runtimepath .. ",~/vimfiles/after"
     vim.o.packpath = vim.o.runtimepath
 
     vim.g.python3_host_prog = py3bin
-    vim.cmd("source ~/_vimrc")
 
     -- shell
     vim.opt.shell = vim.fn.executable("pwsh") > 0 and "pwsh" or "powershell"
@@ -67,14 +97,220 @@ if is_win then
     vim.opt.shellpipe = "2>&1 | Out-File -Encoding UTF8 %s; exit $LastExitCode"
     vim.opt.shellquote = ""
     vim.opt.shellxquote = ""
+
+    my_vimrc_path = "~/_vimrc"
 else
     vim.o.runtimepath = "~/.vim," .. vim.o.runtimepath .. ",~/.vim/after"
     vim.o.packpath = vim.o.runtimepath
     vim.g.python3_host_prog = py3bin
     vim.g.ruby_host_prog = vim.fn.trim(vim.fn.system("find $HOME/.gem -regex '.*ruby/[^/]+/bin/neovim-ruby-host'"))
-    vim.cmd("source ~/.vimrc")
+
+    my_vimrc_path = "~/.vimrc"
 end
 
+-- Make sure to setup `mapleader` and `maplocalleader` before
+-- loading lazy.nvim so that mappings are correct.
+-- This is also a good place to setup other settings (vim.opt)
+-- vim.g.mapleader = " "
+-- vim.g.maplocalleader = "\\"
+
+-- Setup lazy.nvim
+require("lazy").setup({
+    root = plugged_dir,
+    spec = {
+        { "nvim-tree/nvim-tree.lua" },
+
+        { "goolord/alpha-nvim" },
+        { "kyazdani42/nvim-web-devicons" },
+
+        { "nvim-lualine/lualine.nvim" },
+        { "nanozuki/tabby.nvim" },
+
+        { "windwp/nvim-autopairs" },
+        {
+            "tpope/vim-commentary",
+            cond = function()
+                return not vim.fn.has("nvim-0.10") == 1
+            end,
+        },
+
+        -- Coding tools
+        { "tpope/vim-endwise" },
+        { "tpope/vim-surround" },
+        { "junegunn/vim-easy-align" },
+        { "honza/vim-snippets" },
+        {
+            "SirVer/ultisnips",
+            event = "InsertEnter",
+            config = function()
+                vim.g.UltiSnipsExpandTrigger = "<c-j>"
+                vim.g.UltiSnipsEditSplit = "context"
+                vim.g.UltiSnipsUsePythonVersion = 3
+                vim.g.UltiSnipsSnippetStorageDirectoryForUltiSnipsEdit = my_vimroot .. "/mysnippets"
+                vim.g.UltiSnipsSnippetDirectories = { "UltiSnips", "mysnippets" }
+                vim.g.UltiSnipsEnableSnipMate = 1
+                vim.g.UltiSnipsNoPythonWarning = 1
+                vim.g.snips_author = "k"
+                vim.g.snips_email = "valesail7@gmail.com"
+                vim.g.snips_github = "https://github.com/Karmenzind/"
+            end,
+        },
+        { "Shougo/context_filetype.vim" },
+        { "liuchengxu/vista.vim" },
+        { "w0rp/ale" },
+        { "mg979/vim-visual-multi", branch = "master" },
+
+        -- Fuzzy Tools
+        { "nvim-lua/plenary.nvim" },
+        { "nvim-telescope/telescope.nvim", branch = "0.1.x" },
+
+        { "folke/todo-comments.nvim", branch = "main" },
+
+        { "tversteeg/registers.nvim", branch = "main" },
+
+        -- Java support
+        -- { "nvim-java/lua-async-await" },
+        -- { "nvim-java/nvim-java-refactor" },
+        -- { "nvim-java/nvim-java-core" },
+        -- { "nvim-java/nvim-java-test" },
+        -- { "nvim-java/nvim-java-dap" },
+        -- { "nvim-java/nvim-java" },
+        -- { "JavaHello/spring-boot.nvim" },
+
+        -- UI and UX
+        { "MunifTanjim/nui.nvim" },
+        { "nvim-treesitter/nvim-treesitter", build = ":TSUpdate" },
+        {
+            "kevinhwang91/nvim-ufo",
+            dependencies = { "kevinhwang91/promise-async" },
+        },
+        { "kyazdani42/nvim-web-devicons" },
+
+        -- Colorschemes
+        { "fcancelinha/nordern.nvim" },
+        { "katawful/kat.nvim", tag = "3.0" },
+        { "projekt0n/github-nvim-theme" },
+        { "uloco/bluloco.nvim" },
+        { "rktjmp/lush.nvim" },
+        { "rockerBOO/boo-colorscheme-nvim" },
+        { "kyazdani42/blue-moon" }, -- no airline theme
+        { "folke/tokyonight.nvim", branch = "main" },
+        { "EdenEast/nightfox.nvim" },
+
+        -- LSP and Mason
+        { "mason-org/mason.nvim" },
+        { "mason-org/mason-lspconfig.nvim" },
+        { "neovim/nvim-lspconfig" },
+        { "nvimdev/lspsaga.nvim" },
+        { "onsails/lspkind.nvim" },
+        { "kosayoda/nvim-lightbulb" },
+        {
+            "weilbith/nvim-code-action-menu",
+            cmd = "CodeActionMenu",
+        },
+        { "ray-x/lsp_signature.nvim" },
+        { "stevearc/aerial.nvim" },
+
+        -- CMP
+        { "hrsh7th/nvim-cmp", branch = "main" },
+        { "hrsh7th/cmp-nvim-lsp-signature-help", branch = "main" },
+        { "hrsh7th/cmp-nvim-lsp", branch = "main" },
+        { "hrsh7th/cmp-buffer", branch = "main" },
+        { "hrsh7th/cmp-path", branch = "main" },
+        { "hrsh7th/cmp-calc", branch = "main" },
+        { "hrsh7th/cmp-cmdline", branch = "main" },
+        { "hrsh7th/cmp-emoji", branch = "main" },
+        { "SergioRibera/cmp-dotenv" },
+        {
+            "andersevenrud/cmp-tmux",
+            cond = function()
+                return vim.env.TMUX ~= nil
+            end,
+        },
+        { "quangnguyen30192/cmp-nvim-ultisnips" },
+
+        -- Language-specific
+        { "Hoffs/omnisharp-extended-lsp.nvim" },
+
+        -- Debugging
+        { "mfussenegger/nvim-dap" },
+        { "mfussenegger/nvim-dap-python" },
+        { "nvim-neotest/nvim-nio" },
+        { "leoluz/nvim-dap-go" },
+        { "rcarriga/nvim-dap-ui" },
+        { "rcarriga/cmp-dap" },
+        { "theHamsta/nvim-dap-virtual-text" },
+
+        -- Commenting
+        {
+            "tpope/vim-commentary",
+            cond = function()
+                return not vim.fn.has("nvim-0.10") == 1
+            end,
+        },
+
+        -- Version control
+        { "tpope/vim-fugitive" },
+        { "tiagofumo/vim-nerdtree-syntax-highlight" },
+        { "t9md/vim-choosewin" },
+
+        -- Search
+        { "easymotion/vim-easymotion" },
+        { "junegunn/vim-slash" },
+        { "junegunn/fzf", build = "fzf#install" },
+        { "junegunn/fzf.vim" },
+
+        -- Python
+        { "tmhedberg/SimpylFold", ft = "python" },
+        { "raimon49/requirements.txt.vim" },
+        { "vim-scripts/indentpython.vim" },
+
+        -- Documentation tools
+        { "godlygeek/tabular" },
+        { "mzlogin/vim-markdown-toc" },
+        { "plasticboy/vim-markdown" },
+        {
+            "iamcco/markdown-preview.nvim",
+            build = function()
+                vim.fn["mkdp#util#install"]()
+            end,
+            ft = { "markdown", "vim-plug" },
+        },
+        { "nelstrom/vim-markdown-folding", ft = "markdown" },
+        { "mklabs/vim-markdown-helpfile" },
+        { "Traap/vim-helptags" },
+
+        -- Enhancements
+        { "SilverofLight/kd_translate.nvim" },
+        { "dahu/vim-lotr" },
+        -- { "karmenzind/vim-tmuxlike"},
+        { "skywind3000/vim-quickui" },
+        { "skywind3000/asyncrun.vim" },
+
+        -- Syntax & fold
+        { "posva/vim-vue" },
+        { "cespare/vim-toml" },
+        { "Yggdroot/indentLine" },
+        { "chr4/nginx.vim" },
+        { "pangloss/vim-javascript" },
+        { "mtdl9/vim-log-highlighting" },
+
+        -- Appearance
+        { "flazz/vim-colorschemes" },
+        { "gerardbm/vim-atomic" },
+        { "icymind/NeoSolarized" },
+        { "KKPMW/sacredforest-vim" },
+        { "junegunn/seoul256.vim" },
+        { "aktersnurra/no-clown-fiesta.nvim" },
+    },
+    -- Configure any other settings here. See the documentation for more details.
+    -- colorscheme that will be used when installing plugins.
+    install = { colorscheme = { "habamax" } },
+    -- automatically check for plugin updates
+    checker = { enabled = true },
+})
+
+vim.cmd("source " .. my_vimrc_path)
 if vim.fn.filereadable(vim.g.extra_init_vim_path) > 0 then
     vim.cmd("source " .. vim.g.extra_init_vim_path)
 end
@@ -243,15 +479,15 @@ require("mason").setup({
     -- log_level = vim.log.levels.DEBUG,
 })
 
-require("java").setup({
-    jdk = { auto_install = false },
-    java_debug_adapter = {
-        enable = false,
-    },
-    notifications = {
-        dap = false,
-    },
-})
+-- require("java").setup({
+--     jdk = { auto_install = false },
+--     java_debug_adapter = {
+--         enable = false,
+--     },
+--     notifications = {
+--         dap = false,
+--     },
+-- })
 
 require("mason-lspconfig").setup({
     ensure_installed = { "lua_ls", "pyright", "vimls", "bashls", "marksman", "gopls" },

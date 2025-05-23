@@ -110,229 +110,149 @@ function! Cond(cond, ...)
   return a:cond ? opts : extend(opts, { 'on': [], 'for': [] })
 endfunction
 
-call plug#begin(g:plugged_dir)
-Plug 'junegunn/vim-plug'
+function! SetupVimPlug()
+  call plug#begin(g:plugged_dir)
+  Plug 'junegunn/vim-plug'
 
-" /* coding tools */
-Plug 'tpope/vim-endwise'
-Plug 'tpope/vim-surround'
+  " /* coding tools */
+  Plug 'tpope/vim-endwise'
+  Plug 'tpope/vim-surround'
 
-Plug has('nvim')? 'windwp/nvim-autopairs': 'jiangmiao/auto-pairs'
-if !has("nvim-0.10")
-  Plug 'tpope/vim-commentary'
-endif
-Plug 'junegunn/vim-easy-align'
-Plug 'SirVer/ultisnips' | Plug 'honza/vim-snippets'
-Plug 'Shougo/context_filetype.vim'
-Plug 'liuchengxu/vista.vim'
-" Plug 'Shougo/echodoc.vim'
-Plug 'w0rp/ale' " Asynchronous Lint Engine
-if has("nvim")
-  Plug 'nvim-java/lua-async-await'
-  Plug 'nvim-java/nvim-java-refactor'
-  Plug 'nvim-java/nvim-java-core'
-  Plug 'nvim-java/nvim-java-test'
-  Plug 'nvim-java/nvim-java-dap'
-
-  Plug 'MunifTanjim/nui.nvim'
-
-  Plug 'nvim-treesitter/nvim-treesitter', {'do': ':TSUpdate'}
-
-  Plug 'kevinhwang91/promise-async' | Plug 'kevinhwang91/nvim-ufo'
-
-  Plug 'mason-org/mason.nvim'
-  Plug 'mason-org/mason-lspconfig.nvim'
-
-  Plug 'neovim/nvim-lspconfig'
-  Plug 'nvimdev/lspsaga.nvim',
-
-  Plug 'onsails/lspkind.nvim'
-
-  Plug 'kosayoda/nvim-lightbulb'  " show code action symbol
-  Plug 'weilbith/nvim-code-action-menu', {'on': 'CodeActionMenu'}
-
-  Plug 'ray-x/lsp_signature.nvim'
-  Plug 'stevearc/aerial.nvim'
-
-  " cmp
-  Plug 'hrsh7th/nvim-cmp',                    {'branch': 'main'}
-  Plug 'hrsh7th/cmp-nvim-lsp-signature-help', {'branch': 'main'}
-  Plug 'hrsh7th/cmp-nvim-lsp',                {'branch': 'main'}
-  Plug 'hrsh7th/cmp-buffer',                  {'branch': 'main'}
-  Plug 'hrsh7th/cmp-path',                    {'branch': 'main'}
-  Plug 'hrsh7th/cmp-calc',                    {'branch': 'main'}
-  Plug 'hrsh7th/cmp-cmdline',                 {'branch': 'main'}
-  Plug 'hrsh7th/cmp-emoji',                   {'branch': 'main'}
-  Plug 'SergioRibera/cmp-dotenv'
-  if exists('$TMUX')
-    Plug 'andersevenrud/cmp-tmux'
+  if !has('nvim')
+    Plug 'jiangmiao/auto-pairs'
   endif
-  Plug 'quangnguyen30192/cmp-nvim-ultisnips'
 
-  " language specs
-  Plug 'Hoffs/omnisharp-extended-lsp.nvim'
+  Plug 'junegunn/vim-easy-align'
+  Plug 'SirVer/ultisnips' | Plug 'honza/vim-snippets'
+  Plug 'Shougo/context_filetype.vim'
+  Plug 'liuchengxu/vista.vim'
 
-  " debug
-  Plug 'mfussenegger/nvim-dap'
-  Plug 'mfussenegger/nvim-dap-python'
-  Plug 'nvim-neotest/nvim-nio'
-  Plug 'leoluz/nvim-dap-go'
-  Plug 'rcarriga/nvim-dap-ui'
-  Plug 'rcarriga/cmp-dap'
-  Plug 'theHamsta/nvim-dap-virtual-text'
+  Plug 'w0rp/ale' " Asynchronous Lint Engine
+  if !has("nvim")
+    Plug 'neoclide/coc.nvim', {'branch': 'release'}
+  endif
 
-  Plug 'nvim-java/nvim-java'
-  Plug 'JavaHello/spring-boot.nvim'
-else
-  Plug 'neoclide/coc.nvim', {'branch': 'release'}
-  " if has("win32")
-  "   Plug 'neoclide/coc.nvim', {'branch': 'release'}
-  " else
-  "   Plug 'Valloric/YouCompleteMe', { 'do': function('BuildYCM'), 'frozen': v:true }
-  " endif
-endif
+  Plug 'mg979/vim-visual-multi', {'branch': 'master'}
+  " TODO (k): <2022-10-15> Plug 'puremourning/vimspector'
 
-" Plug 'rdnetto/YCM-Generator', { 'branch': 'stable'}
-Plug 'mg979/vim-visual-multi', {'branch': 'master'}
-" Plug 'mattn/emmet-vim'
-" TODO (k): <2022-10-15>
-" Plug 'puremourning/vimspector'
+  " /* version control (vcs) | workspace */
+  Plug 'tpope/vim-fugitive'
 
-" /* version control (vcs) | workspace */
-Plug 'tpope/vim-fugitive'
-" if executable("svn")
-"   Plug 'Karmenzind/vc-svn.vim', {'branch': 'dev', 'frozen': 1}
-" endif
+  if !has('nvim')
+    Plug 'scrooloose/nerdtree', { 'on': ['NERDTreeToggle', 'NERDTreeFind'] }
+  endif
+  " Plug 'Xuyuanp/nerdtree-git-plugin', { 'on': ['NERDTreeToggle'] }
+  Plug 'tiagofumo/vim-nerdtree-syntax-highlight'
+  Plug 't9md/vim-choosewin'
+  if !has('nvim') && !s:is_win
+    Plug 'mhinz/vim-startify'
+  endif
+  " Plug 'bagrat/vim-workspace' " tab bar
 
-if has('nvim')
-  Plug 'nvim-tree/nvim-tree.lua'
-else
-  Plug 'scrooloose/nerdtree', { 'on': ['NERDTreeToggle', 'NERDTreeFind'] }
-endif
-" Plug 'Xuyuanp/nerdtree-git-plugin', { 'on': ['NERDTreeToggle'] }
-Plug 'tiagofumo/vim-nerdtree-syntax-highlight'
-Plug 't9md/vim-choosewin'
-if has('nvim')
-  Plug 'goolord/alpha-nvim'
-  Plug 'kyazdani42/nvim-web-devicons'
-elseif !s:is_win
-  Plug 'mhinz/vim-startify'
-endif
-" Plug 'bagrat/vim-workspace' " tab bar
+  " /* Search */
+  Plug 'easymotion/vim-easymotion'
+  Plug 'junegunn/vim-slash' " enhancing in-buffer search experience
+  Plug 'junegunn/fzf', { 'do': { -> fzf#install() } }
+  Plug 'junegunn/fzf.vim'
+  if !has("nvim")
+    " conds
+    Plug 'Yggdroot/LeaderF', { 'do': ':LeaderfInstallCExtension' }
+  endif
 
-" /* Search */
-Plug 'easymotion/vim-easymotion'
-Plug 'junegunn/vim-slash' " enhancing in-buffer search experience
-Plug 'junegunn/fzf', { 'do': { -> fzf#install() } }
-Plug 'junegunn/fzf.vim'
-if has("nvim")
-  " Plug 'ibhagwan/fzf-lua', {'branch': 'main'}
+  " /* Go */
+  " Plug 'fatih/vim-go', { 'do': ':GoUpdateBinaries' }
 
-  Plug 'nvim-lua/plenary.nvim'
-  Plug 'nvim-telescope/telescope.nvim', { 'branch': '0.1.x' }
-else
-  Plug 'Yggdroot/LeaderF', { 'do': ':LeaderfInstallCExtension' }
-endif
+  " /* Python */
+  Plug 'tmhedberg/SimpylFold', { 'for': 'python' } " code folding
+  Plug 'raimon49/requirements.txt.vim'
+  Plug 'vim-scripts/indentpython.vim'
+  " Plug 'tweekmonster/django-plus.vim', { 'for': 'python' }
 
-" /* Go */
-" Plug 'fatih/vim-go', { 'do': ':GoUpdateBinaries' }
+  " /* Write doc */
+  Plug 'godlygeek/tabular'
+  Plug 'mzlogin/vim-markdown-toc'
+  Plug 'plasticboy/vim-markdown'
+  Plug 'iamcco/markdown-preview.nvim', { 'do': { -> mkdp#util#install() }, 'for': ['markdown', 'vim-plug']}
+  Plug 'nelstrom/vim-markdown-folding', { 'for': 'markdown' }
+  Plug 'mklabs/vim-markdown-helpfile'
+  Plug 'Traap/vim-helptags'
 
-" /* Python */
-Plug 'tmhedberg/SimpylFold', { 'for': 'python' } " code folding
-Plug 'raimon49/requirements.txt.vim'
-Plug 'vim-scripts/indentpython.vim'
-" Plug 'tweekmonster/django-plus.vim', { 'for': 'python' }
+  " /* Experience | Enhancement */
+  " if !has('clipboard') | Plug 'kana/vim-fakeclip' | endif
+  " Plug 'junegunn/limelight.vim'
+  " Plug 'vipul-sharma20/vim-registers'
+  Plug 'SilverofLight/kd_translate.nvim'
+  Plug 'dahu/vim-lotr'
 
-" /* Write doc */
-Plug 'godlygeek/tabular'
-Plug 'mzlogin/vim-markdown-toc'
-Plug 'plasticboy/vim-markdown'
-Plug 'iamcco/markdown-preview.nvim', { 'do': { -> mkdp#util#install() }, 'for': ['markdown', 'vim-plug']}
-Plug 'nelstrom/vim-markdown-folding', { 'for': 'markdown' }
-Plug 'mklabs/vim-markdown-helpfile'
-Plug 'Traap/vim-helptags'
+  "Plug 'utubo/vim-registers-lite.nvim'
+  "Plug 'karmenzind/registers.vim', {'branch': 'dev', 'frozen': 1}
 
-" /* Experience | Enhancement */
-" if !has('clipboard') | Plug 'kana/vim-fakeclip' | endif
-" Plug 'junegunn/limelight.vim'
-" Plug 'vipul-sharma20/vim-registers'
-Plug 'SilverofLight/kd_translate.nvim'
-Plug 'dahu/vim-lotr'
-if has('nvim')
-  " Plug 'folke/noice.nvim'
-  Plug 'folke/todo-comments.nvim', {'branch': 'main'}
-  " Plug 'gennaro-tedesco/nvim-peekup'
-  Plug 'tversteeg/registers.nvim', {'branch': 'main'}
-" else
-"   " Plug 'utubo/vim-registers-lite.nvim'
-"   Plug 'karmenzind/registers.vim', {'branch': 'dev', 'frozen': 1}
-endif
-Plug 'karmenzind/vim-tmuxlike', {'branch': 'dev', 'frozen': 1}
-Plug 'skywind3000/vim-quickui'
-Plug 'skywind3000/asyncrun.vim'
+  Plug 'karmenzind/vim-tmuxlike', {'branch': 'dev', 'frozen': 1}
+  Plug 'skywind3000/vim-quickui'
+  Plug 'skywind3000/asyncrun.vim'
 
-" /* Funny Stuff */
-" Plug 'junegunn/vim-emoji', { 'for': 'markdown,gitcommit' }
-" Plug 'vim-scripts/TeTrIs.vim'
+  " /* Funny Stuff */
+  " Plug 'junegunn/vim-emoji', { 'for': 'markdown,gitcommit' }
+  " Plug 'vim-scripts/TeTrIs.vim'
 
-" /* Syntax | Fold */
-Plug 'posva/vim-vue'
-Plug 'cespare/vim-toml'
-Plug 'Yggdroot/indentLine'
-Plug 'chr4/nginx.vim'
-Plug 'pangloss/vim-javascript'
-Plug 'mtdl9/vim-log-highlighting'
-" Plug 'demophoon/bash-fold-expr', { 'for': 'sh' }
-" Plug 'vim-scripts/txt.vim', { 'for': 'txt' }
+  " /* Syntax | Fold */
+  Plug 'posva/vim-vue'
+  Plug 'cespare/vim-toml'
+  Plug 'Yggdroot/indentLine'
+  Plug 'chr4/nginx.vim'
+  Plug 'pangloss/vim-javascript'
+  Plug 'mtdl9/vim-log-highlighting'
+  " Plug 'demophoon/bash-fold-expr', { 'for': 'sh' }
+  " Plug 'vim-scripts/txt.vim', { 'for': 'txt' }
 
-" /* Appearance */
-Plug 'flazz/vim-colorschemes'
+  " /* Appearance */
+  Plug 'flazz/vim-colorschemes'
+  if !has('nvim')
+    Plug 'vim-airline/vim-airline'
+    Plug 'vim-airline/vim-airline-themes'
+  endif
+  Plug 'gerardbm/vim-atomic'
+  Plug 'icymind/NeoSolarized'
+  Plug 'KKPMW/sacredforest-vim'
+  Plug 'junegunn/seoul256.vim'
+  if !has("nvim")
+    Plug 'arcticicestudio/nord-vim'
+  endif
+  Plug 'aktersnurra/no-clown-fiesta.nvim'
+
+  if !has('nvim') && !has('win32')
+    Plug 'ryanoasis/vim-devicons'
+  endif
+
+  " /* local */
+  " Plug '~/Localworks/dbcli.vim'
+
+  call plug#end()
+endfunction
+
 if has('nvim')
   let g:line_plugin = 'lualine'
-  Plug 'nvim-lualine/lualine.nvim'
-  Plug 'nanozuki/tabby.nvim'
-  "Plug 'lewis6991/gitsigns.nvim' " OPTIONAL: for git status
-  "Plug 'romgrk/barbar.nvim'
-  " barbar?
 else
   let g:line_plugin = 'airline'
-  Plug 'vim-airline/vim-airline'
-  Plug 'vim-airline/vim-airline-themes'
-endif
-Plug 'gerardbm/vim-atomic'
-Plug 'icymind/NeoSolarized'
-Plug 'KKPMW/sacredforest-vim'
-Plug 'junegunn/seoul256.vim'
-if has("nvim")
-  Plug 'fcancelinha/nordern.nvim'
-else
-  Plug 'arcticicestudio/nord-vim'
-endif
-Plug 'aktersnurra/no-clown-fiesta.nvim'
-if has('nvim')
-  Plug 'katawful/kat.nvim', { 'tag': '3.0' }
-  Plug 'projekt0n/github-nvim-theme'
-  Plug 'uloco/bluloco.nvim' | Plug 'rktjmp/lush.nvim'
-  Plug 'rockerBOO/boo-colorscheme-nvim'
-  Plug 'kyazdani42/blue-moon' " no airline theme
-  Plug 'folke/tokyonight.nvim', { 'branch': 'main' }
-  Plug 'EdenEast/nightfox.nvim'
-endif
-if !has('win32')
-  Plug has('nvim')? 'kyazdani42/nvim-web-devicons': 'ryanoasis/vim-devicons' " load after other plugins
 endif
 
-" /* local */
-" Plug '~/Localworks/dbcli.vim'
-
-call plug#end()
+if !has('nvim')
+  call SetupVimPlug()
+endif
 
 "runtime macros/matchit.vim
 "runtime! ftplugin/qf.vim
 
-function! Plugged(name) abort
-  return has_key(g:plugs, a:name)
-endfunction
+
+if has('nvim')
+  function! Plugged(name) abort
+    return luaeval('require("lazy.core.config").plugins[_A] ~= nil', a:name)
+  endfunction
+else
+  function! Plugged(name) abort
+    return has_key(g:plugs, a:name)
+  endfunction
+endif
 " --------------------------------------------
 " basic
 " --------------------------------------------
@@ -390,7 +310,7 @@ endfunction
 
 augroup relative_number_toggle
   autocmd!
-  if !has('nvim') && has_key(plugs, "LeaderF")
+  if !has('nvim') && Plugged("LeaderF")
     autocmd FileType leaderf setlocal nonu nornu
   endif
   autocmd BufEnter,FocusGained,InsertLeave,WinEnter * call s:RelNoToggle("in")
@@ -486,8 +406,8 @@ augroup filetype_formats
         \ setlocal shiftwidth=2       |
         \ setlocal formatoptions-=cro |
         \ setlocal foldlevel=2        |
-        \ setlocal foldmethod=expr    |
-        \ setlocal foldexpr=VimScriptFold(v:lnum)
+        \ setlocal foldmethod=expr
+        "\ setlocal foldexpr=VimScriptFold(v:lnum)
 
   au FileType,BufNewFile,BufRead *.go
         \ setlocal foldmethod=syntax
@@ -575,7 +495,7 @@ augroup END
 " --------------------------------------------
 
 " /* for YCM */
-if has_key(plugs, 'YouCompleteMe')
+if !has('nvim') && Plugged('YouCompleteMe')
   if empty(glob('~/.vim/.ycm_extra_conf.py')) && !has('win32')
     silent !wget https://raw.githubusercontent.com/Karmenzind/dotfiles-and-scripts/master/home_k/.vim/.ycm_extra_conf.py
           \ -O ~/.vim/.ycm_extra_conf.py
@@ -831,7 +751,7 @@ let g:DevIconsEnableFoldersOpenClose = 1
 if !s:is_win | let g:WebDevIconsOS = 'ArchLinux' | endif
 
 " /* LeaderF */
-if s:is_win && Plugged('LeaderF')
+if !has('nvim') && s:is_win && Plugged('LeaderF')
   let g:Lf_ExternalCommand = 'fd -t f --strip-cwd-prefix -H -L -E .git -E *.swp %s'
   let g:Lf_ShowHidden = 1
   let g:Lf_WindowPosition = 'popup'
@@ -857,19 +777,15 @@ nmap ga <Plug>(EasyAlign)
 " /* for vim-emoji */
 set completefunc=emoji#complete
 
-" /* for echodoc.vim */
-let g:echodoc_enable_at_startup = 1
-let g:echodoc#enable_force_overwrite = 1
-
 " /* for easymotion */
 map  <Leader>w <Plug>(easymotion-bd-w)
 nmap <Leader>w <Plug>(easymotion-overwin-w)
 
 " /* for ultisnips */
+
 call s:NoSearchCabbrev("UE", "UltiSnipsEdit")
 let g:UltiSnipsExpandTrigger = '<c-j>'
-" FIXME (k): <2022-03-23> doesn't work any more
-" let g:UltiSnipsListSnippets = '<F9>'
+" FIXME (k): <2022-03-23> doesn't work any more let g:UltiSnipsListSnippets = '<F9>'
 let g:UltiSnipsEditSplit = 'context'
 let g:UltiSnipsUsePythonVersion = 3
 let g:UltiSnipsSnippetStorageDirectoryForUltiSnipsEdit = g:vimroot .. '/mysnippets'
@@ -1130,7 +1046,7 @@ noremap <Leader>ps :PlugStatus<CR>
 noremap <Leader>pc :PlugClean<CR>
 
 " /* for startify */
-if Plugged("vim-startify")
+if !has('nvim') && Plugged("vim-startify")
   let g:startify_update_oldfiles = 1
   let g:startify_files_number = 7
   let g:startify_change_to_dir = 0
@@ -1161,25 +1077,25 @@ if Plugged("vim-startify")
 endif
 
 " /* for vc */
-if executable('svn') && Plugged('vc-svn.vim')
-  let g:vc_browse_cache_all = 1
-  map <silent> <leader>vB :VCBlame<CR>
-  map <silent> <leader>vd :VCDiff<CR>
-  map <silent> <leader>vdf :VCDiff!<CR>
-  map <silent> <leader>vs :VCStatus<CR>
-  map <silent> <leader>vsu :VCStatus -u<CR>
-  map <silent> <leader>vsq :VCStatus -qu<CR>
-  map <silent> <leader>vsc :VCStatus .<CR>
-  map <silent> <leader>vl :VCLog!<CR>
-  map <silent> <leader>vb :VCBrowse<CR>
-  map <silent> <leader>vbm :VCBrowse<CR>
-  map <silent> <leader>vbw :VCBrowseWorkingCopy<CR>
-  map <silent> <leader>vbr :VCBrowseRepo<CR>
-  map <silent> <leader>vbl :VCBrowseMyList<CR>
-  map <silent> <leader>vbb :VCBrowseBookMarks<CR>
-  map <silent> <leader>vbf :VCBrowseBuffer<CR>
-  map <silent> <leader>vq :diffoff! <CR> :q<CR>
-endif
+"if executable('svn') && Plugged('vc-svn.vim')
+"  let g:vc_browse_cache_all = 1
+"  map <silent> <leader>vB :VCBlame<CR>
+"  map <silent> <leader>vd :VCDiff<CR>
+"  map <silent> <leader>vdf :VCDiff!<CR>
+"  map <silent> <leader>vs :VCStatus<CR>
+"  map <silent> <leader>vsu :VCStatus -u<CR>
+"  map <silent> <leader>vsq :VCStatus -qu<CR>
+"  map <silent> <leader>vsc :VCStatus .<CR>
+"  map <silent> <leader>vl :VCLog!<CR>
+"  map <silent> <leader>vb :VCBrowse<CR>
+"  map <silent> <leader>vbm :VCBrowse<CR>
+"  map <silent> <leader>vbw :VCBrowseWorkingCopy<CR>
+"  map <silent> <leader>vbr :VCBrowseRepo<CR>
+"  map <silent> <leader>vbl :VCBrowseMyList<CR>
+"  map <silent> <leader>vbb :VCBrowseBookMarks<CR>
+"  map <silent> <leader>vbf :VCBrowseBuffer<CR>
+"  map <silent> <leader>vq :diffoff! <CR> :q<CR>
+"endif
 
 
 " /* for goyo */
@@ -1215,7 +1131,7 @@ let g:indentLine_enabled = 1
 let g:user_emmet_leader_key = '<leader>y'
 
 " /* for coc */
-if has_key(plugs, 'coc.nvim')
+if !has('nvim') && Plugged('coc.nvim')
   set nobackup
   set nowritebackup
   set updatetime=300
@@ -1384,30 +1300,30 @@ augroup javascript_folding
 augroup END
 
 " /* for vim-go */
-if Plugged("vim-go")
-  let g:go_term_mode = "split"
-  let g:go_term_enabled = 1
-  let g:go_term_reuse = 1
-  let g:go_term_close_on_exit = 0
-  let g:go_term_height = 20
-  let g:go_term_width = 30
-  let g:go_doc_balloon = 0
-  let g:go_doc_keywordprg_enabled = 0
-
-  let g:go_code_completion_enabled = 1
-
-  let g:go_fmt_autosave = 0
-  let g:go_mod_fmt_autosave = 0
-
-  augroup go_map
-    au!
-    au FileType go nmap <leader>rt <Plug>(go-run-tab)
-    au FileType go nmap <leader>rs <Plug>(go-run-split)
-    au FileType go nmap <leader>rv <Plug>(go-run-vertical)
-    au FileType go call s:NoSearchCabbrev("GI", "GoImport")
-    au FileType go call s:NoSearchCabbrev("GR", "GoRun")
-  augroup END
-endif
+"if Plugged("vim-go")
+"  let g:go_term_mode = "split"
+"  let g:go_term_enabled = 1
+"  let g:go_term_reuse = 1
+"  let g:go_term_close_on_exit = 0
+"  let g:go_term_height = 20
+"  let g:go_term_width = 30
+"  let g:go_doc_balloon = 0
+"  let g:go_doc_keywordprg_enabled = 0
+"
+"  let g:go_code_completion_enabled = 1
+"
+"  let g:go_fmt_autosave = 0
+"  let g:go_mod_fmt_autosave = 0
+"
+"  augroup go_map
+"    au!
+"    au FileType go nmap <leader>rt <Plug>(go-run-tab)
+"    au FileType go nmap <leader>rs <Plug>(go-run-split)
+"    au FileType go nmap <leader>rv <Plug>(go-run-vertical)
+"    au FileType go call s:NoSearchCabbrev("GI", "GoImport")
+"    au FileType go call s:NoSearchCabbrev("GR", "GoRun")
+"  augroup END
+"endif
 
 augroup custom_nginx
   autocmd!
