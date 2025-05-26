@@ -43,19 +43,6 @@ if py3bin == nil or not vim.fn.executable(py3bin) then
     error("Failed to locate python executable")
 end
 
--- local function get_django_root()
---     local cwd = vim.fn.getcwd()
---     if not cwd then
---         return nil
---     end
---     local found = vim.fs.find("manage.py", { upward = true, path = cwd, type = "file" })
---     if found and found[1] then
---         return vim.fs.dirname(found[1])
---     end
---     return nil
--- end
--- local is_django = get_django_root() ~= nil
-
 -- Bootstrap lazy.nvim
 -- local lazypath = vim.fn.stdpath("data") .. "/lazy/lazy.nvim"
 local lazypath = plugged_dir .. "/lazy.nvim"
@@ -154,7 +141,6 @@ require("lazy").setup({
         { "tpope/vim-endwise" },
         { "tpope/vim-surround" },
         { "junegunn/vim-easy-align" },
-        { "honza/vim-snippets" },
         {
             "SirVer/ultisnips",
             event = "InsertEnter",
@@ -163,14 +149,15 @@ require("lazy").setup({
                 vim.g.UltiSnipsEditSplit = "context"
                 vim.g.UltiSnipsUsePythonVersion = 3
                 vim.g.UltiSnipsSnippetStorageDirectoryForUltiSnipsEdit = my_vimroot .. "/mysnippets"
-                vim.g.UltiSnipsSnippetDirectories = { "UltiSnips", "mysnippets" }
+                vim.g.UltiSnipsSnippetDirectories = { my_vimroot .. "/mysnippets", "UltiSnips" }
                 vim.g.UltiSnipsEnableSnipMate = 1
-                vim.g.UltiSnipsNoPythonWarning = 1
+                vim.g.UltiSnipsNoPythonWarning = 0
                 vim.g.snips_author = "k"
                 vim.g.snips_email = "valesail7@gmail.com"
                 vim.g.snips_github = "https://github.com/Karmenzind/"
             end,
         },
+        { "honza/vim-snippets" },
         { "Shougo/context_filetype.vim" },
         { "liuchengxu/vista.vim" },
         { "w0rp/ale" },
