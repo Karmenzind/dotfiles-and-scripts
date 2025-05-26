@@ -43,6 +43,19 @@ if py3bin == nil or not vim.fn.executable(py3bin) then
     error("Failed to locate python executable")
 end
 
+-- local function get_django_root()
+--     local cwd = vim.fn.getcwd()
+--     if not cwd then
+--         return nil
+--     end
+--     local found = vim.fs.find("manage.py", { upward = true, path = cwd, type = "file" })
+--     if found and found[1] then
+--         return vim.fs.dirname(found[1])
+--     end
+--     return nil
+-- end
+-- local is_django = get_django_root() ~= nil
+
 -- Bootstrap lazy.nvim
 -- local lazypath = vim.fn.stdpath("data") .. "/lazy/lazy.nvim"
 local lazypath = plugged_dir .. "/lazy.nvim"
@@ -181,13 +194,13 @@ require("lazy").setup({
         { "tversteeg/registers.nvim", branch = "main" },
 
         -- Java support
-        -- { "nvim-java/lua-async-await" },
-        -- { "nvim-java/nvim-java-refactor" },
-        -- { "nvim-java/nvim-java-core" },
-        -- { "nvim-java/nvim-java-test" },
-        -- { "nvim-java/nvim-java-dap" },
-        -- { "nvim-java/nvim-java" },
-        -- { "JavaHello/spring-boot.nvim" },
+        { "nvim-java/lua-async-await" },
+        { "nvim-java/nvim-java-refactor" },
+        { "nvim-java/nvim-java-core" },
+        { "nvim-java/nvim-java-test" },
+        { "nvim-java/nvim-java-dap" },
+        { "nvim-java/nvim-java" },
+        { "JavaHello/spring-boot.nvim" },
 
         -- UI and UX
         { "MunifTanjim/nui.nvim" },
@@ -220,7 +233,7 @@ require("lazy").setup({
                 vim.keymap.set("n", "zM", require("ufo").closeAllFolds)
                 vim.keymap.set("n", "zr", require("ufo").openFoldsExceptKinds)
                 vim.keymap.set("n", "zm", require("ufo").closeFoldsWith) -- closeAllFolds == closeFoldsWith(0)
-                require("ufo").setup()
+                -- require("ufo").setup()
             end,
         },
         { "kyazdani42/nvim-web-devicons" },
@@ -242,6 +255,8 @@ require("lazy").setup({
         { "junegunn/seoul256.vim" },
         { "aktersnurra/no-clown-fiesta.nvim" },
 
+        { "vim-autoformat/vim-autoformat" },
+
         -- LSP and Mason
         {
             "mason-org/mason.nvim",
@@ -259,7 +274,7 @@ require("lazy").setup({
             config = function()
                 require("mason-lspconfig").setup({
                     ensure_installed = { "lua_ls", "pyright", "vimls", "bashls", "marksman", "gopls" },
-                    -- automatic_enable = true,
+                    automatic_enable = false,
                 })
             end,
         },
@@ -267,10 +282,7 @@ require("lazy").setup({
         { "nvimdev/lspsaga.nvim" },
         { "onsails/lspkind.nvim" },
         { "kosayoda/nvim-lightbulb" },
-        {
-            "weilbith/nvim-code-action-menu",
-            cmd = "CodeActionMenu",
-        },
+
         { "ray-x/lsp_signature.nvim" },
         { "stevearc/aerial.nvim" },
 
@@ -521,34 +533,6 @@ vim.diagnostic.config({
 --     },
 -- })
 
-local ufo_handler = function(virtText, lnum, endLnum, width, truncate)
-    local newVirtText = {}
-    local suffix = (" ⋯  󰁂 %d "):format(endLnum - lnum)
-    local sufWidth = vim.fn.strdisplaywidth(suffix)
-    local targetWidth = width - sufWidth
-    local curWidth = 0
-    for _, chunk in ipairs(virtText) do
-        local chunkText = chunk[1]
-        local chunkWidth = vim.fn.strdisplaywidth(chunkText)
-        if targetWidth > curWidth + chunkWidth then
-            table.insert(newVirtText, chunk)
-        else
-            chunkText = truncate(chunkText, targetWidth - curWidth)
-            local hlGroup = chunk[2]
-            table.insert(newVirtText, { chunkText, hlGroup })
-            chunkWidth = vim.fn.strdisplaywidth(chunkText)
-            -- str width returned from truncate() may less than 2nd argument, need padding
-            if curWidth + chunkWidth < targetWidth then
-                suffix = suffix .. (" "):rep(targetWidth - curWidth - chunkWidth)
-            end
-            break
-        end
-        curWidth = curWidth + chunkWidth
-    end
-    table.insert(newVirtText, { suffix, "MoreMsg" })
-    return newVirtText
-end
-
 -- Set up nvim-cmp.
 local cmp = require("cmp")
 local lspkind = require("lspkind")
@@ -648,7 +632,7 @@ cmp.setup.cmdline(":", {
 if not vim.g.vscode then
     local lsp_cap = require("cmp_nvim_lsp").default_capabilities()
     -- local lsp_cap = vim.lsp.protocol.make_client_capabilities()
-    lsp_cap.textDocument.foldingRange = { dynamicRegistration = false, lineFoldingOnly = true }
+    -- lsp_cap.textDocument.foldingRange = { dynamicRegistration = false, lineFoldingOnly = true }
     -- lsp_cap.textDocument.completion.completionItem.snippetSupport = true
     --
     local on_attach = function(client, bufnr)
@@ -687,9 +671,9 @@ if not vim.g.vscode then
     })
 
     vim.lsp.enable({
-        "gopls",
         "pyright",
         "ruff",
+        "gopls",
         "bashls",
         "dockerls",
         "yamlls",
@@ -704,10 +688,14 @@ if not vim.g.vscode then
         "lua_ls",
         "sqlls",
         "ts_ls",
+        "biome",
         "nginx_language_server",
         "docker_compose_language_service",
     })
     vim.lsp.config("*", { capabilities = lsp_cap })
+
+    -- vim.lsp.enable("pylyzer", is_django)
+    -- vim.lsp.enable("pyright", not is_django)
 
     vim.lsp.config("ruff", { init_options = { configuration = "~/.config/ruff.toml" } })
     vim.lsp.config("vimls", {
@@ -941,6 +929,42 @@ cmp.setup.filetype({ "dap-repl", "dapui_watches", "dapui_hover" }, { sources = {
 -- })
 
 -- require("barbar").setup()
+
+local ufo_handler = function(virtText, lnum, endLnum, width, truncate)
+    local newVirtText = {}
+    local suffix = (" ⋯  󰁂 %d "):format(endLnum - lnum)
+    local sufWidth = vim.fn.strdisplaywidth(suffix)
+    local targetWidth = width - sufWidth
+    local curWidth = 0
+    for _, chunk in ipairs(virtText) do
+        local chunkText = chunk[1]
+        local chunkWidth = vim.fn.strdisplaywidth(chunkText)
+        if targetWidth > curWidth + chunkWidth then
+            table.insert(newVirtText, chunk)
+        else
+            chunkText = truncate(chunkText, targetWidth - curWidth)
+            local hlGroup = chunk[2]
+            table.insert(newVirtText, { chunkText, hlGroup })
+            chunkWidth = vim.fn.strdisplaywidth(chunkText)
+            -- str width returned from truncate() may less than 2nd argument, need padding
+            if curWidth + chunkWidth < targetWidth then
+                suffix = suffix .. (" "):rep(targetWidth - curWidth - chunkWidth)
+            end
+            break
+        end
+        curWidth = curWidth + chunkWidth
+    end
+    table.insert(newVirtText, { suffix, "MoreMsg" })
+    return newVirtText
+end
+
+require("ufo").setup({
+    fold_virt_text_handler = ufo_handler,
+    provider_selector = function(bufnr, filetype, buftype)
+        return { "treesitter", "indent" }
+    end,
+    close_fold_kinds_for_ft = { default = { "imports", "comment" } },
+})
 
 -- FIXME (k): <2024-05-02 22:24>
 -- require("ufo").setup({ close_fold_kinds_for_ft = { "imports", "comment" }, fold_virt_text_handler = ufo_handler })

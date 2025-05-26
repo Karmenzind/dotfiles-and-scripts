@@ -26,7 +26,7 @@ let g:plugged_dir = g:vimroot .. '/plugged'
 function s:IsHHKB() abort
   " TODO (k): <2024-02-14 19:50> windows
   if !s:is_win && !empty(system("grep 'HHKB' /proc/bus/input/devices"))
-      return v:true
+    return v:true
   endif
   return v:false
 endfunction
@@ -87,8 +87,8 @@ nnoremap <leader><CR> i<CR><ESC>k$
 if !has("win32")
   if empty(glob('~/.vim/autoload/plug.vim'))
     silent !mkdir -p ~/.vim/autoload &&
-            \ wget https://raw.githubusercontent.com/junegunn/vim-plug/master/plug.vim
-            \ -O ~/.vim/autoload/plug.vim
+          \ wget https://raw.githubusercontent.com/junegunn/vim-plug/master/plug.vim
+          \ -O ~/.vim/autoload/plug.vim
     autocmd VimEnter * PlugInstall --sync | source $MYVIMRC
   endif
 else
@@ -98,9 +98,9 @@ else
     echom "Initializing vim-plug..."
     " XXX
     silent ! powershell -Command "
-    \ New-Item -Path ~\vimfiles -Name autoload -Type Directory -Force;
-    \ Invoke-WebRequest -Uri 'https://raw.githubusercontent.com/junegunn/vim-plug/master/plug.vim' -OutFile ~\vimfiles\autoload\plug.vim
-    \ "
+          \ New-Item -Path ~\vimfiles -Name autoload -Type Directory -Force;
+          \ Invoke-WebRequest -Uri 'https://raw.githubusercontent.com/junegunn/vim-plug/master/plug.vim' -OutFile ~\vimfiles\autoload\plug.vim
+          \ "
     autocmd VimEnter * PlugInstall --sync | source $MYVIMRC
   endif
 endif
@@ -352,9 +352,9 @@ set nobackup
 " set confirm
 " Move the swap file location to protect against CVE-2017-1000382
 " if exists('$XDG_CACHE_HOME')
-" 	let &g:directory=$XDG_CACHE_HOME
+"   let &g:directory=$XDG_CACHE_HOME
 " else
-" 	let &g:directory=$HOME . '/.cache'
+"   let &g:directory=$HOME . '/.cache'
 " endif
 " let &g:directory.='/vim/swap//'
 " " Create swap directory if it doesn't exist
@@ -532,10 +532,10 @@ if !has('nvim') && Plugged('YouCompleteMe')
   " let g:ycm_max_num_identifier_candidates = 7
 
   let g:ycm_semantic_triggers = {
-  \   'python': [ 're!(import\s+|from\s+(\w+\s+(import\s+(\w+,\s+)*)?)?)' ],
-  \   'html': ['<', '"', '</', ' '],
-  \   'scss,css': [ 're!^\s{2,4}', 're!:\s+' ]
-  \ }
+        \   'python': [ 're!(import\s+|from\s+(\w+\s+(import\s+(\w+,\s+)*)?)?)' ],
+        \   'html': ['<', '"', '</', ' '],
+        \   'scss,css': [ 're!^\s{2,4}', 're!:\s+' ]
+        \ }
 
   let g:__rtp = &rtp
   let g:ycm_extra_conf_vim_data = ['g:__rtp']
@@ -560,7 +560,7 @@ if !has('nvim') && Plugged('YouCompleteMe')
   augroup ycm_behaviours
     au!
     au FileType python,go,sh,vim
-        \ nmap K <plug>(YCMHover)
+          \ nmap K <plug>(YCMHover)
   augroup END
 
   nnoremap <silent> <Leader>g   :YcmCompleter GoTo<CR>
@@ -584,7 +584,7 @@ function! s:Fzf2Nerdtree(lines)
     wincmd p
   else
     if get(g:, "loaded_nerd_tree", 0) == 0
-        execute 'NERDTree'
+      execute 'NERDTree'
     endif
     execute 'NERDTreeFind ' .. path
   endif
@@ -675,15 +675,15 @@ function! s:build_quickfix_list(lines)
 endfunction
 
 let g:fzf_action = {
-  \ 'ctrl-n': function('s:Fzf2Nerdtree'),
-  \ 'ctrl-q': function('s:build_quickfix_list'),
-  \ 'ctrl-t': 'tab split', 'ctrl-x': 'split', 'ctrl-v': 'vsplit'
-  \}
+      \ 'ctrl-n': function('s:Fzf2Nerdtree'),
+      \ 'ctrl-q': function('s:build_quickfix_list'),
+      \ 'ctrl-t': 'tab split', 'ctrl-x': 'split', 'ctrl-v': 'vsplit'
+      \}
 
 let g:fzf_vim = {
-    \ 'preview_window': ['hidden,right,50%,<70(up,40%)', 'ctrl-/'],
-    \ 'buffers_jump': 1, 'tags_command': 'ctags -R',
-    \}
+      \ 'preview_window': ['hidden,right,50%,<70(up,40%)', 'ctrl-/'],
+      \ 'buffers_jump': 1, 'tags_command': 'ctags -R',
+      \}
 
 if s:is_win
   if filereadable('C:\Program\ Files\Git\git-bash.exe')
@@ -710,19 +710,19 @@ else
     let g:fzf_layout = { 'down': '~51%' }
   endif
   let g:fzf_colors = {
-    \ 'fg':      ['fg', 'Normal'],
-    \ 'bg':      ['bg', 'Normal'],
-    \ 'hl':      ['fg', 'Comment'],
-    \ 'fg+':     ['fg', 'CursorLine', 'CursorColumn', 'Normal'],
-    \ 'bg+':     ['bg', 'CursorLine', 'CursorColumn'],
-    \ 'hl+':     ['fg', 'Statement'],
-    \ 'info':    ['fg', 'PreProc'],
-    \ 'border':  ['fg', 'Ignore'],
-    \ 'prompt':  ['fg', 'Conditional'],
-    \ 'pointer': ['fg', 'Exception'],
-    \ 'marker':  ['fg', 'Keyword'],
-    \ 'spinner': ['fg', 'Label'],
-    \ 'header':  ['fg', 'Comment'] }
+        \ 'fg':      ['fg', 'Normal'],
+        \ 'bg':      ['bg', 'Normal'],
+        \ 'hl':      ['fg', 'Comment'],
+        \ 'fg+':     ['fg', 'CursorLine', 'CursorColumn', 'Normal'],
+        \ 'bg+':     ['bg', 'CursorLine', 'CursorColumn'],
+        \ 'hl+':     ['fg', 'Statement'],
+        \ 'info':    ['fg', 'PreProc'],
+        \ 'border':  ['fg', 'Ignore'],
+        \ 'prompt':  ['fg', 'Conditional'],
+        \ 'pointer': ['fg', 'Exception'],
+        \ 'marker':  ['fg', 'Keyword'],
+        \ 'spinner': ['fg', 'Label'],
+        \ 'header':  ['fg', 'Comment'] }
 endif
 
 " command! -bang -nargs=* Ag call fzf#vim#ag(<q-args>, '--hidden', <bang>0)
@@ -807,15 +807,15 @@ function! ChangeTab2Spaces(buffer, lines)
 endfunction
 
 function! FixLeadingTabs(buffer, lines) abort
-    let l:fixed_lines = []
-    for l:line in a:lines
-        if l:line =~ '^\t'
-          call add(l:fixed_lines, substitute(l:line, '^\t\+', '\=repeat(" ", &tabstop * len(submatch(0)))', 'g'))
-        else
-          call add(l:fixed_lines, l:line)
-        endif
-    endfor
-    return l:fixed_lines
+  let l:fixed_lines = []
+  for l:line in a:lines
+    if l:line =~ '^\t'
+      call add(l:fixed_lines, substitute(l:line, '^\t\+', '\=repeat(" ", &tabstop * len(submatch(0)))', 'g'))
+    else
+      call add(l:fixed_lines, l:line)
+    endif
+  endfor
+  return l:fixed_lines
 endfunction
 
 " no linters for nvim
@@ -861,8 +861,8 @@ let g:ale_fixers = {
       \  'go': ['gofmt', 'goimports'],
       \  'html': ['prettier'],
       \  'java': ['clang-format'],
-      \  'javascript': ['prettier', 'importjs'],
-      \  'typescript': ['prettier'],
+      \  'javascript': ['biome', 'importjs'],
+      \  'typescript': ['biome'],
       \  'json': ['jq'],
       \  'lua': ['stylua'],
       \  'php': ['php_cs_fixer'],
@@ -893,6 +893,8 @@ let g:ale_python_autoflake_options = '--remove-all-unused-imports --ignore-init-
 " let g:ale_python_ruff_options = '--ignore=D103,D200,D203,D204,D205,D211,D212,D213,D400,D401,D403,D415'
 " let g:ale_python_ruff_options = '--config \'ignore = ["E402"]\''
 let g:ale_python_ruff_format_options = '--config ~/.config/ruff.toml'
+"let g:ale_biome_options = '--config-path=~/.config/biome.json --use-editorconfig=true'
+let g:ale_biome_options = '--line-width=120 --indent-style=space'
 
 " let g:ale_javascript_prettier_options = '-c'
 " let g:ale_javascript_eslint_options = '--ext .js,.vue'
@@ -954,19 +956,19 @@ let g:mkdp_refresh_slow = 0
 let g:mkdp_command_for_global = 0
 let g:mkdp_echo_preview_url = 1
 let g:mkdp_preview_options = {
-    \ 'mkit': {},
-    \ 'katex': {},
-    \ 'uml': {},
-    \ 'maid': {},
-    \ 'disable_sync_scroll': 1,
-    \ 'sync_scroll_type': 'middle',
-    \ 'hide_yaml_meta': 1,
-    \ 'sequence_diagrams': {},
-    \ 'flowchart_diagrams': {},
-    \ 'content_editable': v:false,
-    \ 'disable_filename': 0,
-    \ 'toc': {}
-    \ }
+      \ 'mkit': {},
+      \ 'katex': {},
+      \ 'uml': {},
+      \ 'maid': {},
+      \ 'disable_sync_scroll': 1,
+      \ 'sync_scroll_type': 'middle',
+      \ 'hide_yaml_meta': 1,
+      \ 'sequence_diagrams': {},
+      \ 'flowchart_diagrams': {},
+      \ 'content_editable': v:false,
+      \ 'disable_filename': 0,
+      \ 'toc': {}
+      \ }
 let g:mkdp_browser = 'chromium'
 
 " tmux pane or terminal
@@ -1264,20 +1266,20 @@ if !exists("vscode")
 
   if has('nvim')
     let g:vista_executive_for = {
-      \ 'go': 'nvim_lsp',
-      \ 'yaml': 'nvim_lsp',
-      \ 'toml': 'ctags',
-      \ 'typescript': 'nvim_lsp',
-      \ }
+          \ 'go': 'nvim_lsp',
+          \ 'yaml': 'nvim_lsp',
+          \ 'toml': 'ctags',
+          \ 'typescript': 'nvim_lsp',
+          \ }
   elseif Plugged("coc.nvim")
     let g:vista_executive_for = {
-      \ 'lua': 'coc',
-      \ 'yaml': 'coc',
-      \ 'toml': 'coc',
-      \ 'ps1': 'coc',
-      \ 'tsx': 'coc',
-      \ 'typescriptreact': 'coc',
-      \ }
+          \ 'lua': 'coc',
+          \ 'yaml': 'coc',
+          \ 'toml': 'coc',
+          \ 'ps1': 'coc',
+          \ 'tsx': 'coc',
+          \ 'typescriptreact': 'coc',
+          \ }
   endif
 
   augroup vista_aug
