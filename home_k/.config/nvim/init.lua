@@ -143,18 +143,19 @@ require("lazy").setup({
         { "junegunn/vim-easy-align" },
         {
             "SirVer/ultisnips",
+            lazy = false,
             event = "InsertEnter",
             config = function()
                 vim.g.UltiSnipsExpandTrigger = "<c-j>"
-                vim.g.UltiSnipsEditSplit = "context"
-                vim.g.UltiSnipsUsePythonVersion = 3
-                vim.g.UltiSnipsSnippetStorageDirectoryForUltiSnipsEdit = my_vimroot .. "/mysnippets"
-                vim.g.UltiSnipsSnippetDirectories = { my_vimroot .. "/mysnippets", "UltiSnips" }
-                vim.g.UltiSnipsEnableSnipMate = 1
-                vim.g.UltiSnipsNoPythonWarning = 0
-                vim.g.snips_author = "k"
-                vim.g.snips_email = "valesail7@gmail.com"
-                vim.g.snips_github = "https://github.com/Karmenzind/"
+                -- vim.g.UltiSnipsEditSplit = "context"
+                -- vim.g.UltiSnipsUsePythonVersion = 3
+                -- vim.g.UltiSnipsSnippetStorageDirectoryForUltiSnipsEdit = my_vimroot .. "/mysnippets"
+                -- vim.g.UltiSnipsSnippetDirectories = { my_vimroot .. "/mysnippets", "UltiSnips" }
+                -- vim.g.UltiSnipsEnableSnipMate = 1
+                -- vim.g.UltiSnipsNoPythonWarning = 0
+                -- vim.g.snips_author = "k"
+                -- vim.g.snips_email = "valesail7@gmail.com"
+                -- vim.g.snips_github = "https://github.com/Karmenzind/"
             end,
         },
         { "honza/vim-snippets" },
@@ -226,6 +227,13 @@ require("lazy").setup({
         { "kyazdani42/nvim-web-devicons" },
 
         -- Colorschemes
+        { "ishan9299/nvim-solarized-lua" },
+        { "glepnir/zephyr-nvim" },
+        { "Mofiqul/dracula.nvim" },
+        { "rebelot/kanagawa.nvim" },
+        { "ellisonleao/gruvbox.nvim", priority = 1000, config = true, opts = ... },
+        { "daschw/leaf.nvim" },
+        { "UtkarshVerma/molokai.nvim", branch = "main" },
         { "fcancelinha/nordern.nvim" },
         { "katawful/kat.nvim", tag = "3.1" },
         { "projekt0n/github-nvim-theme" },
@@ -235,12 +243,26 @@ require("lazy").setup({
         { "kyazdani42/blue-moon" }, -- no airline theme
         { "folke/tokyonight.nvim", branch = "main" },
         { "EdenEast/nightfox.nvim" },
-        { "flazz/vim-colorschemes" },
         { "gerardbm/vim-atomic" },
-        { "icymind/NeoSolarized" },
+        -- { "icymind/NeoSolarized" },
         { "KKPMW/sacredforest-vim" },
         { "junegunn/seoul256.vim" },
         { "aktersnurra/no-clown-fiesta.nvim" },
+        { "EdenEast/nightfox.nvim" },
+        {
+            "scottmckendry/cyberdream.nvim",
+            lazy = false,
+            priority = 1000,
+        },
+        {
+            "zenbones-theme/zenbones.nvim",
+            lazy = false,
+            priority = 1000,
+            config = function()
+                vim.g.zenbones_compat = 1
+            end,
+        },
+        -- { "flazz/vim-colorschemes" },
 
         { "vim-autoformat/vim-autoformat" },
 
@@ -945,6 +967,8 @@ local ufo_handler = function(virtText, lnum, endLnum, width, truncate)
     return newVirtText
 end
 
+require("ibl").setup()
+
 require("ufo").setup({
     fold_virt_text_handler = ufo_handler,
     provider_selector = function(bufnr, filetype, buftype)
@@ -963,11 +987,19 @@ end
 if vim.g.colors_name == nil and not vim.g.vscode then
     vim.g.boo_colorscheme_theme = rchoose({ "sunset_cloud", "radioactive_waste", "forest_stream", "crimson_moonlight" })
     vim.fn.RandomSetColo({
-        "NeoSolarized",
+        "nightfox",
+        "zephyr",
+        "cyberdream",
+        "dracula",
+        "kanagawa",
+        "zenbones",
+        "leaf",
+        "gruvbox",
+        "molokai",
+        "solarized",
         "blue-moon",
         -- "atomic",
         "boo",
-        "gruvbox",
         "nordern",
         -- "molokai",
         "kat.nvim",
@@ -981,12 +1013,10 @@ if vim.g.colors_name == nil and not vim.g.vscode then
         "github_dark_high_contrast",
         "github_light_high_contrast",
         "default",
-        "zenburn",
-        "lyla",
-        "madeofcode",
-        "obsidian",
         "nightfox",
         "no-clown-fiesta",
+        -- installed from flazz's plugin
+        -- "zenburn", "obsidian", "lyla", "madeofcode",
     })
 
     local cololike = function(p)

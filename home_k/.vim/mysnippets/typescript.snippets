@@ -4,4 +4,7 @@ async function ${1:foo}(${2}): Promise<any> {
     $0
 }
 endsnippet
-    
+
+snippet sleep "via settimeout"
+new Promise((resolve) => setTimeout(resolve, ${0:1000}));
+endsnippet

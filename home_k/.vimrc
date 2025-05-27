@@ -154,10 +154,10 @@ function! SetupVimPlug()
   Plug 'junegunn/vim-slash' " enhancing in-buffer search experience
   Plug 'junegunn/fzf', { 'do': { -> fzf#install() } }
   Plug 'junegunn/fzf.vim'
-  if !has("nvim")
-    " conds
-    Plug 'Yggdroot/LeaderF', { 'do': ':LeaderfInstallCExtension' }
-  endif
+  "if !has("nvim")
+  "  " conds
+  "  Plug 'Yggdroot/LeaderF', { 'do': ':LeaderfInstallCExtension' }
+  "endif
 
   " /* Go */
   " Plug 'fatih/vim-go', { 'do': ':GoUpdateBinaries' }
@@ -288,7 +288,7 @@ set nowrap
 if has('nvim')
   set statusline=%F%m%r%h%w\ (%{&ff}){%Y}\ [%l,%v][%p%%]
 elseif Plugged('vim-devicons')
-  set statusline=%f\ %{WebDevIconsGetFileTypeSymbol()}\ %h%w%m%r\ %=%(%l,%c%V\ %Y\ %=\ %P%)
+  " set statusline=%f\ %{WebDevIconsGetFileTypeSymbol()}\ %h%w%m%r\ %=%(%l,%c%V\ %Y\ %=\ %P%)
 endif
 
 " /* line number */
@@ -626,9 +626,9 @@ if g:line_plugin == 'airline'
         \ '' : 'V',
         \ 's'  : 'S',
         \ 'S'  : 'S',
-        \ '' : 'S',
         \ 't'  : 'T',
         \ }
+        " \ '' : 'S',
   let g:airline_highlighting_cache = 1
   let g:airline_skip_empty_sections = 1
   let g:airline#extensions#ale#enabled = 0
@@ -782,14 +782,14 @@ map  <Leader>w <Plug>(easymotion-bd-w)
 nmap <Leader>w <Plug>(easymotion-overwin-w)
 
 " /* for ultisnips */
-
 call s:NoSearchCabbrev("UE", "UltiSnipsEdit")
+
 let g:UltiSnipsExpandTrigger = '<c-j>'
 " FIXME (k): <2022-03-23> doesn't work any more let g:UltiSnipsListSnippets = '<F9>'
 let g:UltiSnipsEditSplit = 'context'
 let g:UltiSnipsUsePythonVersion = 3
 let g:UltiSnipsSnippetStorageDirectoryForUltiSnipsEdit = g:vimroot .. '/mysnippets'
-let g:UltiSnipsSnippetDirectories = ['UltiSnips', 'mysnippets']
+let g:UltiSnipsSnippetDirectories = [ g:vimroot .. '/mysnippets', 'UltiSnips' ]
 let g:UltiSnipsEnableSnipMate = 1
 let g:UltiSnipsNoPythonWarning = 1
 let g:snips_author = 'k'
@@ -1202,7 +1202,7 @@ if !has('nvim') && Plugged('coc.nvim')
   xmap ac <Plug>(coc-classobj-a)
   omap ac <Plug>(coc-classobj-a)
 
-  if has('nvim-0.4.0') || has('patch-8.2.0750')
+  if has('patch-8.2.0750')
     nnoremap <silent><nowait><expr> <C-f> coc#float#has_scroll() ? coc#float#scroll(1) : "\<C-f>"
     nnoremap <silent><nowait><expr> <C-b> coc#float#has_scroll() ? coc#float#scroll(0) : "\<C-b>"
     inoremap <silent><nowait><expr> <C-f> coc#float#has_scroll() ? "\<c-r>=coc#float#scroll(1)\<cr>" : "\<Right>"
@@ -1216,11 +1216,6 @@ if !has('nvim') && Plugged('coc.nvim')
   command! -nargs=0 Format :call CocActionAsync('format')
   command! -nargs=? Fold :call CocAction('fold', <f-args>)
   command! -nargs=0 OR   :call CocActionAsync('runCommand', 'editor.action.organizeImport')
-
-  " Add (Neo)Vim's native statusline support.
-  " NOTE: Please see `:h coc-status` for integrations with external plugins that
-  " provide custom statusline: lightline.vim, vim-airline.
-  " set statusline^=%{coc#status()}%{get(b:,'coc_current_function','')}
 
   " " Mappings for CoCList
   " " Show all diagnostics.
@@ -1240,9 +1235,8 @@ if !has('nvim') && Plugged('coc.nvim')
   " " Resume latest coc list.
   " nnoremap <silent><nowait> <space>p  :<C-u>CocListResume<CR>
 
-  let g:coc_global_extensions = [ 'coc-json', 'coc-git', 'coc-snippets',
-        \ 'coc-docker', 'coc-sh', 'coc-sql', 'coc-toml', 'coc-go',
-        \ 'coc-pyright', 'coc-lua', 'coc-tsserver' ]
+  let g:coc_global_extensions = [ 'coc-json', 'coc-git', 'coc-snippets', 'coc-java',
+        \ 'coc-docker', 'coc-sh', 'coc-sql', 'coc-toml', 'coc-go', 'coc-pyright', 'coc-lua', 'coc-tsserver' ]
   if has("win32")
     call add(g:coc_global_extensions, "coc-powershell")
   endif
@@ -1528,6 +1522,7 @@ function! SetColorScheme(cname) abort
     else
       let g:airline_theme = airline_theme
     endif
+    "let g:airline_theme = airline_theme
   endif
 endfunction
 
@@ -1600,8 +1595,8 @@ vnoremap <Leader>cm :<C-u>call CycleModes()<CR>:colorscheme atomic<CR>gv
 " set background=dark
 
 " italic
-set t_ZH=[3m
-set t_ZR=[23m
+" set t_ZH=[3m
+" set t_ZR=[23m
 
 " load local configuration
 if filereadable(s:extra_vimrc_path)

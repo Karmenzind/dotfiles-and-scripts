@@ -94,7 +94,7 @@ endsnippet
 global !p
 def create_seq(snip):
     ph = snip.buffer[snip.line].strip()[1:]
-    s, e, l = re.match('(\d+)[,-](\d+)[| ](.*)', ph).groups()
+    s, e, l = re.match(r'(\d+)[,-](\d+)[| ](.*)', ph).groups()
     body = snip.buffer[snip.line] = ''
     s, e = int(s), int(e)
     step = 1
