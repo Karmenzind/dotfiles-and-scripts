@@ -861,7 +861,7 @@ let g:ale_fixers = {
       \  'go': ['gofmt', 'goimports'],
       \  'html': ['prettier'],
       \  'java': ['clang-format'],
-      \  'javascript': ['biome', 'importjs'],
+      \  'javascript': ['biome'],
       \  'typescript': ['biome'],
       \  'json': ['jq'],
       \  'lua': ['stylua'],

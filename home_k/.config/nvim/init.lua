@@ -138,6 +138,7 @@ require("lazy").setup({
         { "windwp/nvim-autopairs" },
 
         -- Coding tools
+        { "vim-autoformat/vim-autoformat" },
         { "tpope/vim-endwise" },
         { "tpope/vim-surround" },
         { "junegunn/vim-easy-align" },
@@ -251,12 +252,10 @@ require("lazy").setup({
         { "EdenEast/nightfox.nvim" },
         {
             "scottmckendry/cyberdream.nvim",
-            lazy = false,
             priority = 1000,
         },
         {
             "zenbones-theme/zenbones.nvim",
-            lazy = false,
             priority = 1000,
             config = function()
                 vim.g.zenbones_compat = 1
@@ -264,7 +263,6 @@ require("lazy").setup({
         },
         -- { "flazz/vim-colorschemes" },
 
-        { "vim-autoformat/vim-autoformat" },
 
         -- LSP and Mason
         {

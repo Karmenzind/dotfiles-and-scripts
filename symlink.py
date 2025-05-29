@@ -27,7 +27,7 @@ import time
 import warnings
 from collections import defaultdict
 from pathlib import Path
-from typing import List, Set
+from typing import Set
 
 rec = defaultdict(list)
 
@@ -78,21 +78,24 @@ TO_SYNC: Set[Path] = {
 }
 
 if osname == "win":
+
     def get_ps_profile_path(all_users=False):
         import subprocess
+
         ps_args = "-NoLogo -NoProfile -ExecutionPolicy RemoteSigned -Command"
         if all_users:
             powershell_command = f"pwsh {ps_args} $PROFILE.AllUsersCurrentHost"
         else:
-            powershell_command = f'pwsh {ps_args} $PROFILE'
-        result = subprocess.run(
-            powershell_command, stdout=subprocess.PIPE, text=True, shell=True)
+            powershell_command = f"pwsh {ps_args} $PROFILE"
+        result = subprocess.run(powershell_command, stdout=subprocess.PIPE, text=True, shell=True)
         return result.stdout.strip()
 
-    TO_SYNC.update([
-        SRC_HOME / ".config/alacritty/win.toml",
-        Path("others/powershell/profile.ps1"),
-    ])
+    TO_SYNC.update(
+        [
+            SRC_HOME / ".config/alacritty/win.toml",
+            Path("others/powershell/profile.ps1"),
+        ]
+    )
     PATH_MAP = {
         SRC_HOME: HOME_DIR,
         SRC_HOME / ".config": HOME_DIR / ".config",
@@ -104,23 +107,27 @@ if osname == "win":
         Path("others/powershell/profile.ps1"): get_ps_profile_path(),
     }
 elif osname == "mac":
-    TO_SYNC.update([
-        SRC_HOME / ".config/fish",
-        SRC_HOME / ".config/ranger",
-        SRC_HOME / ".config/mypy",
-        SRC_HOME / ".config/alacritty/mac.toml",
-    ])
+    TO_SYNC.update(
+        [
+            SRC_HOME / ".config/fish",
+            SRC_HOME / ".config/ranger",
+            SRC_HOME / ".config/mypy",
+            SRC_HOME / ".config/alacritty/mac.toml",
+        ]
+    )
     PATH_MAP = {
         SRC_HOME: HOME_DIR,
         Path("others/powershell/profile.ps1"): HOME_DIR / ".config/powershell/profile.ps1",
         SRC_HOME / ".config/alacritty/mac.toml": HOME_DIR / ".config/alacritty/extra.toml",
     }
 else:  # linux like
-    TO_SYNC.update([
-        Path("home_k"),
-        Path("local_bin"),
-        Path("others/powershell/profile.ps1"),
-    ])
+    TO_SYNC.update(
+        [
+            Path("home_k"),
+            Path("local_bin"),
+            Path("others/powershell/profile.ps1"),
+        ]
+    )
     PATH_MAP = {
         SRC_HOME: HOME_DIR,
         Path("local_bin"): Path("/usr/local/bin"),
@@ -231,8 +238,7 @@ def do_symlink(from_: Path, to_: Path):
 
     # A file can be a symlink as well as nonexisted on Win. Fuck Windows
     if os.path.islink(to_):
-        existed_link_to = os.path.realpath(
-            to_) if sys.platform == "win32" else os.readlink(to_)
+        existed_link_to = os.path.realpath(to_) if sys.platform == "win32" else os.readlink(to_)
         if existed_link_to == str(from_):
             if args.delete:
                 os.remove(to_)
