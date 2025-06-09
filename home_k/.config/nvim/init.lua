@@ -138,6 +138,18 @@ require("lazy").setup({
         { "windwp/nvim-autopairs" },
 
         -- Coding tools
+        {
+            "mfussenegger/nvim-lint",
+            config = function()
+                require("lint").linters_by_ft = { python = { "mypy" } }
+
+                vim.api.nvim_create_autocmd({ "BufWritePost", "BufEnter", "InsertLeave" }, {
+                    callback = function()
+                        require("lint").try_lint()
+                    end,
+                })
+            end,
+        },
         { "vim-autoformat/vim-autoformat" },
         { "tpope/vim-endwise" },
         { "tpope/vim-surround" },
@@ -263,7 +275,6 @@ require("lazy").setup({
         },
         -- { "flazz/vim-colorschemes" },
 
-
         -- LSP and Mason
         {
             "mason-org/mason.nvim",
@@ -374,7 +385,7 @@ require("lazy").setup({
     -- colorscheme that will be used when installing plugins.
     install = { colorscheme = { "habamax" } },
     -- automatically check for plugin updates
-    checker = { enabled = true },
+    checker = { enabled = true, frequency = 86400 },
 })
 
 vim.cmd("source " .. my_vimrc_path)
@@ -531,7 +542,7 @@ vim.diagnostic.config({
     float = { source = true },
 })
 
--- require("java").setup({
+-- require("java").setup({ -- before lsp
 --     jdk = { auto_install = false },
 --     java_debug_adapter = {
 --         enable = false,
@@ -680,6 +691,7 @@ if not vim.g.vscode then
 
     vim.lsp.enable({
         "pyright",
+        -- "basedpyright",
         "ruff",
         "gopls",
         "bashls",
@@ -702,10 +714,7 @@ if not vim.g.vscode then
     })
     vim.lsp.config("*", { capabilities = lsp_cap })
 
-    -- vim.lsp.enable("pylyzer", is_django)
-    -- vim.lsp.enable("pyright", not is_django)
-
-    vim.lsp.config("ruff", { init_options = { configuration = "~/.config/ruff.toml" } })
+    -- vim.lsp.config("ruff", { init_options = { configuration = "~/.config/ruff.toml" } })
     vim.lsp.config("vimls", {
         cmd = { "vim-language-server", "--stdio" },
         filetypes = { "vim" },
