@@ -93,12 +93,21 @@ end
 -- vim.g.mapleader = " "
 -- vim.g.maplocalleader = "\\"
 
+local load_extra_colors
+local enable_lsp_plugins
+if vim.g.vscode then
+    load_extra_colors = false
+    enable_lsp_plugins = false
+else
+    load_extra_colors = true
+    enable_lsp_plugins = true
+end
+
 -- Setup lazy.nvim
 require("lazy").setup({
     root = plugged_dir,
     spec = {
         { "nvim-tree/nvim-tree.lua" },
-
         {
             "goolord/alpha-nvim",
             config = function()
@@ -179,7 +188,7 @@ require("lazy").setup({
 
         -- Fuzzy Tools
         { "nvim-lua/plenary.nvim" },
-        { "nvim-telescope/telescope.nvim", branch = "0.1.x" },
+        { "nvim-telescope/telescope.nvim", branch = "0.1.x", enabled = not vim.g.vscode },
 
         {
             "folke/todo-comments.nvim",
@@ -195,13 +204,13 @@ require("lazy").setup({
         { "tversteeg/registers.nvim", branch = "main" },
 
         -- Java support
-        { "nvim-java/lua-async-await" },
-        { "nvim-java/nvim-java-refactor" },
-        { "nvim-java/nvim-java-core" },
-        { "nvim-java/nvim-java-test" },
-        { "nvim-java/nvim-java-dap" },
-        { "nvim-java/nvim-java" },
-        { "JavaHello/spring-boot.nvim" },
+        { "nvim-java/lua-async-await", enable = enable_lsp_plugins },
+        { "nvim-java/nvim-java-refactor", enable = enable_lsp_plugins },
+        { "nvim-java/nvim-java-core", enable = enable_lsp_plugins },
+        { "nvim-java/nvim-java-test", enable = enable_lsp_plugins },
+        { "nvim-java/nvim-java-dap", enable = enable_lsp_plugins },
+        { "nvim-java/nvim-java", enable = enable_lsp_plugins },
+        { "JavaHello/spring-boot.nvim", enable = enable_lsp_plugins },
 
         -- UI and UX
         { "MunifTanjim/nui.nvim" },
@@ -240,31 +249,32 @@ require("lazy").setup({
         { "kyazdani42/nvim-web-devicons" },
 
         -- Colorschemes
-        { "ishan9299/nvim-solarized-lua" },
-        { "glepnir/zephyr-nvim" },
-        { "Mofiqul/dracula.nvim" },
-        { "rebelot/kanagawa.nvim" },
-        { "ellisonleao/gruvbox.nvim", priority = 1000, config = true, opts = ... },
-        { "daschw/leaf.nvim" },
-        { "UtkarshVerma/molokai.nvim", branch = "main" },
-        { "fcancelinha/nordern.nvim" },
-        { "katawful/kat.nvim", tag = "3.1" },
-        { "projekt0n/github-nvim-theme" },
-        { "uloco/bluloco.nvim" },
-        { "rktjmp/lush.nvim" },
-        { "rockerBOO/boo-colorscheme-nvim" },
-        { "kyazdani42/blue-moon" }, -- no airline theme
-        { "folke/tokyonight.nvim", branch = "main" },
-        { "EdenEast/nightfox.nvim" },
-        { "gerardbm/vim-atomic" },
-        -- { "icymind/NeoSolarized" },
-        { "KKPMW/sacredforest-vim" },
-        { "junegunn/seoul256.vim" },
-        { "aktersnurra/no-clown-fiesta.nvim" },
-        { "EdenEast/nightfox.nvim" },
+        { "ishan9299/nvim-solarized-lua", enable = load_extra_colors },
+        { "glepnir/zephyr-nvim", enable = load_extra_colors },
+        { "Mofiqul/dracula.nvim", enable = load_extra_colors },
+        { "rebelot/kanagawa.nvim", enable = load_extra_colors },
+        { "ellisonleao/gruvbox.nvim", priority = 1000, config = true, opts = ..., enable = load_extra_colors },
+        { "daschw/leaf.nvim", enable = load_extra_colors },
+        { "UtkarshVerma/molokai.nvim", branch = "main", enable = load_extra_colors },
+        { "fcancelinha/nordern.nvim", enable = load_extra_colors },
+        { "katawful/kat.nvim", tag = "3.1", enable = load_extra_colors },
+        { "projekt0n/github-nvim-theme", enable = load_extra_colors },
+        { "uloco/bluloco.nvim", enable = load_extra_colors },
+        { "rktjmp/lush.nvim", enable = load_extra_colors },
+        { "rockerBOO/boo-colorscheme-nvim", enable = load_extra_colors },
+        { "kyazdani42/blue-moon", enable = load_extra_colors }, -- no airline theme
+        { "folke/tokyonight.nvim", branch = "main", enable = load_extra_colors },
+        { "EdenEast/nightfox.nvim", enable = load_extra_colors },
+        { "gerardbm/vim-atomic", enable = load_extra_colors },
+        -- { "icymind/NeoSolarized" ,enable=load_extra_colors},
+        { "KKPMW/sacredforest-vim", enable = load_extra_colors },
+        { "junegunn/seoul256.vim", enable = load_extra_colors },
+        { "aktersnurra/no-clown-fiesta.nvim", enable = load_extra_colors },
+        { "EdenEast/nightfox.nvim", enable = load_extra_colors },
         {
             "scottmckendry/cyberdream.nvim",
             priority = 1000,
+            enable = load_extra_colors,
         },
         {
             "zenbones-theme/zenbones.nvim",
@@ -272,6 +282,7 @@ require("lazy").setup({
             config = function()
                 vim.g.zenbones_compat = 1
             end,
+            enable = load_extra_colors,
         },
         -- { "flazz/vim-colorschemes" },
 
@@ -297,11 +308,11 @@ require("lazy").setup({
             end,
         },
         { "neovim/nvim-lspconfig" },
-        { "nvimdev/lspsaga.nvim" },
-        { "onsails/lspkind.nvim" },
+        { "nvimdev/lspsaga.nvim", enable = enable_lsp_plugins },
+        { "onsails/lspkind.nvim", enable = enable_lsp_plugins },
         { "kosayoda/nvim-lightbulb" },
 
-        { "ray-x/lsp_signature.nvim" },
+        { "ray-x/lsp_signature.nvim", enable = enable_lsp_plugins },
         { "stevearc/aerial.nvim" },
 
         -- CMP
