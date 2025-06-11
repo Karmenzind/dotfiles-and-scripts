@@ -6,8 +6,11 @@ vim.g.loaded_netrw = 1
 vim.g.loaded_netrwPlugin = 1
 vim.opt.completeopt = "menu,menuone,noselect"
 
+local my_mode = vim.fn.getenv("MY_VIM_MODE")
+
 local mopts = { noremap = true, silent = true }
 
+local cmp
 local my_vimroot
 if vim.fn.has("win32") == 1 then
     my_vimroot = vim.fn.glob("~") .. "\\vimfiles"
@@ -21,27 +24,21 @@ local nvimpid = vim.fn.getpid()
 
 local function find_pybin()
     local preset = vim.fn.getenv("MY_VIM_PYTHON_PATH")
-    if preset ~= vim.NIL and preset ~= "" then
-        return preset
-    end
+    if preset ~= vim.NIL and preset ~= "" then return preset end
     if is_win then
         for _, pat in ipairs({
             [[C:\Program Files\Python3*\python.exe]],
             [[~\AppData\Local\Programs\Python\Python*\python.exe]],
         }) do
             local expanded = vim.fn.glob(pat, false, true)
-            if #expanded ~= 0 then
-                return expanded[#expanded]
-            end
+            if #expanded ~= 0 then return expanded[#expanded] end
         end
     else
         return "/usr/bin/python3"
     end
 end
 local py3bin = find_pybin()
-if py3bin == nil or not vim.fn.executable(py3bin) then
-    error("Failed to locate python executable")
-end
+if py3bin == nil or not vim.fn.executable(py3bin) then error("Failed to locate python executable") end
 
 -- Bootstrap lazy.nvim
 -- local lazypath = vim.fn.stdpath("data") .. "/lazy/lazy.nvim"
@@ -92,13 +89,22 @@ end
 -- This is also a good place to setup other settings (vim.opt)
 -- vim.g.mapleader = " "
 -- vim.g.maplocalleader = "\\"
-
 local load_extra_colors
+local my_fuzzy_tool = nil
 local load_lsp_plugins
-if vim.g.vscode then
+if my_mode == "light" or vim.g.vscode then
     load_extra_colors = false
     load_lsp_plugins = false
+    my_fuzzy_tool = "telescope"
 else
+    my_fuzzy_tool = os.getenv("NVIM_FUZZY_TOOL")
+    if my_fuzzy_tool == nil then
+        if os.getenv("TMUX") ~= nil and vim.fn.executable("fzf") == 1 then
+            my_fuzzy_tool = "fzf"
+        else
+            my_fuzzy_tool = "telescope"
+        end
+    end
     load_extra_colors = true
     load_lsp_plugins = true
 end
@@ -110,9 +116,7 @@ require("lazy").setup({
         { "nvim-tree/nvim-tree.lua" },
         {
             "goolord/alpha-nvim",
-            config = function()
-                require("alpha").setup(require("alpha.themes.startify").config)
-            end,
+            config = function() require("alpha").setup(require("alpha.themes.startify").config) end,
         },
         { "kyazdani42/nvim-web-devicons" },
 
@@ -130,9 +134,7 @@ require("lazy").setup({
                         lualine_a = {
                             {
                                 "mode",
-                                fmt = function(str)
-                                    return str:sub(1, 1)
-                                end,
+                                fmt = function(str) return str:sub(1, 1) end,
                             },
                         },
                     },
@@ -142,9 +144,7 @@ require("lazy").setup({
         {
             "nanozuki/tabby.nvim",
             cond = not vim.g.vscode,
-            config = function()
-                require("tabby").setup()
-            end,
+            config = function() require("tabby").setup() end,
         },
         { "windwp/nvim-autopairs" },
 
@@ -156,9 +156,7 @@ require("lazy").setup({
                 require("lint").linters_by_ft = { python = { "mypy" } }
 
                 vim.api.nvim_create_autocmd({ "BufWritePost", "BufEnter", "InsertLeave" }, {
-                    callback = function()
-                        require("lint").try_lint()
-                    end,
+                    callback = function() require("lint").try_lint() end,
                 })
             end,
         },
@@ -170,9 +168,7 @@ require("lazy").setup({
             "SirVer/ultisnips",
             lazy = false,
             event = "InsertEnter",
-            config = function()
-                vim.g.UltiSnipsExpandTrigger = "<c-j>"
-            end,
+            config = function() vim.g.UltiSnipsExpandTrigger = "<c-j>" end,
         },
         { "honza/vim-snippets" },
         { "Shougo/context_filetype.vim" },
@@ -182,7 +178,47 @@ require("lazy").setup({
 
         -- Fuzzy Tools
         { "nvim-lua/plenary.nvim" },
-        { "nvim-telescope/telescope.nvim", branch = "0.1.x", cond = not vim.g.vscode },
+        {
+            "nvim-telescope/telescope.nvim",
+            branch = "0.1.x",
+            cond = my_fuzzy_tool == "telescope" and not vim.g.vscode,
+            config = function()
+                local ts = require("telescope")
+                local tsa = require("telescope.actions")
+                local tsbuiltin = require("telescope.builtin")
+                vim.keymap.set("n", "<leader>ff", tsbuiltin.find_files, mopts)
+                vim.keymap.set("n", "<leader>fg", tsbuiltin.live_grep, mopts)
+                vim.keymap.set("n", "<leader>fr", tsbuiltin.live_grep, mopts)
+                vim.keymap.set("n", "<leader>fa", tsbuiltin.live_grep, mopts)
+                vim.keymap.set("n", "<leader>fb", tsbuiltin.buffers, mopts)
+                vim.keymap.set("n", "<leader>fh", tsbuiltin.help_tags, mopts)
+                ts.setup({
+                    defaults = {
+                        -- layout_config = { prompt_position = "top" },
+                        -- sorting_strategy = "ascending",
+                        border = true,
+                        mappings = {
+                            i = {
+                                ["<esc>"] = tsa.close,
+                                ["<C-j>"] = { tsa.move_selection_next, type = "action", opts = { nowait = true, silent = true } },
+                                ["<C-k>"] = {
+                                    tsa.move_selection_previous,
+                                    type = "action",
+                                    opts = { nowait = true, silent = true },
+                                },
+                                ["<C-f>"] = { tsa.results_scrolling_down, type = "action", opts = { nowait = true, silent = true } },
+                                ["<C-b>"] = { tsa.results_scrolling_up, type = "action", opts = { nowait = true, silent = true } },
+                            },
+                        },
+                        vimgrep_arguments = { "rg", "-u", "--color=never", "--no-heading", "--line-number", "--column" },
+                    },
+                    pickers = {
+                        find_files = { find_command = { "fd", "-t", "f", "-H", "-L", "-E", ".git" }, prompt_prefix = "📂 " },
+                        live_grep = { prompt_prefix = "🔍 " },
+                    },
+                })
+            end,
+        },
 
         {
             "folke/todo-comments.nvim",
@@ -238,16 +274,23 @@ require("lazy").setup({
                 vim.keymap.set("n", "zr", require("ufo").openFoldsExceptKinds)
                 vim.keymap.set("n", "zm", require("ufo").closeFoldsWith) -- closeAllFolds == closeFoldsWith(0)
                 -- require("ufo").setup()
+
+                require("ufo").setup({
+                    fold_virt_text_handler = ufo_handler,
+                    provider_selector = function(bufnr, filetype, buftype) return { "treesitter", "indent" } end,
+                    close_fold_kinds_for_ft = { default = { "imports", "comment" } },
+                })
             end,
+            cond = my_mode ~= "light",
         },
         { "kyazdani42/nvim-web-devicons" },
 
         -- Colorschemes
+        { "ellisonleao/gruvbox.nvim", priority = 1000, config = true, opts = ..., cond = load_extra_colors },
         { "ishan9299/nvim-solarized-lua", cond = load_extra_colors },
         { "glepnir/zephyr-nvim", cond = load_extra_colors },
         { "Mofiqul/dracula.nvim", cond = load_extra_colors },
         { "rebelot/kanagawa.nvim", cond = load_extra_colors },
-        { "ellisonleao/gruvbox.nvim", priority = 1000, config = true, opts = ..., cond = load_extra_colors },
         { "daschw/leaf.nvim", cond = load_extra_colors },
         { "UtkarshVerma/molokai.nvim", branch = "main", cond = load_extra_colors },
         { "fcancelinha/nordern.nvim", cond = load_extra_colors },
@@ -273,9 +316,7 @@ require("lazy").setup({
         {
             "zenbones-theme/zenbones.nvim",
             priority = 1000,
-            config = function()
-                vim.g.zenbones_compat = 1
-            end,
+            config = function() vim.g.zenbones_compat = 1 end,
             cond = load_extra_colors,
         },
         -- { "flazz/vim-colorschemes" },
@@ -283,6 +324,7 @@ require("lazy").setup({
         -- LSP and Mason
         {
             "mason-org/mason.nvim",
+            cond = load_lsp_plugins,
             config = function()
                 require("mason").setup({
                     PATH = "append",
@@ -294,6 +336,7 @@ require("lazy").setup({
         },
         {
             "mason-org/mason-lspconfig.nvim",
+            cond = load_lsp_plugins,
             config = function()
                 require("mason-lspconfig").setup({
                     ensure_installed = { "lua_ls", "pyright", "vimls", "bashls", "marksman", "gopls" },
@@ -301,43 +344,38 @@ require("lazy").setup({
                 })
             end,
         },
-        { "neovim/nvim-lspconfig" },
+        { "neovim/nvim-lspconfig", cond = load_lsp_plugins },
         { "nvimdev/lspsaga.nvim", cond = load_lsp_plugins },
-        { "onsails/lspkind.nvim" },
-        { "kosayoda/nvim-lightbulb" },
+        { "onsails/lspkind.nvim", cond = load_lsp_plugins },
+        { "kosayoda/nvim-lightbulb", cond = load_lsp_plugins },
 
         { "ray-x/lsp_signature.nvim", cond = load_lsp_plugins },
         { "stevearc/aerial.nvim" },
 
         -- CMP
-        { "hrsh7th/nvim-cmp", branch = "main" },
-        { "hrsh7th/cmp-nvim-lsp-signature-help", branch = "main" },
-        { "hrsh7th/cmp-nvim-lsp", branch = "main" },
-        { "hrsh7th/cmp-buffer", branch = "main" },
-        { "hrsh7th/cmp-path", branch = "main" },
-        { "hrsh7th/cmp-calc", branch = "main" },
-        { "hrsh7th/cmp-cmdline", branch = "main" },
-        { "hrsh7th/cmp-emoji", branch = "main" },
-        { "SergioRibera/cmp-dotenv" },
-        {
-            "andersevenrud/cmp-tmux",
-            cond = function()
-                return vim.env.TMUX ~= nil
-            end,
-        },
-        { "quangnguyen30192/cmp-nvim-ultisnips" },
+        { "hrsh7th/nvim-cmp", branch = "main", cond = load_lsp_plugins },
+        { "hrsh7th/cmp-nvim-lsp-signature-help", branch = "main", cond = load_lsp_plugins },
+        { "hrsh7th/cmp-nvim-lsp", branch = "main", cond = load_lsp_plugins },
+        { "hrsh7th/cmp-buffer", branch = "main", cond = load_lsp_plugins },
+        { "hrsh7th/cmp-path", branch = "main", cond = load_lsp_plugins },
+        { "hrsh7th/cmp-calc", branch = "main", cond = load_lsp_plugins },
+        { "hrsh7th/cmp-cmdline", branch = "main", cond = load_lsp_plugins },
+        { "hrsh7th/cmp-emoji", branch = "main", cond = load_lsp_plugins },
+        { "SergioRibera/cmp-dotenv", cond = load_lsp_plugins },
+        { "andersevenrud/cmp-tmux", cond = load_lsp_plugins and vim.env.TMUX ~= nil },
+        { "quangnguyen30192/cmp-nvim-ultisnips", cond = load_lsp_plugins },
 
         -- Language-specific
-        { "Hoffs/omnisharp-extended-lsp.nvim" },
+        { "Hoffs/omnisharp-extended-lsp.nvim", cond = load_lsp_plugins },
 
         -- Debugging
-        { "mfussenegger/nvim-dap" },
-        { "mfussenegger/nvim-dap-python" },
-        { "nvim-neotest/nvim-nio" },
-        { "leoluz/nvim-dap-go" },
-        { "rcarriga/nvim-dap-ui" },
-        { "rcarriga/cmp-dap" },
-        { "theHamsta/nvim-dap-virtual-text" },
+        { "mfussenegger/nvim-dap", cond = load_lsp_plugins },
+        { "mfussenegger/nvim-dap-python", cond = load_lsp_plugins },
+        { "nvim-neotest/nvim-nio", cond = load_lsp_plugins },
+        { "leoluz/nvim-dap-go", cond = load_lsp_plugins },
+        { "rcarriga/nvim-dap-ui", cond = load_lsp_plugins },
+        { "rcarriga/cmp-dap", cond = load_lsp_plugins },
+        { "theHamsta/nvim-dap-virtual-text", cond = load_lsp_plugins },
 
         -- Version control
         { "tpope/vim-fugitive" },
@@ -347,8 +385,8 @@ require("lazy").setup({
         -- Search
         { "easymotion/vim-easymotion" },
         { "junegunn/vim-slash" },
-        { "junegunn/fzf", build = "fzf#install", lazy = false },
-        { "junegunn/fzf.vim", lazy = false },
+        { "junegunn/fzf", build = "fzf#install", lazy = false, cond = my_fuzzy_tool == "fzf" },
+        { "junegunn/fzf.vim", lazy = false, cond = my_fuzzy_tool == "fzf" },
 
         -- Python
         { "raimon49/requirements.txt.vim" },
@@ -359,9 +397,7 @@ require("lazy").setup({
         { "plasticboy/vim-markdown" },
         {
             "iamcco/markdown-preview.nvim",
-            build = function()
-                vim.fn["mkdp#util#install"]()
-            end,
+            build = function() vim.fn["mkdp#util#install"]() end,
             ft = { "markdown", "vim-plug" },
         },
         { "nelstrom/vim-markdown-folding", ft = "markdown" },
@@ -369,34 +405,30 @@ require("lazy").setup({
         { "Traap/vim-helptags" },
 
         -- Enhancements
-        { "SilverofLight/kd_translate.nvim" },
+        { "SilverofLight/kd_translate.nvim", cond = my_mode ~= "light" },
         { "dahu/vim-lotr" },
         -- { "karmenzind/vim-tmuxlike"},
-        { "skywind3000/vim-quickui" },
-        { "skywind3000/asyncrun.vim" },
+        { "skywind3000/vim-quickui", cond = my_mode ~= "light" },
+        { "skywind3000/asyncrun.vim", cond = my_mode ~= "light" },
 
         -- Syntax & fold
-        { "posva/vim-vue" },
+        { "posva/vim-vue", cond = my_mode ~= "light" },
         { "cespare/vim-toml" },
         { "chr4/nginx.vim" },
         { "pangloss/vim-javascript" },
         { "mtdl9/vim-log-highlighting" },
-        {
-            "lukas-reineke/indent-blankline.nvim",
-            main = "ibl",
-        },
+        { "lukas-reineke/indent-blankline.nvim", main = "ibl", cond = my_mode ~= "light", config = function() require("ibl").setup() end },
     },
     -- Configure any other settings here. See the documentation for more details.
     -- colorscheme that will be used when installing plugins.
     install = { colorscheme = { "habamax" } },
     -- automatically check for plugin updates
-    checker = { enabled = true, frequency = 86400 },
+    checker = { enabled = true, frequency = my_fuzzy_tool == "light" and 86400 * 7 or 86400 * 3 },
 })
 
+vim.cmd(string.format("let g:my_fuzzy_tool = '%s'", my_fuzzy_tool))
 vim.cmd("source " .. my_vimrc_path)
-if vim.fn.filereadable(vim.g.extra_init_vim_path) > 0 then
-    vim.cmd("source " .. vim.g.extra_init_vim_path)
-end
+if vim.fn.filereadable(vim.g.extra_init_vim_path) > 0 then vim.cmd("source " .. vim.g.extra_init_vim_path) end
 
 local function term_esc()
     if vim.fn.match(vim.bo.filetype:lower(), [[\v^(fzf|telescope)]]) > -1 then
@@ -408,24 +440,22 @@ end
 
 local function try_require(mod)
     local ok, imported = pcall(require, mod)
-    if ok then
-        return imported
-    end
+    if ok then return imported end
     vim.fn.EchoWarn("Failed to load " .. mod)
     return nil
 end
 
-local function lazy_esc(_)
-    vim.keymap.set("t", "<Esc>", term_esc, mopts)
-end
+local function lazy_esc(_) vim.keymap.set("t", "<Esc>", term_esc, mopts) end
 
-vim.api.nvim_create_augroup("fzf", {})
-vim.api.nvim_create_autocmd({ "BufEnter" }, { group = "fzf", pattern = "*", callback = lazy_esc })
-if vim.g.fzf_layout["window"] == nil and vim.g.fzf_layout["tmux"] == nil then
-    vim.api.nvim_create_autocmd({ "BufLeave" }, { group = "fzf", command = "set ls=2 smd ru" })
-    vim.api.nvim_create_autocmd({ "FileType" }, { group = "fzf", pattern = "fzf", command = "setl ls=0 nosmd noru" })
+if my_fuzzy_tool == "fzf" then
+    vim.api.nvim_create_augroup("fzf", {})
+    vim.api.nvim_create_autocmd({ "BufEnter" }, { group = "fzf", pattern = "*", callback = lazy_esc })
+    if vim.g.fzf_layout["window"] == nil and vim.g.fzf_layout["tmux"] == nil then
+        vim.api.nvim_create_autocmd({ "BufLeave" }, { group = "fzf", command = "set ls=2 smd ru" })
+        vim.api.nvim_create_autocmd({ "FileType" }, { group = "fzf", pattern = "fzf", command = "setl ls=0 nosmd noru" })
+    end
+    -- require('fzf-lua').setup({'fzf-tmux'})
 end
--- require('fzf-lua').setup({'fzf-tmux'})
 
 vim.cmd([[tnoremap <expr> <C-R> '<C-\><C-N>"'.nr2char(getchar()).'pi']])
 
@@ -437,9 +467,7 @@ end
 
 local function nvim_tree_on_attach(bufnr)
     local api = require("nvim-tree.api")
-    local function opts(desc)
-        return { desc = "nvim-tree: " .. desc, buffer = bufnr, noremap = true, silent = true, nowait = true }
-    end
+    local function opts(desc) return { desc = "nvim-tree: " .. desc, buffer = bufnr, noremap = true, silent = true, nowait = true } end
 
     api.config.mappings.default_on_attach(bufnr)
 
@@ -454,9 +482,7 @@ local function nvim_tree_on_attach(bufnr)
 end
 
 local function vscode_cmd(cmd)
-    return function()
-        return require("vscode").call(cmd)
-    end
+    return function() return require("vscode").call(cmd) end
 end
 
 if vim.g.vscode then
@@ -466,43 +492,11 @@ if vim.g.vscode then
     vim.keymap.set("n", "<leader>fg", vscode_cmd("workbench.action.findInFiles"), mopts)
     -- vim.keymap.set("n", "<leader>fb", require("vscode").action("workbench.action.quickOpen"), mopts)
     -- vim.keymap.set("n", "<leader>fh", require("vscode").action("workbench.action.quickOpen"), mopts)
-elseif os.getenv("TMUX") == nil or vim.fn.executable("fzf") == 0 or os.getenv("NVIM_FUZZY_TOOL") == "telescope" then
-    local ts = require("telescope")
-    local tsa = require("telescope.actions")
-    local tsbuiltin = require("telescope.builtin")
-    vim.keymap.set("n", "<leader>ff", tsbuiltin.find_files, mopts)
-    vim.keymap.set("n", "<leader>fg", tsbuiltin.live_grep, mopts)
-    vim.keymap.set("n", "<leader>fb", tsbuiltin.buffers, mopts)
-    vim.keymap.set("n", "<leader>fh", tsbuiltin.help_tags, mopts)
-    ts.setup({
-        defaults = {
-            -- layout_config = { prompt_position = "top" },
-            -- sorting_strategy = "ascending",
-            border = true,
-            mappings = {
-                i = {
-                    ["<esc>"] = tsa.close,
-                    ["<C-j>"] = { tsa.move_selection_next, type = "action", opts = { nowait = true, silent = true } },
-                    ["<C-k>"] = {
-                        tsa.move_selection_previous,
-                        type = "action",
-                        opts = { nowait = true, silent = true },
-                    },
-                    ["<C-f>"] = { tsa.results_scrolling_down, type = "action", opts = { nowait = true, silent = true } },
-                    ["<C-b>"] = { tsa.results_scrolling_up, type = "action", opts = { nowait = true, silent = true } },
-                },
-            },
-            vimgrep_arguments = { "rg", "-u", "--color=never", "--no-heading", "--line-number", "--column" },
-        },
-        pickers = {
-            find_files = { find_command = { "fd", "-t", "f", "-H", "-L", "-E", ".git" }, prompt_prefix = "📂 " },
-            live_grep = { prompt_prefix = "🔍 " },
-        },
-    })
-end
 
--- Structure / Files / Outline
-if not vim.g.vscode then
+    vim.keymap.set("n", "<leader>n", vscode_cmd("workbench.action.toggleSidebarVisibility"), mopts)
+    vim.keymap.set("n", "<leader>N", vscode_cmd("workbench.action.toggleSidebarVisibility"), mopts)
+else
+    -- Structure / Files / Outline
     require("aerial").setup({
         -- autojump = true,
         show_guides = true,
@@ -527,9 +521,6 @@ if not vim.g.vscode then
     })
     vim.keymap.set("n", "<leader>n", "<cmd>NvimTreeToggle<CR>", mopts)
     vim.keymap.set("n", "<leader>N", "<cmd>NvimTreeFindFile<CR>", mopts)
-else
-    vim.keymap.set("n", "<leader>n", vscode_cmd("workbench.action.toggleSidebarVisibility"), mopts)
-    vim.keymap.set("n", "<leader>N", vscode_cmd("workbench.action.toggleSidebarVisibility"), mopts)
 end
 
 vim.diagnostic.config({
@@ -558,102 +549,100 @@ vim.diagnostic.config({
 -- })
 
 -- Set up nvim-cmp.
-local cmp = require("cmp")
-local lspkind = require("lspkind")
-local has_words_before = function()
-    local line, col = unpack(vim.api.nvim_win_get_cursor(0))
-    return col ~= 0 and vim.api.nvim_buf_get_lines(0, line - 1, line, true)[1]:sub(col, col):match("%s") == nil
-end
-local post_move = function(select_result, fallback)
-    if not select_result then
-        if vim.bo.buftype ~= "prompt" and has_words_before() then
-            cmp.complete()
-        else
-            fallback()
+if load_lsp_plugins then
+    cmp = require("cmp")
+    local lspkind = require("lspkind")
+    local has_words_before = function()
+        local line, col = unpack(vim.api.nvim_win_get_cursor(0))
+        return col ~= 0 and vim.api.nvim_buf_get_lines(0, line - 1, line, true)[1]:sub(col, col):match("%s") == nil
+    end
+    local post_move = function(select_result, fallback)
+        if not select_result then
+            if vim.bo.buftype ~= "prompt" and has_words_before() then
+                cmp.complete()
+            else
+                fallback()
+            end
         end
     end
+
+    vim.keymap.set("n", "]t", function()
+        if vim.diagnostic.is_enabled() then
+            vim.diagnostic.enable(false)
+        else
+            vim.diagnostic.enable()
+        end
+    end, mopts)
+    vim.keymap.set("n", "<leader>q", vim.diagnostic.setloclist, mopts)
+
+    cmp.setup({
+        preselect = cmp.PreselectMode.None,
+        snippet = {
+            expand = function(args)
+                vim.fn["UltiSnips#Anon"](args.body) -- For `ultisnips` users.
+            end,
+        },
+        window = { documentation = cmp.config.window.bordered() },
+        formatting = { format = lspkind.cmp_format({ maxwidth = 50, ellipsis_char = "..." }) },
+        mapping = cmp.mapping.preset.insert({
+            ["<C-b>"] = cmp.mapping.scroll_docs(-4),
+            ["<C-f>"] = cmp.mapping.scroll_docs(4),
+
+            ["<C-Space>"] = cmp.mapping.complete(),
+            ["<C-e>"] = cmp.mapping.abort(),
+            -- ['<CR>'] = cmp.mapping.confirm({ select = true }), -- Accept currently selected item. Set `select` to `false` to only confirm explicitly selected items.
+            ["<CR>"] = cmp.mapping.confirm({ select = false }), -- Accept currently selected item. Set `select` to `false` to only confirm explicitly selected items.
+
+            ["<PageDown>"] = function(fallback)
+                local r
+                for _ = 0, 4, 1 do
+                    r = cmp.select_next_item()
+                end
+                post_move(r, fallback)
+            end,
+
+            ["<PageUp>"] = function(fallback)
+                local r
+                for _ = 0, 4, 1 do
+                    r = cmp.select_prev_item()
+                end
+                post_move(r, fallback)
+            end,
+
+            ["<Tab>"] = function(fallback) post_move(cmp.select_next_item(), fallback) end,
+            ["<S-Tab>"] = function(fallback) post_move(cmp.select_prev_item(), fallback) end,
+        }),
+        sources = {
+            { name = "nvim_lsp_signature_help" },
+            { name = "nvim_lsp" },
+            { name = "ultisnips" },
+            { name = "calc" },
+            { name = "emoji" },
+            { name = "path" },
+            { name = "tmux", option = { keyword_pattern = [[\w\w\w\+]] }, trigger_characters = {} },
+            { name = "dotenv" },
+        },
+    })
+
+    cmp.setup.filetype("gitcommit", {
+        sources = cmp.config.sources({ { name = "cmp_git" }, { name = "emoji" } }, { { name = "buffer" } }),
+    })
+
+    -- Use buffer source for `/` and `?` (if you enabled `native_menu`, this won't work anymore).
+    cmp.setup.cmdline({ "/", "?" }, {
+        mapping = cmp.mapping.preset.cmdline(),
+        sources = { { name = "buffer" } },
+    })
+
+    -- Use cmdline & path source for ':' (if you enabled `native_menu`, this won't work anymore).
+    cmp.setup.cmdline(":", {
+        mapping = cmp.mapping.preset.cmdline(),
+        sources = cmp.config.sources({ { name = "path" } }, { { name = "cmdline" } }),
+    })
 end
 
-vim.keymap.set("n", "]t", function()
-    if vim.diagnostic.is_enabled() then
-        vim.diagnostic.enable(false)
-    else
-        vim.diagnostic.enable()
-    end
-end, mopts)
-vim.keymap.set("n", "<leader>q", vim.diagnostic.setloclist, mopts)
-
-cmp.setup({
-    preselect = cmp.PreselectMode.None,
-    snippet = {
-        expand = function(args)
-            vim.fn["UltiSnips#Anon"](args.body) -- For `ultisnips` users.
-        end,
-    },
-    window = { documentation = cmp.config.window.bordered() },
-    formatting = { format = lspkind.cmp_format({ maxwidth = 50, ellipsis_char = "..." }) },
-    mapping = cmp.mapping.preset.insert({
-        ["<C-b>"] = cmp.mapping.scroll_docs(-4),
-        ["<C-f>"] = cmp.mapping.scroll_docs(4),
-
-        ["<C-Space>"] = cmp.mapping.complete(),
-        ["<C-e>"] = cmp.mapping.abort(),
-        -- ['<CR>'] = cmp.mapping.confirm({ select = true }), -- Accept currently selected item. Set `select` to `false` to only confirm explicitly selected items.
-        ["<CR>"] = cmp.mapping.confirm({ select = false }), -- Accept currently selected item. Set `select` to `false` to only confirm explicitly selected items.
-
-        ["<PageDown>"] = function(fallback)
-            local r
-            for _ = 0, 4, 1 do
-                r = cmp.select_next_item()
-            end
-            post_move(r, fallback)
-        end,
-
-        ["<PageUp>"] = function(fallback)
-            local r
-            for _ = 0, 4, 1 do
-                r = cmp.select_prev_item()
-            end
-            post_move(r, fallback)
-        end,
-
-        ["<Tab>"] = function(fallback)
-            post_move(cmp.select_next_item(), fallback)
-        end,
-        ["<S-Tab>"] = function(fallback)
-            post_move(cmp.select_prev_item(), fallback)
-        end,
-    }),
-    sources = {
-        { name = "nvim_lsp_signature_help" },
-        { name = "nvim_lsp" },
-        { name = "ultisnips" },
-        { name = "calc" },
-        { name = "emoji" },
-        { name = "path" },
-        { name = "tmux", option = { keyword_pattern = [[\w\w\w\+]] }, trigger_characters = {} },
-        { name = "dotenv" },
-    },
-})
-
-cmp.setup.filetype("gitcommit", {
-    sources = cmp.config.sources({ { name = "cmp_git" }, { name = "emoji" } }, { { name = "buffer" } }),
-})
-
--- Use buffer source for `/` and `?` (if you enabled `native_menu`, this won't work anymore).
-cmp.setup.cmdline({ "/", "?" }, {
-    mapping = cmp.mapping.preset.cmdline(),
-    sources = { { name = "buffer" } },
-})
-
--- Use cmdline & path source for ':' (if you enabled `native_menu`, this won't work anymore).
-cmp.setup.cmdline(":", {
-    mapping = cmp.mapping.preset.cmdline(),
-    sources = cmp.config.sources({ { name = "path" } }, { { name = "cmdline" } }),
-})
-
 -- LSP Configs
-if not vim.g.vscode then
+if load_lsp_plugins then
     local lsp_cap = require("cmp_nvim_lsp").default_capabilities()
     -- local lsp_cap = vim.lsp.protocol.make_client_capabilities()
     -- lsp_cap.textDocument.foldingRange = { dynamicRegistration = false, lineFoldingOnly = true }
@@ -679,9 +668,7 @@ if not vim.g.vscode then
         vim.keymap.set("n", "<leader>ca", "<cmd>Lspsaga code_action<CR>", bufopts)
         vim.keymap.set("n", "<leader>rf", vim.lsp.buf.references, bufopts)
         -- vim.keymap.set("n", "<leader>rf", "<cmd>Lspsaga finder def+ref<CR>", bufopts)
-        vim.keymap.set("n", "<leader>lf", function()
-            vim.lsp.buf.format({ async = true })
-        end, bufopts)
+        vim.keymap.set("n", "<leader>lf", function() vim.lsp.buf.format({ async = true }) end, bufopts)
 
         -- require("lsp_signature").on_attach(client, bufnr) -- conflict with nvim_lsp_signature_help below
     end
@@ -757,10 +744,7 @@ if not vim.g.vscode then
         on_init = function(client)
             if client.workspace_folders then
                 local path = client.workspace_folders[1].name
-                if
-                    path ~= vim.fn.stdpath("config")
-                    and (vim.uv.fs_stat(path .. "/.luarc.json") or vim.uv.fs_stat(path .. "/.luarc.jsonc"))
-                then
+                if path ~= vim.fn.stdpath("config") and (vim.uv.fs_stat(path .. "/.luarc.json") or vim.uv.fs_stat(path .. "/.luarc.jsonc")) then
                     return
                 end
             end
@@ -825,8 +809,10 @@ else
 end
 
 require("nvim-autopairs").setup({ disable_filetype = { "markdown" } })
-local cmp_autopairs = require("nvim-autopairs.completion.cmp")
-cmp.event:on("confirm_done", cmp_autopairs.on_confirm_done())
+if load_lsp_plugins then
+    local cmp_autopairs = require("nvim-autopairs.completion.cmp")
+    cmp.event:on("confirm_done", cmp_autopairs.on_confirm_done())
+end
 
 -- Common Keymaps
 -- vim.keymap.set("n", "<leader>e", vim.diagnostic.open_float, mopts)
@@ -852,7 +838,7 @@ vim.keymap.set("n", "<leader>g", function()
 end, mopts)
 
 -- DAP
-if not vim.g.vscode then
+if load_lsp_plugins then
     local dap = require("dap")
     vim.fn.sign_define("DapBreakpoint", { text = "🛑", texthl = "", linehl = "", numhl = "" })
     dap.defaults.fallback.terminal_win_cmd = "50vsplit new"
@@ -914,16 +900,14 @@ if not vim.g.vscode then
     vim.keymap.set("n", "<leader>dl", dap.run_last, mopts)
 end
 
-if not vim.g.vscode then
-    require("registers").setup({})
-end
+if not vim.g.vscode and my_mode ~= "light" then require("registers").setup({}) end
 
-cmp.setup({
-    enabled = function()
-        return vim.api.nvim_get_option_value("buftype", { buf = 0 }) ~= "prompt" or require("cmp_dap").is_dap_buffer()
-    end,
-})
-cmp.setup.filetype({ "dap-repl", "dapui_watches", "dapui_hover" }, { sources = { { name = "dap" } } })
+if load_lsp_plugins then
+    cmp.setup({
+        enabled = function() return vim.api.nvim_get_option_value("buftype", { buf = 0 }) ~= "prompt" or require("cmp_dap").is_dap_buffer() end,
+    })
+    cmp.setup.filetype({ "dap-repl", "dapui_watches", "dapui_hover" }, { sources = { { name = "dap" } } })
+end
 
 -- require("noice").setup({
 --     lsp = {
@@ -969,9 +953,7 @@ local ufo_handler = function(virtText, lnum, endLnum, width, truncate)
             table.insert(newVirtText, { chunkText, hlGroup })
             chunkWidth = vim.fn.strdisplaywidth(chunkText)
             -- str width returned from truncate() may less than 2nd argument, need padding
-            if curWidth + chunkWidth < targetWidth then
-                suffix = suffix .. (" "):rep(targetWidth - curWidth - chunkWidth)
-            end
+            if curWidth + chunkWidth < targetWidth then suffix = suffix .. (" "):rep(targetWidth - curWidth - chunkWidth) end
             break
         end
         curWidth = curWidth + chunkWidth
@@ -980,73 +962,63 @@ local ufo_handler = function(virtText, lnum, endLnum, width, truncate)
     return newVirtText
 end
 
-require("ibl").setup()
-
-require("ufo").setup({
-    fold_virt_text_handler = ufo_handler,
-    provider_selector = function(bufnr, filetype, buftype)
-        return { "treesitter", "indent" }
-    end,
-    close_fold_kinds_for_ft = { default = { "imports", "comment" } },
-})
-
 -- FIXME (k): <2024-05-02 22:24>
 -- require("ufo").setup({ close_fold_kinds_for_ft = { "imports", "comment" }, fold_virt_text_handler = ufo_handler })
 
-local function rchoose(l)
-    return l[math.random(1, #l)]
-end
+local function rchoose(l) return l[math.random(1, #l)] end
 
-if vim.g.colors_name == nil and not vim.g.vscode then
-    vim.g.boo_colorscheme_theme = rchoose({ "sunset_cloud", "radioactive_waste", "forest_stream", "crimson_moonlight" })
-    vim.fn.RandomSetColo({
-        "nightfox",
-        "zephyr",
-        "cyberdream",
-        "dracula",
-        "kanagawa",
-        "zenbones",
-        "leaf",
-        "gruvbox",
-        "molokai",
-        "solarized",
-        "blue-moon",
-        -- "atomic",
-        "boo",
-        "nordern",
-        -- "molokai",
-        "kat.nvim",
-        "kat.nwim",
-        "bluloco",
-        "tokyonight-night",
-        "tokyonight-storm",
-        "tokyonight-day",
-        "tokyonight-moon",
-        "seoul256",
-        "github_dark_high_contrast",
-        "github_light_high_contrast",
-        "default",
-        "nightfox",
-        "no-clown-fiesta",
-        -- installed from flazz's plugin
-        -- "zenburn", "obsidian", "lyla", "madeofcode",
-    })
-
-    local cololike = function(p)
-        return vim.g.colors_name ~= nil and vim.g.colors_name:find(p, 1, true) == 1
-    end
-
-    if cololike("github_") then
-        require("github-theme").setup({
-            options = {
-                darken = {
-                    sidebars = { "qf", "vista_kind", "terminal", "packer", "nerdtree", "vista" },
-                    floats = false,
-                },
-                hide_nc_statusline = false,
-                styles = { functions = "italic" },
-            },
+if vim.g.colors_name == nil then
+    if load_extra_colors then
+        vim.g.boo_colorscheme_theme = rchoose({ "sunset_cloud", "radioactive_waste", "forest_stream", "crimson_moonlight" })
+        vim.fn.RandomSetColo({
+            "nightfox",
+            "zephyr",
+            "cyberdream",
+            "dracula",
+            "kanagawa",
+            "zenbones",
+            "leaf",
+            "gruvbox",
+            "molokai",
+            "solarized",
+            "blue-moon",
+            -- "atomic",
+            "boo",
+            "nordern",
+            -- "molokai",
+            "kat.nvim",
+            "kat.nwim",
+            "bluloco",
+            "tokyonight-night",
+            "tokyonight-storm",
+            "tokyonight-day",
+            "tokyonight-moon",
+            "seoul256",
+            "github_dark_high_contrast",
+            "github_light_high_contrast",
+            "default",
+            "nightfox",
+            "no-clown-fiesta",
+            -- installed from flazz's plugin
+            -- "zenburn", "obsidian", "lyla", "madeofcode",
         })
+
+        local cololike = function(p) return vim.g.colors_name ~= nil and vim.g.colors_name:find(p, 1, true) == 1 end
+
+        if cololike("github_") then
+            require("github-theme").setup({
+                options = {
+                    darken = {
+                        sidebars = { "qf", "vista_kind", "terminal", "packer", "nerdtree", "vista" },
+                        floats = false,
+                    },
+                    hide_nc_statusline = false,
+                    styles = { functions = "italic" },
+                },
+            })
+        end
+    else
+        vim.fn.SetColorScheme("default")
     end
 end
 

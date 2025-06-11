@@ -668,82 +668,84 @@ if g:line_plugin == 'airline'
 endif
 
 " /* for fzf */
-function! s:build_quickfix_list(lines)
-  call setqflist(map(copy(a:lines), '{ "filename": v:val }'))
-  copen
-  cc
-endfunction
+if g:my_fuzzy_tool == "fzf"
+  function! s:build_quickfix_list(lines)
+    call setqflist(map(copy(a:lines), '{ "filename": v:val }'))
+    copen
+    cc
+  endfunction
 
-let g:fzf_action = {
-      \ 'ctrl-n': function('s:Fzf2Nerdtree'),
-      \ 'ctrl-q': function('s:build_quickfix_list'),
-      \ 'ctrl-t': 'tab split', 'ctrl-x': 'split', 'ctrl-v': 'vsplit'
-      \}
+  let g:fzf_action = {
+        \ 'ctrl-n': function('s:Fzf2Nerdtree'),
+        \ 'ctrl-q': function('s:build_quickfix_list'),
+        \ 'ctrl-t': 'tab split', 'ctrl-x': 'split', 'ctrl-v': 'vsplit'
+        \}
 
-let g:fzf_vim = {
-      \ 'preview_window': ['hidden,right,50%,<70(up,40%)', 'ctrl-/'],
-      \ 'buffers_jump': 1, 'tags_command': 'ctags -R',
-      \}
+  let g:fzf_vim = {
+        \ 'preview_window': ['hidden,right,50%,<70(up,40%)', 'ctrl-/'],
+        \ 'buffers_jump': 1, 'tags_command': 'ctags -R',
+        \}
 
-if s:is_win
-  if filereadable('C:\Program\ Files\Git\git-bash.exe')
-    let g:fzf_vim.preview_bash = 'C:\Program\ Files\Git\git-bash.exe'
-  endif
-else
-  let g:fzf_history_dir = '~/.local/share/fzf-history'
-endif
-
-let s:__use_tmux = v:false
-if !s:is_win && !exists("g:vscode") && exists('$TMUX')
-  let g:__tmux_version = str2float(matchstr(system('tmux -V'), '\v[0-9]+\.[0-9]+'))
-  if g:__tmux_version >= 3.2
-    let s:__use_tmux = v:true
-  endif
-endif
-
-if s:__use_tmux
-  let g:fzf_layout = { 'tmux': '-p90%,60%' }
-else
-  if (has('nvim') || has("popupwin"))
-    let g:fzf_layout = { 'window': { 'width': 0.9, 'height': 0.6 } }
+  if s:is_win
+    if filereadable('C:\Program\ Files\Git\git-bash.exe')
+      let g:fzf_vim.preview_bash = 'C:\Program\ Files\Git\git-bash.exe'
+    endif
   else
-    let g:fzf_layout = { 'down': '~51%' }
+    let g:fzf_history_dir = '~/.local/share/fzf-history'
   endif
-  let g:fzf_colors = {
-        \ 'fg':      ['fg', 'Normal'],
-        \ 'bg':      ['bg', 'Normal'],
-        \ 'hl':      ['fg', 'Comment'],
-        \ 'fg+':     ['fg', 'CursorLine', 'CursorColumn', 'Normal'],
-        \ 'bg+':     ['bg', 'CursorLine', 'CursorColumn'],
-        \ 'hl+':     ['fg', 'Statement'],
-        \ 'info':    ['fg', 'PreProc'],
-        \ 'border':  ['fg', 'Ignore'],
-        \ 'prompt':  ['fg', 'Conditional'],
-        \ 'pointer': ['fg', 'Exception'],
-        \ 'marker':  ['fg', 'Keyword'],
-        \ 'spinner': ['fg', 'Label'],
-        \ 'header':  ['fg', 'Comment'] }
-endif
 
-" command! -bang -nargs=* Ag call fzf#vim#ag(<q-args>, '--hidden', <bang>0)
-" command! -bang -nargs=* Rg call fzf#vim#grep("rg --column --line-number --no-heading --color=always -- ".fzf#shellescape(<q-args>), fzf#vim#with_preview(), <bang>0)
-command! -bar -nargs=? -bang Maps call fzf#vim#maps(<q-args>, <bang>0)
+  let s:__use_tmux = v:false
+  if !s:is_win && !exists("g:vscode") && exists('$TMUX')
+    let g:__tmux_version = str2float(matchstr(system('tmux -V'), '\v[0-9]+\.[0-9]+'))
+    if g:__tmux_version >= 3.2
+      let s:__use_tmux = v:true
+    endif
+  endif
 
-nnoremap <Leader>ff :Files<CR>
-if s:is_win
-  nnoremap <Leader>fa :Rg<SPACE>
-else
-  nnoremap <Leader>fa :Ag<SPACE>
+  if s:__use_tmux
+    let g:fzf_layout = { 'tmux': '-p90%,60%' }
+  else
+    if (has('nvim') || has("popupwin"))
+      let g:fzf_layout = { 'window': { 'width': 0.9, 'height': 0.6 } }
+    else
+      let g:fzf_layout = { 'down': '~51%' }
+    endif
+    let g:fzf_colors = {
+          \ 'fg':      ['fg', 'Normal'],
+          \ 'bg':      ['bg', 'Normal'],
+          \ 'hl':      ['fg', 'Comment'],
+          \ 'fg+':     ['fg', 'CursorLine', 'CursorColumn', 'Normal'],
+          \ 'bg+':     ['bg', 'CursorLine', 'CursorColumn'],
+          \ 'hl+':     ['fg', 'Statement'],
+          \ 'info':    ['fg', 'PreProc'],
+          \ 'border':  ['fg', 'Ignore'],
+          \ 'prompt':  ['fg', 'Conditional'],
+          \ 'pointer': ['fg', 'Exception'],
+          \ 'marker':  ['fg', 'Keyword'],
+          \ 'spinner': ['fg', 'Label'],
+          \ 'header':  ['fg', 'Comment'] }
+  endif
+
+  " command! -bang -nargs=* Ag call fzf#vim#ag(<q-args>, '--hidden', <bang>0)
+  " command! -bang -nargs=* Rg call fzf#vim#grep("rg --column --line-number --no-heading --color=always -- ".fzf#shellescape(<q-args>), fzf#vim#with_preview(), <bang>0)
+  command! -bar -nargs=? -bang Maps call fzf#vim#maps(<q-args>, <bang>0)
+
+  nnoremap <Leader>ff :Files<CR>
+  if s:is_win
+    nnoremap <Leader>fa :Rg<SPACE>
+  else
+    nnoremap <Leader>fa :Ag<SPACE>
+  endif
+  nnoremap <Leader>fr :Rg<SPACE>
+  nnoremap <Leader>fg :Rg<SPACE>
+  nnoremap <Leader>fl :Lines<SPACE>
+  nnoremap <Leader>fL :BLines<SPACE>
+  nnoremap <Leader>fb :Buffers<CR>
+  nnoremap <Leader>fw :Windows<CR>
+  nnoremap <Leader>fs :Snippets<CR>
+  " nnoremap <Leader>fh :History/<CR>
+  nnoremap <Leader>fq :FzfQF<CR>
 endif
-nnoremap <Leader>fr :Rg<SPACE>
-nnoremap <Leader>fg :Rg<SPACE>
-nnoremap <Leader>fl :Lines<SPACE>
-nnoremap <Leader>fL :BLines<SPACE>
-nnoremap <Leader>fb :Buffers<CR>
-nnoremap <Leader>fw :Windows<CR>
-nnoremap <Leader>fs :Snippets<CR>
-" nnoremap <Leader>fh :History/<CR>
-nnoremap <Leader>fq :FzfQF<CR>
 
 " /* for devicons */
 let g:WebDevIconsUnicodeDecorateFolderNodes = 1
