@@ -152,22 +152,26 @@ EXCLUDED = [
 ]
 
 GUI_PATTERNS = [
+    ".Xresources",
+    ".gtkrc-2.0.mime",
+    ".xinitrc",
     "alacritty",
-    "picom",
     "conky",
+    "deadd",
     "dunst",
     "fcitx",
     "fcitx5",
+    "fontconfig",
+    "gtk-3.0",
+    "gtk-4.0",
     "i3",
     "i3status",
+    "picom",
     "polybar",
-    "volumeicon",
-    "deadd",
     "rofi",
+    "sway",
+    "volumeicon",
     "xfce4",
-    "fontconfig",
-    ".Xresources",
-    ".xinitrc",
 ]
 
 
