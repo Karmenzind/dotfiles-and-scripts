@@ -922,7 +922,7 @@ let g:ale_floating_preview = 1
 
 " temp
 let g:ale_history_log_output = 1
-let g:ale_sql_sqlfluff_options = '--dialect mysql'
+let g:ale_sql_sqlfluff_options = '--dialect mysql --config $HOME/.config/sqlfluff'
 
 nmap <silent> <Leader>al <Plug>(ale_lint)
 nmap <Leader>af <Plug>(ale_fix)

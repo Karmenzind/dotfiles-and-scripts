@@ -73,6 +73,7 @@ TO_SYNC: Set[Path] = {
     SRC_HOME / ".config/nvim/init.lua",
     SRC_HOME / ".config/mypy",
     SRC_HOME / ".config/ripgreprc",
+    SRC_HOME / ".config/sqlfluff",
     SRC_HOME / ".config/alacritty/alacritty.toml",
     Path("others/powershell/profile.ps1"),
 }
