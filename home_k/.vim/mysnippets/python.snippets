@@ -273,9 +273,14 @@ import os
 os.path.dirname(os.path.abspath(__file__))
 endsnippet
 
-snippet curdir "dir abspath" b
+snippet curdirlegacy "dir abspath" b
 import os
 os.path.dirname(os.path.abspath(__file__))
+endsnippet
+
+snippet curdir "dir abspath" b
+from pathlib import Path
+current_dir = Path(__file__).resolve().parent
 endsnippet
 
 # --------------------------------------------

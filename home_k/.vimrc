@@ -387,9 +387,9 @@ set fileformat=unix
 augroup filetype_formats
   au!
   au FileType *
-        \ setlocal shiftwidth=4      |
         \ setlocal expandtab         |
         \ setlocal smarttab          |
+        \ setlocal shiftwidth=4      |
         \ setlocal tabstop=4         |
         \ setlocal softtabstop=4
 

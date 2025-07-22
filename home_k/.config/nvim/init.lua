@@ -198,17 +198,28 @@ require("lazy").setup({
         {
             "nvim-telescope/telescope.nvim",
             branch = "0.1.x",
-            cond = my_fuzzy_tool == "telescope" and not vim.g.vscode,
+            -- cond = my_fuzzy_tool == "telescope" and not vim.g.vscode,
+            cond = not vim.g.vscode,
             config = function()
                 local ts = require("telescope")
                 local tsa = require("telescope.actions")
                 local tsbuiltin = require("telescope.builtin")
-                vim.keymap.set("n", "<leader>ff", tsbuiltin.find_files, mopts)
-                vim.keymap.set("n", "<leader>fg", tsbuiltin.live_grep, mopts)
-                vim.keymap.set("n", "<leader>fr", tsbuiltin.live_grep, mopts)
-                vim.keymap.set("n", "<leader>fa", tsbuiltin.live_grep, mopts)
-                vim.keymap.set("n", "<leader>fb", tsbuiltin.buffers, mopts)
-                vim.keymap.set("n", "<leader>fh", tsbuiltin.help_tags, mopts)
+                if my_fuzzy_tool == "telescope" then
+                    vim.keymap.set("n", "<leader>ff", tsbuiltin.find_files, mopts)
+                    vim.keymap.set("n", "<leader>fg", tsbuiltin.live_grep, mopts)
+                    vim.keymap.set("n", "<leader>fr", tsbuiltin.live_grep, mopts)
+                    vim.keymap.set("n", "<leader>fa", tsbuiltin.live_grep, mopts)
+                    vim.keymap.set("n", "<leader>fb", tsbuiltin.buffers, mopts)
+                    vim.keymap.set("n", "<leader>fh", tsbuiltin.help_tags, mopts)
+                else
+                    vim.keymap.set("n", "<leader>tf", tsbuiltin.find_files, mopts)
+                    vim.keymap.set("n", "<leader>tg", tsbuiltin.live_grep, mopts)
+                    vim.keymap.set("n", "<leader>tr", tsbuiltin.live_grep, mopts)
+                    vim.keymap.set("n", "<leader>ta", tsbuiltin.live_grep, mopts)
+                    vim.keymap.set("n", "<leader>tb", tsbuiltin.buffers, mopts)
+                    vim.keymap.set("n", "<leader>th", tsbuiltin.help_tags, mopts)
+                end
+
                 ts.setup({
                     defaults = {
                         -- layout_config = { prompt_position = "top" },
@@ -791,6 +802,8 @@ if load_lsp_plugins then
         "docker_compose_language_service",
     })
     vim.lsp.config("*", { capabilities = lsp_cap })
+
+    vim.lsp.config("taplo", { settings = { evenBetterToml = { schema = { enabled = false } } } })
 
     vim.lsp.config("jdtls", {
         settings = {
