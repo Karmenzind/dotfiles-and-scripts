@@ -11,7 +11,7 @@ web:*.{html,css,js}*
 
 # Using glob patterns to include/exclude files or folders
 --glob
-!{**/.git/*,**/node_modules/*,**/package-lock.json}
+!{**/.git/*,**/node_modules/*,**/vendor/*,**/package-lock.json}
 
 # Set the colors.
 # --colors=line:none

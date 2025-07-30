@@ -6,16 +6,18 @@ vim.g.loaded_netrw = 1
 vim.g.loaded_netrwPlugin = 1
 vim.opt.completeopt = "menu,menuone,noselect"
 
-local home = os.getenv("HOME")
 local my_mode = vim.fn.getenv("MY_VIM_MODE")
 
 local mopts = { noremap = true, silent = true }
 
 local cmp
 local my_vimroot
+local home
 if vim.fn.has("win32") == 1 then
+    home = os.getenv("USERPROFILE")
     my_vimroot = vim.fn.glob("~") .. "\\vimfiles"
 else
+    home = os.getenv("HOME")
     my_vimroot = vim.fn.glob("~") .. "/.vim"
 end
 local plugged_dir = my_vimroot .. "/plugged"
