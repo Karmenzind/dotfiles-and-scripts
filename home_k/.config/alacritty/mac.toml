@@ -16,6 +16,11 @@ resize_increments = true
 columns = 0
 lines = 0
 
+[[keyboard.bindings]]
+key = "Slash"
+mods = "Control"
+chars = "\u001f"
+
 # [font]
 # size = 16.0
 # normal = { family = "Monaco Nerd Font", style="Regular" }

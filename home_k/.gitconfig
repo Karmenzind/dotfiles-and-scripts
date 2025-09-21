@@ -6,6 +6,7 @@
 	editor = $EDITOR
 
 	autocrlf = input
+	excludesfile = /Users/k/.gitignore_global
 [alias]
     a = add --all
     c = commit
@@ -71,3 +72,11 @@
 # [credential "https://gist.github.com"]
 # 	helper = 
 # 	helper = !/usr/bin/gh auth git-credential
+[difftool "sourcetree"]
+	cmd = opendiff \"$LOCAL\" \"$REMOTE\"
+	path = 
+[mergetool "sourcetree"]
+	cmd = /Applications/Sourcetree.app/Contents/Resources/opendiff-w.sh \"$LOCAL\" \"$REMOTE\" -ancestor \"$BASE\" -merge \"$MERGED\"
+	trustExitCode = true
+[commit]
+	template = /Users/k/.stCommitMsg

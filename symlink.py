@@ -71,6 +71,7 @@ TO_SYNC: Set[Path] = {
     SRC_HOME / "pylintrc",
     SRC_HOME / "ripgreprc",
     SRC_HOME / ".config/biome.json",
+    SRC_HOME / ".config/ruff.toml",
     SRC_HOME / ".config/nvim/init.lua",
     SRC_HOME / ".config/mypy",
     SRC_HOME / ".config/ripgreprc",
