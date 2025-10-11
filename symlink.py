@@ -75,6 +75,7 @@ TO_SYNC: Set[Path] = {
     SRC_HOME / ".config/nvim/init.lua",
     SRC_HOME / ".config/mypy",
     SRC_HOME / ".config/ripgreprc",
+    SRC_HOME / ".config/gitui/key_bindings.ron",
     SRC_HOME / ".config/sqlfluff",
     SRC_HOME / ".config/alacritty/alacritty.toml",
     Path("others/powershell/profile.ps1"),
@@ -142,6 +143,7 @@ else:  # linux like
 
 # dirs
 SYMLINK_AS_DIR = [
+    SRC_HOME / ".vim/mysnippets",
     SRC_HOME / ".vim/mysnippets",
 ]
 

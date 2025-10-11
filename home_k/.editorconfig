@@ -36,7 +36,7 @@ function_next_line = false
 
 # Matches multiple files with brace expansion notation
 # Set default charset
-[*.{js,ts,tsx,jsx,vue}]
+[*.{js,ts,tsx,jsx,vue,svelte}]
 charset = utf-8
 indent_style = space
 indent_size = 2
