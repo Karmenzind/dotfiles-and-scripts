@@ -78,6 +78,7 @@ TO_SYNC: Set[Path] = {
     SRC_HOME / ".config/gitui/key_bindings.ron",
     SRC_HOME / ".config/sqlfluff",
     SRC_HOME / ".config/alacritty/alacritty.toml",
+    SRC_HOME / ".ipython/profile_default/ipython_config.py",
     Path("others/powershell/profile.ps1"),
 }
 

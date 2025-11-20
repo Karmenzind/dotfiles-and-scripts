@@ -12,7 +12,7 @@ $env:EDITOR = "nvim.exe"
 if ($IsWindows) {
     $env:PROJECT_PATHS = "~/Workspace;~/Localworks"
 } else {
-    $env:PROJECT_PATHS = "C:\Users\vales\Workspace"
+    $env:PROJECT_PATHS = "$HOME\Workspace"
 }
 # $DebugPreference = "Continue"
 
