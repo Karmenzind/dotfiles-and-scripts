@@ -220,6 +220,16 @@ function __setupFzf{
 #     __loadModule "$ChocolateyProfile"
 # }
 
+function y {
+    $tmp = (New-TemporaryFile).FullName
+    yazi $args --cwd-file="$tmp"
+    $cwd = Get-Content -Path $tmp -Encoding UTF8
+    if (-not [String]::IsNullOrEmpty($cwd) -and $cwd -ne $PWD.Path) {
+        Set-Location -LiteralPath (Resolve-Path -LiteralPath $cwd).Path
+    }
+    Remove-Item -Path $tmp
+}
+
 function __setupProxy {
     $env:HTTP_PROXY="http://0.0.0.0:12345"
     Write-Host "Set proxy: $env:HTTP_PROXY"
