@@ -163,3 +163,5 @@ esac
 #THIS MUST BE AT THE END OF THE FILE FOR SDKMAN TO WORK!!!
 export SDKMAN_DIR="/Users/k/.sdkman"
 [[ -s "/Users/k/.sdkman/bin/sdkman-init.sh" ]] && source "/Users/k/.sdkman/bin/sdkman-init.sh"
+
+[[ -s "/Users/k/.gvm/scripts/gvm" ]] && source "/Users/k/.gvm/scripts/gvm"

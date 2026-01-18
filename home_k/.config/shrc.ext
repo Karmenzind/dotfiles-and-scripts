@@ -642,22 +642,52 @@ export SDKMAN_DIR="$HOME/.sdkman"
 [[ -s "$HOME/.sdkman/bin/sdkman-init.sh" ]] && source "$HOME/.sdkman/bin/sdkman-init.sh"
 
 __active_envs() {
+    # 1. Python
     if [ -f .venv/bin/activate ]; then
-        echo "Activating .venv ..."
+        echo "🐍 Activating Python .venv ..."
         source .venv/bin/activate
-    elif [ -f .sdkmanrc ]; then
-        echo "Activating .sdkmanrc ..."
+    fi
+
+    # 2. SDKMAN (Java/Kotlin)
+    if [ -f .sdkmanrc ]; then
+        echo "☕ Activating .sdkmanrc (SDKMAN) ..."
         sdk env
-    elif [ -f .nvmrc ]; then
-        echo "Activating .nvmrc ..."
-        nvm use
+    fi
+
+    # 3. NVM (Node.js)
+    if [ -f .nvmrc ]; then
+        echo "🟢 Activating .nvmrc (NVM) ..."
+        if command -v nvm >/dev/null 2>&1; then
+            nvm use
+        else
+            [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh" && nvm use
+        fi
+    fi
+
+    # 4. Ruby (rbenv)
+    if [ -f .ruby-version ]; then
+        local TARGET_RUBY=$(cat .ruby-version)
+        echo "💎 .ruby-version detected ($TARGET_RUBY) ..."
+        
+        if command -v rbenv >/dev/null 2>&1; then
+            eval "$(rbenv init -)"
+            rbenv shell "$TARGET_RUBY"
+            echo "✅ Switched to Ruby $TARGET_RUBY via rbenv"
+        else
+            echo "❌ rbenv not found. Please install it to use .ruby-version"
+        fi
     fi
 }
 
-cd() {
-    if builtin cd "$@"; then
-        __active_envs
-    fi
-}
+if [ -n "$ZSH_VERSION" ]; then
+    autoload -U add-zsh-hook
+    add-zsh-hook chpwd __active_envs
+else # for bash
+    cd() {
+        if builtin cd "$@"; then
+            __active_envs
+        fi
+    }
+fi
 
 __active_envs
