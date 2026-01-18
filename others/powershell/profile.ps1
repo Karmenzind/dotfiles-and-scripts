@@ -125,8 +125,8 @@ function __installMyModules {
     Install-Module -Name z –Force
     Install-Module -Name Terminal-Icons -Repository PSGallery -Force
     Install-Module PSReadline -Force
-    # Install-Module Terminal-Icons
     Install-Module PsFZF -Force
+    Import-Module PSCompletions
 }
 
 function __loadModule {
@@ -145,12 +145,6 @@ Set-Alias which where.exe
 if ($IsLinux) {
     Set-Alias ls dir
 }
-
-# PsReadLine
-Set-PSReadLineOption -PredictionSource History
-Set-PSReadLineOption -PredictionViewStyle ListView
-Set-PSReadlineOption -BellStyle None
-Set-PSReadLineOption -EditMode Emacs
 
 if (Get-Command rg -ErrorAction SilentlyContinue) {
     $env:RIPGREP_CONFIG_PATH = "$HOME\.config\ripgreprc"
@@ -182,6 +176,11 @@ function Test-Administrator {
     }
 }
 $isRunningAsAdmin = Test-Administrator
+
+function __editHistory {
+    nvim.exe (Get-PSReadLineOption).HistorySavePath
+}
+
 
 function __setupFzf{
     if (Get-Command 'fzf' -ErrorAction SilentlyContinue) {
@@ -247,9 +246,63 @@ function __setupProxy {
     # pwsh -ExecutionPolicy Bypass -NoLogo -NoProfile -NoExit -Command "Invoke-Expression 'Import-Module ''%ConEmuDir%\..\profile.ps1''; Import-Module ''C:\Users\qike\Documents\WindowsPowerShell\Microsoft.PowerShell_profile.ps1'''"
 }
 
+# Invoke-Expression (&starship init powershell)
+# -----------------------------------------------------------------------------
+Import-Module PSReadLine
+
+Set-PSReadLineOption -PredictionSource History
+Set-PSReadLineOption -PredictionViewStyle ListView
+Set-PSReadlineOption -BellStyle None
+
+Set-PSReadLineOption -EditMode Vi
+# Set-PSReadLineKeyHandler -Key Tab -Function MenuComplete -ViMode Insert
+
+# 4. 绑定 Ctrl+[ 进入 Normal 模式 建议同时绑定 "`e" (Esc 字符) 以确保终端兼容性
+Set-PSReadLineKeyHandler -Key "Ctrl+[" -ScriptBlock { [Microsoft.PowerShell.PSConsoleReadLine]::ViCommandMode() } -ViMode Insert
+Set-PSReadLineKeyHandler -Key "`e"      -ScriptBlock { [Microsoft.PowerShell.PSConsoleReadLine]::ViCommandMode() } -ViMode Insert
+
+# 5. 定义 Vi 模式指示器 (修正了参数类型以适配 7.5.4)
+Set-PSReadLineOption -ViModeIndicator Script -ViModeChangeHandler {
+    param($Mode) # 移除具体类型声明，让其自动推断，避免 [PSReadLineMode] 报错
+    switch ($Mode) {
+        'Command' {
+            $Host.UI.RawUI.CursorSize = 100 
+            Write-Host -NoNewline "`e[2 q" 
+        }
+        'Insert' {
+            $Host.UI.RawUI.CursorSize = 25
+            Write-Host -NoNewline "`e[6 q" 
+        }
+    }
+}
+
+# --- 在 Vi 插入模式下保留 Emacs 常用快捷键 ---
+Set-PSReadLineKeyHandler -Key "Ctrl+a" -Function BeginningOfLine -ViMode Insert
+Set-PSReadLineKeyHandler -Key "Ctrl+e" -Function EndOfLine -ViMode Insert
+Set-PSReadLineKeyHandler -Key "Ctrl+b" -Function BackwardChar -ViMode Insert
+Set-PSReadLineKeyHandler -Key "Ctrl+f" -Function ForwardChar -ViMode Insert
+Set-PSReadLineKeyHandler -Key "Ctrl+k" -Function ForwardDeleteLine -ViMode Insert
+Set-PSReadLineKeyHandler -Key "Ctrl+u" -Function BackwardDeleteLine -ViMode Insert
+Set-PSReadLineKeyHandler -Key "Ctrl+w" -Function BackwardKillWord -ViMode Insert
+
+Set-PSReadLineKeyHandler -Key Escape -ScriptBlock {
+    [Microsoft.PowerShell.PSConsoleReadLine]::ViCommandMode()
+} -ViMode Insert
+
+# -----------------------------------------------------------------------------
+
+Import-Module Terminal-Icons
+Import-Module PSCompletions
+
+function __setupPsc {
+    psc add choco python jq wsl uv winget git nvm oh-my-posh node pnpm 7z
+    psc config language en-US
+}
+
+
 __setupOhmyposh
 __setupFzf
-# Invoke-Expression (&starship init powershell)
+
 
 Remove-Variable -Name "psVersion"
 Remove-Variable -Name "isRunningAsAdmin"

@@ -26,6 +26,7 @@ import sys
 import time
 import warnings
 from collections import defaultdict
+import os
 from pathlib import Path
 from typing import Set
 
@@ -73,6 +74,7 @@ TO_SYNC: Set[Path] = {
     SRC_HOME / ".config/biome.json",
     SRC_HOME / ".config/ruff.toml",
     SRC_HOME / ".config/nvim/init.lua",
+    SRC_HOME / ".config/yazi/yazi.toml",
     SRC_HOME / ".config/mypy",
     SRC_HOME / ".config/ripgreprc",
     SRC_HOME / ".config/gitui/key_bindings.ron",
@@ -83,6 +85,7 @@ TO_SYNC: Set[Path] = {
 }
 
 if osname == "win":
+    APPDATA = Path(os.getenv("APPDATA"))
 
     def get_ps_profile_path(all_users=False):
         import subprocess
@@ -109,6 +112,7 @@ if osname == "win":
         SRC_HOME / ".config/nvim": HOME_DIR / "AppData\\Local\\nvim",
         SRC_HOME / ".config/alacritty/alacritty.toml": HOME_DIR / "AppData\\Roaming\\alacritty\\alacritty.toml",
         SRC_HOME / ".config/alacritty/win.toml": HOME_DIR / ".alacritty_extra.toml",
+        SRC_HOME / ".config/yazi/yazi.toml": APPDATA / "yazi\\config\\yazi.toml",
         Path("others/powershell/profile.ps1"): get_ps_profile_path(),
     }
 elif osname == "mac":
