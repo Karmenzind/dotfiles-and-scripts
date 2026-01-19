@@ -739,7 +739,8 @@ if load_lsp_plugins then
     })
 
     vim.lsp.enable({
-        "pyright",
+        -- "pyright",
+        "ty",
         -- "basedpyright",
         "ruff",
         "gopls",

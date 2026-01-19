@@ -9,6 +9,68 @@ if ($psVersion -lt 7) {
 
 $env:EDITOR = "nvim.exe"
 
+# -----------------------------------------------------------------------------
+function Invoke-ActiveEnvs {
+    # 1. Python (.venv) - 检查目录是否存在
+    if (Test-Path ".venv\Scripts\Activate.ps1") {
+        Write-Host "🐍 Activating Python .venv ..." -ForegroundColor Cyan
+        & ".\.venv\Scripts\Activate.ps1"
+    }
+
+    # 2. SDKMAN (针对 Windows 的提示)
+    if (Test-Path ".sdkmanrc") {
+        Write-Host "☕ .sdkmanrc detected." -ForegroundColor Yellow
+    }
+
+    # 3. NVM (Node.js)
+    if (Test-Path ".nvmrc") {
+        $nodeVersion = (Get-Content ".nvmrc" -Raw).Trim()
+        Write-Host "🟢 .nvmrc detected ($nodeVersion)..." -ForegroundColor Green
+        nvm use $nodeVersion
+    }
+
+    # 4. Ruby (rbenv)
+    if (Test-Path ".ruby-version") {
+        $rubyVersion = (Get-Content ".ruby-version" -Raw).Trim()
+        Write-Host "💎 .ruby-version detected ($rubyVersion) ..." -ForegroundColor Magenta
+        if (Get-Command "rbenv" -ErrorAction SilentlyContinue) {
+            rbenv shell $rubyVersion
+        }
+    }
+}
+
+function Set-Location-With-Env {
+    param(
+        [Parameter(ValueFromRemainingArguments=$true)]
+        $PathArgs
+    )
+    
+    # 将参数数组合并为一个字符串（处理空格路径）
+    $ActualPath = if ($PathArgs) { $PathArgs -join " " } else { $Home }
+
+    # 执行跳转
+    # 使用 Try/Catch 捕获路径不存在的情况，防止死循环或报错
+    try {
+        Microsoft.PowerShell.Management\Set-Location -Path $ActualPath
+    } catch {
+        Write-Error $_
+        return
+    }
+    
+    # 触发环境检测
+    Invoke-ActiveEnvs
+}
+
+# 重新绑定别名
+if (Get-Alias -Name cd -ErrorAction SilentlyContinue) { 
+    Remove-Item Alias:cd -Force 
+}
+Set-Alias cd Set-Location-With-Env -Option AllScope
+
+# 启动执行一次
+Invoke-ActiveEnvs
+# -----------------------------------------------------------------------------
+
 if ($IsWindows) {
     $env:PROJECT_PATHS = "~/Workspace;~/Localworks"
 } else {
@@ -82,7 +144,7 @@ function Project-Jump {
         ForEach ($parent in $projectPaths) {
             $p = Join-Path $parent $Project
             if (Test-Path $p) {
-                Set-Location $p
+                Set-Location-With-Env $p
                 return
             }
         }
@@ -92,7 +154,7 @@ function Project-Jump {
     }
 
     if (Test-Path $path) {
-        Set-Location $path
+        Set-Location-With-Env $path
     } else {
         Write-Warning "Invalid path: $path"
     }
@@ -224,7 +286,7 @@ function y {
     yazi $args --cwd-file="$tmp"
     $cwd = Get-Content -Path $tmp -Encoding UTF8
     if (-not [String]::IsNullOrEmpty($cwd) -and $cwd -ne $PWD.Path) {
-        Set-Location -LiteralPath (Resolve-Path -LiteralPath $cwd).Path
+        Set-Location-With-Env -LiteralPath (Resolve-Path -LiteralPath $cwd).Path
     }
     Remove-Item -Path $tmp
 }
@@ -245,6 +307,7 @@ function __setupProxy {
     # Invoke-Expression (&starship init powershell)
     # pwsh -ExecutionPolicy Bypass -NoLogo -NoProfile -NoExit -Command "Invoke-Expression 'Import-Module ''%ConEmuDir%\..\profile.ps1''; Import-Module ''C:\Users\qike\Documents\WindowsPowerShell\Microsoft.PowerShell_profile.ps1'''"
 }
+
 
 # Invoke-Expression (&starship init powershell)
 # -----------------------------------------------------------------------------
