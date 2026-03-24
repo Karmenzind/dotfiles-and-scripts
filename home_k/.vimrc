@@ -2,6 +2,7 @@
 " Github: https://github.com/Karmenzind/dotfiles-and-scripts
 
 let s:is_win = has("win32")
+let s:is_macos = has("macunix")
 if s:is_win
   set belloff=all
   set fileencodings=ucs-bom,utf-8,chinese,cp936
@@ -1079,27 +1080,6 @@ if !has('nvim') && Plugged("vim-startify")
         \ { 'header': ['   » REPO HISTORY '],  'type': function('s:list_commits') },
         \ ]
 endif
-
-" /* for vc */
-"if executable('svn') && Plugged('vc-svn.vim')
-"  let g:vc_browse_cache_all = 1
-"  map <silent> <leader>vB :VCBlame<CR>
-"  map <silent> <leader>vd :VCDiff<CR>
-"  map <silent> <leader>vdf :VCDiff!<CR>
-"  map <silent> <leader>vs :VCStatus<CR>
-"  map <silent> <leader>vsu :VCStatus -u<CR>
-"  map <silent> <leader>vsq :VCStatus -qu<CR>
-"  map <silent> <leader>vsc :VCStatus .<CR>
-"  map <silent> <leader>vl :VCLog!<CR>
-"  map <silent> <leader>vb :VCBrowse<CR>
-"  map <silent> <leader>vbm :VCBrowse<CR>
-"  map <silent> <leader>vbw :VCBrowseWorkingCopy<CR>
-"  map <silent> <leader>vbr :VCBrowseRepo<CR>
-"  map <silent> <leader>vbl :VCBrowseMyList<CR>
-"  map <silent> <leader>vbb :VCBrowseBookMarks<CR>
-"  map <silent> <leader>vbf :VCBrowseBuffer<CR>
-"  map <silent> <leader>vq :diffoff! <CR> :q<CR>
-"endif
 
 
 " /* for goyo */

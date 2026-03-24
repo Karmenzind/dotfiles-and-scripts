@@ -20,13 +20,11 @@ if sys.version_info.major < 3:
 import argparse
 import datetime
 import getpass
-import os
 import platform
 import sys
 import time
 import warnings
 from collections import defaultdict
-import os
 from pathlib import Path
 from typing import Set
 
@@ -183,7 +181,6 @@ GUI_PATTERNS = [
     "volumeicon",
     "xfce4",
 ]
-
 
 def ask(choices, msg="≫  continue?"):
     ans = None

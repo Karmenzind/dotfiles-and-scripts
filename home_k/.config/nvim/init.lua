@@ -6,9 +6,39 @@ vim.g.loaded_netrw = 1
 vim.g.loaded_netrwPlugin = 1
 vim.opt.completeopt = "menu,menuone,noselect"
 
+-- --------------------------------------------
+-- System
+-- --------------------------------------------
+-- local is_win = vim.loop.os_uname().version:match("Windows")
+local is_win = vim.fn.has("win32") == 1
+local is_macos = vim.fn.has("mac") == 1
+
 local my_mode = vim.fn.getenv("MY_VIM_MODE")
 
 local mopts = { noremap = true, silent = true }
+
+local my_lsps = {
+    "pyright",
+    -- "ty",
+    "ruff",
+    "gopls",
+    "bashls",
+    "dockerls",
+    "yamlls",
+    -- "vls",
+    "marksman",
+    -- "tombi",
+    "html",
+    "emmet_language_server",
+    "jdtls",
+    -- "csharp_ls",
+    "lua_ls",
+    "ts_ls",
+    "biome",
+    "nginx_language_server",
+    "docker_compose_language_service",
+    "svelte",
+}
 
 local cmp
 local my_vimroot
@@ -21,8 +51,6 @@ else
     my_vimroot = vim.fn.glob("~") .. "/.vim"
 end
 local plugged_dir = my_vimroot .. "/plugged"
-
-local is_win = vim.loop.os_uname().version:match("Windows")
 local nvimpid = vim.fn.getpid()
 
 local function find_pybin()
@@ -122,14 +150,13 @@ end
 require("lazy").setup({
     root = plugged_dir,
     spec = {
-        { "nvim-tree/nvim-tree.lua" },
+        { "nvim-tree/nvim-tree.lua", cmd = { "NvimTreeToggle", "NvimTreeFindFile" } },
         {
             "goolord/alpha-nvim",
             config = function()
                 require("alpha").setup(require("alpha.themes.startify").config)
             end,
         },
-        { "kyazdani42/nvim-web-devicons" },
 
         {
             "nvim-lualine/lualine.nvim",
@@ -163,14 +190,127 @@ require("lazy").setup({
         },
         { "windwp/nvim-autopairs" },
 
+        -- AI Tools
+
+        {
+            "github/copilot.vim",
+            config = function()
+                vim.keymap.set("i", "<C-E>", 'copilot#Accept("\\<CR>")', {
+                    expr = true,
+                    replace_keycodes = false,
+                })
+                vim.g.copilot_no_tab_map = true
+                vim.g.copilot_idle_delay = 400
+                vim.g.copilot_trigger_on_idle = 1
+            end,
+        },
+        -- { "zbirenbaum/copilot.lua",  dependencies = { "copilotlsp-nvim/copilot-lsp" } },
+
+        {
+            "olimorris/codecompanion.nvim",
+            dependencies = {
+                "nvim-lua/plenary.nvim",
+                "nvim-treesitter/nvim-treesitter",
+            },
+            opts = {
+                opts = { log_level = "DEBUG" },
+                interactions = {
+                    chat = { adapter = { name = "openai", model = "gpt-4o-mini" } },
+                    inline = { adapter = { name = "openai", model = "gpt-4o-mini" } },
+                    cmd = { adapter = { name = "openai", model = "gpt-4o-mini" } },
+                },
+            },
+        },
+
+        -- {
+        --     "yetone/avante.nvim",
+        --     build = vim.fn.has("win32") ~= 0
+        --         and "powershell -ExecutionPolicy Bypass -File Build.ps1 -BuildFromSource false"
+        --         or "make",
+        --     event = "VeryLazy",
+        --     version = false, -- Never set this value to "*"! Never!
+        --     ---@module 'avante'
+        --     ---@type avante.Config
+        --     opts = {
+        --         mappings = {
+        --             ask = "<leader>Aa", -- ask
+        --             edit = "<leader>Ae", -- edit
+        --             refresh = "<leader>Ar", -- refresh
+        --         },
+        --         -- add any opts here
+        --         -- this file can contain specific instructions for your project
+        --         instructions_file = "avante.md",
+        --         -- for example
+        --         provider = "openai",
+        --         providers = {
+        --             claude = {
+        --                 endpoint = "https://api.anthropic.com",
+        --                 model = "claude-sonnet-4-20250514",
+        --                 timeout = 30000, -- Timeout in milliseconds
+        --                 extra_request_body = { temperature = 0.75, max_tokens = 20480 },
+        --             },
+        --             moonshot = {
+        --                 endpoint = "https://api.moonshot.ai/v1",
+        --                 model = "kimi-k2-0711-preview",
+        --                 timeout = 30000, -- Timeout in milliseconds
+        --                 extra_request_body = { temperature = 0.75, max_tokens = 32768 },
+        --             },
+        --             openai = {
+        --                 endpoint = "https://api.openai.com/v1",
+        --                 -- model = "gpt-5.4-nano", -- 或 gpt-4o / 你自己的选择
+        --                 model = "gpt-4o-mini", -- 或 gpt-4o / 你自己的选择
+        --                 timeout = 16384,       -- ms
+        --                 extra_request_body = { temperature = 0.75, max_tokens = 4096 },
+        --             },
+        --         },
+        --     },
+        --     dependencies = {
+        --         "nvim-lua/plenary.nvim",
+        --         "MunifTanjim/nui.nvim",
+        --         --- The below dependencies are optional,
+        --         "nvim-mini/mini.pick",           -- for file_selector provider mini.pick
+        --         "nvim-telescope/telescope.nvim", -- for file_selector provider telescope
+        --         "hrsh7th/nvim-cmp",              -- autocompletion for avante commands and mentions
+        --         "ibhagwan/fzf-lua",              -- for file_selector provider fzf
+        --         "stevearc/dressing.nvim",        -- for input provider dressing
+        --         "folke/snacks.nvim",             -- for input provider snacks
+        --         "nvim-tree/nvim-web-devicons",   -- or echasnovski/mini.icons
+        --         "zbirenbaum/copilot.lua",        -- for providers='copilot'
+        --         {
+        --             -- support for image pasting
+        --             "HakonHarnes/img-clip.nvim",
+        --             event = "VeryLazy",
+        --             opts = {
+        --                 -- recommended settings
+        --                 default = {
+        --                     embed_image_as_base64 = false,
+        --                     prompt_for_file_name = false,
+        --                     drag_and_drop = {
+        --                         insert_mode = true,
+        --                     },
+        --                     -- required for Windows users
+        --                     use_absolute_path = true,
+        --                 },
+        --             },
+        --         },
+        --         {
+        --             -- Make sure to set this up properly if you have lazy=true
+        --             "MeanderingProgrammer/render-markdown.nvim",
+        --             opts = { file_types = { "markdown", "Avante" } },
+        --             ft = { "markdown", "Avante" },
+        --         },
+        --     },
+        -- },
+
         -- Coding tools
-        -- { "github/copilot.vim" },
         {
             "mfussenegger/nvim-lint",
+            event = { "BufReadPost", "BufWritePost" },
             cond = load_lsp_plugins,
             config = function()
                 local lint = require("lint")
                 lint.linters_by_ft = { python = { "mypy" } }
+
                 -- lint.linters.mypy.args = {
                 --     "--disable-error-code=import-untyped",
                 --     -- "--show-error-codes",
@@ -183,7 +323,6 @@ require("lazy").setup({
                 })
             end,
         },
-        { "vim-autoformat/vim-autoformat", cond = load_lsp_plugins },
         { "tpope/vim-endwise" },
         { "tpope/vim-surround" },
         { "junegunn/vim-easy-align" },
@@ -205,6 +344,7 @@ require("lazy").setup({
         { "nvim-lua/plenary.nvim" },
         {
             "nvim-telescope/telescope.nvim",
+            cmd = "Telescope",
             branch = "0.1.x",
             -- cond = my_fuzzy_tool == "telescope" and not vim.g.vscode,
             cond = not vim.g.vscode,
@@ -350,7 +490,13 @@ require("lazy").setup({
         { "kyazdani42/nvim-web-devicons" },
 
         -- Colorschemes
-        { "ellisonleao/gruvbox.nvim", priority = 1000, config = true, opts = ..., cond = load_extra_colors },
+        {
+            "ellisonleao/gruvbox.nvim",
+            priority = 1000,
+            config = true,
+            opts = ...,
+            cond = load_extra_colors,
+        },
         { "ishan9299/nvim-solarized-lua", cond = load_extra_colors },
         { "glepnir/zephyr-nvim", cond = load_extra_colors },
         { "Mofiqul/dracula.nvim", cond = load_extra_colors },
@@ -371,7 +517,6 @@ require("lazy").setup({
         { "KKPMW/sacredforest-vim", cond = load_extra_colors },
         { "junegunn/seoul256.vim", cond = load_extra_colors },
         { "aktersnurra/no-clown-fiesta.nvim", cond = load_extra_colors },
-        { "EdenEast/nightfox.nvim", cond = load_extra_colors },
         {
             "scottmckendry/cyberdream.nvim",
             priority = 1000,
@@ -406,7 +551,7 @@ require("lazy").setup({
             cond = load_lsp_plugins,
             config = function()
                 require("mason-lspconfig").setup({
-                    ensure_installed = { "lua_ls", "pyright", "ty", "vimls", "bashls", "marksman", "gopls" },
+                    ensure_installed = my_lsps,
                     automatic_enable = false,
                 })
             end,
@@ -420,14 +565,46 @@ require("lazy").setup({
         { "stevearc/aerial.nvim" },
 
         -- CMP
-        { "hrsh7th/nvim-cmp", branch = "main", cond = load_lsp_plugins },
-        { "hrsh7th/cmp-nvim-lsp-signature-help", branch = "main", cond = load_lsp_plugins },
-        { "hrsh7th/cmp-nvim-lsp", branch = "main", cond = load_lsp_plugins },
-        { "hrsh7th/cmp-buffer", branch = "main", cond = load_lsp_plugins },
-        { "hrsh7th/cmp-path", branch = "main", cond = load_lsp_plugins },
-        { "hrsh7th/cmp-calc", branch = "main", cond = load_lsp_plugins },
-        { "hrsh7th/cmp-cmdline", branch = "main", cond = load_lsp_plugins },
-        { "hrsh7th/cmp-emoji", branch = "main", cond = load_lsp_plugins },
+        {
+            "hrsh7th/nvim-cmp",
+            branch = "main",
+            cond = load_lsp_plugins,
+        },
+        {
+            "hrsh7th/cmp-nvim-lsp-signature-help",
+            branch = "main",
+            cond = load_lsp_plugins,
+        },
+        {
+            "hrsh7th/cmp-nvim-lsp",
+            branch = "main",
+            cond = load_lsp_plugins,
+        },
+        {
+            "hrsh7th/cmp-buffer",
+            branch = "main",
+            cond = load_lsp_plugins,
+        },
+        {
+            "hrsh7th/cmp-path",
+            branch = "main",
+            cond = load_lsp_plugins,
+        },
+        {
+            "hrsh7th/cmp-calc",
+            branch = "main",
+            cond = load_lsp_plugins,
+        },
+        {
+            "hrsh7th/cmp-cmdline",
+            branch = "main",
+            cond = load_lsp_plugins,
+        },
+        {
+            "hrsh7th/cmp-emoji",
+            branch = "main",
+            cond = load_lsp_plugins,
+        },
         { "SergioRibera/cmp-dotenv", cond = load_lsp_plugins },
         { "andersevenrud/cmp-tmux", cond = load_lsp_plugins and vim.env.TMUX ~= nil },
         { "quangnguyen30192/cmp-nvim-ultisnips", cond = load_lsp_plugins },
@@ -452,8 +629,17 @@ require("lazy").setup({
         -- Search
         { "easymotion/vim-easymotion" },
         { "junegunn/vim-slash" },
-        { "junegunn/fzf", build = "fzf#install", lazy = false, cond = my_fuzzy_tool == "fzf" },
-        { "junegunn/fzf.vim", lazy = false, cond = my_fuzzy_tool == "fzf" },
+        {
+            "junegunn/fzf",
+            build = "fzf#install",
+            lazy = false,
+            cond = my_fuzzy_tool == "fzf",
+        },
+        {
+            "junegunn/fzf.vim",
+            lazy = false,
+            cond = my_fuzzy_tool == "fzf",
+        },
 
         -- Python
         { "raimon49/requirements.txt.vim" },
@@ -590,6 +776,7 @@ else
         -- autojump = true,
         show_guides = true,
     })
+
     vim.keymap.set("n", "<leader>A", "<cmd>AerialToggle!<CR>")
 
     require("nvim-tree").setup({
@@ -786,32 +973,7 @@ if load_lsp_plugins then
         end,
     })
 
-    vim.lsp.enable({
-        "pyright",
-        -- "ty",
-        -- "basedpyright",
-        "ruff",
-        "gopls",
-        "bashls",
-        "dockerls",
-        "yamlls",
-        "vls",
-        "marksman",
-        -- "taplo",
-        "tombi",
-        "html",
-        "emmet_language_server",
-        -- "vuels",
-        "jdtls",
-        "csharp_ls",
-        "lua_ls",
-        -- "sqlls",
-        "ts_ls",
-        "biome",
-        "nginx_language_server",
-        "docker_compose_language_service",
-        "svelte",
-    })
+    vim.lsp.enable(my_lsps)
     vim.lsp.config("*", { capabilities = lsp_cap })
 
     vim.lsp.config("taplo", { settings = { evenBetterToml = { schema = { enabled = false } } } })

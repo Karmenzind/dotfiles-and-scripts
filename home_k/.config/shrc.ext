@@ -641,6 +641,8 @@ export TERMINFO=/usr/share/terminfo
 export SDKMAN_DIR="$HOME/.sdkman"
 [[ -s "$HOME/.sdkman/bin/sdkman-init.sh" ]] && source "$HOME/.sdkman/bin/sdkman-init.sh"
 
+__env_initialized=0
+
 __active_envs() {
     # 1. Python
     if [ -f .venv/bin/activate ]; then
@@ -677,6 +679,8 @@ __active_envs() {
             echo "❌ rbenv not found. Please install it to use .ruby-version"
         fi
     fi
+
+    __env_initialized=1
 }
 
 if [ -n "$ZSH_VERSION" ]; then
@@ -690,4 +694,6 @@ else # for bash
     }
 fi
 
-__active_envs
+# if (( ${__env_initialized} == 0 )); then
+#     __active_envs
+# fi

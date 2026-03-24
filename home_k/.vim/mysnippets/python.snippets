@@ -30,12 +30,12 @@ endsnippet
 
 snippet ex "except Exception as e" b
 except ${1:Exception} as ${2:e}:
-    LOGGER.exception("Error occurred: %s", e)
+    LOGGER.exception(f"Error occurred: {e}", e)
 endsnippet
 
 snippet except "except Exception as e" b
 except ${1:Exception} as ${2:e}:
-    LOGGER.exception("Error occurred: %s", e)
+    LOGGER.exception(f"Error occurred: {e}")
 endsnippet
 
 # --------------------------------------------
@@ -102,37 +102,37 @@ endsnippet
 
 snippet Lihl
 $2.info("%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%")
-${2:LOGGER}.info("${1:${VISUAL}}")
+${2:LOGGER}.info(f"${1:${VISUAL}}")
 $2.info("%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%")
 endsnippet
 
 
 snippet L
-${2:LOGGER}.log("${1:${VISUAL}}")
+${2:LOGGER}.log(f"${1:${VISUAL}}")
 endsnippet
 
 snippet Ld
-${2:LOGGER}.debug("${1:${VISUAL}}")
+${2:LOGGER}.debug(f"${1:${VISUAL}}")
 endsnippet
 
 snippet Li
-${2:LOGGER}.info("${1:${VISUAL}}")
+${2:LOGGER}.info(f"${1:${VISUAL}}")
 endsnippet
 
 snippet Lw
-${2:LOGGER}.warning("${1:${VISUAL}}")
+${2:LOGGER}.warning(f"${1:${VISUAL}}")
 endsnippet
 
 snippet Ler
-${2:LOGGER}.error("${1:${VISUAL}}")
+${2:LOGGER}.error(f"${1:${VISUAL}}")
 endsnippet
 
 snippet Le
-${2:LOGGER}.exception("${1:${VISUAL}}")
+${2:LOGGER}.exception(f"${1:${VISUAL}}")
 endsnippet
 
 snippet Lc
-${2:LOGGER}.critical("${1:${VISUAL}}")
+${2:LOGGER}.critical(f"${1:${VISUAL}}")
 endsnippet
 
 snippet Lip
@@ -152,19 +152,19 @@ from loguru import logger
 endsnippet
 
 snippet lgd
-${2:logger}.debug("${1:${VISUAL}}")
+${2:logger}.debug(f"${1:${VISUAL}}")
 endsnippet
 
 snippet lgi
-${2:logger}.info("${1:${VISUAL}}")
+${2:logger}.info(f"${1:${VISUAL}}")
 endsnippet
 
 snippet lgw
-${2:logger}.warning("${1:${VISUAL}}")
+${2:logger}.warning(f"${1:${VISUAL}}")
 endsnippet
 
 snippet lge
-${2:logger}.error("${1:${VISUAL}}")
+${2:logger}.error(f"${1:${VISUAL}}")
 endsnippet
 
 # --------------------------------------------
