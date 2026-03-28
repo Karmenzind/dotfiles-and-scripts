@@ -1058,11 +1058,19 @@ if load_lsp_plugins then
         },
     })
 
-    vim.lsp.config("omnisharp", {
-        cmd = { "/bin/OmniSharp", "--languageserver", "--hostPID", tostring(nvimpid) },
-        handlers = { ["textDocument/definition"] = require("omnisharp_extended").handler },
-    })
+    if vim.fn.has("win32") == 1 then
+        vim.lsp.config("omnisharp", {
+            handlers = { ["textDocument/definition"] = require("omnisharp_extended").handler },
+        })
+    else
+        vim.lsp.config("omnisharp", {
+            cmd = { "/bin/OmniSharp", "--languageserver", "--hostPID", tostring(nvimpid) },
+            handlers = { ["textDocument/definition"] = require("omnisharp_extended").handler },
+        })
+    end
+
     vim.lsp.config("sqlls", { cmd = { "sql-language-server", "up", "--method", "stdio" } })
+
     vim.lsp.config("ts_ls", {
         -- init_options = {
         --     plugins = {
