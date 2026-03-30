@@ -200,7 +200,7 @@ require("lazy").setup({
                     replace_keycodes = false,
                 })
                 vim.g.copilot_no_tab_map = true
-                vim.g.copilot_idle_delay = 400
+                vim.g.copilot_idle_delay = 500
                 vim.g.copilot_trigger_on_idle = 1
             end,
         },
