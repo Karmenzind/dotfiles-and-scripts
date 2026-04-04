@@ -644,6 +644,10 @@ export SDKMAN_DIR="$HOME/.sdkman"
 __env_initialized=0
 
 __active_envs() {
+    if (( __env_initialized == 1 )); then
+        return
+    fi
+
     # 1. Python
     if [ -f .venv/bin/activate ]; then
         echo "🐍 Activating Python .venv ..."
@@ -684,8 +688,13 @@ __active_envs() {
 }
 
 if [ -n "$ZSH_VERSION" ]; then
-    autoload -U add-zsh-hook
-    add-zsh-hook chpwd __active_envs
+
+    if [[ -z "$__env_hook_added" ]]; then
+        autoload -U add-zsh-hook
+        add-zsh-hook chpwd __active_envs
+        __env_hook_added=1
+    fi
+
 else # for bash
     cd() {
         if builtin cd "$@"; then
@@ -694,6 +703,6 @@ else # for bash
     }
 fi
 
-# if (( ${__env_initialized} == 0 )); then
-#     __active_envs
-# fi
+if (( ${__env_initialized} == 0 )); then
+    __active_envs
+fi
