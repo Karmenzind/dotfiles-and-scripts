@@ -208,7 +208,6 @@ require("lazy").setup({
 
         {
             "olimorris/codecompanion.nvim",
-            version = "^19.0.0",
             dependencies = {
                 "nvim-lua/plenary.nvim",
                 "nvim-treesitter/nvim-treesitter",
@@ -451,7 +450,12 @@ require("lazy").setup({
             "nvim-treesitter/nvim-treesitter",
             build = ":TSUpdate",
             config = function()
-                local tsconf = require("nvim-treesitter.configs")
+                local ok, tsconf = pcall(require, "nvim-treesitter.configs")
+                if not ok then
+                    vim.notify("nvim-treesitter not loaded", vim.log.levels.WARN)
+                    return
+                end
+
                 tsconf.setup({
                     ensure_installed = { "c", "lua", "vim", "vimdoc", "query", "python" },
                     auto_install = true,
