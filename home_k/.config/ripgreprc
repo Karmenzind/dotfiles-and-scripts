@@ -1,6 +1,6 @@
 # Don't let ripgrep vomit really long lines to my terminal, and show a preview.
---max-columns=150
---max-columns-preview
+--max-columns=0
+# --max-columns-preview
 
 # Add my 'web' type.
 --type-add
