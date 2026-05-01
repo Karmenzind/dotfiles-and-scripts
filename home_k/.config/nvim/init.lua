@@ -576,9 +576,9 @@ require("lazy").setup({
         { "neovim/nvim-lspconfig", cond = load_lsp_plugins },
         { "nvimdev/lspsaga.nvim", cond = load_lsp_plugins },
         { "onsails/lspkind.nvim", cond = load_lsp_plugins },
-        { "kosayoda/nvim-lightbulb", cond = load_lsp_plugins },
+        -- { "kosayoda/nvim-lightbulb", cond = load_lsp_plugins },
 
-        { "ray-x/lsp_signature.nvim", cond = load_lsp_plugins },
+        -- { "ray-x/lsp_signature.nvim", cond = load_lsp_plugins },
         { "stevearc/aerial.nvim" },
 
         -- CMP
@@ -608,7 +608,6 @@ require("lazy").setup({
 
         -- Version control
         { "tpope/vim-fugitive" },
-        { "tiagofumo/vim-nerdtree-syntax-highlight" },
         { "t9md/vim-choosewin" },
 
         -- Search
@@ -618,7 +617,7 @@ require("lazy").setup({
         { "junegunn/fzf.vim", lazy = false, cond = my_fuzzy_tool == "fzf" },
 
         -- Python
-        { "raimon49/requirements.txt.vim" },
+        -- { "raimon49/requirements.txt.vim" },
 
         -- Documentation tools
         { "godlygeek/tabular" },
@@ -643,8 +642,8 @@ require("lazy").setup({
         { "skywind3000/asyncrun.vim", cond = my_mode ~= "light" },
 
         -- Syntax & fold
-        { "posva/vim-vue", cond = my_mode ~= "light" },
-        { "cespare/vim-toml" },
+        -- { "posva/vim-vue", cond = my_mode ~= "light" },
+        -- { "cespare/vim-toml" },
         { "chr4/nginx.vim" },
         { "pangloss/vim-javascript" },
         { "mtdl9/vim-log-highlighting" },
