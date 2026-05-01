@@ -1,7 +1,6 @@
 # vim:set et ft=sh sw=4 ts=4:
 export __MYKEYBOARD=${__MYKEYBOARD:-common}
 
-# [[ -n $__LOADED_SHRC_EXT ]] && echo "[WARNING] shrc.ext already loaded. Stopped." && return
 export __LOADED_SHRC_EXT=true
 
 alias pacman='pacman --disable-download-timeout'
@@ -570,7 +569,20 @@ export PATH="$(perl -e 'print join(":", grep { not $seen{$_}++ } split(/:/, $ENV
 #                    Version Managers                                 #
 #######################################################################
 
-if command -v fnm >/dev/null; then
+
+__can_load_fnm() {
+    if command -v fnm >/dev/null; then
+        return 0
+    fi
+    FNM_PATH="$HOME/.local/share/fnm"
+    if [ -d "$FNM_PATH" ]; then
+      export PATH="$FNM_PATH:$PATH"
+      return 0
+    fi
+    return 1
+}
+
+if __can_load_fnm; then
     eval "$(fnm env --use-on-cd --shell zsh)"
     echo "[fnm] initialized with fnm env"
 elif [[ -d $HOME/.nvm ]]; then

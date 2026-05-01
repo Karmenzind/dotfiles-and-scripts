@@ -586,10 +586,28 @@ endif
 
 " /* for fzf */
 if g:my_fuzzy_tool == "fzf"
-  function! s:build_quickfix_list(lines)
-    call setqflist(map(copy(a:lines), '{ "filename": v:val }'))
+  function! s:build_quickfix_list(lines) abort
+    if empty(a:lines)
+      return
+    endif
+
+    let qf = []
+    for line in a:lines
+      let m = matchlist(line, '\v^(.{-}):(\d+):(\d+):(.*)$')
+      if !empty(m)
+        call add(qf, {
+              \ 'filename': m[1],
+              \ 'lnum': str2nr(m[2]),
+              \ 'col': str2nr(m[3]),
+              \ 'text': m[4],
+              \ })
+      else
+        call add(qf, { 'filename': line })
+      endif
+    endfor
+
+    call setqflist(qf, 'r')
     copen
-    cc
   endfunction
 
   let g:fzf_action = {
