@@ -119,9 +119,7 @@ function! SetupVimPlug()
   Plug 'tpope/vim-endwise'
   Plug 'tpope/vim-surround'
 
-  if !has('nvim')
-    Plug 'jiangmiao/auto-pairs'
-  endif
+  Plug 'jiangmiao/auto-pairs'
 
   Plug 'junegunn/vim-easy-align'
   Plug 'SirVer/ultisnips' | Plug 'honza/vim-snippets'
@@ -129,9 +127,7 @@ function! SetupVimPlug()
   Plug 'liuchengxu/vista.vim'
 
   Plug 'w0rp/ale' " Asynchronous Lint Engine
-  if !has("nvim")
-    Plug 'neoclide/coc.nvim', {'branch': 'release'}
-  endif
+  Plug 'neoclide/coc.nvim', {'branch': 'release'}
 
   Plug 'mg979/vim-visual-multi', {'branch': 'master'}
   " TODO (k): <2022-10-15> Plug 'puremourning/vimspector'
@@ -139,13 +135,11 @@ function! SetupVimPlug()
   " /* version control (vcs) | workspace */
   Plug 'tpope/vim-fugitive'
 
-  if !has('nvim')
-    Plug 'scrooloose/nerdtree', { 'on': ['NERDTreeToggle', 'NERDTreeFind'] }
-  endif
+  Plug 'scrooloose/nerdtree', { 'on': ['NERDTreeToggle', 'NERDTreeFind'] }
   " Plug 'Xuyuanp/nerdtree-git-plugin', { 'on': ['NERDTreeToggle'] }
   Plug 'tiagofumo/vim-nerdtree-syntax-highlight'
   Plug 't9md/vim-choosewin'
-  if !has('nvim') && !s:is_win
+  if !s:is_win
     Plug 'mhinz/vim-startify'
   endif
   " Plug 'bagrat/vim-workspace' " tab bar
@@ -155,10 +149,8 @@ function! SetupVimPlug()
   Plug 'junegunn/vim-slash' " enhancing in-buffer search experience
   Plug 'junegunn/fzf', { 'do': { -> fzf#install() } }
   Plug 'junegunn/fzf.vim'
-  "if !has("nvim")
   "  " conds
   "  Plug 'Yggdroot/LeaderF', { 'do': ':LeaderfInstallCExtension' }
-  "endif
 
   " /* Go */
   " Plug 'fatih/vim-go', { 'do': ':GoUpdateBinaries' }
@@ -208,20 +200,20 @@ function! SetupVimPlug()
 
   " /* Appearance */
   Plug 'flazz/vim-colorschemes'
-  if !has('nvim')
-    Plug 'vim-airline/vim-airline'
-    Plug 'vim-airline/vim-airline-themes'
-  endif
+
+  Plug 'vim-airline/vim-airline'
+  Plug 'vim-airline/vim-airline-themes'
+
   Plug 'gerardbm/vim-atomic'
   Plug 'icymind/NeoSolarized'
   Plug 'KKPMW/sacredforest-vim'
   Plug 'junegunn/seoul256.vim'
-  if !has("nvim")
-    Plug 'arcticicestudio/nord-vim'
-  endif
+
+  Plug 'arcticicestudio/nord-vim'
+
   Plug 'aktersnurra/no-clown-fiesta.nvim'
 
-  if !has('nvim') && !has('win32')
+  if !has('win32')
     Plug 'ryanoasis/vim-devicons'
   endif
 
@@ -494,82 +486,6 @@ augroup END
 " --------------------------------------------
 " plugin configuration
 " --------------------------------------------
-
-" /* for YCM */
-if !has('nvim') && Plugged('YouCompleteMe')
-  if empty(glob('~/.vim/.ycm_extra_conf.py')) && !has('win32')
-    silent !wget https://raw.githubusercontent.com/Karmenzind/dotfiles-and-scripts/master/home_k/.vim/.ycm_extra_conf.py
-          \ -O ~/.vim/.ycm_extra_conf.py
-  endif
-
-  let g:ycm_filetype_blacklist = {
-        \ 'gitcommit': 1,
-        \ 'tagbar': 1,
-        \ 'qf': 1,
-        \ 'notes': 1,
-        \ 'unite': 1,
-        \ 'text': 1,
-        \ 'vimwiki': 1,
-        \ 'pandoc': 1,
-        \ 'infolog': 1,
-        \ 'mail': 1,
-        \ }
-
-  let g:ycm_confirm_extra_conf = 0
-  let g:ycm_add_preview_to_completeopt = 1
-  let g:ycm_autoclose_preview_window_after_completion = 1
-
-  let g:ycm_global_ycm_extra_conf = '~/.vim/.ycm_extra_conf.py'
-  let g:ycm_complete_in_comments = 1
-  let g:ycm_complete_in_strings = 1
-  let g:ycm_server_python_interpreter = 'python'
-  let g:ycm_python_binary_path = 'python3'
-  let g:ycm_goto_buffer_command = 'horizontal-split'
-
-  let g:ycm_seed_identifiers_with_syntax = 1
-  let g:ycm_collect_identifiers_from_tags_files = 1
-  " let g:ycm_collect_identifiers_from_comments_and_strings = 1
-  " let g:ycm_max_num_candidates = 14
-  " let g:ycm_max_num_identifier_candidates = 7
-
-  let g:ycm_semantic_triggers = {
-        \   'python': [ 're!(import\s+|from\s+(\w+\s+(import\s+(\w+,\s+)*)?)?)' ],
-        \   'html': ['<', '"', '</', ' '],
-        \   'scss,css': [ 're!^\s{2,4}', 're!:\s+' ]
-        \ }
-
-  let g:__rtp = &rtp
-  let g:ycm_extra_conf_vim_data = ['g:__rtp']
-
-  " set completeopt-=preview
-  set completeopt+=longest,menu
-  " if has('patch-8.1.1902')
-  "     set completeopt+=popup
-  "     set completepopup=height:10,width:60,highlight:Pmenu,border:off
-  "     set pumwidth=10
-  " endif
-
-  let g:ycm_language_server = [
-        \ {"name": "vue", "filetypes": ["vue"], "cmdline": ["vls"] },
-        \ {"name": "vim", "filetypes": ["vim"], "cmdline": ["vim-language-server", '--stdio'] },
-        \ ]
-
-  if !has('nvim')
-    let g:ycm_auto_hover = ''
-  endif
-
-  augroup ycm_behaviours
-    au!
-    au FileType python,go,sh,vim
-          \ nmap K <plug>(YCMHover)
-  augroup END
-
-  nnoremap <silent> <Leader>g   :YcmCompleter GoTo<CR>
-  nnoremap <silent> <Leader>dd  :YcmCompleter GoToDefinitionElseDeclaration<CR>
-  nnoremap <silent> <Leader>rf  :YcmCompleter GoToReferences<CR>
-  " nnoremap <silent> <Leader>doc :YcmCompleter GetDoc<CR>
-  nnoremap <Leader>rr  :YcmCompleter RefactorRename<SPACE>
-endif
 
 " /* for XXX */
 function! s:Fzf2Nerdtree(lines)
@@ -855,80 +771,80 @@ else
   let g:ale_echo_msg_error_str = ' E'
   let g:ale_echo_msg_info_str = ' I'
   let g:ale_echo_msg_warning_str = ' W'
+
+  let g:ale_fixers = {
+        \  '*': ['trim_whitespace'],
+        \  'c': ['clang-format'],
+        \  'css': ['prettier'],
+        \  'go': ['gofmt', 'goimports'],
+        \  'html': ['prettier'],
+        \  'java': ['clang-format'],
+        \  'javascript': ['biome'],
+        \  'typescript': ['biome'],
+        \  'json': ['jq'],
+        \  'lua': ['stylua'],
+        \  'php': ['php_cs_fixer'],
+        \  'python': ['ruff_format', 'FixSurroundedWhiteSpaces'],
+        \  'sh': ['shfmt', 'FixLeadingTabs'],
+        \  'sql': ['pgformatter'],
+        \  'vue': ['eslint', 'prettier'],
+        \  'yaml': ['prettier'],
+        \  'xml': ['xmlint'],
+        \ }
+
+  let g:ale_maximum_file_size = 1024 * 1024
+  " let g:ale_set_balloons_legacy_echo = 1
+
+  " hover
+  let g:ale_floating_preview = 1
+  let g:ale_hover_to_preview = 1
+  let g:ale_hover_to_floating_preview = 1
+
+  " options
+  let g:ale_python_mypy_ignore_invalid_syntax = 1
+  let g:ale_python_mypy_options = '--incremental'
+  let g:ale_python_pylint_options = '--max-line-length=120 --rcfile $HOME/.config/pylintrc'
+  " let g:ale_python_autopep8_options = '--max-line-length=120'
+  let g:ale_python_flake8_options = '--max-line-length=120 --extend-ignore=E722,E741,E402,E501'
+  let g:ale_python_pydocstyle_options = '--ignore=D103,D200,D203,D204,D205,D211,D212,D213,D400,D401,D403,D415'
+  let g:ale_python_autoflake_options = '--remove-all-unused-imports --ignore-init-module-imports'
+  " let g:ale_python_ruff_options = '--ignore=D103,D200,D203,D204,D205,D211,D212,D213,D400,D401,D403,D415'
+  " let g:ale_python_ruff_options = '--config \'ignore = ["E402"]\''
+  let g:ale_python_ruff_format_options = '--config ~/.config/ruff.toml'
+  "let g:ale_biome_options = '--config-path=~/.config/biome.json --use-editorconfig=true'
+  let g:ale_biome_options = '--line-width=120 --indent-style=space'
+
+  " let g:ale_javascript_prettier_options = '-c'
+  " let g:ale_javascript_eslint_options = '--ext .js,.vue'
+  " let g:ale_sql_sqlfmt_executable = exepath("sqlfmt")
+  " let g:ale_shfmt_options = '-p --indent=4 --case-indent --space-redirects --keep-padding'
+  let g:ale_python_isort_options = '-l 120'
+
+  let g:ale_sql_sqlfmt_options = '-u'
+  let g:ale_lua_stylua_options = '--indent-type Spaces'
+  let g:ale_dprint_config = '$HOME/.dprint.json'
+  let g:ale_dprint_use_global = 1
+  let g:ale_c_clangformat_style_option = '{ BasedOnStyle: Google, IndentWidth: 4, ColumnLimit: 180, AllowShortBlocksOnASingleLine: Empty, AllowShortFunctionsOnASingleLine: Empty, BreakAfterJavaFieldAnnotations: true, }'
+
+  " others
+  let g:ale_c_parse_compile_commands = 1
+  let g:ale_typescript_tslint_ignore_empty_files = 1
+
+  " experimental
+  let g:ale_hover_cursor = 1
+  let g:ale_set_balloons = 1
+  let g:ale_hover_to_preview = 1
+  let g:ale_floating_preview = 1
+
+  " temp
+  let g:ale_history_log_output = 1
+  let g:ale_sql_sqlfluff_options = '--dialect mysql --config $HOME/.config/sqlfluff'
+
+  nmap <silent> <Leader>al <Plug>(ale_lint)
+  nmap <Leader>af <Plug>(ale_fix)
+  nmap <silent> <Leader>at <Plug>(ale_toggle)
+  call s:NoSearchCabbrev("AF", "ALEFix")
 endif
-
-let g:ale_fixers = {
-      \  '*': ['trim_whitespace'],
-      \  'c': ['clang-format'],
-      \  'css': ['prettier'],
-      \  'go': ['gofmt', 'goimports'],
-      \  'html': ['prettier'],
-      \  'java': ['clang-format'],
-      \  'javascript': ['biome'],
-      \  'typescript': ['biome'],
-      \  'json': ['jq'],
-      \  'lua': ['stylua'],
-      \  'php': ['php_cs_fixer'],
-      \  'python': ['ruff_format', 'FixSurroundedWhiteSpaces'],
-      \  'sh': ['shfmt', 'FixLeadingTabs'],
-      \  'sql': ['pgformatter'],
-      \  'vue': ['eslint', 'prettier'],
-      \  'yaml': ['prettier'],
-      \  'xml': ['xmlint'],
-      \ }
-
-let g:ale_maximum_file_size = 1024 * 1024
-" let g:ale_set_balloons_legacy_echo = 1
-
-" hover
-let g:ale_floating_preview = 1
-let g:ale_hover_to_preview = 1
-let g:ale_hover_to_floating_preview = 1
-
-" options
-let g:ale_python_mypy_ignore_invalid_syntax = 1
-let g:ale_python_mypy_options = '--incremental'
-let g:ale_python_pylint_options = '--max-line-length=120 --rcfile $HOME/.config/pylintrc'
-" let g:ale_python_autopep8_options = '--max-line-length=120'
-let g:ale_python_flake8_options = '--max-line-length=120 --extend-ignore=E722,E741,E402,E501'
-let g:ale_python_pydocstyle_options = '--ignore=D103,D200,D203,D204,D205,D211,D212,D213,D400,D401,D403,D415'
-let g:ale_python_autoflake_options = '--remove-all-unused-imports --ignore-init-module-imports'
-" let g:ale_python_ruff_options = '--ignore=D103,D200,D203,D204,D205,D211,D212,D213,D400,D401,D403,D415'
-" let g:ale_python_ruff_options = '--config \'ignore = ["E402"]\''
-let g:ale_python_ruff_format_options = '--config ~/.config/ruff.toml'
-"let g:ale_biome_options = '--config-path=~/.config/biome.json --use-editorconfig=true'
-let g:ale_biome_options = '--line-width=120 --indent-style=space'
-
-" let g:ale_javascript_prettier_options = '-c'
-" let g:ale_javascript_eslint_options = '--ext .js,.vue'
-" let g:ale_sql_sqlfmt_executable = exepath("sqlfmt")
-" let g:ale_shfmt_options = '-p --indent=4 --case-indent --space-redirects --keep-padding'
-let g:ale_python_isort_options = '-l 120'
-
-let g:ale_sql_sqlfmt_options = '-u'
-let g:ale_lua_stylua_options = '--indent-type Spaces'
-let g:ale_dprint_config = '$HOME/.dprint.json'
-let g:ale_dprint_use_global = 1
-let g:ale_c_clangformat_style_option = '{ BasedOnStyle: Google, IndentWidth: 4, ColumnLimit: 180, AllowShortBlocksOnASingleLine: Empty, AllowShortFunctionsOnASingleLine: Empty, BreakAfterJavaFieldAnnotations: true, }'
-
-" others
-let g:ale_c_parse_compile_commands = 1
-let g:ale_typescript_tslint_ignore_empty_files = 1
-
-" experimental
-let g:ale_hover_cursor = 1
-let g:ale_set_balloons = 1
-let g:ale_hover_to_preview = 1
-let g:ale_floating_preview = 1
-
-" temp
-let g:ale_history_log_output = 1
-let g:ale_sql_sqlfluff_options = '--dialect mysql --config $HOME/.config/sqlfluff'
-
-nmap <silent> <Leader>al <Plug>(ale_lint)
-nmap <Leader>af <Plug>(ale_fix)
-nmap <silent> <Leader>at <Plug>(ale_toggle)
-call s:NoSearchCabbrev("AF", "ALEFix")
 
 " /* for vim-visual-multi */
 " let g:VM_maps = {"Find Under": '<space>n'}
@@ -1029,13 +945,6 @@ let g:SimpylFold_fold_docstring = 0
 let g:SimpylFold_fold_import = 1
 " let g:SimpylFold_fold_blank = 1
 
-
-" /* for choosewin */
-" invoke with '-'
-" nmap  -  <Plug>(choosewin)
-" " if you want to use overlay feature
-" let g:choosewin_overlay_enable = 1
-
 " /* for vim-tmuxlike */
 " nmap <silent> <c-\> <Plug>(tmuxlike-prefix)
 nmap <c-\> <Plug>(tmuxlike-prefix)
@@ -1045,10 +954,12 @@ if s:is_hhkb
 endif
 
 " /* for vim-plug */
-noremap <Leader>pi :PlugInstall<CR>
-noremap <Leader>pu :PlugUpdate<CR>
-noremap <Leader>ps :PlugStatus<CR>
-noremap <Leader>pc :PlugClean<CR>
+if Plugged('vim-plug')
+  noremap <Leader>pi :PlugInstall<CR>
+  noremap <Leader>pu :PlugUpdate<CR>
+  noremap <Leader>ps :PlugStatus<CR>
+  noremap <Leader>pc :PlugClean<CR>
+endif
 
 " /* for startify */
 if !has('nvim') && Plugged("vim-startify")
@@ -1199,24 +1110,6 @@ if !has('nvim') && Plugged('coc.nvim')
   command! -nargs=? Fold :call CocAction('fold', <f-args>)
   command! -nargs=0 OR   :call CocActionAsync('runCommand', 'editor.action.organizeImport')
 
-  " " Mappings for CoCList
-  " " Show all diagnostics.
-  " nnoremap <silent><nowait> <space>a  :<C-u>CocList diagnostics<cr>
-  " " Manage extensions.
-  " nnoremap <silent><nowait> <space>e  :<C-u>CocList extensions<cr>
-  " " Show commands.
-  " nnoremap <silent><nowait> <space>c  :<C-u>CocList commands<cr>
-  " " Find symbol of current document.
-  " nnoremap <silent><nowait> <space>o  :<C-u>CocList outline<cr>
-  " " Search workspace symbols.
-  " nnoremap <silent><nowait> <space>s  :<C-u>CocList -I symbols<cr>
-  " " Do default action for next item.
-  " nnoremap <silent><nowait> <space>j  :<C-u>CocNext<CR>
-  " " Do default action for previous item.
-  " nnoremap <silent><nowait> <space>k  :<C-u>CocPrev<CR>
-  " " Resume latest coc list.
-  " nnoremap <silent><nowait> <space>p  :<C-u>CocListResume<CR>
-
   let g:coc_global_extensions = [ 'coc-json', 'coc-git', 'coc-snippets', 'coc-java',
         \ 'coc-docker', 'coc-sh', 'coc-sql', 'coc-toml', 'coc-go', 'coc-pyright', 'coc-lua', 'coc-tsserver' ]
   if has("win32")
@@ -1238,7 +1131,6 @@ if !exists("vscode")
   let g:vista_sidebar_width = 40
   let g:vista_echo_cursor = 0
   let g:vista_echo_cursor_strategy = 'both'
-  " let g:vista_highlight_whole_line = 1
 
   if has('nvim')
     let g:vista_executive_for = {
@@ -1276,32 +1168,6 @@ augroup javascript_folding
   au!
   au FileType javascript setlocal foldmethod=syntax
 augroup END
-
-" /* for vim-go */
-"if Plugged("vim-go")
-"  let g:go_term_mode = "split"
-"  let g:go_term_enabled = 1
-"  let g:go_term_reuse = 1
-"  let g:go_term_close_on_exit = 0
-"  let g:go_term_height = 20
-"  let g:go_term_width = 30
-"  let g:go_doc_balloon = 0
-"  let g:go_doc_keywordprg_enabled = 0
-"
-"  let g:go_code_completion_enabled = 1
-"
-"  let g:go_fmt_autosave = 0
-"  let g:go_mod_fmt_autosave = 0
-"
-"  augroup go_map
-"    au!
-"    au FileType go nmap <leader>rt <Plug>(go-run-tab)
-"    au FileType go nmap <leader>rs <Plug>(go-run-split)
-"    au FileType go nmap <leader>rv <Plug>(go-run-vertical)
-"    au FileType go call s:NoSearchCabbrev("GI", "GoImport")
-"    au FileType go call s:NoSearchCabbrev("GR", "GoRun")
-"  augroup END
-"endif
 
 augroup custom_nginx
   autocmd!

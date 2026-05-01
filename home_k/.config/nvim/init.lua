@@ -222,86 +222,6 @@ require("lazy").setup({
             },
         },
 
-        -- {
-        --     "yetone/avante.nvim",
-        --     build = vim.fn.has("win32") ~= 0
-        --         and "powershell -ExecutionPolicy Bypass -File Build.ps1 -BuildFromSource false"
-        --         or "make",
-        --     event = "VeryLazy",
-        --     version = false, -- Never set this value to "*"! Never!
-        --     ---@module 'avante'
-        --     ---@type avante.Config
-        --     opts = {
-        --         mappings = {
-        --             ask = "<leader>Aa", -- ask
-        --             edit = "<leader>Ae", -- edit
-        --             refresh = "<leader>Ar", -- refresh
-        --         },
-        --         -- add any opts here
-        --         -- this file can contain specific instructions for your project
-        --         instructions_file = "avante.md",
-        --         -- for example
-        --         provider = "openai",
-        --         providers = {
-        --             claude = {
-        --                 endpoint = "https://api.anthropic.com",
-        --                 model = "claude-sonnet-4-20250514",
-        --                 timeout = 30000, -- Timeout in milliseconds
-        --                 extra_request_body = { temperature = 0.75, max_tokens = 20480 },
-        --             },
-        --             moonshot = {
-        --                 endpoint = "https://api.moonshot.ai/v1",
-        --                 model = "kimi-k2-0711-preview",
-        --                 timeout = 30000, -- Timeout in milliseconds
-        --                 extra_request_body = { temperature = 0.75, max_tokens = 32768 },
-        --             },
-        --             openai = {
-        --                 endpoint = "https://api.openai.com/v1",
-        --                 -- model = "gpt-5.4-nano", -- 或 gpt-4o / 你自己的选择
-        --                 model = "gpt-4o-mini", -- 或 gpt-4o / 你自己的选择
-        --                 timeout = 16384,       -- ms
-        --                 extra_request_body = { temperature = 0.75, max_tokens = 4096 },
-        --             },
-        --         },
-        --     },
-        --     dependencies = {
-        --         "nvim-lua/plenary.nvim",
-        --         "MunifTanjim/nui.nvim",
-        --         --- The below dependencies are optional,
-        --         "nvim-mini/mini.pick",           -- for file_selector provider mini.pick
-        --         "nvim-telescope/telescope.nvim", -- for file_selector provider telescope
-        --         "hrsh7th/nvim-cmp",              -- autocompletion for avante commands and mentions
-        --         "ibhagwan/fzf-lua",              -- for file_selector provider fzf
-        --         "stevearc/dressing.nvim",        -- for input provider dressing
-        --         "folke/snacks.nvim",             -- for input provider snacks
-        --         "nvim-tree/nvim-web-devicons",   -- or echasnovski/mini.icons
-        --         "zbirenbaum/copilot.lua",        -- for providers='copilot'
-        --         {
-        --             -- support for image pasting
-        --             "HakonHarnes/img-clip.nvim",
-        --             event = "VeryLazy",
-        --             opts = {
-        --                 -- recommended settings
-        --                 default = {
-        --                     embed_image_as_base64 = false,
-        --                     prompt_for_file_name = false,
-        --                     drag_and_drop = {
-        --                         insert_mode = true,
-        --                     },
-        --                     -- required for Windows users
-        --                     use_absolute_path = true,
-        --                 },
-        --             },
-        --         },
-        --         {
-        --             -- Make sure to set this up properly if you have lazy=true
-        --             "MeanderingProgrammer/render-markdown.nvim",
-        --             opts = { file_types = { "markdown", "Avante" } },
-        --             ft = { "markdown", "Avante" },
-        --         },
-        --     },
-        -- },
-
         -- Coding tools
         {
             "mfussenegger/nvim-lint",
@@ -337,77 +257,174 @@ require("lazy").setup({
         { "honza/vim-snippets" },
         { "Shougo/context_filetype.vim" },
         { "liuchengxu/vista.vim" },
-        { "w0rp/ale" },
+        -- { "w0rp/ale" },
         { "mg979/vim-visual-multi", branch = "master", cond = load_lsp_plugins },
+        {
+            "stevearc/conform.nvim",
+            event = { "BufWritePre" },
+            cmd = { "ConformInfo" },
+            keys = {
+                {
+                    "<leader>af", -- 保持你 ALE 的快捷键习惯
+                    function()
+                        require("conform").format({ async = true, lsp_fallback = true })
+                    end,
+                    mode = "n",
+                    desc = "Format buffer",
+                },
+            },
+            opts = {
+                -- 1. 对应 g:ale_fixers
+                formatters_by_ft = {
+                    ["*"] = { "trim_whitespace" },
+                    c = { "clang-format" },
+                    cpp = { "clang-format" },
+                    go = { "goimports", "gofmt" },
+                    javascript = { "biome" },
+                    typescript = { "biome" },
+                    lua = { "stylua" },
+                    python = { "ruff_organize_imports", "ruff_format", "fix_surrounded_whitespace" },
+                    sh = { "shfmt", "fix_leading_tabs" },
+                    sql = { "pg_format" },
+                    vue = { "eslint_d", "prettier" },
+                    yaml = { "prettier" },
+                },
+
+                formatters = {
+                    fix_surrounded_whitespace = {
+                        format = function(self, ctx, lines, callback)
+                            local new_lines = {}
+                            for _, line in ipairs(lines) do
+                                local fixed = line:gsub('^(%s*""")%s+(.+)%s+(""")', "%1%2%3")
+                                table.insert(new_lines, fixed)
+                            end
+                            callback(nil, new_lines)
+                        end,
+                    },
+                    -- 对应你的 FixLeadingTabs
+                    fix_leading_tabs = {
+                        format = function(self, ctx, lines, callback)
+                            local spaces = string.rep(" ", vim.bo.tabstop)
+                            local new_lines = {}
+                            for _, line in ipairs(lines) do
+                                local fixed = line:gsub("^\t+", function(match)
+                                    return string.rep(spaces, #match)
+                                end)
+                                table.insert(new_lines, fixed)
+                            end
+                            callback(nil, new_lines)
+                        end,
+                    },
+
+                    ["clang-format"] = {
+                        prepend_args = {
+                            "-style",
+                            "{ BasedOnStyle: Google, IndentWidth: 4, ColumnLimit: 180, AllowShortBlocksOnASingleLine: Empty, AllowShortFunctionsOnASingleLine: Empty, BreakAfterJavaFieldAnnotations: true }",
+                        },
+                    },
+
+                    biome = {
+                        prepend_args = { "--line-width=120", "--indent-style=space" },
+                    },
+
+                    pg_format = {
+                        prepend_args = { "-u", "1" },
+                    },
+                },
+                -- format_on_save = { enabled = false, timeout_ms = 500, lsp_fallback = true },
+            },
+        },
 
         -- Fuzzy Tools
         { "nvim-lua/plenary.nvim" },
         {
             "nvim-telescope/telescope.nvim",
+            version = "*",
             cmd = "Telescope",
-            branch = "0.1.x",
-            -- cond = my_fuzzy_tool == "telescope" and not vim.g.vscode,
             cond = not vim.g.vscode,
-            config = function()
-                local ts = require("telescope")
-                local tsa = require("telescope.actions")
-                local tsbuiltin = require("telescope.builtin")
-                if my_fuzzy_tool == "telescope" then
-                    vim.keymap.set("n", "<leader>ff", tsbuiltin.find_files, mopts)
-                    vim.keymap.set("n", "<leader>fg", tsbuiltin.live_grep, mopts)
-                    vim.keymap.set("n", "<leader>fr", tsbuiltin.live_grep, mopts)
-                    vim.keymap.set("n", "<leader>fa", tsbuiltin.live_grep, mopts)
-                    vim.keymap.set("n", "<leader>fb", tsbuiltin.buffers, mopts)
-                    vim.keymap.set("n", "<leader>fh", tsbuiltin.help_tags, mopts)
-                else
-                    vim.keymap.set("n", "<leader>tf", tsbuiltin.find_files, mopts)
-                    vim.keymap.set("n", "<leader>tg", tsbuiltin.live_grep, mopts)
-                    vim.keymap.set("n", "<leader>tr", tsbuiltin.live_grep, mopts)
-                    vim.keymap.set("n", "<leader>ta", tsbuiltin.live_grep, mopts)
-                    vim.keymap.set("n", "<leader>tb", tsbuiltin.buffers, mopts)
-                    vim.keymap.set("n", "<leader>th", tsbuiltin.help_tags, mopts)
-                end
+            dependencies = { { "nvim-telescope/telescope-fzf-native.nvim", build = "make" } },
 
-                ts.setup({
+            -- 1. Lazy-load on keys
+            keys = function()
+                local prefix = (my_fuzzy_tool == "telescope") and "<leader>f" or "<leader>t"
+                return {
+                    { prefix .. "f", "<cmd>Telescope find_files<cr>", desc = "Find Files" },
+                    { prefix .. "g", "<cmd>Telescope live_grep<cr>", desc = "Live Grep" },
+                    { prefix .. "r", "<cmd>Telescope live_grep<cr>", desc = "Live Grep" },
+                    { prefix .. "b", "<cmd>Telescope buffers<cr>", desc = "Buffers" },
+                    { prefix .. "h", "<cmd>Telescope help_tags<cr>", desc = "Help Tags" },
+                }
+            end,
+
+            -- 2. Declarative Configuration
+            opts = function()
+                local actions = require("telescope.actions")
+                return {
                     defaults = {
-                        -- layout_config = { prompt_position = "top" },
-                        -- sorting_strategy = "ascending",
+                        sorting_strategy = "ascending",
+                        layout_config = {
+                            horizontal = {
+                                prompt_position = "top",
+                                preview_width = 0.55,
+                            },
+                            width = 0.87,
+                            height = 0.80,
+                        },
+                        prompt_prefix = " 🔍 ",
+                        selection_caret = "  ",
+                        entry_prefix = "  ",
+                        initial_mode = "insert",
                         border = true,
                         mappings = {
                             i = {
-                                ["<esc>"] = tsa.close,
-                                ["<C-j>"] = {
-                                    tsa.move_selection_next,
-                                    type = "action",
-                                    opts = { nowait = true, silent = true },
-                                },
-                                ["<C-k>"] = {
-                                    tsa.move_selection_previous,
-                                    type = "action",
-                                    opts = { nowait = true, silent = true },
-                                },
-                                ["<C-f>"] = {
-                                    tsa.results_scrolling_down,
-                                    type = "action",
-                                    opts = { nowait = true, silent = true },
-                                },
-                                ["<C-b>"] = {
-                                    tsa.results_scrolling_up,
-                                    type = "action",
-                                    opts = { nowait = true, silent = true },
-                                },
+                                ["<esc>"] = actions.close,
+                                ["<C-j>"] = actions.move_selection_next,
+                                ["<C-k>"] = actions.move_selection_previous,
+                                ["<C-f>"] = actions.results_scrolling_down,
+                                ["<C-b>"] = actions.results_scrolling_up,
                             },
                         },
-                        vimgrep_arguments = { "rg", "-u", "--color=never", "--no-heading", "--line-number", "--column" },
+                        vimgrep_arguments = {
+                            "rg",
+                            "--color=never",
+                            "--no-heading",
+                            "--with-filename",
+                            "--line-number",
+                            "--column",
+                            "--smart-case",
+                            "--hidden",
+                            "--glob",
+                            "!.git/*",
+                        },
                     },
                     pickers = {
                         find_files = {
-                            find_command = { "fd", "-t", "f", "-H", "-L", "-E", ".git" },
-                            prompt_prefix = "📂 ",
+                            find_command = {
+                                "fd",
+                                "--type",
+                                "f",
+                                "--hidden",
+                                "--exclude",
+                                ".git",
+                                "--strip-cwd-prefix",
+                            },
                         },
-                        live_grep = { prompt_prefix = "🔍 " },
                     },
-                })
+                    extensions = {
+                        fzf = {
+                            fuzzy = true,
+                            override_generic_sorter = true,
+                            override_file_sorter = true,
+                            case_mode = "smart_case",
+                        },
+                    },
+                }
+            end,
+            config = function(_, opts)
+                local telescope = require("telescope")
+                telescope.setup(opts)
+                -- 2026 实践：显式加载已安装的扩展
+                pcall(telescope.load_extension, "fzf")
             end,
         },
 
@@ -422,7 +439,7 @@ require("lazy").setup({
             end,
         },
 
-        { "tversteeg/registers.nvim", branch = "main" },
+        -- { "tversteeg/registers.nvim", branch = "main" },
 
         -- Java support
         -- { "nvim-java/lua-async-await", cond = load_lsp_plugins },
@@ -448,6 +465,7 @@ require("lazy").setup({
         { "MunifTanjim/nui.nvim" },
         {
             "nvim-treesitter/nvim-treesitter",
+            branch = "main",
             build = ":TSUpdate",
             config = function()
                 local ok, tsconf = pcall(require, "nvim-treesitter.configs")
@@ -495,13 +513,7 @@ require("lazy").setup({
         { "kyazdani42/nvim-web-devicons" },
 
         -- Colorschemes
-        {
-            "ellisonleao/gruvbox.nvim",
-            priority = 1000,
-            config = true,
-            opts = ...,
-            cond = load_extra_colors,
-        },
+        { "ellisonleao/gruvbox.nvim", priority = 1000, config = true, opts = ..., cond = load_extra_colors },
         { "ishan9299/nvim-solarized-lua", cond = load_extra_colors },
         { "glepnir/zephyr-nvim", cond = load_extra_colors },
         { "Mofiqul/dracula.nvim", cond = load_extra_colors },
@@ -570,46 +582,14 @@ require("lazy").setup({
         { "stevearc/aerial.nvim" },
 
         -- CMP
-        {
-            "hrsh7th/nvim-cmp",
-            branch = "main",
-            cond = load_lsp_plugins,
-        },
-        {
-            "hrsh7th/cmp-nvim-lsp-signature-help",
-            branch = "main",
-            cond = load_lsp_plugins,
-        },
-        {
-            "hrsh7th/cmp-nvim-lsp",
-            branch = "main",
-            cond = load_lsp_plugins,
-        },
-        {
-            "hrsh7th/cmp-buffer",
-            branch = "main",
-            cond = load_lsp_plugins,
-        },
-        {
-            "hrsh7th/cmp-path",
-            branch = "main",
-            cond = load_lsp_plugins,
-        },
-        {
-            "hrsh7th/cmp-calc",
-            branch = "main",
-            cond = load_lsp_plugins,
-        },
-        {
-            "hrsh7th/cmp-cmdline",
-            branch = "main",
-            cond = load_lsp_plugins,
-        },
-        {
-            "hrsh7th/cmp-emoji",
-            branch = "main",
-            cond = load_lsp_plugins,
-        },
+        { "hrsh7th/nvim-cmp", branch = "main", cond = load_lsp_plugins },
+        { "hrsh7th/cmp-nvim-lsp-signature-help", branch = "main", cond = load_lsp_plugins },
+        { "hrsh7th/cmp-nvim-lsp", branch = "main", cond = load_lsp_plugins },
+        { "hrsh7th/cmp-buffer", branch = "main", cond = load_lsp_plugins },
+        { "hrsh7th/cmp-path", branch = "main", cond = load_lsp_plugins },
+        { "hrsh7th/cmp-calc", branch = "main", cond = load_lsp_plugins },
+        { "hrsh7th/cmp-cmdline", branch = "main", cond = load_lsp_plugins },
+        { "hrsh7th/cmp-emoji", branch = "main", cond = load_lsp_plugins },
         { "SergioRibera/cmp-dotenv", cond = load_lsp_plugins },
         { "andersevenrud/cmp-tmux", cond = load_lsp_plugins and vim.env.TMUX ~= nil },
         { "quangnguyen30192/cmp-nvim-ultisnips", cond = load_lsp_plugins },
@@ -634,17 +614,8 @@ require("lazy").setup({
         -- Search
         { "easymotion/vim-easymotion" },
         { "junegunn/vim-slash" },
-        {
-            "junegunn/fzf",
-            build = "fzf#install",
-            lazy = false,
-            cond = my_fuzzy_tool == "fzf",
-        },
-        {
-            "junegunn/fzf.vim",
-            lazy = false,
-            cond = my_fuzzy_tool == "fzf",
-        },
+        { "junegunn/fzf", build = "fzf#install", lazy = false, cond = my_fuzzy_tool == "fzf" },
+        { "junegunn/fzf.vim", lazy = false, cond = my_fuzzy_tool == "fzf" },
 
         -- Python
         { "raimon49/requirements.txt.vim" },
@@ -932,7 +903,7 @@ if load_lsp_plugins then
     -- local lsp_cap = vim.lsp.protocol.make_client_capabilities()
     -- lsp_cap.textDocument.foldingRange = { dynamicRegistration = false, lineFoldingOnly = true }
     -- lsp_cap.textDocument.completion.completionItem.snippetSupport = true
-    --
+
     local on_attach = function(client, bufnr)
         vim.api.nvim_set_option_value("omnifunc", "v:lua.vim.lsp.omnifunc", { buf = bufnr })
 
@@ -1043,19 +1014,8 @@ if load_lsp_plugins then
             end
 
             client.config.settings.Lua = vim.tbl_deep_extend("force", client.config.settings.Lua, {
-                runtime = {
-                    version = "LuaJIT",
-                    path = {
-                        "lua/?.lua",
-                        "lua/?/init.lua",
-                    },
-                },
-                workspace = {
-                    checkThirdParty = false,
-                    library = {
-                        vim.env.VIMRUNTIME,
-                    },
-                },
+                runtime = { version = "LuaJIT", path = { "lua/?.lua", "lua/?/init.lua" } },
+                workspace = { checkThirdParty = false, library = { vim.env.VIMRUNTIME } },
             })
         end,
         settings = {
@@ -1201,9 +1161,9 @@ if load_lsp_plugins then
     vim.keymap.set("n", "<leader>dl", dap.run_last, mopts)
 end
 
-if not vim.g.vscode and my_mode ~= "light" then
-    require("registers").setup({})
-end
+-- if not vim.g.vscode and my_mode ~= "light" then
+--     require("registers").setup({})
+-- end
 
 if load_lsp_plugins then
     cmp.setup({
@@ -1214,31 +1174,6 @@ if load_lsp_plugins then
     })
     cmp.setup.filetype({ "dap-repl", "dapui_watches", "dapui_hover" }, { sources = { { name = "dap" } } })
 end
-
--- require("noice").setup({
---     lsp = {
---         -- override markdown rendering so that **cmp** and other plugins use **Treesitter**
---         override = {
---             ["vim.lsp.util.convert_input_to_markdown_lines"] = true,
---             ["vim.lsp.util.stylize_markdown"] = true,
---             ["cmp.entry.get_documentation"] = true,
---         },
---     },
---     -- you can enable a preset for easier configuration
---     presets = {
---         bottom_search = true, -- use a classic bottom cmdline for search
---         command_palette = true, -- position the cmdline and popupmenu together
---         long_message_to_split = true, -- long messages will be sent to a split
---         inc_rename = false, -- enables an input dialog for inc-rename.nvim
---         lsp_doc_border = false, -- add a border to hover docs and signature help
---     },
---     routes = {
---         {
---             view = "notify",
---             filter = { event = "msg_showmode" },
---         },
---     },
--- })
 
 -- require("barbar").setup()
 
@@ -1368,8 +1303,12 @@ vim.keymap.set("n", "<leader>kd", ":TranslateNormal<CR>")
 vim.keymap.set("v", "<leader>kd", ":TranslateVisual<CR>")
 
 vim.api.nvim_create_user_command("CleanJdtls", function()
-    vim.fn.delete(vim.fn.expand("~/.cache/nvim/jdtls"), "rf")
-    vim.fn.delete(vim.fn.expand("~/.cache/jdtls"), "rf")
-    vim.fn.delete(vim.fn.expand("~/.local/share/jdtls"), "rf")
-    print("Deleted cache!")
+    local paths = {
+        vim.fn.stdpath("cache") .. "/jdtls",
+        vim.fn.stdpath("data") .. "/jdtls",
+    }
+    for _, path in ipairs(paths) do
+        vim.fn.delete(path, "rf")
+    end
+    print("Deleted JDTLS cache!")
 end, {})

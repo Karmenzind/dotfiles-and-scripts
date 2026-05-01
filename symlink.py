@@ -17,6 +17,7 @@ import sys
 if sys.version_info.major < 3:
     print("[✘] Python3 is required.")
 
+import os
 import argparse
 import datetime
 import getpass
@@ -93,7 +94,9 @@ if osname == "win":
             powershell_command = f"pwsh {ps_args} $PROFILE.AllUsersCurrentHost"
         else:
             powershell_command = f"pwsh {ps_args} $PROFILE"
-        result = subprocess.run(powershell_command, stdout=subprocess.PIPE, text=True, shell=True)
+        result = subprocess.run(
+            powershell_command, stdout=subprocess.PIPE, text=True, shell=True
+        )
         return result.stdout.strip()
 
     TO_SYNC.update(
@@ -108,7 +111,8 @@ if osname == "win":
         SRC_HOME / ".vim": HOME_DIR / "vimfiles",
         SRC_HOME / ".vimrc": HOME_DIR / "_vimrc",
         SRC_HOME / ".config/nvim": HOME_DIR / "AppData\\Local\\nvim",
-        SRC_HOME / ".config/alacritty/alacritty.toml": HOME_DIR / "AppData\\Roaming\\alacritty\\alacritty.toml",
+        SRC_HOME / ".config/alacritty/alacritty.toml": HOME_DIR
+        / "AppData\\Roaming\\alacritty\\alacritty.toml",
         SRC_HOME / ".config/alacritty/win.toml": HOME_DIR / ".alacritty_extra.toml",
         SRC_HOME / ".config/yazi/yazi.toml": APPDATA / "yazi\\config\\yazi.toml",
         Path("others/powershell/profile.ps1"): get_ps_profile_path(),
@@ -124,8 +128,10 @@ elif osname == "mac":
     )
     PATH_MAP = {
         SRC_HOME: HOME_DIR,
-        Path("others/powershell/profile.ps1"): HOME_DIR / ".config/powershell/profile.ps1",
-        SRC_HOME / ".config/alacritty/mac.toml": HOME_DIR / ".config/alacritty/extra.toml",
+        Path("others/powershell/profile.ps1"): HOME_DIR
+        / ".config/powershell/profile.ps1",
+        SRC_HOME / ".config/alacritty/mac.toml": HOME_DIR
+        / ".config/alacritty/extra.toml",
     }
 else:  # linux like
     TO_SYNC.update(
@@ -138,8 +144,10 @@ else:  # linux like
     PATH_MAP = {
         SRC_HOME: HOME_DIR,
         Path("local_bin"): Path("/usr/local/bin"),
-        Path("others/powershell/profile.ps1"): HOME_DIR / ".config/powershell/profile.ps1",
-        SRC_HOME / ".config/alacritty/linux.toml": HOME_DIR / ".config/alacritty/extra.toml",
+        Path("others/powershell/profile.ps1"): HOME_DIR
+        / ".config/powershell/profile.ps1",
+        SRC_HOME / ".config/alacritty/linux.toml": HOME_DIR
+        / ".config/alacritty/extra.toml",
         # Path("others/powershell/profile.ps1"): HOME_DIR / ".config/powershell/Microsoft.PowerShell_profile.ps1"
     }
 
@@ -181,6 +189,7 @@ GUI_PATTERNS = [
     "volumeicon",
     "xfce4",
 ]
+
 
 def ask(choices, msg="≫  continue?"):
     ans = None
@@ -249,7 +258,9 @@ def do_symlink(from_: Path, to_: Path):
 
     # A file can be a symlink as well as nonexisted on Win. Fuck Windows
     if os.path.islink(to_):
-        existed_link_to = os.path.realpath(to_) if sys.platform == "win32" else os.readlink(to_)
+        existed_link_to = (
+            os.path.realpath(to_) if sys.platform == "win32" else os.readlink(to_)
+        )
         if existed_link_to == str(from_):
             if args.delete:
                 os.remove(to_)
@@ -376,10 +387,18 @@ def main():
 
 
 if __name__ == "__main__":
-    parser = argparse.ArgumentParser(description="created symlinks for configuration files in this repo")
-    parser.add_argument("--fake", action="store_true", help="only preview what will happen")
-    parser.add_argument("-i", "--interactive", action="store_true", help="let me determine each file")
-    parser.add_argument("-d", "--delete", action="store_true", help="remove all symlink files")
+    parser = argparse.ArgumentParser(
+        description="created symlinks for configuration files in this repo"
+    )
+    parser.add_argument(
+        "--fake", action="store_true", help="only preview what will happen"
+    )
+    parser.add_argument(
+        "-i", "--interactive", action="store_true", help="let me determine each file"
+    )
+    parser.add_argument(
+        "-d", "--delete", action="store_true", help="remove all symlink files"
+    )
     parser.add_argument("--nogui", action="store_true", help="only for terminal apps")
     parser.add_argument("--vimonly", action="store_true", help="only for vim related")
     args = parser.parse_args()
