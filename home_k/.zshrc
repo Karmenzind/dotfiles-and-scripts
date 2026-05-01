@@ -148,10 +148,6 @@ fi
 [[ -e ~/.config/shrc.ext ]] && source ~/.config/shrc.ext && echo "Loaded ~/.config/shrc.ext"
 # eval "$(starship init zsh)" && echo "Loaded starship"
 
-export NVM_DIR="$HOME/.nvm"
-[ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"  # This loads nvm
-[ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"  # This loads nvm bash_completion
-
 # pnpm
 export PNPM_HOME="/home/qk/.local/share/pnpm"
 case ":$PATH:" in

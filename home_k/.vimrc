@@ -947,11 +947,11 @@ let g:SimpylFold_fold_import = 1
 
 " /* for vim-tmuxlike */
 " nmap <silent> <c-\> <Plug>(tmuxlike-prefix)
-nmap <c-\> <Plug>(tmuxlike-prefix)
-if s:is_hhkb
-  " XXX (k): <2022-06-23> <C-BS> didn't work
-  nmap  <Plug>(tmuxlike-prefix)
-endif
+"nmap <c-\> <Plug>(tmuxlike-prefix)
+"if s:is_hhkb
+"  " XXX (k): <2022-06-23> <C-BS> didn't work
+"  nmap  <Plug>(tmuxlike-prefix)
+"endif
 
 " /* for vim-plug */
 if Plugged('vim-plug')
