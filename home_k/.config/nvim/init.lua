@@ -637,7 +637,17 @@ require("lazy").setup({
         -- Enhancements
         { "SilverofLight/kd_translate.nvim", cond = my_mode ~= "light" },
         { "dahu/vim-lotr" },
-        -- { "karmenzind/vim-tmuxlike"},
+        {
+            "karmenzind/vim-tmuxlike",
+            config = function()
+                require("tmuxlike").setup({
+                    prefix = "<C-\\>",
+                    chooser = {
+                        font = "pagga",
+                    },
+                })
+            end,
+        },
         { "skywind3000/vim-quickui", cond = my_mode ~= "light" },
         { "skywind3000/asyncrun.vim", cond = my_mode ~= "light" },
 
