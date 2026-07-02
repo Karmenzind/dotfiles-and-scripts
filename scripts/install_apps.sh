@@ -13,6 +13,42 @@ fi
 # apps
 # --------------------------------------------
 
+_brew_formulae=(
+	bat
+	curl
+	fd
+	ffmpeg
+	fnm
+	fzf
+	gh
+	git
+	go
+	imagemagick
+	jq
+	lazygit
+	lua
+	neovim
+	ripgrep
+	shfmt
+	stylua
+	tmux
+	universal-ctags
+	uv
+	vim
+	wget
+	yazi
+	zoxide
+)
+
+_brew_casks=(
+	alacritty
+	bitwarden
+	google-chrome
+	powershell
+	spotify
+	visual-studio-code
+)
+
 _basic=(
 	#vim # replace with gvim in graphical env
 	arch-install-scripts
@@ -22,6 +58,7 @@ _basic=(
 	git
 	tar
 	tmux
+	unzip
 	wget
 )
 
@@ -64,17 +101,11 @@ _cli=(
 	fzf
 	github-cli
 	go
-	miniconda
 	neofetch
 	nginx
-	nodejs
-	npm
 	p7zip
 	plocate
-	python-isort
-	python-pip
 	python-pylint
-	python-pynvim
 	python-rope
 	python3
 	screenfetch
@@ -198,6 +229,17 @@ install_nerd_fonts() {
 	echo_run "Install monaco nerd font? (Y/n)"
 	! check_yn && return
 
+	if is_macos; then
+		local target_dir="$HOME/Library/Fonts"
+		local _tmp='/tmp/monaco-nerd-fonts'
+		mkdir -p "$target_dir"
+		ls "${target_dir}"/*Monaco* >/dev/null 2>&1 && echo_run 'Monaco Nerd Fonts already exists.' && return
+		git clone https://github.com/Karmenzind/monaco-nerd-fonts "$_tmp"
+		cp "$_tmp"/fonts/*Mac* "$target_dir"/ 2>/dev/null || cp "$_tmp"/fonts/*tf "$target_dir"/
+		rm -rf "$_tmp"
+		return
+	fi
+
 	local target_dir='/usr/share/fonts/nerd'
 	local _tmp='/tmp/monaco-nerd-fonts'
 	sudo mkdir -p $target_dir
@@ -209,6 +251,8 @@ install_nerd_fonts() {
 }
 
 install_ranger_and_plugins() {
+	is_macos && echo_warn "Ranger plugin setup is skipped on macOS." && return
+
 	echo_run "Install ranger and plugins? (Y/n)"
 	! check_yn && return
 
@@ -233,8 +277,6 @@ install_wudao_dict() {
 	echo_run "Install wudao-dict? (Y/n)"
 	! check_yn && return
 
-	command -v 'pip' >/dev/null 2>&1 || do_install 'python-pip'
-	# sudo pip install bs4 lxml requests
 	local target_dir="$HOME/.local/wudao-dict"
 	if [[ -d "$target_dir" ]]; then
 		echo_run "Delete ${target_dir} and continue?"
@@ -244,6 +286,86 @@ install_wudao_dict() {
 	git clone https://github.com/chestnutheng/wudao-dict $target_dir --depth=1
 	cd $target_dir/wudao-dict
 	sudo bash setup.sh
+}
+
+install_fnm() {
+	command -v fnm >/dev/null && echo_ok "fnm is already installed" && return
+
+	echo_run "Installing fnm..."
+	if is_macos || [[ $distro == arch ]]; then
+		do_install fnm
+	else
+		curl -fsSL https://fnm.vercel.app/install | bash
+		export PATH="$HOME/.local/share/fnm:$PATH"
+	fi
+}
+
+setup_node_pnpm() {
+	echo_run "Install Node.js LTS with fnm and enable pnpm with corepack? (Y/n)"
+	! check_yn && return
+
+	install_fnm
+	if ! command -v fnm >/dev/null; then
+		echo_warn "fnm is not available. Open a new shell and rerun this step."
+		return
+	fi
+
+	eval "$(fnm env --use-on-cd --shell bash)"
+	fnm install --lts
+	fnm default lts-latest
+	fnm use lts-latest
+
+	if command -v corepack >/dev/null; then
+		corepack enable
+		corepack prepare pnpm@latest --activate
+		export PNPM_HOME="${PNPM_HOME:-$HOME/.local/share/pnpm}"
+		case ":$PATH:" in
+			*":$PNPM_HOME:"*) ;;
+			*) export PATH="$PNPM_HOME:$PATH" ;;
+		esac
+		echo_ok "pnpm is managed by corepack."
+	else
+		echo_warn "corepack is not available. Check the active Node.js installation."
+	fi
+}
+
+install_uv() {
+	command -v uv >/dev/null && echo_ok "uv is already installed" && return
+
+	echo_run "Installing uv..."
+	if is_macos || [[ $distro == arch ]]; then
+		do_install uv
+	else
+		curl -LsSf https://astral.sh/uv/install.sh | sh
+		export PATH="$HOME/.local/bin:$PATH"
+	fi
+}
+
+install_python_tools() {
+	echo_run "Install Python CLI tools with uv tool? (Y/n)"
+	! check_yn && return
+
+	install_uv
+	if ! command -v uv >/dev/null; then
+		echo_warn "uv is not available. Open a new shell and rerun this step."
+		return
+	fi
+
+	local uv_tools=(
+		ipython
+		debugpy
+		black
+		isort
+		autoflake
+		ruff
+		pgcli
+		markdown-live-preview
+	)
+
+	for tool in "${uv_tools[@]}"; do
+		echo_run "Installing uv tool: $tool"
+		uv tool install "$tool"
+	done
 }
 
 install_officials() {
@@ -276,6 +398,8 @@ install_aurs() {
 }
 
 install_fcitx() {
+	is_macos && return
+
 	aur_helper=yay
 	echo_run "Install fcitx and Chinese input method? (Y/n)"
 	! check_yn && return
@@ -324,14 +448,17 @@ install_zsh_stuff() {
 
 	install_ohmyzsh
 	install_zsh_plugin zsh-autosuggestions https://github.com/zsh-users/zsh-autosuggestions
-	install_zsh_plugin conda-zsh-completion https://github.com/esc/conda-zsh-completion
 	install_zsh_plugin zsh-syntax-highlighting https://github.com/zsh-users/zsh-syntax-highlighting.git
 
-    mkdir -p $ZSH_CUSTOM/plugins/poetry
-    poetry completions zsh > $ZSH_CUSTOM/plugins/poetry/_poetry
+	if command -v poetry >/dev/null; then
+		mkdir -p $ZSH_CUSTOM/plugins/poetry
+		poetry completions zsh > $ZSH_CUSTOM/plugins/poetry/_poetry
+	fi
 }
 
 setup_bluetooth() {
+	is_macos && return
+
 	echo_run "Setup bluetooth? (Y/n)"
 	! check_yn && return
 
@@ -350,6 +477,8 @@ setup_pwsh() {
 
     if command -v pwsh; then
         echo_ok "pwsh is already installed"
+    elif is_macos; then
+        do_install --cask powershell
     elif [[ $distro == arch ]]; then
         auri powershell-bin
         auri oh-my-posh-bin
@@ -369,18 +498,26 @@ install_apt_recommandations() {
 
 	# basic
 	! [[ -e /etc/apt/sources.list.d/neovim-ppa-ubuntu-unstable-jammy.list ]] && sudo add-apt-repository ppa:neovim-ppa/unstable
-	apti git python3 python3-pip vim neovim tmux command-not-found wget curl unzip
+	apti git python3 vim neovim tmux command-not-found wget curl unzip
 	# apti golang
 
 	# tools
 	apti ripgrep fzf axel universal-ctags jq httpie
 	! is_wsl && apti docker
+}
 
-	! [[ -e /etc/apt/sources.list/nodesource.list ]] && curl -fsSL https://deb.nodesource.com/setup_21.x | sudo -E bash -
-	apti nodejs npm
+install_brew_recommendations() {
+	echo_run "Install recommendations via Homebrew? (Y/n)"
+	! check_yn && return
 
-	# (n)vim related
-	apti python3-neovim
+	if ! command -v brew >/dev/null; then
+		echo_warn "Homebrew is not installed. Install it from https://brew.sh/ and rerun this script."
+		return
+	fi
+
+	brew update
+	brew install ${_brew_formulae[*]}
+	brew install --cask ${_brew_casks[*]}
 }
 
 install_dnf_recommentations() {
@@ -393,7 +530,9 @@ setup_fish() {
 
 # --------------------------------------------
 
-if [[ $distro == arch ]]; then
+if is_macos; then
+	install_brew_recommendations
+elif [[ $distro == arch ]]; then
 	install_officials
 	install_aurs
 	install_fcitx
@@ -410,6 +549,8 @@ fi
 # --------------------------------------------
 
 install_ranger_and_plugins
+setup_node_pnpm
+install_python_tools
 install_zsh_stuff
 setup_pwsh
 

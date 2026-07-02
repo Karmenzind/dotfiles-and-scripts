@@ -22,11 +22,15 @@ function Invoke-ActiveEnvs {
         Write-Host "☕ .sdkmanrc detected." -ForegroundColor Yellow
     }
 
-    # 3. NVM (Node.js)
+    # 3. fnm (Node.js)
     if (Test-Path ".nvmrc") {
         $nodeVersion = (Get-Content ".nvmrc" -Raw).Trim()
         Write-Host "🟢 .nvmrc detected ($nodeVersion)..." -ForegroundColor Green
-        nvm use $nodeVersion
+        if (Get-Command "fnm" -ErrorAction SilentlyContinue) {
+            fnm use $nodeVersion
+        } else {
+            Write-Warning "fnm is not installed. Run install.ps1 to set up Node.js."
+        }
     }
 
     # 4. Ruby (rbenv)
@@ -176,29 +180,14 @@ Set-Alias pj Project-Jump
 Set-Alias pjo Project-JumpOpen
 
 
-$condaRoot = "$HOME\miniconda3"
-if (Test-Path $condaRoot) {
-    # __setupConda
-    Import-Module $condaRoot\shell\condabin\conda-hook.ps1
-    # Set-Alias -Name conda -Value $HOME\miniconda3\condabin\conda.bat
-}
-
-function __installMyModules {
-    Install-Module -Name z –Force
-    Install-Module -Name Terminal-Icons -Repository PSGallery -Force
-    Install-Module PSReadline -Force
-    Install-Module PsFZF -Force
-    Import-Module PSCompletions
-}
-
 function __loadModule {
     param ([string] $Name)
-    $m = (Get-Module $Name)
+    $m = (Get-Module -ListAvailable -Name $Name)
     if ($null -eq $m) {
-        Write-Warning "$Name not found. Run __installMyModules first."
+        Write-Warning "$Name not found. Run install.ps1 to set up PowerShell modules."
         return
     }
-    Import-Module $m
+    Import-Module $Name
 }
 
 Set-Alias ll ls
@@ -275,12 +264,6 @@ function __setupFzf{
     }
 }
 
-# Import the Chocolatey Profile that contains the necessary code to enable tab-completions to function for `choco`.
-# $ChocolateyProfile = "$env:ChocolateyInstall\helpers\chocolateyProfile.psm1"
-# if (Test-Path($ChocolateyProfile)) {
-#     __loadModule "$ChocolateyProfile"
-# }
-
 function y {
     $tmp = (New-TemporaryFile).FullName
     yazi $args --cwd-file="$tmp"
@@ -311,58 +294,61 @@ function __setupProxy {
 
 # Invoke-Expression (&starship init powershell)
 # -----------------------------------------------------------------------------
-Import-Module PSReadLine
+function __setupPSReadLine {
+    __loadModule PSReadLine
+    if (-not (Get-Module PSReadLine)) {
+        return
+    }
 
-Set-PSReadLineOption -PredictionSource History
-Set-PSReadLineOption -PredictionViewStyle ListView
-Set-PSReadlineOption -BellStyle None
+    try {
+        Set-PSReadLineOption -PredictionSource History
+        Set-PSReadLineOption -PredictionViewStyle ListView
+        Set-PSReadlineOption -BellStyle None
 
-Set-PSReadLineOption -EditMode Vi
-# Set-PSReadLineKeyHandler -Key Tab -Function MenuComplete -ViMode Insert
+        Set-PSReadLineOption -EditMode Vi
+        # Set-PSReadLineKeyHandler -Key Tab -Function MenuComplete -ViMode Insert
 
-# 4. 绑定 Ctrl+[ 进入 Normal 模式 建议同时绑定 "`e" (Esc 字符) 以确保终端兼容性
-Set-PSReadLineKeyHandler -Key "Ctrl+[" -ScriptBlock { [Microsoft.PowerShell.PSConsoleReadLine]::ViCommandMode() } -ViMode Insert
-Set-PSReadLineKeyHandler -Key "`e"      -ScriptBlock { [Microsoft.PowerShell.PSConsoleReadLine]::ViCommandMode() } -ViMode Insert
+        # Keep Ctrl+[ and ESC reliable for entering Vi command mode.
+        Set-PSReadLineKeyHandler -Key "Ctrl+[" -ScriptBlock { [Microsoft.PowerShell.PSConsoleReadLine]::ViCommandMode() } -ViMode Insert
+        Set-PSReadLineKeyHandler -Key "`e"      -ScriptBlock { [Microsoft.PowerShell.PSConsoleReadLine]::ViCommandMode() } -ViMode Insert
 
-# 5. 定义 Vi 模式指示器 (修正了参数类型以适配 7.5.4)
-Set-PSReadLineOption -ViModeIndicator Script -ViModeChangeHandler {
-    param($Mode) # 移除具体类型声明，让其自动推断，避免 [PSReadLineMode] 报错
-    switch ($Mode) {
-        'Command' {
-            $Host.UI.RawUI.CursorSize = 100 
-            Write-Host -NoNewline "`e[2 q" 
+        Set-PSReadLineOption -ViModeIndicator Script -ViModeChangeHandler {
+            param($Mode)
+            switch ($Mode) {
+                'Command' {
+                    $Host.UI.RawUI.CursorSize = 100
+                    Write-Host -NoNewline "`e[2 q"
+                }
+                'Insert' {
+                    $Host.UI.RawUI.CursorSize = 25
+                    Write-Host -NoNewline "`e[6 q"
+                }
+            }
         }
-        'Insert' {
-            $Host.UI.RawUI.CursorSize = 25
-            Write-Host -NoNewline "`e[6 q" 
-        }
+
+        # Keep common Emacs keys available while in Vi insert mode.
+        Set-PSReadLineKeyHandler -Key "Ctrl+a" -Function BeginningOfLine -ViMode Insert
+        Set-PSReadLineKeyHandler -Key "Ctrl+e" -Function EndOfLine -ViMode Insert
+        Set-PSReadLineKeyHandler -Key "Ctrl+b" -Function BackwardChar -ViMode Insert
+        Set-PSReadLineKeyHandler -Key "Ctrl+f" -Function ForwardChar -ViMode Insert
+        Set-PSReadLineKeyHandler -Key "Ctrl+k" -Function ForwardDeleteLine -ViMode Insert
+        Set-PSReadLineKeyHandler -Key "Ctrl+u" -Function BackwardDeleteLine -ViMode Insert
+        Set-PSReadLineKeyHandler -Key "Ctrl+w" -Function BackwardKillWord -ViMode Insert
+
+        Set-PSReadLineKeyHandler -Key Escape -ScriptBlock {
+            [Microsoft.PowerShell.PSConsoleReadLine]::ViCommandMode()
+        } -ViMode Insert
+    } catch {
+        Write-Debug "PSReadLine setup skipped: $($_.Exception.Message)"
     }
 }
 
-# --- 在 Vi 插入模式下保留 Emacs 常用快捷键 ---
-Set-PSReadLineKeyHandler -Key "Ctrl+a" -Function BeginningOfLine -ViMode Insert
-Set-PSReadLineKeyHandler -Key "Ctrl+e" -Function EndOfLine -ViMode Insert
-Set-PSReadLineKeyHandler -Key "Ctrl+b" -Function BackwardChar -ViMode Insert
-Set-PSReadLineKeyHandler -Key "Ctrl+f" -Function ForwardChar -ViMode Insert
-Set-PSReadLineKeyHandler -Key "Ctrl+k" -Function ForwardDeleteLine -ViMode Insert
-Set-PSReadLineKeyHandler -Key "Ctrl+u" -Function BackwardDeleteLine -ViMode Insert
-Set-PSReadLineKeyHandler -Key "Ctrl+w" -Function BackwardKillWord -ViMode Insert
-
-Set-PSReadLineKeyHandler -Key Escape -ScriptBlock {
-    [Microsoft.PowerShell.PSConsoleReadLine]::ViCommandMode()
-} -ViMode Insert
-
 # -----------------------------------------------------------------------------
 
-Import-Module Terminal-Icons
-Import-Module PSCompletions
+__loadModule Terminal-Icons
+__loadModule PSCompletions
 
-function __setupPsc {
-    psc add choco python jq wsl uv winget git nvm oh-my-posh node pnpm 7z
-    psc config language en-US
-}
-
-
+__setupPSReadLine
 __setupOhmyposh
 __setupFzf
 

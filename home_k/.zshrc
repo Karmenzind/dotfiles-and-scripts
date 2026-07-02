@@ -118,7 +118,6 @@ plugins=(
   'pj'
   'python'
   'poetry'
-  'conda-zsh-completion'  # install manually
 
   # 'redis-cli'
   'rsync'
@@ -139,7 +138,6 @@ plugins=(
 
 source $ZSH/oh-my-zsh.sh
 
-# for conda-zsh-completion
 if ! [[ "root" == "$USER" ]]; then
     autoload -U compinit && compinit
 fi
@@ -151,7 +149,7 @@ fi
 # pnpm
 export PNPM_HOME="$HOME/.local/share/pnpm"
 case ":$PATH:" in
-  *":$PNPM_HOME/bin:"*) ;;
-  *) export PATH="$PNPM_HOME/bin:$PATH" ;;
+  *":$PNPM_HOME:"*) ;;
+  *) export PATH="$PNPM_HOME:$PATH" ;;
 esac
 # pnpm end

@@ -5,15 +5,13 @@
 cd $(dirname $0)
 repo_dir=$PWD
 
-distro=$(cat /etc/os-release | grep '^ID=' | sed 's/ID=//')
-
 source ./scripts/utils/commonrc
 
 echo_run "What do you want to do? (default=1)"
 
 cat <<EOF
 
-1)   install recommended apps
+1)   install recommended apps and dev toolchains
 2)   setup Vim/Neovim and configuration files
 3)   symlink all configuration files
 EOF

@@ -17,11 +17,6 @@ set -x EDITOR vim
 set -x PAGER 'less -F'
 set -x VISUAL $EDITOR
 
-# pipx
-set -x PIPX_HOME /opt/pipx
-set -x PIPX_BIN_DIR /usr/local/bin
-set -x PIPX_MAN_DIR /usr/local/share/man
-
 # fzf
 set -x FZF_TMUX 1
 set -x FZF_TMUX_OPTS '-p 80%,60%'

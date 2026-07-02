@@ -159,8 +159,8 @@ bash scripts/install_apps.sh
 
 #### Windows
 
-```bash
-./dotfiles-and-scripts/scripts/setup.ps1
+```powershell
+./dotfiles-and-scripts/install.ps1
 ```
 
 ## :toolbox: toolbox scripts

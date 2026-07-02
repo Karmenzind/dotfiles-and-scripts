@@ -4,7 +4,14 @@
 
 aur_helper=yay
 
-distro=$(cat /etc/os-release | grep '^ID=' | sed 's/ID=//')
+os_name=$(uname -s)
+if [[ $os_name == Darwin ]]; then
+	distro=macos
+elif [[ -r /etc/os-release ]]; then
+	distro=$(grep '^ID=' /etc/os-release | sed 's/ID=//' | tr -d '"')
+else
+	distro=unknown
+fi
 
 bold='\033[1m'
 origin='\033[0m'
@@ -78,7 +85,9 @@ put_cutoff() {
 }
 
 do_install() {
-	if [[ $distro == arch ]]; then
+	if [[ $distro == macos ]]; then
+		brew install "$@"
+	elif [[ $distro == arch ]]; then
 		sudo pacman -S --needed --noconfirm "$@"
 	else
 		if command -V apt-get >/dev/null; then
@@ -92,6 +101,10 @@ do_install() {
 
 is_wsl() {
 	test -f /proc/sys/fs/binfmt_misc/WSLInterop
+}
+
+is_macos() {
+	[[ $distro == macos ]]
 }
 
 apti() {
@@ -194,15 +207,6 @@ valid_by_bc() {
 	local res
 	res=$(bc <<<"$1")
 	((res == 1)) || return 255
-}
-
-setup_pipx() {
-	do_install pipx
-	pipx ensurepath
-}
-
-pipx_install() {
-	sudo PIPX_HOME=/opt/pipx PIPX_BIN_DIR=/usr/local/bin PIPX_MAN_DIR=/usr/local/share/man pipx install "$@"
 }
 
 __loaded_commonrc=1

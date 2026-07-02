@@ -15,11 +15,13 @@ install_n_vim() {
 
 	if [[ $distro == arch ]]; then
 		do_install vim neovim curl
+	elif is_macos; then
+		do_install vim neovim curl
 	elif command -v apt >/dev/null; then
 		! [[ -e /etc/apt/sources.list.d/neovim-ppa-ubuntu-unstable-jammy.list ]] && sudo add-apt-repository ppa:jonathonf/vim
 		apti vim neovim curl
 	else
-		echo_warn "No pacman/apt. You should manually install vim/nvim."
+		echo_warn "No supported package manager. You should manually install vim/nvim."
 	fi
 
 	local plugpath=~/.vim/autoload/plug.vim
@@ -33,59 +35,62 @@ install_vim_specs() {
 	echo_run "Install related apps (linters, fixers, etc.) for (n)vim? (Y/n)"
 	! check_yn && return
 
-	# linters
-	sudo npm i -g sqlint
-
-	# fixers
-	sudo npm i -g prettier pg-formatter gofmt clang-format eslint
+	if command -v pnpm >/dev/null; then
+		echo_run "Installing JavaScript/SQL tools with pnpm..."
+		pnpm add -g prettier pg-formatter eslint sqlint
+	else
+		echo_warn "pnpm is not available. Run scripts/install_apps.sh to enable pnpm through corepack."
+	fi
 
 	if [[ $distro == "arch" ]]; then
         # FIXME
 		$aur_helper -S -v --needed --noconfirm ${_required_by_vim_aur[*]}
+	elif is_macos; then
+		do_install shfmt clang-format
 	else
-		do_install shfmt
+		do_install shfmt clang-format
 	fi
 
     if [[ $distro == "arch" ]]; then
 		do_install stylua
+	elif is_macos; then
+		do_install stylua
 	elif command -v cargo >/dev/null; then
-		sudo cargo install stylua
+		cargo install stylua
     else
-		sudo npm i -g @johnnymorganz/stylua-bin
+		echo_warn "stylua is not available. Install Rust/Cargo or install stylua manually."
 	fi
 
 	if command -v go >/dev/null; then
 		echo_run "Installing golang fixers..."
-		sudo go install golang.org/x/tools/cmd/goimports@latest
+		go install golang.org/x/tools/cmd/goimports@latest
 	else
 		echo_run "Golang is not installed. Ignored go pkgs."
 	fi
 
-	cmd_not_found pipx && setup_pipx
-	local pipx_pkgs=(
+	if ! command -v uv >/dev/null; then
+		echo_warn "uv is not available. Run scripts/install_apps.sh to install Python CLI tools."
+		return
+	fi
+
+	local uv_tools=(
 		isort
 		autopep8
 		autoflake
 		black
 		pydocstyle
 		flake8
-		markdown_live_preview
+		markdown-live-preview
 	)
 
-	for pi in ${pipx_pkgs[*]}; do
-		if command -v $pi >/dev/null; then
-			echo_run "Ignored existed: $pi"
+	for tool in ${uv_tools[*]}; do
+		if command -v $tool >/dev/null; then
+			echo_run "Ignored existed: $tool"
 		else
-			echo_run "Installing python package $pi"
-			pipx_install $pi
+			echo_run "Installing uv tool: $tool"
+			uv tool install $tool
 		fi
 	done
-    
-    # for neovim
-    if [[ $distro == "arch" ]]; then
-		do_install python-pynvim
-    # TODO else
-    fi
 }
 
 symlink_files() {
