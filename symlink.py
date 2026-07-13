@@ -63,7 +63,7 @@ LINE = "\n" + "-" * 44 + "\n"
 TO_SYNC: Set[Path] = {
     SRC_HOME / ".vim",
     SRC_HOME / ".vimrc",
-    SRC_HOME / ".condarc",
+    # SRC_HOME / ".condarc",
     SRC_HOME / ".gitconfig",
     SRC_HOME / ".editorconfig",
     SRC_HOME / "isort.cfg",
@@ -121,7 +121,7 @@ elif osname == "mac":
     TO_SYNC.update(
         [
             SRC_HOME / ".config/fish",
-            SRC_HOME / ".config/ranger",
+            # SRC_HOME / ".config/ranger",
             SRC_HOME / ".config/mypy",
             SRC_HOME / ".config/alacritty/mac.toml",
         ]

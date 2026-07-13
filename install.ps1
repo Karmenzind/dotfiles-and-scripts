@@ -1,7 +1,7 @@
 ﻿# Github: https://github.com/Karmenzind/dotfiles-and-scripts
 
 param(
-    [ValidateSet("1", "2", "3", "4", "q")]
+    [ValidateSet("1", "2", "3", "4", "5", "q")]
     [string]$Action
 )
 
@@ -544,6 +544,13 @@ function Configure-DefaultsOnly {
     Set-MediaDefaultsBestEffort
 }
 
+function Install-SystemHealthMonitorTask {
+    Write-Title "System health monitor"
+    $installer = Join-Path $script:RepoRoot "scripts\windows\system-health\Install-SystemHealthMonitor.ps1"
+    & $installer -SkipElevation
+    Write-Ok "System health monitor installed or updated."
+}
+
 function Show-Menu {
     Write-Host ""
     Write-Host "What do you want to do? (default: 1)" -ForegroundColor Cyan
@@ -552,6 +559,7 @@ function Show-Menu {
     Write-Host "2) 🎧 Install personal/media environment"
     Write-Host "3) 🧰 Install common baseline apps only"
     Write-Host "4) ⚙️  Configure defaults only"
+    Write-Host "5) 🩺 Install/update system health monitor"
     Write-Host "q) Quit"
     Write-Host ""
 }
@@ -573,7 +581,7 @@ function Invoke-Main {
         $answer = "1"
     }
 
-    if (($answer -ne "q") -and ($answer -in @("1", "2", "3", "4")) -and (Invoke-SelfElevated -SelectedAction $answer)) {
+    if (($answer -ne "q") -and ($answer -in @("1", "2", "3", "4", "5")) -and (Invoke-SelfElevated -SelectedAction $answer)) {
         return
     }
 
@@ -582,6 +590,7 @@ function Invoke-Main {
         "2" { Install-PersonalMediaEnvironment }
         "3" { Install-CommonBaseline }
         "4" { Configure-DefaultsOnly }
+        "5" { Install-SystemHealthMonitorTask }
         "q" { Write-Warn "No action selected." }
         default { Write-Fail "Invalid option: $answer" }
     }

@@ -1,4 +1,4 @@
-#! /usr/bin/env bash
+#!/usr/bin/env pwsh
 # Github: https://github.com/Karmenzind/dotfiles-and-scripts
 
 $psVersion = $PSVersionTable.PSVersion.Major
@@ -8,66 +8,111 @@ if ($psVersion -lt 7) {
 }
 
 $env:EDITOR = "nvim.exe"
+$script:ActiveNodeVersion = $null
+$script:ActiveRubyVersion = $null
 
 # -----------------------------------------------------------------------------
+function Get-NodeVersionConfig {
+    if (Test-Path -LiteralPath ".node-version") {
+        return (Get-Content -LiteralPath ".node-version" -Raw).Trim()
+    }
+
+    if (Test-Path -LiteralPath ".nvmrc") {
+        return (Get-Content -LiteralPath ".nvmrc" -Raw).Trim()
+    }
+
+    return $null
+}
+
 function Invoke-ActiveEnvs {
     # 1. Python (.venv) - 检查目录是否存在
-    if (Test-Path ".venv\Scripts\Activate.ps1") {
-        Write-Host "🐍 Activating Python .venv ..." -ForegroundColor Cyan
-        & ".\.venv\Scripts\Activate.ps1"
+    $venvActivate = ".venv\Scripts\Activate.ps1"
+    if (Test-Path -LiteralPath $venvActivate) {
+        $venvPath = Join-Path $PWD ".venv"
+        if ($env:VIRTUAL_ENV -ne $venvPath) {
+            Write-Host "🐍 Activating Python .venv ..." -ForegroundColor Cyan
+            & ".\$venvActivate"
+        }
     }
 
-    # 2. SDKMAN (针对 Windows 的提示)
-    if (Test-Path ".sdkmanrc") {
-        Write-Host "☕ .sdkmanrc detected." -ForegroundColor Yellow
-    }
+    # # 2. SDKMAN (针对 Windows 的提示)
+    # if (Test-Path ".sdkmanrc") {
+    #     Write-Host "☕ .sdkmanrc detected but sdkman is not supported." -ForegroundColor Yellow
+    # }
 
     # 3. fnm (Node.js)
-    if (Test-Path ".nvmrc") {
-        $nodeVersion = (Get-Content ".nvmrc" -Raw).Trim()
-        Write-Host "🟢 .nvmrc detected ($nodeVersion)..." -ForegroundColor Green
+    $nodeVersion = Get-NodeVersionConfig
+    if ($null -ne $nodeVersion) {
         if (Get-Command "fnm" -ErrorAction SilentlyContinue) {
-            fnm use $nodeVersion
+            if ($nodeVersion) {
+                if ($script:ActiveNodeVersion -ne $nodeVersion) {
+                    Write-Host "🟢 Node version detected ($nodeVersion)..." -ForegroundColor Green
+                    fnm use $nodeVersion
+                    if ($LASTEXITCODE -eq 0) {
+                        $script:ActiveNodeVersion = $nodeVersion
+                    }
+                }
+            } else {
+                Write-Warning "Node version file is empty. Skipping fnm use."
+            }
         } else {
             Write-Warning "fnm is not installed. Run install.ps1 to set up Node.js."
         }
     }
 
     # 4. Ruby (rbenv)
-    if (Test-Path ".ruby-version") {
-        $rubyVersion = (Get-Content ".ruby-version" -Raw).Trim()
-        Write-Host "💎 .ruby-version detected ($rubyVersion) ..." -ForegroundColor Magenta
-        if (Get-Command "rbenv" -ErrorAction SilentlyContinue) {
-            rbenv shell $rubyVersion
+    if (Test-Path -LiteralPath ".ruby-version") {
+        $rubyVersion = (Get-Content -LiteralPath ".ruby-version" -Raw).Trim()
+        if ($rubyVersion -and $script:ActiveRubyVersion -ne $rubyVersion) {
+            Write-Host "💎 .ruby-version detected ($rubyVersion) ..." -ForegroundColor Magenta
+            if (Get-Command "rbenv" -ErrorAction SilentlyContinue) {
+                rbenv shell $rubyVersion
+                if ($LASTEXITCODE -eq 0) {
+                    $script:ActiveRubyVersion = $rubyVersion
+                }
+            }
         }
     }
 }
 
 function Set-Location-With-Env {
+    [CmdletBinding(DefaultParameterSetName = "Path")]
     param(
-        [Parameter(ValueFromRemainingArguments=$true)]
-        $PathArgs
+        [Parameter(Position = 0, ValueFromRemainingArguments = $true, ParameterSetName = "Path")]
+        [string[]] $PathArgs,
+        [Parameter(Mandatory = $true, ParameterSetName = "LiteralPath")]
+        [string] $LiteralPath
     )
-    
+
     # 将参数数组合并为一个字符串（处理空格路径）
-    $ActualPath = if ($PathArgs) { $PathArgs -join " " } else { $Home }
+    $ActualPath = if ($PSCmdlet.ParameterSetName -eq "LiteralPath") {
+        $LiteralPath
+    } elseif ($PathArgs) {
+        $PathArgs -join " "
+    } else {
+        $Home
+    }
 
     # 执行跳转
     # 使用 Try/Catch 捕获路径不存在的情况，防止死循环或报错
     try {
-        Microsoft.PowerShell.Management\Set-Location -Path $ActualPath
+        if ($PSCmdlet.ParameterSetName -eq "LiteralPath") {
+            Microsoft.PowerShell.Management\Set-Location -LiteralPath $ActualPath
+        } else {
+            Microsoft.PowerShell.Management\Set-Location -Path $ActualPath
+        }
     } catch {
         Write-Error $_
         return
     }
-    
+
     # 触发环境检测
     Invoke-ActiveEnvs
 }
 
 # 重新绑定别名
-if (Get-Alias -Name cd -ErrorAction SilentlyContinue) { 
-    Remove-Item Alias:cd -Force 
+if (Get-Alias -Name cd -ErrorAction SilentlyContinue) {
+    Remove-Item Alias:cd -Force
 }
 Set-Alias cd Set-Location-With-Env -Option AllScope
 
@@ -86,44 +131,73 @@ function Check-PJRootNotSet {
     ($env:PROJECT_PATHS -eq "") -or ($null -eq $env:PROJECT_PATHS)
 }
 
-Class ProjectNames : System.Management.Automation.IValidateSetValuesGenerator {
-    [string[]] GetValidValues() {
-        $counter = @{}
-        if (Check-PJRootNotSet){
-            Write-Warning "env:PROJECT_PATHS is not set"
-            return @()
-        }
-        $roots = $env:PROJECT_PATHS -split ';'
-        $projects = ForEach ($parent in $roots) {
-            If (Test-Path $parent) {
-                foreach ( $Item in (Get-ChildItem $parent ) ) {
-                    if (Test-Path -PathType Container $Item) {
-                        $Leaf = Split-Path $Item -Leaf
-                        $counter[$Leaf] += 1
-                        [PsCustomObject]@{ Leaf = $Leaf; Parent = $parent }
-                    }
+$script:ProjectCacheKey = $null
+$script:ProjectCache = $null
+
+function Clear-ProjectCache {
+    $script:ProjectCacheKey = $null
+    $script:ProjectCache = $null
+}
+
+function Get-ProjectEntries {
+    if (Check-PJRootNotSet) {
+        Write-Warning "env:PROJECT_PATHS is not set"
+        return @()
+    }
+
+    $cacheKey = $env:PROJECT_PATHS
+    if ($script:ProjectCache -and $script:ProjectCacheKey -eq $cacheKey) {
+        return $script:ProjectCache
+    }
+
+    $counter = @{}
+    $roots = $env:PROJECT_PATHS -split ';'
+    $projects = ForEach ($parent in $roots) {
+        if (Test-Path -LiteralPath $parent) {
+            foreach ($item in Get-ChildItem -LiteralPath $parent -Directory) {
+                $leaf = Split-Path $item -Leaf
+                $counter[$leaf] += 1
+                [PsCustomObject]@{
+                    Leaf = $leaf
+                    Parent = $parent
+                    Path = $item.FullName
                 }
             }
         }
-        if ($projects.Length -eq 0) {
+    }
+
+    $projects = @($projects | Sort-Object { $_.Leaf }, { $_.Parent })
+    $assigned = @{}
+    $entries = foreach ($project in $projects) {
+        $displayName = if ($counter[$project.Leaf] -eq 1) {
+            $project.Leaf
+        } else {
+            $assigned[$project.Leaf] += 1
+            "$($project.Leaf) -- $($assigned[$project.Leaf]) $($project.Parent)"
+        }
+
+        [PsCustomObject]@{
+            Name = $displayName
+            Leaf = $project.Leaf
+            Parent = $project.Parent
+            Path = $project.Path
+        }
+    }
+
+    $script:ProjectCacheKey = $cacheKey
+    $script:ProjectCache = @($entries)
+    return $script:ProjectCache
+}
+
+Class ProjectNames : System.Management.Automation.IValidateSetValuesGenerator {
+    [string[]] GetValidValues() {
+        $entries = @(Get-ProjectEntries)
+        if ($entries.Length -eq 0) {
             Write-Warning "No projects under $env:PROJECT_PATHS"
             return @()
         }
 
-        $projects = $projects | Sort-Object {$_.Leaf}
-
-        $assigned = @{}
-        $Names = [string[]] @()
-        for ($i = 0; $i -lt $projects.Length; $i++) {
-            $p = $projects[$i]
-            if ($counter[$p.Leaf] -eq 1) {
-                $Names += $p.Leaf
-            } else {
-                $assigned[$p.Leaf] += 1
-                $Names += "$($p.Leaf) -- $($assigned[$p.Leaf]) $($p.parent)"
-            }
-        }
-        return $Names
+        return [string[]] @($entries.Name)
     }
 }
 
@@ -134,33 +208,21 @@ function Project-Jump {
         [ValidateSet([ProjectNames])]
         [string] $Project
     )
-    if (Check-PJRootNotSet){
+    if (Check-PJRootNotSet) {
         Write-Warning "env:PROJECT_PATHS is not set"
         return
     }
-    $projectPaths = $env:PROJECT_PATHS -split ";"
 
-    [string] $path
-    if ($Project -match '(?<Leaf>.+) -- \d (?<Parent>.+)') {
-        # FIXME Why empty $Matches ????
-        $path = Join-Path $Matches.Parent $Matches.Leaf
-    } else {
-        ForEach ($parent in $projectPaths) {
-            $p = Join-Path $parent $Project
-            if (Test-Path $p) {
-                Set-Location-With-Env $p
-                return
-            }
-        }
-    }
-    if ($null -eq $path) {
+    $entry = @(Get-ProjectEntries) | Where-Object { $_.Name -eq $Project } | Select-Object -First 1
+    if (-not $entry) {
         Write-Warning "Not found: $Project"
+        return
     }
 
-    if (Test-Path $path) {
-        Set-Location-With-Env $path
+    if (Test-Path -LiteralPath $entry.Path) {
+        Set-Location-With-Env -LiteralPath $entry.Path
     } else {
-        Write-Warning "Invalid path: $path"
+        Write-Warning "Invalid path: $($entry.Path)"
     }
 }
 
@@ -170,10 +232,10 @@ function Project-JumpOpen() {
         [Parameter(Mandatory = $true)]
         [ValidateSet([ProjectNames])]
         [string] $Project,
-        [string] $Editor
+        [string] $Editor = $env:EDITOR
     )
     Project-Jump $Project
-    nvim
+    & $Editor
 }
 
 Set-Alias pj Project-Jump
@@ -184,7 +246,7 @@ function __loadModule {
     param ([string] $Name)
     $m = (Get-Module -ListAvailable -Name $Name)
     if ($null -eq $m) {
-        Write-Warning "$Name not found. Run install.ps1 to set up PowerShell modules."
+        Write-Verbose "$Name not found. Run install.ps1 to set up PowerShell modules."
         return
     }
     Import-Module $Name
@@ -203,17 +265,38 @@ if (Get-Command rg -ErrorAction SilentlyContinue) {
 
 function __setupOhmyposh {
     if (-Not (Get-Command oh-my-posh -ErrorAction SilentlyContinue)) {
-        Write-Warning "Oh-My-Posh not installed."
+        Write-Verbose "Oh-My-Posh not installed."
         return
     }
     $env:POSH_THEMES_PATH = ($IsLinux)? "/usr/share/oh-my-posh/themes/": "$HOME\AppData\Local\Programs\oh-my-posh\themes\"
-    $randomTheme = Get-ChildItem $env:POSH_THEMES_PATH | Get-Random
-    if ( $null -eq $randomTheme) {
-        Write-Warning "Failed to get posh theme."
-        oh-my-posh init pwsh | Invoke-Expression
+
+    $themeName = if ($env:POSH_THEME) { $env:POSH_THEME } else { "jandedobbeleer.omp.json" }
+    $themePath = if ([System.IO.Path]::IsPathRooted($themeName)) {
+        $themeName
     } else {
-        Write-Host ">> Posh theme: $(Split-Path $randomTheme -Leaf)"
-        oh-my-posh init pwsh --config "$randomTheme" | Invoke-Expression
+        Join-Path $env:POSH_THEMES_PATH $themeName
+    }
+
+    if (-not (Test-Path -LiteralPath $themePath)) {
+        $themePath = Get-ChildItem -LiteralPath $env:POSH_THEMES_PATH -Filter "*.omp.json" -File -ErrorAction SilentlyContinue |
+            Sort-Object Name |
+            Select-Object -First 1 -ExpandProperty FullName
+    }
+
+    if ($null -eq $themePath) {
+        Write-Verbose "Failed to get posh theme."
+        try {
+            oh-my-posh init pwsh | Invoke-Expression
+        } catch {
+            Write-Verbose "Oh-My-Posh setup skipped: $($_.Exception.Message)"
+        }
+    } else {
+        Write-Debug ">> Posh theme: $(Split-Path $themePath -Leaf)"
+        try {
+            oh-my-posh init pwsh --config "$themePath" | Invoke-Expression
+        } catch {
+            Write-Verbose "Oh-My-Posh setup skipped: $($_.Exception.Message)"
+        }
     }
     Write-Debug ">> Loaded ohmyposh"
 }
@@ -265,13 +348,21 @@ function __setupFzf{
 }
 
 function y {
-    $tmp = (New-TemporaryFile).FullName
-    yazi $args --cwd-file="$tmp"
-    $cwd = Get-Content -Path $tmp -Encoding UTF8
-    if (-not [String]::IsNullOrEmpty($cwd) -and $cwd -ne $PWD.Path) {
-        Set-Location-With-Env -LiteralPath (Resolve-Path -LiteralPath $cwd).Path
+    if (-not (Get-Command yazi -ErrorAction SilentlyContinue)) {
+        Write-Warning "yazi is not installed."
+        return
     }
-    Remove-Item -Path $tmp
+
+    $tmp = New-TemporaryFile
+    try {
+        yazi $args --cwd-file="$($tmp.FullName)"
+        $cwd = Get-Content -Path $tmp.FullName -Encoding UTF8 -ErrorAction SilentlyContinue
+        if (-not [String]::IsNullOrEmpty($cwd) -and $cwd -ne $PWD.Path) {
+            Set-Location-With-Env -LiteralPath (Resolve-Path -LiteralPath $cwd).Path
+        }
+    } finally {
+        Remove-Item -LiteralPath $tmp.FullName -ErrorAction SilentlyContinue
+    }
 }
 
 function __setupProxy {
