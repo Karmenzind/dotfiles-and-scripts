@@ -1,6 +1,49 @@
 #!/usr/bin/env pwsh
 # Github: https://github.com/Karmenzind/dotfiles-and-scripts
 
+# RMUX 0.8.0 hardcodes tmux-256color for ConPTY panes even though that
+# terminfo entry is normally unavailable on native Windows. Correct inherited
+# panes as early as possible, before prompts, pagers, or other TUI tools start.
+if ($IsWindows -and $env:TERM_PROGRAM -eq "rmux" -and $env:TERM -eq "tmux-256color") {
+    $env:TERM = "xterm-256color"
+}
+
+function Test-AgentOrNonInteractiveShell {
+    if ($env:CI -or $env:CODEX_AGENT -or $env:CURSOR_AGENT) {
+        return $true
+    }
+
+    $isSupportedInteractiveHost = $Host.Name -in @("ConsoleHost", "Visual Studio Code Host")
+    if (-not $isSupportedInteractiveHost) {
+        return $true
+    }
+
+    return [Console]::IsInputRedirected -or [Console]::IsOutputRedirected
+}
+
+if (Test-AgentOrNonInteractiveShell) {
+    return
+}
+
+function Update-RmuxWorkingDirectory {
+    if (-not ($IsWindows -and $env:TERM_PROGRAM -eq "rmux")) {
+        return
+    }
+
+    try {
+        $workingDirectoryUri = [System.Uri]::new($PWD.Path).AbsoluteUri
+        [Console]::Write("$([char]27)]7;$workingDirectoryUri$([char]7)")
+    } catch {
+        Write-Debug "RMUX working-directory update skipped: $($_.Exception.Message)"
+    }
+}
+
+$script:ProfileStartupTimer = if ($env:PROFILE_TRACE -eq "1") {
+    [System.Diagnostics.Stopwatch]::StartNew()
+} else {
+    $null
+}
+
 $psVersion = $PSVersionTable.PSVersion.Major
 
 if ($psVersion -lt 7) {
@@ -244,12 +287,13 @@ Set-Alias pjo Project-JumpOpen
 
 function __loadModule {
     param ([string] $Name)
-    $m = (Get-Module -ListAvailable -Name $Name)
-    if ($null -eq $m) {
-        Write-Verbose "$Name not found. Run install.ps1 to set up PowerShell modules."
-        return
+    try {
+        Import-Module -Name $Name -ErrorAction Stop
+        return $true
+    } catch {
+        Write-Verbose "$Name setup skipped: $($_.Exception.Message)"
+        return $false
     }
-    Import-Module $Name
 }
 
 Set-Alias ll ls
@@ -268,17 +312,38 @@ function __setupOhmyposh {
         Write-Verbose "Oh-My-Posh not installed."
         return
     }
-    $env:POSH_THEMES_PATH = ($IsLinux)? "/usr/share/oh-my-posh/themes/": "$HOME\AppData\Local\Programs\oh-my-posh\themes\"
-
-    $themeName = if ($env:POSH_THEME) { $env:POSH_THEME } else { "jandedobbeleer.omp.json" }
-    $themePath = if ([System.IO.Path]::IsPathRooted($themeName)) {
-        $themeName
+    $themeRoots = if ($env:POSH_THEMES_PATH) {
+        @($env:POSH_THEMES_PATH)
+    } elseif ($IsWindows) {
+        @("$HOME\AppData\Local\Programs\oh-my-posh\themes")
+    } elseif ($IsLinux) {
+        @("/usr/share/oh-my-posh/themes", "$HOME/.cache/oh-my-posh/themes")
     } else {
-        Join-Path $env:POSH_THEMES_PATH $themeName
+        @(
+            "/opt/homebrew/opt/oh-my-posh/themes",
+            "/usr/local/opt/oh-my-posh/themes",
+            "$HOME/.cache/oh-my-posh/themes"
+        )
+    }
+    $themeRoot = $themeRoots | Where-Object { Test-Path -LiteralPath $_ -PathType Container } | Select-Object -First 1
+    if ($themeRoot) {
+        $env:POSH_THEMES_PATH = $themeRoot
     }
 
-    if (-not (Test-Path -LiteralPath $themePath)) {
-        $themePath = Get-ChildItem -LiteralPath $env:POSH_THEMES_PATH -Filter "*.omp.json" -File -ErrorAction SilentlyContinue |
+    $themePath = if ($env:POSH_THEME -and [System.IO.Path]::IsPathRooted($env:POSH_THEME)) {
+        $env:POSH_THEME
+    } elseif ($env:POSH_THEME -and $themeRoot) {
+        Join-Path $themeRoot $env:POSH_THEME
+    } elseif ($themeRoot) {
+        Get-ChildItem -LiteralPath $themeRoot -Filter "*.omp.json" -File -ErrorAction SilentlyContinue |
+            Get-Random -ErrorAction SilentlyContinue |
+            Select-Object -ExpandProperty FullName
+    } else {
+        $null
+    }
+
+    if ($themeRoot -and (-not $themePath -or -not (Test-Path -LiteralPath $themePath))) {
+        $themePath = Get-ChildItem -LiteralPath $themeRoot -Filter "*.omp.json" -File -ErrorAction SilentlyContinue |
             Sort-Object Name |
             Select-Object -First 1 -ExpandProperty FullName
     }
@@ -301,31 +366,20 @@ function __setupOhmyposh {
     Write-Debug ">> Loaded ohmyposh"
 }
 
-function Test-Administrator {
-    if ($IsWindows) {
-        $currentPrincipal = New-Object Security.Principal.WindowsPrincipal([Security.Principal.WindowsIdentity]::GetCurrent())
-        $currentPrincipal.IsInRole([Security.Principal.WindowsBuiltInRole]::Administrator)
-    } else {
-        $(whoami) -eq 'root'
-    }
-}
-$isRunningAsAdmin = Test-Administrator
-
 function __editHistory {
     nvim.exe (Get-PSReadLineOption).HistorySavePath
 }
 
 
-function __setupFzf{
+function __setupFzf {
     if (Get-Command 'fzf' -ErrorAction SilentlyContinue) {
         $psVersion = $PSVersionTable.PSVersion.Major
         if ($psVersion -ge 7) {
-            if (Get-Module -ListAvailable -Name PsFZF ) {
-                __loadModule PSReadline
+            if (Get-Command Set-PsFzfOption -ErrorAction SilentlyContinue) {
                 Set-PsFzfOption -PSReadlineChordProvider 'Ctrl+t' -PSReadlineChordReverseHistory 'Ctrl+r'
                 # Set-PSReadLineKeyHandler -Key Tab -ScriptBlock { Invoke-FzfTabCompletion }
-            } elseif ($isRunningAsAdmin) {
-                Write-Host "PsFZF not found. Install command: 'Install-Module -Name PSFzf'"
+            } else {
+                Write-Verbose "PsFZF is not available. Run install.ps1 to set up PowerShell modules."
             }
         } else {
             Write-Host "(PsFZF is Ignored.)"
@@ -340,9 +394,6 @@ function __setupFzf{
         # $env:FZF_CTRL_R_OPTS = "--preview 'bat.exe -r:10 {}' --preview-window down:3:hidden:wrap --bind '?:toggle-preview'"
         $env:FZF_CTRL_R_OPTS = "--preview 'echo {}' --preview-window down:3:hidden:wrap --bind 'ctrl-/:toggle-preview'"
         $env:FZF_COMPLETION_OPTS = '--border --info=inline'
-        # if ($isRunningAsAdmin) {
-        #     [System.Environment]::SetEnvironmentVariable("FZF_COMPLETION_OPTS", "--border --info=inline", "Machine")
-        # }
         Write-Debug ">> Configured PsFZF"
     }
 }
@@ -386,8 +437,7 @@ function __setupProxy {
 # Invoke-Expression (&starship init powershell)
 # -----------------------------------------------------------------------------
 function __setupPSReadLine {
-    __loadModule PSReadLine
-    if (-not (Get-Module PSReadLine)) {
+    if (-not (__loadModule PSReadLine)) {
         return
     }
 
@@ -436,15 +486,61 @@ function __setupPSReadLine {
 
 # -----------------------------------------------------------------------------
 
-__loadModule Terminal-Icons
-__loadModule PSCompletions
-
 __setupPSReadLine
 __setupOhmyposh
-__setupFzf
 
+# Unlike tmux on Unix, RMUX cannot continuously inspect a Windows ConPTY
+# process's cwd. Publish it through OSC 7 whenever the prompt is redrawn so
+# #{pane_current_path} remains accurate for new-window/split-window -c.
+if ($IsWindows -and $env:TERM_PROGRAM -eq "rmux") {
+    $script:RmuxBasePrompt = $function:prompt
+    function global:prompt {
+        Update-RmuxWorkingDirectory
+        & $script:RmuxBasePrompt
+    }
+}
 
-Remove-Variable -Name "psVersion"
-Remove-Variable -Name "isRunningAsAdmin"
+if ($IsWindows) {
+    $coreutilsProfile = Join-Path $env:LOCALAPPDATA "dotfiles-and-scripts\powershell\coreutils-profile.ps1"
+    if (Test-Path -LiteralPath $coreutilsProfile) {
+        try {
+            . $coreutilsProfile
+        } catch {
+            Write-Warning "Coreutils profile setup skipped: $($_.Exception.Message)"
+        }
+    }
+}
 
-Write-Host "[:)] Loaded profile: $PROFILE"
+Register-EngineEvent -SourceIdentifier PowerShell.OnIdle -MaxTriggerCount 1 -Action {
+    $deferredTimer = if ($env:PROFILE_TRACE -eq "1") {
+        [System.Diagnostics.Stopwatch]::StartNew()
+    } else {
+        $null
+    }
+
+    foreach ($moduleName in @("Terminal-Icons", "PSCompletions", "PsFZF")) {
+        try {
+            Import-Module -Name $moduleName -Global -ErrorAction Stop
+        } catch {
+            Write-Verbose "$moduleName deferred setup skipped: $($_.Exception.Message)"
+        }
+    }
+
+    try {
+        __setupFzf
+    } catch {
+        Write-Warning "PsFZF configuration skipped: $($_.Exception.Message)"
+    }
+
+    if ($null -ne $deferredTimer) {
+        $deferredTimer.Stop()
+        Write-Host "[profile] deferred modules: $($deferredTimer.ElapsedMilliseconds) ms"
+    }
+} | Out-Null
+
+Remove-Variable -Name "psVersion", "coreutilsProfile" -ErrorAction SilentlyContinue
+
+if ($null -ne $script:ProfileStartupTimer) {
+    $script:ProfileStartupTimer.Stop()
+    Write-Host "[profile] synchronous startup: $($script:ProfileStartupTimer.ElapsedMilliseconds) ms"
+}

@@ -455,6 +455,7 @@ $script:CommonPackages = @(
     @{ Name = "FFmpeg"; Id = "Gyan.FFmpeg"; FallbackChocoId = "ffmpeg" },
     @{ Name = "ImageMagick"; Id = "ImageMagick.ImageMagick" },
     @{ Name = "Yazi"; Id = "sxyazi.yazi" },
+    @{ Name = "RMUX"; Id = "Helvesec.RMUX" },
     @{ Name = "Git"; Id = "Git.Git" },
     @{ Name = "Codex GUI app"; Id = "9PLM9XGG6VKS"; Source = "msstore" }
 )

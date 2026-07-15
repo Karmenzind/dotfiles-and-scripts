@@ -111,6 +111,10 @@ To apply everything in form of creating symbolic links for them (there will be p
 python symlink.py
 ```
 
+On Windows, RMUX is configured as the native tmux substitute. Its versioned
+compatibility notes, known limitations, and verification checklist are in
+[docs/windows-rmux.md](./docs/windows-rmux.md).
+
 script parameters：
 -  -h                 show this help message and exit
 -  -i, --interactive  Let me determine each file

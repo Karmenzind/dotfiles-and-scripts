@@ -101,6 +101,8 @@ if osname == "win":
 
     TO_SYNC.update(
         [
+            SRC_HOME / ".rmux.conf",
+            SRC_HOME / ".tmux.conf",
             SRC_HOME / ".config/alacritty/win.toml",
             Path("others/powershell/profile.ps1"),
         ]
