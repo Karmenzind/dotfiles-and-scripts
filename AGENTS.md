@@ -33,11 +33,13 @@
 
 - `others/powershell/profile.ps1` should contain pwsh runtime behavior only.
 - Do not put environment installation logic in the profile.
+- Initialize `fnm` synchronously in the profile. `fnm env` only affects the process that evaluates it, so running it from `install.ps1` does not make Node.js available in future pwsh sessions.
 - Keep `.nvmrc` handling on `fnm use`.
 - Do not reintroduce conda, npm, pip, nvm, Chocolatey profile initialization, or module installation helpers into the profile.
 - The live PowerShell 7 current-user/current-host profile is expected to be a symlink to `others/powershell/profile.ps1`; do not replace it with a generated or injected regular file.
 - Keep Coreutils' generated PowerShell integration outside the repository profile. Refresh it with `scripts/windows/Update-CoreutilsPowerShellFragment.ps1`; the profile may load the external fragment but Coreutils must not inject generated code into the symlink target.
 - Preserve the lean startup split: interactive essentials load synchronously and optional modules load through `PowerShell.OnIdle`. Use `PROFILE_TRACE=1` when measuring changes.
+- Go project activation uses `gvm --format=powershell --no-install`. Search upward for `.gvmrc`, `.go-version`, `go.version`, `.tool-versions`, `go.work`, and `go.mod` in that priority order; prefer a `toolchain go...` directive over `go ...`. Parse `.gvmrc` as data and never execute it. Do not let profile-driven directory changes install or download Go versions.
 
 ## RMUX on Windows
 

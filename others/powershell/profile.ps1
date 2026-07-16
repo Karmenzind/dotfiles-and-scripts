@@ -51,8 +51,24 @@ if ($psVersion -lt 7) {
 }
 
 $env:EDITOR = "nvim.exe"
+
+# fnm env only affects the process that evaluates it. install.ps1 initializes
+# its own process, so every interactive pwsh session must initialize fnm too.
+if (Get-Command fnm -ErrorAction SilentlyContinue) {
+    try {
+        $fnmEnv = & fnm env --shell powershell
+        if ($LASTEXITCODE -ne 0) {
+            throw "fnm env exited with code $LASTEXITCODE."
+        }
+        $fnmEnv | Out-String | Invoke-Expression
+    } catch {
+        Write-Warning "fnm environment setup skipped: $($_.Exception.Message)"
+    }
+}
+
 $script:ActiveNodeVersion = $null
 $script:ActiveRubyVersion = $null
+$script:ActiveGoVersion = $null
 
 # -----------------------------------------------------------------------------
 function Get-NodeVersionConfig {
@@ -65,6 +81,112 @@ function Get-NodeVersionConfig {
     }
 
     return $null
+}
+
+function Get-GoVersionFromFile {
+    param(
+        [Parameter(Mandatory = $true)]
+        [string] $Path
+    )
+
+    $fileName = Split-Path -Leaf $Path
+    $content = Get-Content -LiteralPath $Path -Raw -ErrorAction SilentlyContinue
+    if ([string]::IsNullOrWhiteSpace($content)) {
+        return $null
+    }
+
+    $version = switch ($fileName) {
+        ".gvmrc" {
+            if ($content -match "(?m)^\s*gvm\s+(?:use\s+)?(?:go)?(?<version>tip|\d+\.\d+(?:\.\d+)?(?:[-+][0-9A-Za-z.-]+)?)(?:\s|$)") {
+                $Matches.version
+            } elseif ($content.Trim() -match "^(?:go)?(?<version>tip|\d+\.\d+(?:\.\d+)?(?:[-+][0-9A-Za-z.-]+)?)$") {
+                $Matches.version
+            }
+        }
+        ".tool-versions" {
+            if ($content -match "(?m)^\s*(?:golang|go)\s+(?:go)?(?<version>tip|\d+\.\d+(?:\.\d+)?(?:[-+][0-9A-Za-z.-]+)?)(?:\s|$)") {
+                $Matches.version
+            }
+        }
+        { $_ -in @("go.mod", "go.work") } {
+            if ($content -match "(?m)^\s*toolchain\s+go(?<version>\d+\.\d+(?:\.\d+)?(?:[-+][0-9A-Za-z.-]+)?)\s*$") {
+                $Matches.version
+            } elseif ($content -match "(?m)^\s*go\s+(?<version>\d+\.\d+(?:\.\d+)?(?:[-+][0-9A-Za-z.-]+)?)\s*$") {
+                $Matches.version
+            }
+        }
+        default {
+            if ($content.Trim() -match "^(?:go)?(?<version>tip|\d+\.\d+(?:\.\d+)?(?:[-+][0-9A-Za-z.-]+)?)$") {
+                $Matches.version
+            }
+        }
+    }
+
+    if ($version) {
+        return [PSCustomObject]@{
+            Version = [string] $version
+            Path = $Path
+        }
+    }
+    return $null
+}
+
+function Get-GoVersionConfig {
+    $directory = Get-Item -LiteralPath $PWD.Path -ErrorAction SilentlyContinue
+    while ($null -ne $directory) {
+        foreach ($fileName in @(".gvmrc", ".go-version", "go.version", ".tool-versions", "go.work", "go.mod")) {
+            $configPath = Join-Path $directory.FullName $fileName
+            if (Test-Path -LiteralPath $configPath -PathType Leaf) {
+                $config = Get-GoVersionFromFile -Path $configPath
+                if ($null -ne $config) {
+                    return $config
+                }
+            }
+        }
+        $directory = $directory.Parent
+    }
+    return $null
+}
+
+function Use-GvmGoVersion {
+    param(
+        [Parameter(Mandatory = $true)]
+        [string] $Version,
+        [Parameter(Mandatory = $true)]
+        [string] $SourcePath
+    )
+
+    if ($script:ActiveGoVersion -eq $Version) {
+        return
+    }
+    if (-not (Get-Command gvm -ErrorAction SilentlyContinue)) {
+        Write-Warning "Go version $Version requested by $SourcePath, but gvm is not installed."
+        return
+    }
+
+    $gvmCommands = @(& gvm --format=powershell --no-install $Version 2>&1)
+    if ($LASTEXITCODE -ne 0) {
+        Write-Warning "Unable to activate Go $Version requested by $SourcePath. Install it with 'gvm install $Version'. $($gvmCommands -join ' ')"
+        return
+    }
+
+    try {
+        $oldGvmBin = if ($env:GOROOT -and $env:GOROOT -match "(?i)[\\/]\.gvm[\\/]versions[\\/]") {
+            Join-Path $env:GOROOT "bin"
+        } else {
+            $null
+        }
+        if ($oldGvmBin) {
+            $env:PATH = (($env:PATH -split [System.IO.Path]::PathSeparator) |
+                Where-Object { $_ -and $_ -ne $oldGvmBin }) -join [System.IO.Path]::PathSeparator
+        }
+
+        ($gvmCommands -join "`n") | Invoke-Expression
+        $script:ActiveGoVersion = $Version
+        Write-Host "🐹 Activated Go $Version ($SourcePath)" -ForegroundColor Cyan
+    } catch {
+        Write-Warning "Unable to apply the gvm environment for Go $Version`: $($_.Exception.Message)"
+    }
 }
 
 function Invoke-ActiveEnvs {
@@ -115,6 +237,12 @@ function Invoke-ActiveEnvs {
                 }
             }
         }
+    }
+
+    # 5. Go (gvm): explicit version files win over go.work/go.mod.
+    $goConfig = Get-GoVersionConfig
+    if ($null -ne $goConfig) {
+        Use-GvmGoVersion -Version $goConfig.Version -SourcePath $goConfig.Path
     }
 }
 
@@ -538,7 +666,7 @@ Register-EngineEvent -SourceIdentifier PowerShell.OnIdle -MaxTriggerCount 1 -Act
     }
 } | Out-Null
 
-Remove-Variable -Name "psVersion", "coreutilsProfile" -ErrorAction SilentlyContinue
+Remove-Variable -Name "psVersion", "fnmEnv", "coreutilsProfile" -ErrorAction SilentlyContinue
 
 if ($null -ne $script:ProfileStartupTimer) {
     $script:ProfileStartupTimer.Stop()
