@@ -61,6 +61,8 @@ YNI = ("y", "n", "i")
 LINE = "\n" + "-" * 44 + "\n"
 
 TO_SYNC: Set[Path] = {
+    # Keep this explicit: directory traversal excludes Markdown files by default.
+    SRC_HOME / ".codex/AGENTS.md",
     SRC_HOME / ".vim",
     SRC_HOME / ".vimrc",
     # SRC_HOME / ".condarc",

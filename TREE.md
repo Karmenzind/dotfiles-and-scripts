@@ -7,6 +7,8 @@
 - [home_k](./home_k)
 	- [.agignore](./home_k/.agignore)
 	- [.agrc](./home_k/.agrc)
+	- [.codex](./home_k/.codex)
+		- [AGENTS.md](./home_k/.codex/AGENTS.md)
 	- [.condarc](./home_k/.condarc)
 	- [.config](./home_k/.config)
 		- [alacritty](./home_k/.config/alacritty)
