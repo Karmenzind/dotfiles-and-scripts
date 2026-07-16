@@ -4,7 +4,7 @@
 # export PATH=$HOME/bin:/usr/bin:/usr/local/bin:$PATH
 # XXX (k): <2022-06-16> dirty path
 if [[ "$(uname)" == "Darwin" ]]; then
-    export PATH=/usr/local/bin:/bin:/usr/bin:/sbin:/usr/sbin:/usr/local/sbin:/usr/bin/vendor_perl:/opt/homebrew/bin:$PATH
+    export PATH=/opt/homebrew/bin:/usr/local/bin:/bin:/usr/bin:/sbin:/usr/sbin:/usr/local/sbin:/usr/bin/vendor_perl:$PATH
 else
     export PATH=/usr/local/bin:/bin:/usr/bin:/sbin:/usr/sbin:/usr/local/sbin:/usr/bin/vendor_perl
 fi
@@ -149,7 +149,7 @@ fi
 # pnpm
 export PNPM_HOME="$HOME/.local/share/pnpm"
 case ":$PATH:" in
-  *":$PNPM_HOME:"*) ;;
-  *) export PATH="$PNPM_HOME:$PATH" ;;
+  *":$PNPM_HOME/bin:"*) ;;
+  *) export PATH="$PNPM_HOME/bin:$PATH" ;;
 esac
 # pnpm end

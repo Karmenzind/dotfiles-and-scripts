@@ -138,7 +138,7 @@ function! SetupVimPlug()
   Plug 'scrooloose/nerdtree', { 'on': ['NERDTreeToggle', 'NERDTreeFind'] }
   " Plug 'Xuyuanp/nerdtree-git-plugin', { 'on': ['NERDTreeToggle'] }
   Plug 'tiagofumo/vim-nerdtree-syntax-highlight'
-  Plug 't9md/vim-choosewin'
+  " Plug 't9md/vim-choosewin'
   if !s:is_win
     Plug 'mhinz/vim-startify'
   endif
@@ -181,6 +181,11 @@ function! SetupVimPlug()
   "Plug 'karmenzind/registers.vim', {'branch': 'dev', 'frozen': 1}
 
   Plug 'karmenzind/vim-tmuxlike', {'branch': 'dev', 'frozen': 1}
+  if isdirectory(expand('~/Localworks/vim-tmuxlike'))
+    Plug expand('~/Localworks/vim-tmuxlike')
+  else
+    Plug 'karmenzind/vim-tmuxlike'
+  endif
   Plug 'skywind3000/vim-quickui'
   Plug 'skywind3000/asyncrun.vim'
 
@@ -585,7 +590,7 @@ if g:line_plugin == 'airline'
 endif
 
 " /* for fzf */
-if g:my_fuzzy_tool == "fzf"
+if !has('nvim') || g:my_fuzzy_tool == "fzf"
   function! s:build_quickfix_list(lines) abort
     if empty(a:lines)
       return
@@ -965,7 +970,7 @@ let g:SimpylFold_fold_import = 1
 
 " /* for vim-tmuxlike */
 " nmap <silent> <c-\> <Plug>(tmuxlike-prefix)
-"nmap <c-\> <Plug>(tmuxlike-prefix)
+nmap <c-\> <Plug>(tmuxlike-prefix)
 "if s:is_hhkb
 "  " XXX (k): <2022-06-23> <C-BS> didn't work
 "  nmap  <Plug>(tmuxlike-prefix)

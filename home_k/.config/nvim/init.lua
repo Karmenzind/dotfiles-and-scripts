@@ -428,16 +428,16 @@ require("lazy").setup({
             end,
         },
 
-        {
-            "folke/todo-comments.nvim",
-            branch = "main",
-            config = function()
-                require("todo-comments").setup({
-                    highlight = { pattern = [[.*<(KEYWORDS)\s*]] },
-                    search = { pattern = [[\b(KEYWORDS)\b]] },
-                })
-            end,
-        },
+        -- {
+        --     "folke/todo-comments.nvim",
+        --     branch = "main",
+        --     config = function()
+        --         require("todo-comments").setup({
+        --             highlight = { pattern = [[.*<(KEYWORDS)\s*]] },
+        --             search = { pattern = [[\b(KEYWORDS)\b]] },
+        --         })
+        --     end,
+        -- },
 
         -- { "tversteeg/registers.nvim", branch = "main" },
 
@@ -648,6 +648,11 @@ require("lazy").setup({
                 })
             end,
         },
+        -- {
+        --     "karmenzind/vim-tmuxlike",
+        --     dir = vim.fn.isdirectory(vim.fn.expand("$HOME/Localworks/vim-tmuxlike")) == 1 and vim.fn.expand("$HOME/Localworks/vim-tmuxlike")
+        --         or nil,
+        -- },
         { "skywind3000/vim-quickui", cond = my_mode ~= "light" },
         { "skywind3000/asyncrun.vim", cond = my_mode ~= "light" },
 
