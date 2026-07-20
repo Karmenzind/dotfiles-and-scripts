@@ -46,7 +46,7 @@
 
 - Read `docs/windows-rmux.md` before changing RMUX, tmux, PowerShell prompt integration, or Windows pane creation behavior.
 - RMUX is currently used only as the native Windows substitute for tmux. Match the shared tmux key bindings and user-visible behavior wherever RMUX supports them.
-- Keep `home_k/.rmux.conf` standalone. Do not source the full `home_k/.tmux.conf`: RMUX 0.8.0 only partially parses its plugins, shell jobs, conditionals, aliases, and terminal options.
+- Keep `home_k/.rmux.conf` standalone. Do not source the full `home_k/.tmux.conf`: even when RMUX parses its syntax, that file contains Unix-only TPM plugins, shell jobs, clipboard commands, and terminal assumptions.
 - Treat RMUX workarounds as version-scoped. Re-test them against a fresh isolated RMUX server after upgrades before removing or simplifying them.
 
 ## Cross-platform configuration

@@ -1,151 +1,138 @@
 # RMUX on Windows: compatibility notes
 
-This repository uses RMUX only as a native Windows replacement for tmux. The
-goal is to preserve the key bindings and behavior of `home_k/.tmux.conf` where
-RMUX supports them, while keeping RMUX-specific workarounds in
-`home_k/.rmux.conf`.
+This repository uses RMUX only as a native Windows replacement for tmux. Keep
+RMUX-specific behavior in `home_k/.rmux.conf` and match the shared tmux key
+bindings where Windows and RMUX support them.
 
-These findings were verified against RMUX 0.8.0 on native Windows ConPTY. Treat
-them as version-scoped. Re-test every workaround after an RMUX upgrade before
-removing it.
+The current findings were verified against RMUX 0.9.0 on native Windows ConPTY.
+They are version-scoped; use a fresh isolated server after every upgrade.
 
 ## Configuration architecture
 
-- `home_k/.tmux.conf` remains the shared macOS/Linux/tmux configuration.
-- `home_k/.rmux.conf` is deliberately standalone. Do not source the complete
-  tmux file from it. RMUX 0.8.0 partially accepts that file but skips or rejects
-  plugins, shell jobs, conditionals, the `send` command alias, and some terminal
-  options. A partial load can look successful while leaving default bindings in
-  place.
-- The live Windows files `~/.tmux.conf` and `~/.rmux.conf` should both be
-  symlinks into this repository.
-- RMUX-specific behavior should imitate tmux, but a known upstream limitation
-  must be documented rather than hidden behind a misleading configuration.
+- Keep `home_k/.rmux.conf` standalone. RMUX 0.9 parses much more tmux syntax,
+  but `home_k/.tmux.conf` still contains Unix-only TPM plugins, shell jobs,
+  clipboard commands, and terminal assumptions.
+- The live `~/.rmux.conf` should remain a symlink into this repository.
+- Keep the explicit `-c "#{pane_current_path}"` on pane/window creation.
+  PowerShell emits OSC 7 on prompt redraw so RMUX can track a ConPTY pane's
+  current directory; a control test using `cmd.exe` without OSC 7 remained at
+  the pane's initial directory.
 
-## Verified RMUX 0.8.0 issues and workarounds
+## RMUX 0.9.0 verification
 
-### PowerShell profile loading
+### Retired 0.8 workarounds
 
-RMUX starts its PowerShell host with `-NoProfile`. In addition,
-`default-command` is not reliably applied to every `new-window` and
-`split-window` path.
+RMUX 0.9.0 now starts interactive PowerShell as `pwsh.exe -NoLogo -NoExit`
+without `-NoProfile`. An isolated initial pane, CLI-created window, and split
+all loaded the linked profile and reported `pwsh.exe` as the current command.
+`default-command` is also applied consistently across creation paths.
 
-The RMUX configuration therefore passes an explicit profile-loading `pwsh.exe`
-command to all normal keyboard creation routes:
+Consequently, the configuration no longer starts a second child PowerShell and
+no longer repeats that wrapper in every binding. This avoids nested shells,
+keeps process labels accurate, and lets RMUX own the interactive shell directly.
 
-- initial session through `default-command`;
-- `prefix+c` for a new window;
-- tmux-compatible `prefix+"` and `prefix+%` splits;
-- custom `prefix+_`, `prefix+|`, `prefix+-`, and `prefix+\` splits.
+Sourcing a file does not erase an option that was removed from that file. When
+upgrading a live 0.8 server, clear its saved wrapper once with
+`rmux set-option -gu default-command` (or restart the server). The effective
+0.9 default is then shown as `default-command ''`.
 
-Keep the command's first executable token as `pwsh.exe`. Prefixing the command
-with a PowerShell assignment makes `#{pane_current_command}` display the
-assignment instead of the process name.
+`default-terminal` is now applied to initial and subsequently created panes.
+Set it to `xterm-256color`; this avoids the missing `tmux-256color` terminfo
+failure previously seen in native Windows tools. Existing panes retain their
+old environment, so validate this only in new panes on a fresh server.
 
-Direct CLI/SDK calls can still bypass key bindings. Callers using
-`rmux new-window` or `rmux split-window` directly should provide the same shell
-command explicitly until RMUX applies `default-command` consistently.
+RMUX 0.9 accepts tmux's `send` alias and renders the copy selection overlay with
+`mode-style`, but 0.9.0 has an attached-client selection bug. In
+`handler_copy_mode.rs`, attached `begin-selection` and `select-line` commands
+unconditionally obtain `active.mouse.current_event`. In `copy_mode/commands.rs`,
+those commands call `move_cursor_to_mouse` whenever that context exists, before
+starting the selection. A keyboard `v` or `V` therefore jumps to the last
+cached mouse coordinate. The fixed yellow region is the real copied region; it
+is not a stale cursor or renderer artifact.
 
-### TERM and terminfo
+A detached `rmux send-keys -X begin-selection` probe with no attached clients
+does not reproduce the problem. It is not a valid workaround for a live
+single-client server: `resolve_attached_client_pid` assigns a request from any
+other PID to the sole attached client, so even a `run-shell` child inherits its
+cached mouse context. The resulting short process delay followed by the same
+jump is expected from that failed approach.
 
-RMUX 0.8.0 assigns `TERM=tmux-256color` to Windows ConPTY panes. Native Windows
-tools commonly lack that terminfo entry and may fail with:
+Use commands outside the mouse-context dispatch list as the version-scoped
+workaround:
 
-```text
-tmux-256color: unknown terminal type
+```tmux
+bind-key -T copy-mode-vi v send -X clear-selection \; send -X selection-mode char
+bind-key -T copy-mode-vi V send -X clear-selection \; send -X selection-mode line
 ```
 
-`default-terminal` is accepted but is effectively a no-op, and a global TERM
-environment option is overwritten during ConPTY creation. The configured pwsh
-command therefore sets the process environment to `xterm-256color`. The
-PowerShell profile also corrects inherited Windows RMUX panes at the very top,
-before prompts, pagers, and TUI tools run.
+`selection-mode char` or `selection-mode line` creates an active selection at
+the current copy cursor and does not request attached mouse context. Clearing
+the old selection first makes repeated `v` or `V` reset its anchor, matching the
+normal selection commands. `Ctrl+v` and `y` also stay outside the affected path
+and retain direct `send -X` bindings. A forced `refresh-client`, a `run-shell`
+wrapper, and cursor style/colour changes do not help because the server really
+changes the selection coordinate when the affected commands run.
 
-Existing panes keep their old environment. After changing this logic, create a
-new pane or run `. $PROFILE` in the existing pane before testing a pager such as
-`git diff`.
+This preserves normal `v` behavior. For `V`, `selection-mode line` selects the
+current displayed row; RMUX's affected `select-line` additionally expands a
+soft-wrapped logical line. Re-test that edge case when upstream fixes the mouse
+context bug, then restore direct `select-line`.
+
+Tracked upstream as [Helvesec/rmux#125](https://github.com/Helvesec/rmux/issues/125).
+
+### Bracketed paste and Neovim
+
+RMUX 0.8 delivered a native Windows console paste as ordinary insert-mode key
+input. In Markdown buffers, `plasticboy/vim-markdown` sets
+`comments=b:>,b:*,b:+,b:-` and includes `r` in `formatoptions`, so Neovim
+correctly treated every pasted newline as typed Enter and continued `*` list
+markers. Clipboard contents, `"+p`, mappings, paste settings, and paste-related
+autocommands were not the cause.
+
+RMUX 0.9 fixes the missing protocol boundary in its Windows attach path. It
+detects a multi-character `ReadConsoleInputW` paste burst and wraps the batch in
+`ESC[200~` / `ESC[201~`, allowing Neovim's bracketed-paste handler to receive it
+as a paste rather than typed text. The 0.9 changelog explicitly lists improved
+Windows bracketed paste, and the installed client and daemon were both verified
+as 0.9.0 rather than a stale 0.8 process.
+
+Do not remove `r` from Markdown `formatoptions` or enable Neovim's global
+`paste` option as a workaround: both change editor behavior while leaving the
+transport error unresolved. After future RMUX upgrades, re-test a real
+Ctrl+Shift+V paste through a newly started isolated server. Automated
+`paste-buffer -p` or `send-keys` tests do not exercise the same physical console
+input path.
+
+Related upstream history: [#92](https://github.com/Helvesec/rmux/issues/92) and
+[#93](https://github.com/Helvesec/rmux/issues/93).
 
 ### Current-directory inheritance
 
-On Windows, RMUX cannot continuously infer a ConPTY process's current working
-directory. Without terminal integration, `#{pane_current_path}` stays at the
-pane's initial directory even though `split-window -c
-"#{pane_current_path}"` looks correct.
+RMUX cannot infer a running Windows ConPTY process's current directory by
+itself. `others/powershell/profile.ps1` emits OSC 7 with `$PWD` on each prompt
+redraw; RMUX consumes it and updates `#{pane_current_path}`. Keep both that
+profile integration and `-c "#{pane_current_path}"` in creation bindings.
 
-`others/powershell/profile.ps1` wraps the prompt and emits OSC 7 with the current
-`$PWD` on every redraw. RMUX consumes OSC 7 and updates
-`#{pane_current_path}`. Keep the `-c` option on every new-window/split binding.
+Test the entire chain: change directory, let the prompt redraw, create a split,
+and inspect `$PWD` in the child. Reading the binding alone is insufficient.
 
-This chain must be tested end to end: change directory in the parent, wait for
-the prompt, split, and inspect `$PWD` in the child. Checking the binding text
-alone is insufficient.
+### Ctrl+D remains provisional
 
-### Ctrl+D
-
-RMUX 0.8.0 does not reliably pass an unbound Ctrl+D through ConPTY. The root
-table binding sends the raw `0x04` byte. Re-test this after upgrades rather than
-removing it based only on the binding list.
-
-### Copy mode and Vim-style selection
-
-Use the full `send-keys` command in RMUX copy-table bindings. RMUX silently
-skips tmux's `send` alias in this context, which leaves the default `v` binding
-as `rectangle-toggle` instead of `begin-selection`.
-
-The required bindings are:
-
-- `v`: `begin-selection`;
-- `V`: `select-line`;
-- `Ctrl+v`: `rectangle-toggle`;
-- `y`: `copy-selection`.
-
-RMUX 0.8.0 has a remaining renderer limitation. It reports
-`selection_present=1` and `pane_mode=copy-mode`, and it parses
-`mode-style=bg=yellow,fg=black`, but the native pane snapshot contains no
-selection-overlay cells. Users therefore do not get tmux's selected-text
-reverse/highlight effect. Configuration cannot create that overlay.
-
-The current fallback displays plain `VISUAL` in `status-left` while a selection
-exists. Do not put comma-separated `#[...]` styles inside RMUX's
-`#{?condition,true,false}` expression: RMUX 0.8.0 treats those commas as
-conditional argument separators and leaks fragments such as `fg=black,b` into
-the status bar.
-
-Keep `mode-style` configured for tmux parity and future RMUX versions, but do
-not claim that selected-text highlighting works until it is visually and
-programmatically re-tested with a newer renderer.
+The root-table `C-d` binding that sends raw `0x04` is retained. An isolated 0.9
+`send-keys C-d` probe did not close an empty PowerShell pane, but that command
+uses the server key path and cannot prove how a physical console Ctrl+D is
+forwarded. Remove this workaround only after a real attached-client test; do
+not infer success from `list-keys` or `send-keys` alone.
 
 ### Pane process label
 
-`#{pane_title}` is unsuitable when the pane border should show only a process
-name. PowerShell and Oh My Posh themes may set it to a full executable path,
-host name, or dynamic title. Use `#{pane_current_command}` and keep the shell
-bootstrap beginning with `pwsh.exe`; the resulting label is `pwsh.exe`.
-
-## PowerShell profile architecture and performance
-
-The live PowerShell 7 profile is expected to be a symlink to
-`others/powershell/profile.ps1`.
-
-Synchronous interactive startup contains the non-interactive guard, functions
-and aliases, environment activation, PSReadLine, Oh My Posh, the RMUX TERM/cwd
-integration, and the optional external Coreutils fragment. Terminal-Icons,
-PSCompletions, and PsFZF load once through `PowerShell.OnIdle`.
-
-Set `PROFILE_TRACE=1` before starting an interactive shell to print synchronous
-and deferred timings. A verified RMUX run measured roughly 300 ms synchronous
-startup; treat this as a reference rather than a permanent benchmark.
-
-Coreutils' official installer injects generated code into the current profile.
-That is unsafe when the profile is a repository symlink. Use
-`scripts/windows/Update-CoreutilsPowerShellFragment.ps1` to render the official
-template to `%LOCALAPPDATA%\dotfiles-and-scripts\powershell\coreutils-profile.ps1`.
-The repository profile loads that external fragment if present.
+Use `#{pane_current_command}`, not `#{pane_title}`, for pane borders. PowerShell
+and Oh My Posh may set the title to a path, host name, or dynamic text.
 
 ## Verification checklist
 
-Always use a unique isolated socket so a stale daemon, old global options, or an
-existing pane environment cannot produce a false pass:
+Always use a unique socket so stale options, a 0.8 daemon, or old pane
+environments cannot create a false result:
 
 ```powershell
 $socket = "profile-test-$PID"
@@ -154,20 +141,23 @@ rmux -L $socket -f .\home_k\.rmux.conf new-session -d -s audit
 rmux -L $socket kill-server
 ```
 
-Verify at least:
+Verify:
 
-1. A new shell reports `TERM=xterm-256color`, has the `cd` alias from the linked
-   profile, and eventually loads PsFZF.
-2. `prefix+c` and every configured split binding contains the explicit pwsh
-   command.
-3. After `cd C:\Windows` and a prompt redraw,
-   `#{pane_current_path}` becomes `C:\Windows`; a child split starts there.
-4. `list-keys -T copy-mode-vi` shows the four explicit Vim bindings.
-5. After `begin-selection`, formats report
-   `selection_present=1|pane_mode=copy-mode`.
-6. Do not use pane state alone to assert visual highlighting. Inspect an
-   attached client and, when supported, styled snapshot cells.
-7. Reload the live configuration only after isolated checks:
+1. `rmux -V`, the client executable, and daemon process all report 0.9.0.
+2. A new shell reports `TERM=xterm-256color`, loads the linked profile, and has
+   `pane_current_command=pwsh.exe` without a nested child shell.
+3. CLI and bound window/split creation load the profile and preserve the parent
+   directory after an OSC 7 prompt redraw.
+4. `list-keys -T copy-mode-vi` shows `clear-selection` followed by
+   `selection-mode char`/`line` for `v`/`V`, plus direct `send -X` bindings for
+   `Ctrl+v` and `y`. With the mouse at a different location, a real attached `v`
+   selection must start immediately at the keyboard copy cursor and be painted
+   with `mode-style`.
+5. A real Ctrl+Shift+V paste into a Markdown Neovim buffer reaches bracketed
+   paste and does not add list markers. Do not substitute `send-keys` for this
+   physical-console test.
+6. Test physical Ctrl+D before removing its compatibility binding.
+7. Reload the live config only after the isolated checks:
 
    ```powershell
    rmux source-file (Join-Path $HOME ".rmux.conf")
@@ -175,15 +165,14 @@ Verify at least:
 
 8. Run `git diff --check`.
 
-## Upgrade and cleanup plan
+## Upgrade procedure
 
-When RMUX is upgraded:
-
-1. Read the upstream changelog for Windows ConPTY, `default-command`, cwd/OSC 7,
-   copy-mode rendering, format parsing, and Ctrl+D changes.
-2. Run the isolated verification checklist without altering the live server.
-3. Test whether `default-terminal`, `default-command`, `mode-style`, and the
-   short `send` alias now work as tmux does.
-4. Remove a workaround only after its replacement passes both state-level and
-   visible interactive tests.
-5. Update this document and `home_k/.rmux.conf` in the same change.
+1. Read the upstream changelog for Windows ConPTY input, shell startup,
+   `default-command`, cwd/OSC 7, copy-mode rendering, and key forwarding.
+2. Restart old servers when the wire version changes; 0.9.0 is incompatible
+   with an already-running 0.8 daemon.
+3. Run the checklist with a fresh isolated socket before touching the live
+   server.
+4. Remove a workaround only when a test exercises the same input or rendering
+   path as the original failure.
+5. Update this document and `home_k/.rmux.conf` together.
