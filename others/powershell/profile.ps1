@@ -52,6 +52,15 @@ if ($psVersion -lt 7) {
 
 $env:EDITOR = "nvim.exe"
 
+# PSCompletions creates the `psc` alias dynamically during module import.
+# Load it synchronously so `psc` is available immediately in a new shell,
+# instead of waiting for the first PowerShell.OnIdle event.
+try {
+    Import-Module PSCompletions -Global -ErrorAction Stop
+} catch {
+    Write-Warning "PSCompletions setup skipped: $($_.Exception.Message)"
+}
+
 # fnm env only affects the process that evaluates it. install.ps1 initializes
 # its own process, so every interactive pwsh session must initialize fnm too.
 if (Get-Command fnm -ErrorAction SilentlyContinue) {
@@ -629,6 +638,15 @@ if ($IsWindows -and $env:TERM_PROGRAM -eq "rmux") {
 }
 
 if ($IsWindows) {
+    $localProfile = Join-Path $HOME ".pwsh-profile.local.ps1"
+    if (Test-Path -LiteralPath $localProfile) {
+        try {
+            . $localProfile
+        } catch {
+            Write-Warning "Local profile setup skipped: $($_.Exception.Message)"
+        }
+    }
+
     $coreutilsProfile = Join-Path $env:LOCALAPPDATA "dotfiles-and-scripts\powershell\coreutils-profile.ps1"
     if (Test-Path -LiteralPath $coreutilsProfile) {
         try {
@@ -646,7 +664,7 @@ Register-EngineEvent -SourceIdentifier PowerShell.OnIdle -MaxTriggerCount 1 -Act
         $null
     }
 
-    foreach ($moduleName in @("Terminal-Icons", "PSCompletions", "PsFZF")) {
+    foreach ($moduleName in @("Terminal-Icons", "PsFZF")) {
         try {
             Import-Module -Name $moduleName -Global -ErrorAction Stop
         } catch {
@@ -666,7 +684,7 @@ Register-EngineEvent -SourceIdentifier PowerShell.OnIdle -MaxTriggerCount 1 -Act
     }
 } | Out-Null
 
-Remove-Variable -Name "psVersion", "fnmEnv", "coreutilsProfile" -ErrorAction SilentlyContinue
+Remove-Variable -Name "psVersion", "fnmEnv", "localProfile", "coreutilsProfile" -ErrorAction SilentlyContinue
 
 if ($null -ne $script:ProfileStartupTimer) {
     $script:ProfileStartupTimer.Stop()
