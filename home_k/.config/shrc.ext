@@ -892,4 +892,12 @@ else # for bash
     }
 fi
 
+load_secret() {
+    source "$HOME/.config/secrets/$1.env"
+}
+
+update_codex() {
+    curl -fsSL https://chatgpt.com/codex/install.sh | sh
+}
+
 __active_envs
