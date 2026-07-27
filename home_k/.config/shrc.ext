@@ -551,8 +551,12 @@ __can_load_fnm() {
     return 1
 }
 
-if __can_load_fnm; then
-    eval "$(fnm env --use-on-cd --shell zsh)"
+if __can_load_fnm && [[ -z "$FNM_MULTISHELL_PATH" ]]; then
+    if [[ -n "$ZSH_VERSION" ]]; then
+        eval "$(fnm env --shell zsh)"
+    else
+        eval "$(fnm env --shell bash)"
+    fi
     echo "[fnm] initialized with fnm env"
 fi
 
@@ -610,50 +614,256 @@ export TERMINFO=/usr/share/terminfo
 export SDKMAN_DIR="$HOME/.sdkman"
 [[ -s "$HOME/.sdkman/bin/sdkman-init.sh" ]] && source "$HOME/.sdkman/bin/sdkman-init.sh"
 
-__env_initialized=0
+__project_env_file=
+__project_env_signature=
 
-__active_envs() {
-    if (( __env_initialized == 1 )); then
+__find_project_env_file() {
+    local search_dir="$PWD"
+    local relative_path
+
+    __project_env_file=
+
+    while [[ -n "$search_dir" ]]; do
+        for relative_path in "$@"; do
+            if [[ -f "$search_dir/$relative_path" ]]; then
+                __project_env_file="$search_dir/$relative_path"
+                return 0
+            fi
+        done
+        [[ "$search_dir" == / ]] && break
+        search_dir="${search_dir%/*}"
+        [[ -n "$search_dir" ]] || search_dir=/
+    done
+
+    return 1
+}
+
+__set_project_env_signature() {
+    local config_file="$1"
+    local checksum
+
+    checksum=$(cksum < "$config_file" 2>/dev/null) || checksum=
+    __project_env_signature="$config_file:$checksum"
+}
+
+[[ -n "${__auto_venv+x}" ]] || __auto_venv=
+
+__sync_python_venv() {
+    local activate_file=
+    local venv_dir=
+
+    if __find_project_env_file .venv/bin/activate; then
+        activate_file="$__project_env_file"
+        venv_dir="${activate_file%/bin/activate}"
+    fi
+
+    if [[ -n "$venv_dir" ]]; then
+        if [[ "$VIRTUAL_ENV" != "$venv_dir" ]]; then
+            if [[ -n "$VIRTUAL_ENV" ]] && command -v deactivate >/dev/null 2>&1; then
+                deactivate
+            fi
+
+            echo "🐍 Activating Python .venv ..."
+            if source "$activate_file"; then
+                __auto_venv="$VIRTUAL_ENV"
+            fi
+        fi
+    elif [[ -n "$__auto_venv" ]]; then
+        if [[ "$VIRTUAL_ENV" == "$__auto_venv" ]] && command -v deactivate >/dev/null 2>&1; then
+            echo "🐍 Deactivating Python .venv ..."
+            deactivate
+        fi
+        __auto_venv=
+    fi
+}
+
+[[ -n "${__auto_sdkman_env+x}" ]] || __auto_sdkman_env=
+[[ -n "${__sdkman_config_signature+x}" ]] || __sdkman_config_signature=
+
+__run_sdkman_env_in() {
+    local target_dir="$1"
+    local previous_pwd="$PWD"
+    local previous_oldpwd="${OLDPWD-}"
+    local oldpwd_was_set="${OLDPWD+x}"
+    local command_status
+
+    if [[ -n "$ZSH_VERSION" ]]; then
+        builtin cd -q -- "$target_dir" || return
+    else
+        builtin cd -- "$target_dir" || return
+    fi
+
+    sdk env
+    command_status=$?
+
+    if [[ -n "$ZSH_VERSION" ]]; then
+        builtin cd -q -- "$previous_pwd" || return
+    else
+        builtin cd -- "$previous_pwd" || return
+    fi
+
+    if [[ -n "$oldpwd_was_set" ]]; then
+        OLDPWD="$previous_oldpwd"
+    else
+        unset OLDPWD
+    fi
+
+    return "$command_status"
+}
+
+__sync_sdkman_env() {
+    local config_file=
+    local config_dir=
+    local signature=
+
+    if __find_project_env_file .sdkmanrc; then
+        config_file="$__project_env_file"
+        config_dir="${config_file%/.sdkmanrc}"
+        __set_project_env_signature "$config_file"
+        signature="$__project_env_signature"
+    fi
+
+    if [[ -n "$config_file" ]]; then
+        if [[ "$signature" != "$__sdkman_config_signature" ]]; then
+            if [[ -z "$__auto_sdkman_env" && "$SDKMAN_ENV" == "$config_dir" ]]; then
+                __sdkman_config_signature="$signature"
+                return
+            fi
+
+            if [[ -n "$__auto_sdkman_env" && "$SDKMAN_ENV" == "$__auto_sdkman_env" && "$SDKMAN_ENV" != "$config_dir" ]]; then
+                sdk env clear
+                __auto_sdkman_env=
+            fi
+
+            if command -v sdk >/dev/null 2>&1; then
+                echo "☕ Activating .sdkmanrc (SDKMAN) ..."
+                if __run_sdkman_env_in "$config_dir"; then
+                    __auto_sdkman_env="$SDKMAN_ENV"
+                    __sdkman_config_signature="$signature"
+                fi
+            else
+                echo "SDKMAN is not installed. Run install.sh to set it up."
+            fi
+        fi
+    else
+        if [[ -n "$__auto_sdkman_env" && "$SDKMAN_ENV" == "$__auto_sdkman_env" ]] && command -v sdk >/dev/null 2>&1; then
+            echo "☕ Clearing SDKMAN project environment ..."
+            sdk env clear
+        fi
+        __auto_sdkman_env=
+        __sdkman_config_signature=
+    fi
+}
+
+[[ -n "${__fnm_config_signature+x}" ]] || __fnm_config_signature=
+
+__sync_fnm_env() {
+    local config_file=
+    local signature=
+    local target_node=
+
+    if __find_project_env_file .nvmrc .node-version; then
+        config_file="$__project_env_file"
+        __set_project_env_signature "$config_file"
+        signature="$__project_env_signature"
+    fi
+
+    if [[ -z "$config_file" ]]; then
+        __fnm_config_signature=
         return
     fi
 
-    # 1. Python
-    if [ -f .venv/bin/activate ]; then
-        echo "🐍 Activating Python .venv ..."
-        source .venv/bin/activate
+    [[ "$signature" == "$__fnm_config_signature" ]] && return
+
+    if ! command -v fnm >/dev/null 2>&1; then
+        echo "fnm is not installed. Run install.sh to set up Node.js."
+        return
     fi
+
+    target_node=$(tr -d '\r\n' < "$config_file")
+    if [[ -z "$target_node" ]]; then
+        echo "Node version file is empty: $config_file"
+        return
+    fi
+
+    echo "🟢 Activating NodeJS $target_node (fnm) ..."
+    if fnm use --silent-if-unchanged "$target_node"; then
+        __fnm_config_signature="$signature"
+    fi
+}
+
+[[ -n "${__rbenv_config_signature+x}" ]] || __rbenv_config_signature=
+[[ -n "${__auto_rbenv_version+x}" ]] || __auto_rbenv_version=
+[[ -n "${__previous_rbenv_version+x}" ]] || __previous_rbenv_version=
+[[ -n "${__rbenv_initialized+x}" ]] || __rbenv_initialized=
+
+__sync_rbenv_env() {
+    local config_file=
+    local signature=
+    local target_ruby=
+
+    if __find_project_env_file .ruby-version; then
+        config_file="$__project_env_file"
+        __set_project_env_signature "$config_file"
+        signature="$__project_env_signature"
+    fi
+
+    if [[ -z "$config_file" ]]; then
+        if [[ -n "$__auto_rbenv_version" && "$RBENV_VERSION" == "$__auto_rbenv_version" ]] && command -v rbenv >/dev/null 2>&1; then
+            if [[ -n "$__previous_rbenv_version" ]]; then
+                rbenv shell "$__previous_rbenv_version"
+            else
+                rbenv shell --unset
+            fi
+        fi
+        __rbenv_config_signature=
+        __auto_rbenv_version=
+        __previous_rbenv_version=
+        return
+    fi
+
+    [[ "$signature" == "$__rbenv_config_signature" ]] && return
+
+    if ! command -v rbenv >/dev/null 2>&1; then
+        echo "❌ rbenv not found. Please install it to use .ruby-version"
+        return
+    fi
+
+    target_ruby=$(tr -d '\r\n' < "$config_file")
+    if [[ -z "$target_ruby" ]]; then
+        echo "Ruby version file is empty: $config_file"
+        return
+    fi
+
+    if [[ -z "$__auto_rbenv_version" || "$RBENV_VERSION" != "$__auto_rbenv_version" ]]; then
+        __previous_rbenv_version="$RBENV_VERSION"
+    fi
+
+    if [[ -z "$__rbenv_initialized" ]]; then
+        eval "$(rbenv init -)"
+        __rbenv_initialized=1
+    fi
+
+    echo "💎 Activating Ruby $target_ruby (rbenv) ..."
+    if rbenv shell "$target_ruby"; then
+        __auto_rbenv_version="$RBENV_VERSION"
+        __rbenv_config_signature="$signature"
+        echo "✅ Switched to Ruby $target_ruby via rbenv"
+    fi
+}
+
+__active_envs() {
+    # 1. Python
+    __sync_python_venv
 
     # 2. SDKMAN (Java/Kotlin)
-    if [ -f .sdkmanrc ]; then
-        echo "☕ Activating .sdkmanrc (SDKMAN) ..."
-        sdk env
-    fi
+    __sync_sdkman_env
 
     # 3. fnm (Node.js)
-    if [ -f .nvmrc ] || [[ -f .node-version ]]; then
-        if command -v 'fnm' >/dev/null; then
-            echo "🟢 Activating NodeJS (fnm) ..."
-            fnm use
-        else
-            echo "fnm is not installed. Run install.sh to set up Node.js."
-        fi
-    fi
+    __sync_fnm_env
 
     # 4. Ruby (rbenv)
-    if [ -f .ruby-version ]; then
-        local TARGET_RUBY=$(cat .ruby-version)
-        echo "💎 .ruby-version detected ($TARGET_RUBY) ..."
-        
-        if command -v rbenv >/dev/null 2>&1; then
-            eval "$(rbenv init -)"
-            rbenv shell "$TARGET_RUBY"
-            echo "✅ Switched to Ruby $TARGET_RUBY via rbenv"
-        else
-            echo "❌ rbenv not found. Please install it to use .ruby-version"
-        fi
-    fi
-
-    __env_initialized=1
+    __sync_rbenv_env
 }
 
 if [ -n "$ZSH_VERSION" ]; then
@@ -672,6 +882,4 @@ else # for bash
     }
 fi
 
-if (( ${__env_initialized} == 0 )); then
-    __active_envs
-fi
+__active_envs

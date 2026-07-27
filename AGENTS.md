@@ -28,6 +28,7 @@
 - Use `pnpm` for JavaScript CLI tools such as prettier, eslint, sqlint, and pg-formatter.
 - Use `uv tool` for Python CLI tools such as black, isort, autoflake, ruff, pgcli, and markdown-live-preview.
 - Do not reintroduce conda, nvm, distro npm installs, or `pip install` setup paths.
+- Keep `home_k/.config/shrc.ext` project environment activation tied to every successful directory change; `pj` changes directories internally, so a one-shot shell-initialization guard prevents project environment activation. Track Python, SDKMAN, fnm, and rbenv state separately so unchanged configurations are not reapplied and manually selected environments are not cleared as though the hook owned them. See `docs/unix-project-environments.md`.
 
 ## PowerShell profile
 
