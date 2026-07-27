@@ -551,7 +551,17 @@ __can_load_fnm() {
     return 1
 }
 
-if __can_load_fnm && [[ -z "$FNM_MULTISHELL_PATH" ]]; then
+__fnm_env_is_ready() {
+    local fnm_bin="$FNM_MULTISHELL_PATH/bin"
+
+    [[ -n "$FNM_MULTISHELL_PATH" && -d "$fnm_bin" ]] || return 1
+    case ":$PATH:" in
+        *":$fnm_bin:"*) return 0 ;;
+        *) return 1 ;;
+    esac
+}
+
+if __can_load_fnm && ! __fnm_env_is_ready; then
     if [[ -n "$ZSH_VERSION" ]]; then
         eval "$(fnm env --shell zsh)"
     else

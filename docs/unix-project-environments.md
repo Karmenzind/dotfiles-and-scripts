@@ -31,6 +31,10 @@ does not duplicate activation or lose ownership needed for cleanup.
   Doing so creates two directory-change handlers.
 - Generate plain `fnm env` integration for the running shell. Hard-coding
   `--shell zsh` makes bash evaluate zsh hook syntax and produces a syntax error.
+- Do not treat a non-empty `FNM_MULTISHELL_PATH` as proof that fnm is ready.
+  `.zshrc` rebuilds `PATH`, and inherited or previously initialized fnm variables
+  can outlive the multishell `bin` entry. Re-run `fnm env` unless that directory
+  exists and is present in `PATH`.
 - SDKMAN's public `sdk env` command only reads `.sdkmanrc` from the current
   directory. The wrapper temporarily changes to the configuration directory;
   zsh uses `cd -q` so this internal change does not recursively invoke `chpwd`.
@@ -47,6 +51,7 @@ the SDKMAN installation present on 2026-07-27.
 On 2026-07-27, isolated zsh and bash integration checks covered:
 
 - shell-specific fnm initialization;
+- recovery when `FNM_MULTISHELL_PATH` is stale or missing from `PATH`;
 - activation through project-root configuration files;
 - retaining the same state in nested directories;
 - avoiding repeated activation after profile reload;
