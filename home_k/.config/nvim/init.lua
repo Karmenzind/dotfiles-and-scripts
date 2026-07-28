@@ -13,6 +13,11 @@ vim.opt.completeopt = "menu,menuone,noselect"
 local is_win = vim.fn.has("win32") == 1
 local is_macos = vim.fn.has("mac") == 1
 
+if is_win and vim.env.TERM_PROGRAM == "rmux" then
+    vim.opt.guicursor =
+        "n-v-c-sm:block,i-ci-ve:ver25-blinkwait300-blinkon200-blinkoff150,r-cr-o:hor20,t:block-blinkon500-blinkoff500-TermCursor"
+end
+
 local my_mode = vim.fn.getenv("MY_VIM_MODE")
 
 local mopts = { noremap = true, silent = true }

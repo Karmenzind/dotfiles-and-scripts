@@ -31,6 +31,28 @@ function Update-RmuxWorkingDirectory {
     }
 }
 
+# RMUX 0.9.1's Windows client auto-detects several Windows Terminal features
+# but omits cstyle. Its outer TERM is also empty, so server-side
+# terminal-features patterns are skipped. Advertise DECSCUSR support on every
+# 0.9.1 client invocation so pane cursor changes reach the outer terminal.
+if ($IsWindows -and (Get-Command rmux.exe -CommandType Application -ErrorAction SilentlyContinue)) {
+    $script:RmuxNeedsCursorStyleWorkaround = $null
+
+    function global:rmux {
+        $rmuxExecutable = (Get-Command rmux.exe -CommandType Application -ErrorAction Stop).Source
+        if ($null -eq $script:RmuxNeedsCursorStyleWorkaround) {
+            $rmuxVersion = (& $rmuxExecutable -V 2>$null | Select-Object -First 1)
+            $script:RmuxNeedsCursorStyleWorkaround = $rmuxVersion -match '^rmux 0\.9\.1(?:\s|$)'
+        }
+
+        if ($script:RmuxNeedsCursorStyleWorkaround) {
+            & $rmuxExecutable -T cstyle @args
+        } else {
+            & $rmuxExecutable @args
+        }
+    }
+}
+
 $script:ProfileStartupTimer = if ($env:PROFILE_TRACE -eq "1") {
     [System.Diagnostics.Stopwatch]::StartNew()
 } else {
@@ -583,16 +605,35 @@ function __setupPSReadLine {
         Set-PSReadLineKeyHandler -Key "Ctrl+[" -ScriptBlock { [Microsoft.PowerShell.PSConsoleReadLine]::ViCommandMode() } -ViMode Insert
         Set-PSReadLineKeyHandler -Key "`e"      -ScriptBlock { [Microsoft.PowerShell.PSConsoleReadLine]::ViCommandMode() } -ViMode Insert
 
-        Set-PSReadLineOption -ViModeIndicator Script -ViModeChangeHandler {
-            param($Mode)
-            switch ($Mode) {
-                'Command' {
-                    $Host.UI.RawUI.CursorSize = 100
-                    Write-Host -NoNewline "`e[2 q"
+        if ($IsWindows -and $env:TERM_PROGRAM -eq "rmux") {
+            # RMUX keeps the shell cursor as a block; Neovim owns its
+            # insert-mode bar while it is active.
+            Set-PSReadLineOption -ViModeIndicator Script -ViModeChangeHandler {
+                param($Mode)
+                switch ($Mode) {
+                    'Command' {
+                        $Host.UI.RawUI.CursorSize = 100
+                        Write-Host -NoNewline "`e[2 q"
+                    }
+                    'Insert' {
+                        $Host.UI.RawUI.CursorSize = 100
+                        Write-Host -NoNewline "`e[2 q"
+                    }
                 }
-                'Insert' {
-                    $Host.UI.RawUI.CursorSize = 25
-                    Write-Host -NoNewline "`e[6 q"
+            }
+        } else {
+            # Preserve the pre-existing cursor behavior in every non-RMUX host.
+            Set-PSReadLineOption -ViModeIndicator Script -ViModeChangeHandler {
+                param($Mode)
+                switch ($Mode) {
+                    'Command' {
+                        $Host.UI.RawUI.CursorSize = 100
+                        Write-Host -NoNewline "`e[2 q"
+                    }
+                    'Insert' {
+                        $Host.UI.RawUI.CursorSize = 25
+                        Write-Host -NoNewline "`e[6 q"
+                    }
                 }
             }
         }

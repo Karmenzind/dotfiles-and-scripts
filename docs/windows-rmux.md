@@ -122,6 +122,58 @@ profile integration and `-c "#{pane_current_path}"` in creation bindings.
 Test the entire chain: change directory, let the prompt redraw, create a split,
 and inspect `$PWD` in the child. Reading the binding alone is insufficient.
 
+### Cursor shape ownership
+
+Windows Terminal may define a bar as its profile default, but PSReadLine's Vi
+mode handler is the immediate owner of the interactive PowerShell cursor after
+the prompt starts. PSReadLine begins in Insert mode, so its normal `ESC[6 q`
+sequence changes the cursor to a steady bar even when the outer terminal or
+Alacritty is configured for a block.
+
+RMUX 0.9.1 parses DECSCUSR and stores each pane's cursor style, but its Windows
+client auto-detects only `sync`, `bpaste`, `mouse`, and `clipboard`. The attached
+client therefore lacks the `cstyle` feature. Its outer `TERM` is also empty, and
+`apply_terminal_feature_options` returns before matching `.rmux.conf`
+`terminal-features` entries, so adding `*:cstyle` to `.rmux.conf` cannot repair
+this version.
+
+On Windows, the PowerShell profile wraps interactive `rmux` calls and applies
+`rmux.exe -T cstyle ...` only when `rmux -V` reports 0.9.1. `-T` adds the client
+capability at attach time; RMUX then uses its built-in `Ss`/`Se` templates to
+relay the pane's recorded cursor style to Windows Terminal. Other platforms and
+other RMUX versions retain their normal invocation. This wrapper is required
+for each newly attached 0.9.1 client, so reload the profile and fully reattach
+after changing it. Verify with
+`rmux list-clients -F '#{client_termfeatures}'`: the attached client must
+include `cstyle`. Do this check in a real interactive PowerShell session: the
+shared profile intentionally returns before defining interactive helpers when
+stdin or stdout is redirected, so a headless profile-load test cannot validate
+this wrapper.
+
+Restarting only the RMUX server is insufficient when the outer PowerShell was
+opened before this wrapper was added. Detach to that outer shell and dot-source
+`$PROFILE`, or open a new terminal tab, then verify that `Get-Command rmux`
+reports `Function` before attaching. If `list-clients` still omits `cstyle`,
+inspect the attached client process: a working invocation includes
+`-T cstyle` before `new-session` or `attach-session`.
+
+For RMUX panes, keep both PSReadLine Vi modes on `ESC[2 q` (steady block).
+Neovim owns the cursor while it is active: `guicursor` explicitly uses a block
+for Normal/Visual/Command modes and a blinking `ver25` bar for
+Insert/Command-line Insert/Visual Select modes. This division keeps the shell
+cursor a block, gives Insert mode a distinct bar, and lets the next PowerShell
+prompt restore the shell cursor after Neovim exits. Do not change the global
+Windows Terminal cursor shape just to fix RMUX; that would affect unrelated
+profiles and tabs.
+
+The scope guards are part of the workaround: keep the PSReadLine override and
+Neovim `guicursor` assignment limited to Windows RMUX panes. Non-RMUX
+PowerShell must retain its original Vi-mode handler, and non-RMUX Neovim must
+retain its default `guicursor`. Editing the files does not revert state already
+loaded by a running shell or Neovim process; restart that process (or explicitly
+reset its option) before treating the old cursor shape as evidence about the
+new guards.
+
 ### Ctrl+D remains provisional
 
 The root-table `C-d` binding that sends raw `0x04` is retained. An isolated 0.9
@@ -162,13 +214,16 @@ Verify:
    paste and does not add list markers. Do not substitute `send-keys` for this
    physical-console test.
 6. Test physical Ctrl+D before removing its compatibility binding.
-7. Reload the live config only after the isolated checks:
+7. In a fresh RMUX pane, confirm that both PSReadLine Vi modes use a steady
+   block. Start Neovim and confirm Normal mode is a block, Insert mode is a
+   blinking vertical bar, and the shell returns to a block after Neovim exits.
+8. Reload the live config only after the isolated checks:
 
    ```powershell
    rmux source-file (Join-Path $HOME ".rmux.conf")
    ```
 
-8. Run `git diff --check`.
+9. Run `git diff --check`.
 
 ## Upgrade procedure
 
