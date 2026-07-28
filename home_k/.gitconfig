@@ -7,7 +7,7 @@
 	editor = $EDITOR
 
 	autocrlf = input
-	excludesfile = /Users/k/.gitignore_global
+	excludesfile = ~/.gitignore_global
 [alias]
     a = add --all
     c = commit
@@ -83,7 +83,7 @@
 	trustExitCode = true
 
 [commit]
-	template = /Users/k/.stCommitMsg
+	template = ~/.stCommitMsg
 
 [includeIf "gitdir:~/Workspace/"]
     path = ~/.gitconfig.work
