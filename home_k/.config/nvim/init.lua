@@ -136,7 +136,9 @@ if my_mode == "light" or vim.g.vscode then
 else
     my_fuzzy_tool = os.getenv("NVIM_FUZZY_TOOL")
     if my_fuzzy_tool == nil then
-        if os.getenv("TMUX") ~= nil and vim.fn.executable("fzf") == 1 then
+        if is_win then
+            my_fuzzy_tool = "telescope"
+        elseif os.getenv("TMUX") ~= nil and vim.fn.executable("fzf") == 1 then
             my_fuzzy_tool = "fzf"
         else
             my_fuzzy_tool = "telescope"
