@@ -31,7 +31,7 @@ local my_lsps = {
     "html",
     "emmet_language_server",
     "jdtls",
-    -- "csharp_ls",
+    "csharp_ls",
     "lua_ls",
     "ts_ls",
     "biome",

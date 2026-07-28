@@ -53,6 +53,7 @@
 ## Cross-platform configuration
 
 - Treat configuration files shared by macOS, Linux, and Windows as cross-platform by default, including `home_k/.tmux.conf`. Consider compatibility with all three platforms whenever changing shared configuration.
+- Keep the unresolved Windows `fzf.vim`/ripgrep investigation version-scoped and compare environments before adding a workaround. See `docs/windows-nvim-fzf.md`.
 - Keep the shared Codex global instructions in `home_k/.codex/AGENTS.md` and list that file explicitly in `symlink.py`; generic directory traversal excludes Markdown files.
 - Keep shared settings in one common file when platform differences are small, and isolate platform-specific behavior with guarded sections or included/imported macOS, Linux, and Windows fragments when the configuration format supports it.
 - Split out a platform- or tool-specific configuration when its behavior differs substantially or compatibility conditionals would make the shared configuration hard to understand or unreliable.
