@@ -1,13 +1,6 @@
 #!/usr/bin/env pwsh
 # Github: https://github.com/Karmenzind/dotfiles-and-scripts
 
-# RMUX 0.8.0 hardcodes tmux-256color for ConPTY panes even though that
-# terminfo entry is normally unavailable on native Windows. Correct inherited
-# panes as early as possible, before prompts, pagers, or other TUI tools start.
-if ($IsWindows -and $env:TERM_PROGRAM -eq "rmux" -and $env:TERM -eq "tmux-256color") {
-    $env:TERM = "xterm-256color"
-}
-
 function Test-AgentOrNonInteractiveShell {
     if ($env:CI -or $env:CODEX_AGENT -or $env:CURSOR_AGENT) {
         return $true
