@@ -516,7 +516,6 @@ function Install-DevelopmentEnvironment {
 
     Ensure-FnmNodeLts
     Enable-CorepackPnpm
-    Ensure-PnpmGlobalPackage -Command "codex" -Package "@openai/codex"
 
     foreach ($module in $script:PwshModules) {
         Ensure-PwshModule -Name $module

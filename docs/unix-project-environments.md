@@ -31,10 +31,14 @@ does not duplicate activation or lose ownership needed for cleanup.
   Doing so creates two directory-change handlers.
 - Generate plain `fnm env` integration for the running shell. Hard-coding
   `--shell zsh` makes bash evaluate zsh hook syntax and produces a syntax error.
-- Do not treat a non-empty `FNM_MULTISHELL_PATH` as proof that fnm is ready.
-  `.zshrc` rebuilds `PATH`, and inherited or previously initialized fnm variables
-  can outlive the multishell `bin` entry. Re-run `fnm env` unless that directory
-  exists and is present in `PATH`.
+- Do not treat a non-empty `FNM_MULTISHELL_PATH`, or merely finding its `bin`
+  directory somewhere in `PATH`, as proof that fnm is ready. `.zshrc` rebuilds
+  `PATH`, and Homebrew or system Node.js directories can take precedence over an
+  inherited fnm multishell directory. Re-run `fnm env` unless `command -v node`
+  resolves to that multishell's `node` shim.
+- pnpm is enabled through Corepack in each fnm-managed Node.js installation.
+  `PNPM_HOME` is only a location for pnpm-installed global commands and is
+  appended to `PATH`; it must not override the active fnm/Corepack shims.
 - SDKMAN's public `sdk env` command only reads `.sdkmanrc` from the current
   directory. The wrapper temporarily changes to the configuration directory;
   zsh uses `cd -q` so this internal change does not recursively invoke `chpwd`.
@@ -60,3 +64,9 @@ On 2026-07-27, isolated zsh and bash integration checks covered:
 - SDKMAN cleanup and rbenv restoration after leaving a project.
 
 Both shells passed, as did `zsh -n`, `bash -n`, and `git diff --check`.
+
+On 2026-07-29, a macOS zsh session reproduced an inherited fnm multishell
+directory at the end of `PATH`, behind Homebrew Node.js. After tightening the
+readiness check, a fresh project shell resolved `node`, `corepack`, and `pnpm`
+from the fnm multishell and reported Node.js 24.18.0, Corepack 0.35.0, and pnpm
+11.16.0. The project's Vite executable also ran under Node.js 24.18.0.

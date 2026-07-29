@@ -553,12 +553,11 @@ __can_load_fnm() {
 
 __fnm_env_is_ready() {
     local fnm_bin="$FNM_MULTISHELL_PATH/bin"
+    local active_node
 
     [[ -n "$FNM_MULTISHELL_PATH" && -d "$fnm_bin" ]] || return 1
-    case ":$PATH:" in
-        *":$fnm_bin:"*) return 0 ;;
-        *) return 1 ;;
-    esac
+    active_node=$(command -v node 2>/dev/null) || return 1
+    [[ "$active_node" == "$fnm_bin/node" ]]
 }
 
 if __can_load_fnm && ! __fnm_env_is_ready; then

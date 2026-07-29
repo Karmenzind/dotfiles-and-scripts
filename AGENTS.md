@@ -17,7 +17,9 @@
 - Prefer `winget` for software installation, and use Chocolatey only as a fallback for packages that are unavailable or unreliable in `winget`.
 - Manage Node.js with `fnm`; do not install Node.js through Chocolatey, winget Node packages, npm, or nvm.
 - Enable pnpm through `corepack`; do not install pnpm as a standalone package.
-- Manage Codex CLI with `pnpm`; manage the Codex GUI app with `winget`/Microsoft Store.
+- Manage Codex CLI only with `https://chatgpt.com/codex/install.sh`; do not
+  install it with pnpm, npm, or Homebrew. Manage the Codex GUI app with
+  `winget`/Microsoft Store.
 - Manage Python CLI tools with `uv tool`; do not add `pip install` or conda-based setup paths.
 
 ## Unix shell setup

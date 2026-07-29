@@ -316,12 +316,12 @@ setup_node_pnpm() {
 	fnm use lts-latest
 
 	if command -v corepack >/dev/null; then
-		corepack enable
-		corepack prepare pnpm@latest --activate
+		corepack enable pnpm
+		corepack install --global pnpm@latest
 		export PNPM_HOME="${PNPM_HOME:-$HOME/.local/share/pnpm}"
 		case ":$PATH:" in
 			*":$PNPM_HOME:"*) ;;
-			*) export PATH="$PNPM_HOME:$PATH" ;;
+			*) export PATH="$PATH:$PNPM_HOME" ;;
 		esac
 		echo_ok "pnpm is managed by corepack."
 	else
