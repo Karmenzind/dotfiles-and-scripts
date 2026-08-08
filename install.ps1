@@ -445,6 +445,7 @@ $script:CommonPackages = @(
     @{ Name = "Google Chrome"; Id = "Google.Chrome" },
     @{ Name = "Windows Terminal"; Id = "Microsoft.WindowsTerminal" },
     @{ Name = "Microsoft PowerToys"; Id = "Microsoft.PowerToys" },
+    @{ Name = "TrafficMonitor"; Id = "zhongyang219.TrafficMonitor.Full" },
     @{ Name = "CCleaner"; Id = "Piriform.CCleaner" },
     @{ Name = "Neovim"; Id = "Neovim.Neovim"; FallbackChocoId = "neovim" },
     @{ Name = "Spotify"; Id = "Spotify.Spotify" },
