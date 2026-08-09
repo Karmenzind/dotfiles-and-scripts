@@ -31,10 +31,10 @@ function Update-RmuxWorkingDirectory {
     }
 }
 
-# RMUX 0.9.1's Windows client auto-detects several Windows Terminal features
-# but omits cstyle. Its outer TERM is also empty, so server-side
-# terminal-features patterns are skipped. Advertise DECSCUSR support on every
-# 0.9.1 client invocation so pane cursor changes reach the outer terminal.
+# RMUX 0.9.1 and 0.10.0 auto-detect several Windows terminal features but
+# omit cstyle. Their outer TERM is also empty, so server-side terminal-features
+# patterns are skipped. Advertise DECSCUSR support only for the affected
+# versions so pane cursor changes reach the outer terminal.
 if ($IsWindows -and (Get-Command rmux.exe -CommandType Application -ErrorAction SilentlyContinue)) {
     $script:RmuxNeedsCursorStyleWorkaround = $null
 
@@ -42,7 +42,7 @@ if ($IsWindows -and (Get-Command rmux.exe -CommandType Application -ErrorAction 
         $rmuxExecutable = (Get-Command rmux.exe -CommandType Application -ErrorAction Stop).Source
         if ($null -eq $script:RmuxNeedsCursorStyleWorkaround) {
             $rmuxVersion = (& $rmuxExecutable -V 2>$null | Select-Object -First 1)
-            $script:RmuxNeedsCursorStyleWorkaround = $rmuxVersion -match '^rmux 0\.9\.1(?:\s|$)'
+            $script:RmuxNeedsCursorStyleWorkaround = $rmuxVersion -match '^rmux (?:0\.9\.1|0\.10\.0)(?:\s|$)'
         }
 
         if ($script:RmuxNeedsCursorStyleWorkaround) {

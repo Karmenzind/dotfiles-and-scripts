@@ -4,12 +4,12 @@ This repository uses RMUX only as a native Windows replacement for tmux. Keep
 RMUX-specific behavior in `home_k/.rmux.conf` and match the shared tmux key
 bindings where Windows and RMUX support them.
 
-The current findings were verified against RMUX 0.9.1 on native Windows ConPTY.
+The current findings were verified against RMUX 0.10.0 on native Windows ConPTY.
 They are version-scoped; use a fresh isolated server after every upgrade.
 
 ## Configuration architecture
 
-- Keep `home_k/.rmux.conf` standalone. RMUX 0.9 parses much more tmux syntax,
+- Keep `home_k/.rmux.conf` standalone. RMUX 0.10 parses much more tmux syntax,
   but `home_k/.tmux.conf` still contains Unix-only TPM plugins, shell jobs,
   clipboard commands, and terminal assumptions.
 - The live `~/.rmux.conf` should remain a symlink into this repository.
@@ -27,7 +27,27 @@ They are version-scoped; use a fresh isolated server after every upgrade.
   dark `▐` half-block as a terminal-safe shadow approximation; terminals cannot
   render a real blurred or offset shadow.
 
-## RMUX 0.9.1 verification
+## RMUX 0.10.0 verification
+
+RMUX 0.10.0 moves detached RPC from wire version 5 to 8 and is not compatible
+with 0.9.x daemons. Stop old servers during the upgrade and validate against a
+fresh socket. The installed client, attached client, and daemon were all
+verified as 0.10.0. See the
+[upstream 0.10.0 release notes](https://github.com/Helvesec/rmux/releases/tag/v0.10.0).
+
+The release fixes additional fragmented Windows bracketed-paste cases and adds
+the `title` client feature, but it still does not auto-detect `cstyle`. Keep the
+version-scoped cursor workaround described below. `set-titles` remains off to
+match the shared tmux configuration; the new capability is not a reason to
+change terminal-tab titles implicitly.
+
+The bundled human-friendly configuration now documents a UTF-8-safe Windows
+`copy-command` for `copy-pipe`. This configuration already uses
+`copy-selection` with the `clipboard` client feature and `set-clipboard
+external`, not `clip.exe` or `copy-pipe`, so adding that external PowerShell
+pipeline would replace a working OSC 52 path without benefit. Keep
+`copy-command` empty unless the copy binding is deliberately changed to
+`copy-pipe`.
 
 ### Retired 0.8 workarounds
 
@@ -99,8 +119,10 @@ detects a multi-character `ReadConsoleInputW` paste burst and wraps the batch in
 `ESC[200~` / `ESC[201~`, allowing Neovim's bracketed-paste handler to receive it
 as a paste rather than typed text. RMUX 0.9.1 further preserves multiline
 framing across short LF, Tab, and Backspace bursts and batches separated by
-console key noise. The installed client was verified as 0.9.1; start a fresh
-server after upgrading so it runs the same implementation.
+console key noise. RMUX 0.10.0 hardens fragmented reads, startup deferral,
+Ctrl+Enter-shaped LF records, and final-sink delivery. The installed client was
+verified as 0.10.0; start a fresh server after upgrading so it runs the same
+implementation.
 
 Do not remove `r` from Markdown `formatoptions` or enable Neovim's global
 `paste` option as a workaround: both change editor behavior while leaving the
@@ -130,20 +152,21 @@ the prompt starts. PSReadLine begins in Insert mode, so its normal `ESC[6 q`
 sequence changes the cursor to a steady bar even when the outer terminal or
 Alacritty is configured for a block.
 
-RMUX 0.9.1 parses DECSCUSR and stores each pane's cursor style, but its Windows
-client auto-detects only `sync`, `bpaste`, `mouse`, and `clipboard`. The attached
-client therefore lacks the `cstyle` feature. Its outer `TERM` is also empty, and
+RMUX 0.9.1 and 0.10.0 parse DECSCUSR and store each pane's cursor style, but the
+0.10.0 Windows client auto-detects only `sync`, `bpaste`, `mouse`, `clipboard`,
+and `title`. The attached client therefore still lacks the `cstyle` feature.
+Its outer `TERM` is also empty, and
 `apply_terminal_feature_options` returns before matching `.rmux.conf`
 `terminal-features` entries, so adding `*:cstyle` to `.rmux.conf` cannot repair
-this version.
+these versions.
 
 On Windows, the PowerShell profile wraps interactive `rmux` calls and applies
-`rmux.exe -T cstyle ...` only when `rmux -V` reports 0.9.1. `-T` adds the client
-capability at attach time; RMUX then uses its built-in `Ss`/`Se` templates to
-relay the pane's recorded cursor style to Windows Terminal. Other platforms and
-other RMUX versions retain their normal invocation. This wrapper is required
-for each newly attached 0.9.1 client, so reload the profile and fully reattach
-after changing it. Verify with
+`rmux.exe -T cstyle ...` only when `rmux -V` reports 0.9.1 or 0.10.0. `-T`
+adds the client capability at attach time; RMUX then uses its built-in `Ss`/`Se`
+templates to relay the pane's recorded cursor style to Windows Terminal. Other
+platforms and other RMUX versions retain their normal invocation. This wrapper
+is required for each newly attached affected client, so reload the profile and
+fully reattach after changing it. Verify with
 `rmux list-clients -F '#{client_termfeatures}'`: the attached client must
 include `cstyle`. Do this check in a real interactive PowerShell session: the
 shared profile intentionally returns before defining interactive helpers when
@@ -182,6 +205,11 @@ uses the server key path and cannot prove how a physical console Ctrl+D is
 forwarded. Remove this workaround only after a real attached-client test; do
 not infer success from `list-keys` or `send-keys` alone.
 
+RMUX 0.10.0 includes upstream Windows tests for attached and raw-console Ctrl+D,
+but this host currently has no `cargo` or `rustc` on PATH, so those physical
+ConPTY tests were not run against the installed build. Keep the binding until a
+real attached-client test exercises the same path.
+
 ### Pane process label
 
 Use `#{pane_current_command}`, not `#{pane_title}`, for pane borders. PowerShell
@@ -201,7 +229,8 @@ rmux -L $socket kill-server
 
 Verify:
 
-1. `rmux -V`, the client executable, and daemon process all report 0.9.1.
+1. `rmux -V`, the client executable, and daemon process all report 0.10.0, and
+   `rmux capabilities --human` reports detached wire version 8.
 2. A new shell reports `TERM=xterm-256color`, loads the linked profile, and has
    `pane_current_command=pwsh.exe` without a nested child shell.
 3. CLI and bound window/split creation load the profile and preserve the parent
@@ -229,9 +258,8 @@ Verify:
 
 1. Read the upstream changelog for Windows ConPTY input, shell startup,
    `default-command`, cwd/OSC 7, copy-mode rendering, and key forwarding.
-2. Restart long-running servers even when the wire version does not change.
-   RMUX 0.9.1 remains wire-compatible with 0.9.0 at detached RPC version 5, but
-   a 0.9.0 daemon cannot provide fixes implemented in the 0.9.1 server.
+2. Restart long-running servers. RMUX 0.10.0 uses detached RPC wire version 8
+   and rejects 0.9.x daemons, which use wire version 5.
 3. Run the checklist with a fresh isolated socket before touching the live
    server.
 4. Remove a workaround only when a test exercises the same input or rendering
