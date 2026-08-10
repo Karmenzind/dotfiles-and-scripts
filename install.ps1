@@ -466,6 +466,7 @@ $script:DevPackages = @(
     @{ Name = "uv"; Id = "astral-sh.uv" },
     @{ Name = "Oh My Posh"; Id = "JanDeDobbeleer.OhMyPosh" },
     @{ Name = "fzf"; Id = "junegunn.fzf" },
+    @{ Name = "Carapace"; Id = "rsteube.Carapace" },
     @{ Name = "fd"; Id = "sharkdp.fd" },
     @{ Name = "bat"; Id = "sharkdp.bat" },
     @{ Name = "ripgrep"; Id = "BurntSushi.ripgrep.MSVC" },

@@ -67,15 +67,6 @@ if ($psVersion -lt 7) {
 
 $env:EDITOR = "nvim.exe"
 
-# PSCompletions creates the `psc` alias dynamically during module import.
-# Load it synchronously so `psc` is available immediately in a new shell,
-# instead of waiting for the first PowerShell.OnIdle event.
-try {
-    Import-Module PSCompletions -Global -ErrorAction Stop
-} catch {
-    Write-Warning "PSCompletions setup skipped: $($_.Exception.Message)"
-}
-
 # fnm env only affects the process that evaluates it. install.ps1 initializes
 # its own process, so every interactive pwsh session must initialize fnm too.
 if (Get-Command fnm -ErrorAction SilentlyContinue) {
@@ -595,7 +586,8 @@ function __setupPSReadLine {
 
     try {
         Set-PSReadLineOption -PredictionSource History
-        Set-PSReadLineOption -PredictionViewStyle ListView
+        Set-PSReadLineOption -PredictionViewStyle InlineView
+        Set-PSReadLineOption -Colors @{ InlinePrediction = "`e[90m" }
         Set-PSReadlineOption -BellStyle None
 
         Set-PSReadLineOption -EditMode Vi
@@ -640,7 +632,7 @@ function __setupPSReadLine {
 
         # Keep common Emacs keys available while in Vi insert mode.
         Set-PSReadLineKeyHandler -Key "Ctrl+a" -Function BeginningOfLine -ViMode Insert
-        Set-PSReadLineKeyHandler -Key "Ctrl+e" -Function EndOfLine -ViMode Insert
+        Set-PSReadLineKeyHandler -Key "Ctrl+e" -Function AcceptSuggestion -ViMode Insert
         Set-PSReadLineKeyHandler -Key "Ctrl+b" -Function BackwardChar -ViMode Insert
         Set-PSReadLineKeyHandler -Key "Ctrl+f" -Function ForwardChar -ViMode Insert
         Set-PSReadLineKeyHandler -Key "Ctrl+k" -Function ForwardDeleteLine -ViMode Insert
@@ -653,6 +645,92 @@ function __setupPSReadLine {
     } catch {
         Write-Debug "PSReadLine setup skipped: $($_.Exception.Message)"
     }
+}
+
+# -----------------------------------------------------------------------------
+
+$script:PowerShellLocalProfile = Join-Path $HOME ".pwsh-profile.local.ps1"
+$script:ActiveCompletionMode = $null
+$script:ConfiguredCompletionMode = $null
+
+function Switch-Completion {
+    [CmdletBinding()]
+    param (
+        [Parameter(Position = 0)]
+        [ValidateSet("native", "psc", "carapace")]
+        [string] $Mode
+    )
+
+    if (-not $IsWindows) {
+        throw "Switch-Completion persistence is currently supported only on Windows."
+    }
+
+    if (-not $PSBoundParameters.ContainsKey("Mode")) {
+        $configuredMode = if ($script:ConfiguredCompletionMode) {
+            $script:ConfiguredCompletionMode
+        } elseif ($env:POWERSHELL_COMPLETION_MODE) {
+            $env:POWERSHELL_COMPLETION_MODE
+        } else {
+            "psc"
+        }
+        Write-Host "Active completion mode: $($script:ActiveCompletionMode ?? 'not initialized')"
+        Write-Host "Configured for new shells: $configuredMode"
+        return
+    }
+
+    $markerStart = "# >>> dotfiles completion mode >>>"
+    $markerEnd = "# <<< dotfiles completion mode <<<"
+    $block = @(
+        $markerStart
+        "`$env:POWERSHELL_COMPLETION_MODE = `"$Mode`""
+        $markerEnd
+    ) -join [Environment]::NewLine
+
+    $content = if (Test-Path -LiteralPath $script:PowerShellLocalProfile) {
+        Get-Content -LiteralPath $script:PowerShellLocalProfile -Raw
+    } else {
+        ""
+    }
+    $pattern = "(?ms)^$([regex]::Escape($markerStart))\r?\n.*?^$([regex]::Escape($markerEnd))(?:\r?\n)?"
+
+    if ($content -match $pattern) {
+        $content = [regex]::Replace($content, $pattern, "$block$([Environment]::NewLine)", 1)
+    } else {
+        if ($content.Length -gt 0 -and -not $content.EndsWith("`n")) {
+            $content += [Environment]::NewLine
+        }
+        $content += "$block$([Environment]::NewLine)"
+    }
+
+    Set-Content -LiteralPath $script:PowerShellLocalProfile -Value $content -NoNewline -Encoding utf8NoBOM
+    $script:ConfiguredCompletionMode = $Mode
+    Write-Host "Completion mode set to '$Mode'. It will take effect in new PowerShell sessions."
+}
+
+function __enableNativeCompletion {
+    Set-PSReadLineKeyHandler -Key Tab -Function MenuComplete -ViMode Insert
+}
+
+function __getCarapaceInitScript {
+    $carapaceCommand = Get-Command carapace -CommandType Application -ErrorAction Stop
+    $carapaceInit = & $carapaceCommand.Source _carapace
+    if ($LASTEXITCODE -ne 0) {
+        throw "carapace initialization exited with code $LASTEXITCODE."
+    }
+    return $carapaceInit | Out-String
+}
+
+function __getConfiguredCompletionMode {
+    $mode = if ($env:POWERSHELL_COMPLETION_MODE -in @("native", "psc", "carapace")) {
+        $env:POWERSHELL_COMPLETION_MODE
+    } else {
+        if ($env:POWERSHELL_COMPLETION_MODE) {
+            Write-Warning "Unknown completion mode '$env:POWERSHELL_COMPLETION_MODE'; using psc."
+        }
+        "psc"
+    }
+    $script:ConfiguredCompletionMode = $mode
+    return $mode
 }
 
 # -----------------------------------------------------------------------------
@@ -672,10 +750,9 @@ if ($IsWindows -and $env:TERM_PROGRAM -eq "rmux") {
 }
 
 if ($IsWindows) {
-    $localProfile = Join-Path $HOME ".pwsh-profile.local.ps1"
-    if (Test-Path -LiteralPath $localProfile) {
+    if (Test-Path -LiteralPath $script:PowerShellLocalProfile) {
         try {
-            . $localProfile
+            . $script:PowerShellLocalProfile
         } catch {
             Write-Warning "Local profile setup skipped: $($_.Exception.Message)"
         }
@@ -688,6 +765,36 @@ if ($IsWindows) {
         } catch {
             Write-Warning "Coreutils profile setup skipped: $($_.Exception.Message)"
         }
+    }
+}
+
+$completionMode = __getConfiguredCompletionMode
+try {
+    switch ($completionMode) {
+        "native" { __enableNativeCompletion }
+        "psc" {
+            # PSCompletions' core.ps1 creates its runtime object in the caller's
+            # scope, so import it here at profile scope rather than in a helper.
+            Import-Module PSCompletions -Global -ErrorAction Stop
+            $PSCompletions.handle_completion()
+        }
+        "carapace" {
+            # Evaluate the generated integration at profile scope so its
+            # helper functions and completer registrations survive startup.
+            __getCarapaceInitScript | Invoke-Expression
+            Set-PSReadLineOption -Colors @{ Selection = "`e[7m" }
+            Set-PSReadLineKeyHandler -Key Tab -Function MenuComplete -ViMode Insert
+        }
+    }
+    $script:ActiveCompletionMode = $completionMode
+} catch {
+    Write-Warning "$completionMode completion setup failed: $($_.Exception.Message)"
+    try {
+        __enableNativeCompletion
+        $script:ActiveCompletionMode = "native"
+        Write-Warning "Fell back to native PSReadLine completion."
+    } catch {
+        Write-Warning "Native completion fallback failed: $($_.Exception.Message)"
     }
 }
 
@@ -718,7 +825,7 @@ Register-EngineEvent -SourceIdentifier PowerShell.OnIdle -MaxTriggerCount 1 -Act
     }
 } | Out-Null
 
-Remove-Variable -Name "psVersion", "fnmEnv", "localProfile", "coreutilsProfile" -ErrorAction SilentlyContinue
+Remove-Variable -Name "psVersion", "fnmEnv", "coreutilsProfile", "completionMode" -ErrorAction SilentlyContinue
 
 if ($null -ne $script:ProfileStartupTimer) {
     $script:ProfileStartupTimer.Stop()

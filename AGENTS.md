@@ -43,6 +43,7 @@
 - Keep Coreutils' generated PowerShell integration outside the repository profile. Refresh it with `scripts/windows/Update-CoreutilsPowerShellFragment.ps1`; the profile may load the external fragment but Coreutils must not inject generated code into the symlink target.
 - Keep machine-specific PowerShell settings outside the repository in `~/.pwsh-profile.local.ps1`; the shared profile loads that file when present.
 - Preserve the lean startup split: interactive essentials load synchronously and optional modules load through `PowerShell.OnIdle`. Use `PROFILE_TRACE=1` when measuring changes.
+- Keep shell completion strategy selection on new-session boundaries. `Switch-Completion` persists `native`, `psc`, or `carapace` in the marked block in `~/.pwsh-profile.local.ps1`; do not hot-switch providers in a running shell. See `docs/windows-powershell-completion.md`.
 - Go project activation uses `gvm --format=powershell --no-install`. Search upward for `.gvmrc`, `.go-version`, `go.version`, `.tool-versions`, `go.work`, and `go.mod` in that priority order; prefer a `toolchain go...` directive over `go ...`. Parse `.gvmrc` as data and never execute it. Do not let profile-driven directory changes install or download Go versions.
 
 ## RMUX on Windows
