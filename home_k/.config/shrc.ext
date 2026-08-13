@@ -113,84 +113,6 @@ ex() {
     fi
 }
 
-#######################################################################
-#                                 fzf                                 #
-#######################################################################
-
-if command -v fzf >/dev/null; then
-    if [ -f ~/.fzf.zsh ]; then
-        source ~/.fzf.zsh
-        echo "[fzf] Sourced ~/.fzf.zsh"
-    else
-        source <(fzf --zsh)
-        echo "[fzf] Loaded via 'fzf --zsh'"
-        # TODO (k): <2024-12-05 14:27> fix zsh plugin
-    fi
-
-    # use fd
-    # export FZF_DEFAULT_COMMAND="fd --type f --hidden --follow --ignore-file ~/.config/search_ignore"
-    # use the silver searcher
-    if command -v 'fd' >/dev/null; then
-        export FZF_DEFAULT_COMMAND="fd --type f --strip-cwd-prefix --hidden --follow --exclude .git"
-    elif command -v 'rg' >/dev/null; then
-        export FZF_DEFAULT_COMMAND="rg -. --sort path -l . -g '!.git/'"
-    elif command -v 'ag' >/dev/null; then
-        export FZF_DEFAULT_COMMAND="ag --hidden --nocolor -U -g ''"
-    else
-        echo "fd/ag needs to be installed"
-    fi
-    export FZF_CTRL_T_COMMAND=$FZF_DEFAULT_COMMAND
-
-    # for fzf
-    # export FZF_DEFAULT_OPTS="--preview '[ -f {} ] && file {} && head -30 {} '
-    # export FZF_DEFAULT_OPTS="--preview 'bat --style=numbers --color=always --line-range :50 {}'"
-    # --color 'fg:#bbccdd,fg+:#ddeeff,bg:#334455,preview-bg:#223344,border:#778899'
-    # export FZF_DEFAULT_OPTS="--inline-info --height 50% --reverse --border=horizontal --preview-window=down:50% --color fg:yellow,fg+:bright-yellow"
-    fzf_opts_basic="--bind 'ctrl-/:toggle-preview'"
-    export FZF_DEFAULT_OPTS="${fzf_opts_basic} --inline-info --height 50% --reverse --border=horizontal --preview-window=down:50%:hidden --color fg:yellow,fg+:bright-yellow"
-    # export FZF_CTRL_T_OPTS="${fzf_opts_basic} --preview 'bash -c \"(bat --color=always --style=snip --theme=gruvbox-dark --line-range :40 {} || highlight -O ansi -l {} 2> /dev/null || cat {} || tree -C {}) 2> /dev/null | head -40\"'"
-    # export FZF_CTRL_R_OPTS="--preview 'echo {}' --preview-window down:3:hidden:wrap --bind '?:toggle-preview'"
-    export FZF_CTRL_T_OPTS="${fzf_opts_basic} --preview 'sh -c \"(bat --color=always --style=snip --theme=Github --line-range :40 {} || highlight -O ansi -l {} 2> /dev/null || cat {} || tree -C {}) 2> /dev/null | head -40\"'"
-    export FZF_CTRL_R_OPTS="${fzf_opts_basic} --preview 'echo {} | bat --color=always --style=snip --theme=Github --language=zsh' --preview-window down:3:hidden:wrap"
-    export FZF_TMUX=1
-    export FZF_TMUX_OPTS="-p 80%,60%"
-    # export FZF_COMPLETION_OPTS='--border --info=inline'
-
-    # - The first argument to the function ($1) is the base path to start traversal
-    # - See the source code (completion.{bash,zsh}) for the details.
-    # _fzf_compgen_path() {
-    #   fd --hidden --follow --exclude ".git" . "$1"
-    # }
-
-    # # Use fd to generate the list for directory completion
-    # _fzf_compgen_dir() {
-    #   fd --type d --hidden --follow --exclude ".git" . "$1"
-    # }
-
-    # (EXPERIMENTAL) Advanced customization of fzf options via _fzf_comprun function
-    # - The first argument to the function is the name of the command.
-    # - You should make sure to pass the rest of the arguments to fzf.
-    _fzf_comprun() {
-        local command=$1
-        shift
-
-        case "$command" in
-        cd) fzf "$@" --preview 'tree -C {} | head -200' ;;
-        export | unset) fzf "$@" --preview "eval 'echo \$'{}" ;;
-        ssh) fzf "$@" --preview 'dig {}' ;;
-        *) fzf "$@" ;;
-        esac
-    }
-
-    _fzf_complete_pj() {
-        _fzf_complete --multi --reverse --prompt="pj> " -- "$@" < <(
-            for bd in $PROJECT_PATHS; do
-                ls $bd
-            done
-        )
-    }
-fi
-
 # --------------------------------------------
 # funcs
 # --------------------------------------------
@@ -379,13 +301,6 @@ _init_alarcrity() {
 
 _init_alarcrity
 
-#######################################################################
-#                           for zsh plugins                           #
-#######################################################################
-
-# pj
-export PROJECT_PATHS=(~/Workspace ~/Localworks)
-
 # virtualenv wrapper
 export WORKON_HOME=~/.venvs
 
@@ -492,7 +407,6 @@ command -v chuck_cow >/dev/null && chuck_cow
 alias weather='curl -4 http://wttr.in'
 
 export USE_PROXYCHAINS_FIRST=true
-ZSH_AUTOSUGGEST_HIGHLIGHT_STYLE="fg=#ff00ff,bg=cyan,bold,underline"
 
 pkg_by_missing() {
     local q=$(pacman -F $1)
@@ -569,8 +483,33 @@ if __can_load_fnm && ! __fnm_env_is_ready; then
     echo "[fnm] initialized with fnm env"
 fi
 
+__load_gvm_for_project() {
+    local gvm_script="$HOME/.gvm/scripts/gvm"
 
-[[ -s "$HOME/.gvm/scripts/gvm" ]] && source "$HOME/.gvm/scripts/gvm" && echo "[gvm] loaded"
+    if [[ ! -f "$PWD/go.mod" ]]; then
+        echo "gvm is only enabled when the current directory contains go.mod." >&2
+        return 1
+    fi
+    if [[ ! -s "$gvm_script" ]]; then
+        echo "gvm is not installed. Run install.sh to set it up." >&2
+        return 1
+    fi
+
+    unset -f gvm
+    if ! source "$gvm_script"; then
+        return 1
+    fi
+    echo "[gvm] loaded for Go project"
+}
+
+if ! typeset -f gvm >/dev/null 2>&1; then
+    gvm() {
+        local gvm_args=("$@")
+
+        __load_gvm_for_project || return
+        gvm "${gvm_args[@]}"
+    }
+fi
 
 #######################################################################
 #                                 kd                                  #

@@ -17,6 +17,13 @@ uses the nearest supported configuration.
 - rbenv uses the nearest `.ruby-version`. It restores the previous
   `RBENV_VERSION`, or runs `rbenv shell --unset`, when leaving an environment
   owned by the hook.
+- GVM is exposed through a lightweight `gvm` wrapper. On the first explicit
+  `gvm ...` command, the wrapper requires `go.mod` directly in the current
+  directory, sources the real GVM implementation, and forwards the arguments.
+  Merely starting a shell or changing directories never loads GVM.
+  Detect an existing GVM shell function rather than a `gvm` executable on
+  inherited `PATH`; the executable cannot apply version changes to its parent
+  shell and must not bypass the wrapper.
 
 Python tracks its automatically activated environment. The version managers
 cache their configuration path and checksum. Moving inside the same project
@@ -45,6 +52,15 @@ does not duplicate activation or lose ownership needed for cleanup.
 - SDKMAN also requires the active project's `.sdkmanrc` to remain present for
   `sdk env clear`. Deleting that file before leaving can prevent SDKMAN from
   restoring its defaults; this is an upstream command limitation.
+- GVM defines a global `cd` wrapper that calls `setValueForKeyFakeAssocArray`.
+  Claude Code 2.1.226 shell snapshots retained that wrapper and its public
+  callers but omitted GVM's `_encode` and `_decode` helpers. Every snapshot cwd
+  reset then printed `command not found` warnings. Keep GVM out of shell startup
+  and directory-change hooks; the lazy wrapper lets Claude snapshots retain a
+  self-contained loader instead. If Claude explicitly runs `gvm` in a direct
+  `go.mod` directory, GVM exists only in that tool shell. Existing Claude
+  sessions must be restarted after changing this behavior because their broken
+  snapshot is already cached.
 
 Re-test the generated fnm hook and SDKMAN `sdk env clear` behavior after major
 version-manager upgrades. The behavior above was verified with fnm 1.39.0 and
@@ -62,6 +78,9 @@ On 2026-07-27, isolated zsh and bash integration checks covered:
 - reapplying a changed version file;
 - switching directly between two configured projects;
 - SDKMAN cleanup and rbenv restoration after leaving a project.
+- GVM staying unloaded on shell startup and directory changes, rejecting calls
+  outside a direct `go.mod` directory, then loading and forwarding arguments
+  when explicitly invoked inside one.
 
 Both shells passed, as did `zsh -n`, `bash -n`, and `git diff --check`.
 
@@ -70,3 +89,8 @@ directory at the end of `PATH`, behind Homebrew Node.js. After tightening the
 readiness check, a fresh project shell resolved `node`, `corepack`, and `pnpm`
 from the fnm multishell and reported Node.js 24.18.0, Corepack 0.35.0, and pnpm
 11.16.0. The project's Vite executable also ran under Node.js 24.18.0.
+
+On 2026-08-13, Claude Code 2.1.226's saved snapshot was sourced in an isolated
+zsh and reproduced the `_encode` / `_decode` warnings on `cd`. The lazy wrapper
+was then verified in zsh and bash for rejection outside a Go project, no loading
+on directory changes, one-time loading on explicit use, and argument forwarding.

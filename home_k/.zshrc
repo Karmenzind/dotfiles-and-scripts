@@ -75,6 +75,34 @@ HIST_STAMPS="yyyy-mm-dd"
 # Would you like to use another custom folder than $ZSH/custom?
 # ZSH_CUSTOM=/path/to/new-custom-folder
 
+# Zsh-only plugin settings
+PROJECT_PATHS=(~/Workspace ~/Localworks)
+ZSH_AUTOSUGGEST_HIGHLIGHT_STYLE="fg=#ff00ff,bg=cyan,bold,underline"
+
+if command -v fzf >/dev/null; then
+  if command -v fd >/dev/null; then
+    export FZF_DEFAULT_COMMAND="fd --type f --strip-cwd-prefix --hidden --follow --exclude .git"
+  elif command -v rg >/dev/null; then
+    export FZF_DEFAULT_COMMAND="rg -. --sort path -l . -g '!.git/'"
+  elif command -v ag >/dev/null; then
+    export FZF_DEFAULT_COMMAND="ag --hidden --nocolor -U -g ''"
+  else
+    echo "fd/ag needs to be installed"
+  fi
+  export FZF_CTRL_T_COMMAND=$FZF_DEFAULT_COMMAND
+
+  fzf_opts_basic="--bind 'ctrl-/:toggle-preview'"
+  export FZF_DEFAULT_OPTS="${fzf_opts_basic} --inline-info --height 50% --reverse --border=horizontal --preview-window=down:50%:hidden --color fg:yellow,fg+:bright-yellow"
+  export FZF_CTRL_T_OPTS="${fzf_opts_basic} --preview 'sh -c \"(bat --color=always --style=snip --theme=Github --line-range :40 {} || highlight -O ansi -l {} 2> /dev/null || cat {} || tree -C {}) 2> /dev/null | head -40\"'"
+  export FZF_CTRL_R_OPTS="${fzf_opts_basic} --preview 'echo {} | bat --color=always --style=snip --theme=Github --language=zsh' --preview-window down:3:hidden:wrap"
+  if command -v fzf-tmux >/dev/null; then
+    export FZF_TMUX=1
+    export FZF_TMUX_OPTS="-p 80%,60%"
+  else
+    unset FZF_TMUX FZF_TMUX_OPTS
+  fi
+fi
+
 # Which plugins would you like to load? (plugins can be found in ~/.oh-my-zsh/plugins/*)
 # Custom plugins may be added to ~/.oh-my-zsh/custom/plugins/
 # Example format: plugins=(rails git textmate ruby lighthouse)
@@ -138,6 +166,34 @@ plugins=(
 
 source $ZSH/oh-my-zsh.sh
 
+if command -v fzf >/dev/null; then
+  _fzf_comprun() {
+    local command=$1
+    shift
+
+    case "$command" in
+      cd) fzf "$@" --preview 'tree -C {} | head -200' ;;
+      export | unset) fzf "$@" --preview "eval 'echo \$'{}" ;;
+      ssh) fzf "$@" --preview 'dig {}' ;;
+      *) fzf "$@" ;;
+    esac
+  }
+
+  _fzf_complete_pj() {
+    _fzf_complete --multi --reverse --prompt="pj> " -- "$@" < <(
+      for basedir in $PROJECT_PATHS; do
+        ls "$basedir"
+      done
+    )
+  }
+
+  if (( $+widgets[fzf-history-widget] )); then
+    bindkey -M emacs '^R' fzf-history-widget
+    bindkey -M viins '^R' fzf-history-widget
+    bindkey -M vicmd '^R' fzf-history-widget
+  fi
+fi
+
 if ! [[ "root" == "$USER" ]]; then
     autoload -U compinit && compinit
 fi
@@ -153,3 +209,7 @@ case ":$PATH:" in
   *) export PATH="$PATH:$PNPM_HOME" ;;
 esac
 # pnpm end
+
+# >>> Codex installer >>>
+export PATH="/home/qk/.local/bin:$PATH"
+# <<< Codex installer <<<
