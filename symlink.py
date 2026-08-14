@@ -65,6 +65,7 @@ TO_SYNC: Set[Path] = {
     SRC_HOME / ".codex/AGENTS.md",
     SRC_HOME / ".vim",
     SRC_HOME / ".vimrc",
+    SRC_HOME / ".rmux.conf",
     # SRC_HOME / ".condarc",
     SRC_HOME / ".gitconfig",
     SRC_HOME / ".editorconfig",
@@ -103,7 +104,6 @@ if osname == "win":
 
     TO_SYNC.update(
         [
-            SRC_HOME / ".rmux.conf",
             SRC_HOME / ".tmux.conf",
             SRC_HOME / ".config/alacritty/win.toml",
             Path("others/powershell/profile.ps1"),

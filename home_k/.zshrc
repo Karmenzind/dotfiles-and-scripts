@@ -1,4 +1,5 @@
 # Github: https://github.com/Karmenzind/dotfiles-and-scripts
+# zmodload zsh/zprof
 
 # If you come from bash you might have to change your $PATH.
 # export PATH=$HOME/bin:/usr/bin:/usr/local/bin:$PATH
@@ -122,7 +123,13 @@ plugins=(
   'fzf'
   'systemd'
   # 'svn-fast-info'
-  'archlinux'
+)
+
+if [[ -e /etc/arch-release ]]; then
+  plugins+=('archlinux')
+fi
+
+plugins+=(
   # 'autojump'
   # 'chucknorris'
   'colored-man-pages'
@@ -188,10 +195,6 @@ if command -v fzf >/dev/null; then
   fi
 fi
 
-if ! [[ "root" == "$USER" ]]; then
-    autoload -U compinit && compinit
-fi
-
 # Custom here
 [[ -e ~/.config/shrc.ext ]] && source ~/.config/shrc.ext && echo "Loaded ~/.config/shrc.ext"
 # eval "$(starship init zsh)" && echo "Loaded starship"
@@ -205,5 +208,6 @@ esac
 # pnpm end
 
 # >>> Codex installer >>>
-export PATH="/home/qk/.local/bin:$PATH"
+export PATH="$HOME/.local/bin:$PATH"
 # <<< Codex installer <<<
+# zprof

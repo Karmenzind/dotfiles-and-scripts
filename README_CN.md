@@ -109,8 +109,9 @@
 python symlink.py
 ```
 
-Windows 上使用 RMUX 作为 tmux 的原生替代。版本相关的兼容性说明、已知限制和
-验证清单见 [docs/windows-rmux.md](./docs/windows-rmux.md)。
+RMUX 在 Linux、macOS 和 Windows 上共用一份原生配置。安装与跨平台验证见
+[docs/rmux.md](./docs/rmux.md)，Windows 特有的版本兼容说明见
+[docs/windows-rmux.md](./docs/windows-rmux.md)。
 
 支持参数：
 - -i 文件逐个提示交互

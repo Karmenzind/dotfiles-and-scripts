@@ -3,6 +3,7 @@
 - [.stylua.toml](./.stylua.toml)
 - [AGENTS.md](./AGENTS.md)
 - [docs](./docs)
+	- [rmux.md](./docs/rmux.md)
 	- [windows-rmux.md](./docs/windows-rmux.md)
 - [home_k](./home_k)
 	- [.agignore](./home_k/.agignore)

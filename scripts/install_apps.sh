@@ -29,6 +29,7 @@ _brew_formulae=(
 	lua
 	neovim
 	ripgrep
+	rmux
 	shfmt
 	stylua
 	tmux

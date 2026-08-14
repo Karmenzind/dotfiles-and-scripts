@@ -1,8 +1,9 @@
 # RMUX on Windows: compatibility notes
 
-This repository uses RMUX only as a native Windows replacement for tmux. Keep
-RMUX-specific behavior in `home_k/.rmux.conf` and match the shared tmux key
-bindings where Windows and RMUX support them.
+The repository's standalone RMUX configuration is shared by Linux, macOS, and
+Windows; see [rmux.md](./rmux.md) for its architecture and common verification.
+This document records only native Windows compatibility findings and guarded
+workarounds.
 
 The current findings were verified against RMUX 0.10.0 on native Windows ConPTY.
 They are version-scoped; use a fresh isolated server after every upgrade.
@@ -13,6 +14,10 @@ They are version-scoped; use a fresh isolated server after every upgrade.
   but `home_k/.tmux.conf` still contains Unix-only TPM plugins, shell jobs,
   clipboard commands, and terminal assumptions.
 - The live `~/.rmux.conf` should remain a symlink into this repository.
+- Do not set `default-shell` in the shared file. RMUX 0.10 chooses the native
+  platform default; a stale Windows server that retained the former
+  `pwsh.exe` value must clear it with `rmux set-option -gu default-shell` or be
+  restarted.
 - Keep the explicit `-c "#{pane_current_path}"` on pane/window creation.
   PowerShell emits OSC 7 on prompt redraw so RMUX can track a ConPTY pane's
   current directory; a control test using `cmd.exe` without OSC 7 remained at
@@ -199,7 +204,8 @@ new guards.
 
 ### Ctrl+D remains provisional
 
-The root-table `C-d` binding that sends raw `0x04` is retained. An isolated 0.9
+The root-table `C-d` binding that sends raw `0x04` is retained only when
+`USERPROFILE` marks a native Windows server. An isolated 0.9
 `send-keys C-d` probe did not close an empty PowerShell pane, but that command
 uses the server key path and cannot prove how a physical console Ctrl+D is
 forwarded. Remove this workaround only after a real attached-client test; do

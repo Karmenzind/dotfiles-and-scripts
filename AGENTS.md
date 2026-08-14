@@ -48,11 +48,13 @@
 - Keep shell completion strategy selection on new-session boundaries. `Switch-Completion` persists `native`, `psc`, or `carapace` in the marked block in `~/.pwsh-profile.local.ps1`; do not hot-switch providers in a running shell. See `docs/windows-powershell-completion.md`.
 - Go project activation uses `gvm --format=powershell --no-install`. Search upward for `.gvmrc`, `.go-version`, `go.version`, `.tool-versions`, `go.work`, and `go.mod` in that priority order; prefer a `toolchain go...` directive over `go ...`. Parse `.gvmrc` as data and never execute it. Do not let profile-driven directory changes install or download Go versions.
 
-## RMUX on Windows
+## RMUX
 
-- Read `docs/windows-rmux.md` before changing RMUX, tmux, PowerShell prompt integration, or Windows pane creation behavior.
-- RMUX is currently used only as the native Windows substitute for tmux. Match the shared tmux key bindings and user-visible behavior wherever RMUX supports them.
+- Read `docs/rmux.md` and `docs/windows-rmux.md` before changing RMUX, tmux, PowerShell prompt integration, or Windows pane creation behavior.
+- Keep `home_k/.rmux.conf` portable across native Linux, macOS, and Windows. Match the shared tmux key bindings and user-visible behavior wherever RMUX supports them.
 - Keep `home_k/.rmux.conf` standalone. Do not source the full `home_k/.tmux.conf`: even when RMUX parses its syntax, that file contains Unix-only TPM plugins, shell jobs, clipboard commands, and terminal assumptions.
+- Let RMUX select the native default shell. Keep platform-specific workarounds narrowly guarded; use runtime `if-shell -F '#{USERPROFILE}'` only as the native Windows config condition, not as a portable home path. RMUX 0.10.0 evaluates parse-time `%if` before importing that environment value.
+- Keep the reload binding on `source-file -F "#{config_files}"`; RMUX 0.10.0 requires `-F` to expand that format instead of treating it as a literal path.
 - Treat RMUX workarounds as version-scoped. Re-test them against a fresh isolated RMUX server after upgrades before removing or simplifying them.
 
 ## Cross-platform configuration
@@ -62,7 +64,7 @@
 - Keep the shared Codex global instructions in `home_k/.codex/AGENTS.md` and list that file explicitly in `symlink.py`; generic directory traversal excludes Markdown files.
 - Keep shared settings in one common file when platform differences are small, and isolate platform-specific behavior with guarded sections or included/imported macOS, Linux, and Windows fragments when the configuration format supports it.
 - Split out a platform- or tool-specific configuration when its behavior differs substantially or compatibility conditionals would make the shared configuration hard to understand or unreliable.
-- `home_k/.rmux.conf` is the separate Windows RMUX configuration. Keep behavior aligned with `home_k/.tmux.conf`, but do not force syntax-level sharing when RMUX compatibility is unreliable.
+- `home_k/.rmux.conf` is the standalone cross-platform RMUX configuration. Keep behavior aligned with `home_k/.tmux.conf`, but do not force syntax-level sharing when RMUX compatibility is unreliable.
 
 ## Verification
 
