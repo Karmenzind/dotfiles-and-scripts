@@ -26,7 +26,7 @@ alias xy=proxychains4
 
 # /* others apps */
 export EDITOR=nvim
-export PAGER='less -F'
+export PAGER='less'
 export VISUAL=$EDITOR
 export SVN_EDITOR=$EDITOR
 
