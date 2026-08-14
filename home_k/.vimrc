@@ -43,16 +43,10 @@ function! s:NoSearchCabbrev(abbr, expanded)
 endfunction
 
 function! s:OpenTerm() abort
-  if has('nvim')
-    sp
-    terminal
-    call feedkeys('A')
+  if s:is_win && executable('pwsh')
+    execute ':terminal pwsh'
   else
-    if s:is_win && executable('pwsh')
-      execute ':terminal pwsh'
-    else
-      terminal
-    endif
+    terminal
   endif
 endfunction
 
@@ -228,29 +222,17 @@ function! SetupVimPlug()
   call plug#end()
 endfunction
 
-if has('nvim')
-  let g:line_plugin = 'lualine'
-else
-  let g:line_plugin = 'airline'
-endif
+let g:line_plugin = 'airline'
 
-if !has('nvim')
-  call SetupVimPlug()
-endif
+call SetupVimPlug()
 
 "runtime macros/matchit.vim
 "runtime! ftplugin/qf.vim
 
 
-if has('nvim')
-  function! Plugged(name) abort
-    return luaeval('require("lazy.core.config").plugins[_A] ~= nil', a:name)
-  endfunction
-else
-  function! Plugged(name) abort
-    return has_key(g:plugs, a:name)
-  endfunction
-endif
+function! Plugged(name) abort
+  return has_key(g:plugs, a:name)
+endfunction
 " --------------------------------------------
 " basic
 " --------------------------------------------
@@ -283,9 +265,7 @@ set nowrap
 
 " set noshowmode
 " set whichwrap+=<,>,h,l
-if has('nvim')
-  set statusline=%F%m%r%h%w\ (%{&ff}){%Y}\ [%l,%v][%p%%]
-elseif Plugged('vim-devicons')
+if Plugged('vim-devicons')
   " set statusline=%f\ %{WebDevIconsGetFileTypeSymbol()}\ %h%w%m%r\ %=%(%l,%c%V\ %Y\ %=\ %P%)
 endif
 
@@ -293,9 +273,7 @@ endif
 set number
 
 function! s:RelNoToggle(mode)
-  if !has('nvim')
-    if &ft =~? '\v(startify|registers|leaderf)' | return | endif
-  endif
+  if &ft =~? '\v(startify|registers|leaderf)' | return | endif
   " respect buffer settings
   if getbufvar(winbufnr(0), '&nu') == 0 | return | endif
   if a:mode == "in"
@@ -308,7 +286,7 @@ endfunction
 
 augroup relative_number_toggle
   autocmd!
-  if !has('nvim') && Plugged("LeaderF")
+  if Plugged("LeaderF")
     autocmd FileType leaderf setlocal nonu nornu
   endif
   autocmd BufEnter,FocusGained,InsertLeave,WinEnter * call s:RelNoToggle("in")
@@ -374,7 +352,7 @@ syntax enable
 " syntax on
 " filetype plugin indent on
 
-if !has('nvim') | set termencoding=utf-8 | endif
+set termencoding=utf-8
 set fileencodings=utf8,ucs-bom,gbk,cp936,gb2312,gb18030
 set encoding=utf-8
 
@@ -500,21 +478,14 @@ function! s:Fzf2Nerdtree(lines)
     echoerr "Invalid path: " .. a:lines[0]
     return
   endif
-  if has("nvim")
-    " execute 'CHADopen --always-focus ' .. path
-    execute 'NvimTreeFindFile '
-    wincmd p
-  else
-    if get(g:, "loaded_nerd_tree", 0) == 0
-      execute 'NERDTree'
-    endif
-    execute 'NERDTreeFind ' .. path
+  if get(g:, "loaded_nerd_tree", 0) == 0
+    execute 'NERDTree'
   endif
+  execute 'NERDTreeFind ' .. path
 endfunction
 
 " /* for NERDTree */
-if !has("nvim")
-  nnoremap <silent> <leader>N :NERDTreeFind<CR>
+nnoremap <silent> <leader>N :NERDTreeFind<CR>
   nnoremap <silent> <Leader>n :NERDTreeToggle<CR>
   let g:NERDTreeIgnore = ['\.pyc$', '\~$', '__pycache__[[dir]]', '\.swp$']
   let g:NERDTreeShowBookmarks = 1
@@ -529,7 +500,6 @@ if !has("nvim")
     autocmd bufenter * if (winnr("$") == 1 && exists("b:NERDTree") && b:NERDTree.isTabTree()) | q | endif
     autocmd tableave * if exists('g:loaded_nerd_tree') | execute 'NERDTreeClose' | endif
   augroup END
-endif
 
 " /* For vim-airline */
 if g:line_plugin == 'airline'
@@ -590,8 +560,7 @@ if g:line_plugin == 'airline'
 endif
 
 " /* for fzf */
-if !has('nvim') || g:my_fuzzy_tool == "fzf"
-  function! s:build_quickfix_list(lines) abort
+function! s:build_quickfix_list(lines) abort
     if empty(a:lines)
       return
     endif
@@ -607,85 +576,84 @@ if !has('nvim') || g:my_fuzzy_tool == "fzf"
               \ 'text': m[4],
               \ })
       else
-        call add(qf, { 'filename': line })
-      endif
-    endfor
-
-    call setqflist(qf, 'r')
-    copen
-  endfunction
-
-  let g:fzf_action = {
-        \ 'ctrl-n': function('s:Fzf2Nerdtree'),
-        \ 'ctrl-q': function('s:build_quickfix_list'),
-        \ 'ctrl-t': 'tab split', 'ctrl-x': 'split', 'ctrl-v': 'vsplit'
-        \}
-
-  let g:fzf_vim = {
-        \ 'preview_window': ['hidden,right,50%,<70(up,40%)', 'ctrl-/'],
-        \ 'buffers_jump': 1, 'tags_command': 'ctags -R',
-        \}
-
-  if s:is_win
-    if filereadable('C:\Program\ Files\Git\git-bash.exe')
-      let g:fzf_vim.preview_bash = 'C:\Program\ Files\Git\git-bash.exe'
+    call add(qf, { 'filename': line })
     endif
-  else
-    let g:fzf_history_dir = '~/.local/share/fzf-history'
-  endif
+  endfor
 
-  let s:__use_tmux = v:false
-  if !s:is_win && !exists("g:vscode") && exists('$TMUX')
-    let g:__tmux_version = str2float(matchstr(system('tmux -V'), '\v[0-9]+\.[0-9]+'))
-    if g:__tmux_version >= 3.2
-      let s:__use_tmux = v:true
-    endif
-  endif
+  call setqflist(qf, 'r')
+  copen
+endfunction
 
-  if s:__use_tmux
-    let g:fzf_layout = { 'tmux': '-p90%,60%' }
-  else
-    if (has('nvim') || has("popupwin"))
-      let g:fzf_layout = { 'window': { 'width': 0.9, 'height': 0.6 } }
-    else
-      let g:fzf_layout = { 'down': '~51%' }
-    endif
-    let g:fzf_colors = {
-          \ 'fg':      ['fg', 'Normal'],
-          \ 'bg':      ['bg', 'Normal'],
-          \ 'hl':      ['fg', 'Comment'],
-          \ 'fg+':     ['fg', 'CursorLine', 'CursorColumn', 'Normal'],
-          \ 'bg+':     ['bg', 'CursorLine', 'CursorColumn'],
-          \ 'hl+':     ['fg', 'Statement'],
-          \ 'info':    ['fg', 'PreProc'],
-          \ 'border':  ['fg', 'Ignore'],
-          \ 'prompt':  ['fg', 'Conditional'],
-          \ 'pointer': ['fg', 'Exception'],
-          \ 'marker':  ['fg', 'Keyword'],
-          \ 'spinner': ['fg', 'Label'],
-          \ 'header':  ['fg', 'Comment'] }
-  endif
+let g:fzf_action = {
+      \ 'ctrl-n': function('s:Fzf2Nerdtree'),
+      \ 'ctrl-q': function('s:build_quickfix_list'),
+      \ 'ctrl-t': 'tab split', 'ctrl-x': 'split', 'ctrl-v': 'vsplit'
+      \}
 
-  " command! -bang -nargs=* Ag call fzf#vim#ag(<q-args>, '--hidden', <bang>0)
-  " command! -bang -nargs=* Rg call fzf#vim#grep("rg --column --line-number --no-heading --color=always -- ".fzf#shellescape(<q-args>), fzf#vim#with_preview(), <bang>0)
-  command! -bar -nargs=? -bang Maps call fzf#vim#maps(<q-args>, <bang>0)
+let g:fzf_vim = {
+      \ 'preview_window': ['hidden,right,50%,<70(up,40%)', 'ctrl-/'],
+      \ 'buffers_jump': 1, 'tags_command': 'ctags -R',
+      \}
 
-  nnoremap <Leader>ff :Files<CR>
-  if s:is_win
-    nnoremap <Leader>fa :Rg<SPACE>
-  else
-    nnoremap <Leader>fa :Ag<SPACE>
+if s:is_win
+  if filereadable('C:\Program\ Files\Git\git-bash.exe')
+    let g:fzf_vim.preview_bash = 'C:\Program\ Files\Git\git-bash.exe'
   endif
-  nnoremap <Leader>fr :Rg<SPACE>
-  nnoremap <Leader>fg :Rg<SPACE>
-  nnoremap <Leader>fl :Lines<SPACE>
-  nnoremap <Leader>fL :BLines<SPACE>
-  nnoremap <Leader>fb :Buffers<CR>
-  nnoremap <Leader>fw :Windows<CR>
-  nnoremap <Leader>fs :Snippets<CR>
-  " nnoremap <Leader>fh :History/<CR>
-  nnoremap <Leader>fq :FzfQF<CR>
+else
+  let g:fzf_history_dir = '~/.local/share/fzf-history'
 endif
+
+let s:__use_tmux = v:false
+if !s:is_win && !exists("g:vscode") && exists('$TMUX')
+  let g:__tmux_version = str2float(matchstr(system('tmux -V'), '\v[0-9]+\.[0-9]+'))
+  if g:__tmux_version >= 3.2
+    let s:__use_tmux = v:true
+  endif
+endif
+
+if s:__use_tmux
+  let g:fzf_layout = { 'tmux': '-p90%,60%' }
+else
+  if has("popupwin")
+    let g:fzf_layout = { 'window': { 'width': 0.9, 'height': 0.6 } }
+  else
+    let g:fzf_layout = { 'down': '~51%' }
+  endif
+  let g:fzf_colors = {
+        \ 'fg':      ['fg', 'Normal'],
+        \ 'bg':      ['bg', 'Normal'],
+        \ 'hl':      ['fg', 'Comment'],
+        \ 'fg+':     ['fg', 'CursorLine', 'CursorColumn', 'Normal'],
+        \ 'bg+':     ['bg', 'CursorLine', 'CursorColumn'],
+        \ 'hl+':     ['fg', 'Statement'],
+        \ 'info':    ['fg', 'PreProc'],
+        \ 'border':  ['fg', 'Ignore'],
+        \ 'prompt':  ['fg', 'Conditional'],
+        \ 'pointer': ['fg', 'Exception'],
+        \ 'marker':  ['fg', 'Keyword'],
+        \ 'spinner': ['fg', 'Label'],
+        \ 'header':  ['fg', 'Comment'] }
+endif
+
+" command! -bang -nargs=* Ag call fzf#vim#ag(<q-args>, '--hidden', <bang>0)
+" command! -bang -nargs=* Rg call fzf#vim#grep("rg --column --line-number --no-heading --color=always -- ".fzf#shellescape(<q-args>), fzf#vim#with_preview(), <bang>0)
+command! -bar -nargs=? -bang Maps call fzf#vim#maps(<q-args>, <bang>0)
+
+nnoremap <Leader>ff :Files<CR>
+if s:is_win
+  nnoremap <Leader>fa :Rg<SPACE>
+else
+  nnoremap <Leader>fa :Ag<SPACE>
+endif
+nnoremap <Leader>fr :Rg<SPACE>
+nnoremap <Leader>fg :Rg<SPACE>
+nnoremap <Leader>fl :Lines<SPACE>
+nnoremap <Leader>fL :BLines<SPACE>
+nnoremap <Leader>fb :Buffers<CR>
+nnoremap <Leader>fw :Windows<CR>
+nnoremap <Leader>fs :Snippets<CR>
+" nnoremap <Leader>fh :History/<CR>
+nnoremap <Leader>fq :FzfQF<CR>
 
 " /* for devicons */
 let g:WebDevIconsUnicodeDecorateFolderNodes = 1
@@ -760,11 +728,7 @@ function! FixLeadingTabs(buffer, lines) abort
   return l:fixed_lines
 endfunction
 
-" no linters for nvim
-if has('nvim')
-  let g:ale_enabled = 0
-else
-  let g:ale_linter_aliases = {
+let g:ale_linter_aliases = {
         \ 'vue': ['vue', 'javascript', 'html']
         \ }
   let g:ale_linters = {
@@ -865,9 +829,8 @@ else
 
   nmap <silent> <Leader>al <Plug>(ale_lint)
   nmap <Leader>af <Plug>(ale_fix)
-  nmap <silent> <Leader>at <Plug>(ale_toggle)
-  call s:NoSearchCabbrev("AF", "ALEFix")
-endif
+nmap <silent> <Leader>at <Plug>(ale_toggle)
+call s:NoSearchCabbrev("AF", "ALEFix")
 
 " /* for vim-visual-multi */
 " let g:VM_maps = {"Find Under": '<space>n'}
@@ -1155,14 +1118,7 @@ if !exists("vscode")
   let g:vista_echo_cursor = 0
   let g:vista_echo_cursor_strategy = 'both'
 
-  if has('nvim')
-    let g:vista_executive_for = {
-          \ 'go': 'nvim_lsp',
-          \ 'yaml': 'nvim_lsp',
-          \ 'toml': 'ctags',
-          \ 'typescript': 'nvim_lsp',
-          \ }
-  elseif Plugged("coc.nvim")
+  if Plugged("coc.nvim")
     let g:vista_executive_for = {
           \ 'lua': 'coc',
           \ 'yaml': 'coc',
@@ -1209,20 +1165,16 @@ endfunction
 " TODO (k): <2022-10-11> check opened
 if has('win32')
   let s:vimrc_path = glob('~/_vimrc')
-  let g:init_vim_path = glob('~/AppData/Local/nvim/init.vim')
   let g:init_lua_path = glob('~/AppData/Local/nvim/init.lua')
   let g:config_lua_path = glob('~/AppData/Local/nvim/lua/config.lua')
   let s:extra_vimrc_path = s:vimrc_path .. '_local'
-  let g:extra_init_vim_path = g:init_vim_path .. '_local'
   let g:coc_settings_json_path = glob('~/vimfiles/coc-settings.json')
 else
   let s:vimrc_path = glob('~/.vimrc')
-  let g:init_vim_path = glob('~/.config/nvim/init.vim')
   let g:init_lua_path = glob('~/.config/nvim/init.lua')
   let g:config_lua_path = glob('~/.config/nvim/lua/config.lua')
   let g:coc_settings_json_path = glob('~/.vim/coc-settings.json')
   let s:extra_vimrc_path = s:vimrc_path .. '.local'
-  let g:extra_init_vim_path = g:init_vim_path .. '.local'
 endif
 
 function! EditRcFilesV2() abort
@@ -1343,7 +1295,7 @@ set foldtext=MyFoldText()
 " au when change colo
 augroup fit_colorscheme
   au!
-  if v:version >= 801 || has('nvim')
+  if v:version >= 801
     au ColorSchemePre * call BeforeChangeColorscheme()
     au ColorSchemePre atomic,NeoSolarized,ayu,palenight,sacredforest call SetTermguiColors('yes')
   endif
@@ -1416,20 +1368,18 @@ if has('gui_running') && !exists('g:vscode')
   set langmenu=en_US
   let $LANG = 'en_US.UTF-8'
 
-  if !has('nvim')
-    " window / tab / bar / ...
-    set guioptions+=v
-    " set guioptions+=e
-    set guioptions+=i
-    " set guioptions+=!
-    set guioptions+=g
-    set guioptions-=T
-    set guioptions-=m
-    set guioptions-=L
-    set guioptions-=r
-    set guioptions-=b
-    set guioptions-=e
-  endif
+  " window / tab / bar / ...
+  set guioptions+=v
+  " set guioptions+=e
+  set guioptions+=i
+  " set guioptions+=!
+  set guioptions+=g
+  set guioptions-=T
+  set guioptions-=m
+  set guioptions-=L
+  set guioptions-=r
+  set guioptions-=b
+  set guioptions-=e
 
   set nolist
 endif
@@ -1477,7 +1427,7 @@ endif
 " command -nargs=1 Colo :call SetColorScheme('<args>')
 
 " fallback
-if !exists('g:colors_name') && !has('nvim')
+if !exists('g:colors_name')
   if !s:is_win
     call RandomSetColo([
           \'Tomorrow',
@@ -1503,10 +1453,7 @@ if !exists('g:colors_name') && !has('nvim')
   endif
 endif
 
-" before nvim config .local
-if !has('nvim')
-  let &t_SI .= "\<Esc>[6 q"
-  let &t_SR .= "\<Esc>[3 q"
-  let &t_EI .= "\<Esc>[2 q"
-endif
+let &t_SI .= "\<Esc>[6 q"
+let &t_SR .= "\<Esc>[3 q"
+let &t_EI .= "\<Esc>[2 q"
 

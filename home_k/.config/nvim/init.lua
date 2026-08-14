@@ -101,6 +101,7 @@ end
 vim.opt.rtp:prepend(lazypath)
 
 local my_vimrc_path
+local my_vimrc_local_path
 if is_win then
     vim.o.runtimepath = "~/vimfiles," .. vim.o.runtimepath .. ",~/vimfiles/after"
     vim.o.packpath = vim.o.runtimepath
@@ -117,6 +118,7 @@ if is_win then
     vim.opt.shellxquote = ""
 
     my_vimrc_path = "~/_vimrc"
+    my_vimrc_local_path = my_vimrc_path .. "_local"
 else
     vim.o.runtimepath = "~/.vim," .. vim.o.runtimepath .. ",~/.vim/after"
     vim.o.packpath = vim.o.runtimepath
@@ -124,6 +126,7 @@ else
     vim.g.ruby_host_prog = vim.fn.trim(vim.fn.system("find $HOME/.gem -regex '.*ruby/[^/]+/bin/neovim-ruby-host'"))
 
     my_vimrc_path = "~/.vimrc"
+    my_vimrc_local_path = my_vimrc_path .. ".local"
 end
 
 -- Make sure to setup `mapleader` and `maplocalleader` before
@@ -686,9 +689,621 @@ require("lazy").setup({
 })
 
 vim.cmd(string.format("let g:my_fuzzy_tool = '%s'", my_fuzzy_tool))
-vim.cmd("source " .. my_vimrc_path)
-if vim.fn.filereadable(vim.g.extra_init_vim_path) > 0 then
-    vim.cmd("source " .. vim.g.extra_init_vim_path)
+
+-- ==============================================================
+-- Ported from .vimrc (native replacement for `source .vimrc`)
+-- ==============================================================
+
+-- /* HHKB backspace remap */
+local function is_hhkb()
+    if is_win then
+        return false
+    end
+    local out = vim.fn.system("grep 'HHKB' /proc/bus/input/devices")
+    return vim.v.shell_error == 0 and out ~= nil and out ~= ""
+end
+
+if is_hhkb() then
+    -- vimrc had `noremap <BS> <NOP>` immediately followed by `map <BS> <Leader>`
+    -- for the same modes (n/v/o); the second silently wins.
+    vim.keymap.set({ "n", "v", "o" }, "<BS>", "<Leader>")
+end
+
+-- /* cabbrevs */
+local function no_search_cabbrev(abbr, expanded)
+    -- long-bracket string avoids Lua reinterpreting \v \s \1 \r -- they need
+    -- to reach vimscript's own double-quoted string escaping untouched
+    vim.cmd(string.format([[cabbrev <expr> %s (getcmdtype() == ':') ? "%s" : "%s"]], abbr, expanded, abbr))
+end
+
+no_search_cabbrev("w!!", "w !sudo tee %")
+no_search_cabbrev("GI", "GoImport")
+no_search_cabbrev("th", "tab<SPACE>help")
+no_search_cabbrev("sss", [[s/\v(,)\s*/\1\r/g]])
+no_search_cabbrev("UE", "UltiSnipsEdit")
+
+-- /* terminal */
+local function open_term()
+    vim.cmd("split")
+    vim.cmd("terminal")
+    vim.fn.feedkeys("A")
+end
+
+-- /* rc file paths + edit picker */
+local coc_settings_json_path = is_win and vim.fn.glob("~/vimfiles/coc-settings.json")
+    or vim.fn.glob("~/.vim/coc-settings.json")
+local init_lua_path = vim.fn.stdpath("config") .. "/init.lua"
+
+local function edit_rc_files_v2()
+    local files = { init_lua_path, my_vimrc_local_path, my_vimrc_path, coc_settings_json_path }
+    local n = vim.fn.confirm("To edit:", "&1init.lua\n&2vimrc.local\n&3vimrc\n&4coc.json")
+    if n == 0 then
+        return
+    end
+    local ft = vim.bo.filetype
+    if vim.fn.winnr() == 1 and (ft == "alpha" or ft == "startify") then
+        vim.cmd("silent e " .. files[n])
+    else
+        vim.cmd("silent vsplit " .. files[n])
+    end
+end
+
+-- /* quickfix toggle */
+local quickfix_is_open = false
+local quickfix_return_to_window
+local function quickfix_toggle()
+    if quickfix_is_open then
+        vim.cmd("cclose")
+        quickfix_is_open = false
+        vim.cmd(quickfix_return_to_window .. "wincmd w")
+    else
+        quickfix_return_to_window = vim.fn.winnr()
+        vim.cmd("copen")
+        quickfix_is_open = true
+    end
+end
+
+-- /* colorscheme support */
+local current_hour = tonumber(os.date("%H"))
+local bg_light = current_hour >= 8 and current_hour < 17
+
+local function echo_warn(msg)
+    vim.api.nvim_echo({ { "[✘] " .. msg, "WarningMsg" } }, true, {})
+end
+
+local function init_termguicolors()
+    if vim.fn.has("termguicolors") == 1 then
+        if not vim.o.termguicolors then
+            vim.cmd([[let &t_8f = "\<Esc>[38;2;%lu;%lu;%lum"]])
+            vim.cmd([[let &t_8b = "\<Esc>[48;2;%lu;%lu;%lum"]])
+            vim.o.termguicolors = true
+        end
+        return vim.o.termguicolors
+    end
+end
+
+local function set_termguicolors(k)
+    if vim.fn.has("termguicolors") == 1 then
+        if k == "yes" and not vim.o.termguicolors then
+            init_termguicolors()
+        elseif k == "no" and vim.o.termguicolors then
+            vim.o.termguicolors = false
+        end
+    end
+end
+
+local function let_bg_fit_clock()
+    vim.o.background = bg_light and "light" or "dark"
+end
+
+local function before_change_colorscheme()
+    set_termguicolors("no")
+    let_bg_fit_clock()
+end
+
+local function after_change_colorscheme()
+    local term = vim.env.TERM or ""
+    local skip_italic = vim.env.TMUX ~= nil and not (term:find("tmux") or term:find("italic"))
+    if not skip_italic then
+        vim.cmd("highlight Comment cterm=italic")
+    end
+end
+
+-- FIXME: vimrc itself says "doesn't work at all" -- ported as-is, not fixing
+local function backgroud_toggle()
+    local cs = vim.g.colors_name
+    vim.o.background = vim.o.background == "dark" and "light" or "dark"
+    vim.cmd("colorscheme " .. cs)
+    vim.api.nvim_echo({ { "Color: " .. cs .. " Background: " .. vim.o.background } }, false, {})
+end
+
+-- NOTE: vimrc's SetColorScheme() also fits an airline theme -- dead for nvim,
+-- which always uses lualine, so that branch isn't ported.
+local function set_color_scheme(cname)
+    if vim.g.colors_name ~= nil then
+        return
+    end
+    local chosen = cname
+    if bg_light then
+        if cname == "seoul256" then
+            chosen = "seoul256-light"
+        elseif cname == "atomic" then
+            vim.g.atomic_mode = 9
+        end
+    end
+    vim.cmd("colorscheme " .. chosen)
+end
+
+local function random_set_colo(themes)
+    set_color_scheme(themes[math.random(1, #themes)])
+end
+
+local fit_cs_grp = vim.api.nvim_create_augroup("fit_colorscheme", { clear = true })
+vim.api.nvim_create_autocmd("ColorSchemePre", { group = fit_cs_grp, pattern = "*", callback = before_change_colorscheme })
+vim.api.nvim_create_autocmd("ColorSchemePre", {
+    group = fit_cs_grp,
+    pattern = { "atomic", "NeoSolarized", "ayu", "palenight", "sacredforest" },
+    callback = function() set_termguicolors("yes") end,
+})
+vim.api.nvim_create_autocmd("ColorScheme", { group = fit_cs_grp, pattern = "*", callback = after_change_colorscheme })
+vim.api.nvim_create_autocmd("ColorScheme", {
+    group = fit_cs_grp, pattern = { "blue-moon", "github_*" }, command = "set nocursorcolumn",
+})
+
+-- /* basic keymaps (depend on the functions above) */
+vim.keymap.set("n", "<Leader>E", edit_rc_files_v2, mopts)
+-- $MYVIMRC under nvim is init.lua; :source auto-detects .lua, so this
+-- naturally becomes "reload init.lua"
+vim.keymap.set("n", "<Leader>R", "<cmd>source $MYVIMRC<CR><cmd>echom 'Vimrc reloaded :)'<CR>", mopts)
+vim.keymap.set("n", "<Leader>S", "<cmd>source %<CR><cmd>echom expand('%') . ' sourced :)'<CR>", mopts)
+vim.keymap.set("n", "<Leader>T", open_term, mopts)
+
+vim.keymap.set("n", "<C-n>", "gt", mopts)
+vim.keymap.set("n", "<C-p>", "gT", mopts)
+vim.keymap.set("n", "<Leader>sw", "<cmd>set wrap!<CR><cmd>set wrap?<CR>", mopts)
+vim.keymap.set("n", "<Leader>sb", backgroud_toggle, mopts)
+-- overridden later by the `load_lsp_plugins` block's diagnostic.setloclist
+-- mapping -- same as current behavior (.vimrc used to be sourced before that
+-- block ran too), only takes effect when load_lsp_plugins is false
+vim.keymap.set("n", "<leader>q", quickfix_toggle, mopts)
+vim.keymap.set("i", "<c-d>", "<Delete>", mopts)
+vim.keymap.set("n", "<leader><CR>", "i<CR><ESC>k$", mopts)
+
+-- /* basic options */
+vim.opt.errorbells = false
+vim.opt.showcmd = true
+vim.opt.incsearch = false
+vim.opt.ttimeoutlen = 0
+vim.opt.wildmenu = true
+vim.opt.ruler = true
+vim.opt.showtabline = 1
+if is_win then
+    vim.opt.guifont = "Monaco Nerd Font Mono:h12"
+elseif vim.g.neovide == nil then
+    vim.opt.guifont = "Monaco Nerd Font Mono 12"
+end
+vim.opt.cursorline = true
+vim.opt.cursorcolumn = true
+vim.opt.showmode = true
+vim.opt.cmdheight = 2
+vim.opt.laststatus = 2
+vim.opt.matchtime = 5
+vim.opt.wrap = false
+-- manual `statusline` intentionally not ported: lualine takes over the
+-- statusline whenever it loads (i.e. whenever not vim.g.vscode), so it's
+-- dead code in every nvim mode
+
+vim.opt.number = true
+
+local function rel_no_toggle(mode)
+    if vim.fn.getbufvar(vim.fn.winbufnr(0), "&nu") == 0 then
+        return
+    end
+    if mode == "in" then
+        if vim.wo.number then
+            vim.wo.relativenumber = true
+        else
+            vim.wo.number = true
+            vim.wo.relativenumber = true
+        end
+    elseif mode == "out" then
+        if vim.wo.number then
+            vim.wo.relativenumber = false
+        else
+            vim.wo.number = true
+            vim.wo.relativenumber = true
+        end
+    end
+end
+
+local relnum_grp = vim.api.nvim_create_augroup("relative_number_toggle", { clear = true })
+vim.api.nvim_create_autocmd({ "BufEnter", "FocusGained", "InsertLeave", "WinEnter" },
+    { group = relnum_grp, pattern = "*", callback = function() rel_no_toggle("in") end })
+vim.api.nvim_create_autocmd({ "BufLeave", "FocusLost", "InsertEnter", "WinLeave" },
+    { group = relnum_grp, pattern = "*", callback = function() rel_no_toggle("out") end })
+
+vim.opt.splitbelow = true
+vim.opt.splitright = true
+vim.opt.mouse = "a"
+vim.opt.backspace = { "indent", "eol", "start" }
+if vim.fn.has("clipboard") == 1 then
+    vim.opt.clipboard = "unnamed"
+end
+if vim.fn.has("gui_running") == 1 then
+    vim.keymap.set({ "n", "v", "i" }, "<S-Insert>", "<MiddleMouse>")
+end
+vim.opt.scrolloff = 5
+
+vim.opt.foldlevel = 99
+vim.g.fold_offset = 4
+local fold_specs_grp = vim.api.nvim_create_augroup("fold_specs", { clear = true })
+vim.api.nvim_create_autocmd("FileType", {
+    group = fold_specs_grp, pattern = "vim", callback = function() vim.b.fold_offset = 5 end,
+})
+
+vim.opt.spelllang = "en"
+vim.opt.spell = false
+vim.opt.history = 50
+vim.opt.backup = false
+
+vim.opt.fileencodings = { "utf8", "ucs-bom", "gbk", "cp936", "gb2312", "gb18030" }
+vim.opt.encoding = "utf-8"
+vim.opt.iskeyword:append({ "_", "$", "@", "%", "#", "-" })
+vim.opt.fileformat = "unix"
+
+-- filetype-specific formatting + BadWhitespace highlight: kept as a raw
+-- vim.cmd block, the `|`-chained regex-heavy autocmds translate poorly to
+-- discrete nvim_create_autocmd calls without losing readability
+vim.cmd([[
+augroup filetype_formats
+  au!
+  au FileType *
+        \ setlocal expandtab         |
+        \ setlocal smarttab          |
+        \ setlocal shiftwidth=4      |
+        \ setlocal tabstop=4         |
+        \ setlocal softtabstop=4
+
+  au FileType yaml.docker-compose,toml setlocal sts=2 ts=2 sw=2
+  au FileType help setlocal nu
+  au FileType make setlocal noexpandtab
+  au FileType,BufNewFile,BufRead Jenkinsfile setf groovy
+
+  au FileType,BufNewFile,BufRead *.{vim},*vimrc
+        \ setlocal tabstop=2          |
+        \ setlocal softtabstop=2      |
+        \ setlocal shiftwidth=2       |
+        \ setlocal formatoptions-=cro |
+        \ setlocal foldlevel=2        |
+        \ setlocal foldmethod=expr
+
+  au FileType,BufNewFile,BufRead *.go
+        \ setlocal foldmethod=syntax
+
+  au FileType,BufNewFile,BufRead *.py
+        \ setlocal autoindent            |
+        \ setlocal sidescroll=5          |
+        \ setlocal cc=120                |
+        \ let b:python_highlight_all = 1 |
+        \ setlocal complete+=t           |
+        \ setlocal formatoptions-=t      |
+        \ setlocal define=^\s*\\(def\\\\|class\\)
+
+  au FileType,BufNewFile,BufRead *.js,*.ts,*.html,*.css,*.yml,*.toml,*.vue
+        \ setlocal tabstop=2     |
+        \ setlocal softtabstop=2 |
+        \ setlocal shiftwidth=2
+
+  au FileType,BufNewFile,BufRead *.json
+        \ setlocal tabstop=2     |
+        \ setlocal softtabstop=2 |
+        \ setlocal shiftwidth=2  |
+        \ setlocal foldmethod=syntax
+
+  au FileType,BufRead,BufNewFile *.py,*.pyw,*.c,*.h,*.{vim,vimrc}
+        \ highlight BadWhitespace ctermbg=red guibg=darkred |
+        \ match BadWhitespace /\s\+$/
+augroup END
+]])
+
+vim.cmd([[
+augroup file_headers
+  au!
+  au BufNewFile *.sh
+        \ call setline(1, '#!/usr/bin/env bash') | call append(line('.'), '') | normal! Go
+  au BufNewFile *.py
+        \ call setline(1, '#!/usr/bin/env python') | call append(line('.')+1, '') | normal! Go
+  au BufNewFile *.{cpp,cc}
+        \ call setline(1, '#include <iostream>') | call append(line('.'), '') | normal! Go
+  au BufNewFile *.c
+        \ call setline(1, '#include <stdio.h>') | call append(line('.'), '') | normal! Go
+  au BufNewFile *.h,*.hpp
+        \ call setline(1, '#ifndef _'.toupper(expand('%:r')).'_H') |
+        \ call setline(2, '#define _'.toupper(expand('%:r')).'_H') |
+        \ call setline(3, '#endif') | normal! Go
+augroup END
+]])
+
+-- /* fzf.vim config (only relevant if my_fuzzy_tool == "fzf") */
+if my_fuzzy_tool == "fzf" then
+    local function fzf_to_nvimtree(lines)
+        if #lines == 0 then return end
+        local path = vim.fn.glob(lines[1])
+        if path == "" then
+            vim.api.nvim_err_writeln("Invalid path: " .. lines[1])
+            return
+        end
+        vim.cmd("NvimTreeFindFile")
+        vim.cmd("wincmd p")
+    end
+
+    local function fzf_build_quickfix_list(lines)
+        if #lines == 0 then return end
+        local qf = {}
+        for _, line in ipairs(lines) do
+            local filename, lnum, col, text = line:match("^(.-):(%d+):(%d+):(.*)$")
+            if filename then
+                table.insert(qf, { filename = filename, lnum = tonumber(lnum), col = tonumber(col), text = text })
+            else
+                table.insert(qf, { filename = line })
+            end
+        end
+        vim.fn.setqflist(qf, "r")
+        vim.cmd("copen")
+    end
+
+    vim.g.fzf_action = {
+        ["ctrl-n"] = fzf_to_nvimtree,
+        ["ctrl-q"] = fzf_build_quickfix_list,
+        ["ctrl-t"] = "tab split", ["ctrl-x"] = "split", ["ctrl-v"] = "vsplit",
+    }
+
+    vim.g.fzf_vim = {
+        preview_window = { "hidden,right,50%,<70(up,40%)", "ctrl-/" },
+        buffers_jump = 1, tags_command = "ctags -R",
+    }
+
+    if is_win then
+        if vim.fn.filereadable([[C:\Program\ Files\Git\git-bash.exe]]) == 1 then
+            vim.g.fzf_vim.preview_bash = [[C:\Program\ Files\Git\git-bash.exe]]
+        end
+    else
+        vim.g.fzf_history_dir = "~/.local/share/fzf-history"
+    end
+
+    local use_tmux = false
+    if not is_win and not vim.g.vscode and vim.env.TMUX ~= nil then
+        local ver_str = vim.fn.system("tmux -V"):match("[%d%.]+")
+        if ver_str and tonumber(ver_str) and tonumber(ver_str) >= 3.2 then
+            use_tmux = true
+        end
+    end
+
+    if use_tmux then
+        vim.g.fzf_layout = { tmux = "-p90%,60%" }
+    else
+        -- vimrc's `has('nvim') || has("popupwin")` is always true for nvim,
+        -- only the floating-window branch is relevant here
+        vim.g.fzf_layout = { window = { width = 0.9, height = 0.6 } }
+        vim.g.fzf_colors = {
+            fg = { "fg", "Normal" }, bg = { "bg", "Normal" }, hl = { "fg", "Comment" },
+            ["fg+"] = { "fg", "CursorLine", "CursorColumn", "Normal" },
+            ["bg+"] = { "bg", "CursorLine", "CursorColumn" },
+            ["hl+"] = { "fg", "Statement" }, info = { "fg", "PreProc" },
+            border = { "fg", "Ignore" }, prompt = { "fg", "Conditional" },
+            pointer = { "fg", "Exception" }, marker = { "fg", "Keyword" },
+            spinner = { "fg", "Label" }, header = { "fg", "Comment" },
+        }
+    end
+
+    vim.cmd([[command! -bar -nargs=? -bang Maps call fzf#vim#maps(<q-args>, <bang>0)]])
+
+    vim.keymap.set("n", "<Leader>ff", "<cmd>Files<CR>", { noremap = true })
+    vim.keymap.set("n", "<Leader>fa", is_win and ":Rg<Space>" or ":Ag<Space>", { noremap = true })
+    vim.keymap.set("n", "<Leader>fr", ":Rg<Space>", { noremap = true })
+    vim.keymap.set("n", "<Leader>fg", ":Rg<Space>", { noremap = true })
+    vim.keymap.set("n", "<Leader>fl", ":Lines<Space>", { noremap = true })
+    vim.keymap.set("n", "<Leader>fL", ":BLines<Space>", { noremap = true })
+    vim.keymap.set("n", "<Leader>fb", "<cmd>Buffers<CR>", { noremap = true })
+    vim.keymap.set("n", "<Leader>fw", "<cmd>Windows<CR>", { noremap = true })
+    vim.keymap.set("n", "<Leader>fs", "<cmd>Snippets<CR>", { noremap = true })
+    vim.keymap.set("n", "<Leader>fq", "<cmd>FzfQF<CR>", { noremap = true })
+end
+
+-- /* vim-easy-align */
+vim.keymap.set({ "n", "x" }, "ga", "<Plug>(EasyAlign)")
+
+-- /* easymotion (net effect: normal mode uses overwin-w, visual/o-p uses bd-w) */
+vim.keymap.set({ "n", "x", "o" }, "<Leader>w", "<Plug>(easymotion-bd-w)")
+vim.keymap.set("n", "<Leader>w", "<Plug>(easymotion-overwin-w)")
+
+-- /* ultisnips extras (UltiSnipsExpandTrigger already set in the lazy-spec) */
+vim.g.UltiSnipsEditSplit = "context"
+vim.g.UltiSnipsUsePythonVersion = 3
+vim.g.UltiSnipsSnippetStorageDirectoryForUltiSnipsEdit = my_vimroot .. "/mysnippets"
+vim.g.UltiSnipsSnippetDirectories = { my_vimroot .. "/mysnippets", "UltiSnips" }
+vim.g.UltiSnipsEnableSnipMate = 1
+vim.g.UltiSnipsNoPythonWarning = 1
+vim.g.snips_author = "k"
+vim.g.snips_email = "valesail7@gmail.com"
+vim.g.snips_github = "https://github.com/Karmenzind/"
+
+-- /* vim-visual-multi (fixing the vimrc `exists("vscode")` bug -- see the
+--    Vista block further down for the same fix and explanation) */
+if not vim.g.vscode then
+    vim.g.VM_maps = { ["Find Under"] = "<leader><leader>n" }
+end
+
+-- /* vim-markdown */
+vim.g.vim_markdown_toc_autofit = 1
+vim.g.vim_markdown_no_default_key_mappings = 1
+vim.g.vim_markdown_json_frontmatter = 1
+vim.g.vim_markdown_conceal = 0
+vim.g.vim_markdown_conceal_code_blocks = 0
+vim.g.tex_conceal = ""
+vim.g.vim_markdown_math = 1
+
+-- /* markdown-preview.nvim */
+vim.g.mkdp_open_to_the_world = 1
+vim.g.mkdp_open_ip = "0.0.0.0"
+vim.g.mkdp_port = "13333"
+vim.g.mkdp_auto_start = 0
+vim.g.mkdp_auto_open = 0
+vim.g.mkdp_auto_close = 1
+vim.g.mkdp_refresh_slow = 0
+vim.g.mkdp_command_for_global = 0
+vim.g.mkdp_echo_preview_url = 1
+vim.g.mkdp_preview_options = {
+    mkit = {}, katex = {}, uml = {}, maid = {},
+    disable_sync_scroll = 1, sync_scroll_type = "middle", hide_yaml_meta = 1,
+    sequence_diagrams = {}, flowchart_diagrams = {},
+    content_editable = false, disable_filename = 0, toc = {},
+}
+vim.g.mkdp_browser = "chromium"
+
+-- /* misc filetype augroups */
+local jsfold_grp = vim.api.nvim_create_augroup("javascript_folding", { clear = true })
+vim.api.nvim_create_autocmd("FileType", { group = jsfold_grp, pattern = "javascript", command = "setlocal foldmethod=syntax" })
+
+local nginx_grp = vim.api.nvim_create_augroup("custom_nginx", { clear = true })
+vim.api.nvim_create_autocmd("FileType", { group = nginx_grp, pattern = "nginx", command = "setlocal iskeyword+=$" })
+-- skipped `let b:coc_additional_keywords`: coc.nvim isn't used under nvim
+
+local mdft_grp = vim.api.nvim_create_augroup("for_markdown_ft", { clear = true })
+vim.api.nvim_create_autocmd("FileType", { group = mdft_grp, pattern = "markdown", command = "cabbrev <buffer> TF TableFormat" })
+-- skipped the b:AutoPairs dict: that's for the vim-only jiangmiao/auto-pairs
+-- plugin, nvim uses windwp/nvim-autopairs with a different config surface
+
+-- /* markdown preview: multi-tool picker (redesigned, not a straight port) */
+local function mp_term_execute(cmd)
+    if vim.env.TMUX then
+        vim.fn.system(string.format('tmux split-window "%s"', cmd))
+    else
+        vim.cmd("split")
+        vim.cmd("terminal " .. cmd)
+    end
+end
+
+local function mp_get_browser()
+    if is_win then
+        local p = [[C:\Program Files\Google\Chrome\Application\chrome.exe]]
+        return vim.fn.glob(p) ~= "" and p or nil
+    end
+    for _, p in ipairs({ "google-chrome", "google-chrome-stable", "chromium", "firefox" }) do
+        if vim.fn.executable(p) == 1 then
+            return p
+        end
+    end
+    return nil
+end
+
+local function mp_app_available(exe, mac_app)
+    if is_macos and mac_app and vim.fn.isdirectory("/Applications/" .. mac_app .. ".app") == 1 then
+        return true
+    end
+    return vim.fn.executable(exe) == 1
+end
+
+local function mp_launch_mlp(path)
+    mp_term_execute(string.format("mlp --no-browser -p 13333 -o %s", vim.fn.fnameescape(path)))
+    local browser = mp_get_browser()
+    if not browser then
+        echo_warn("Available browser not found.")
+    else
+        mp_term_execute(browser .. " http://localhost:13333")
+    end
+end
+
+local function mp_launch_glow(path)
+    mp_term_execute("glow " .. vim.fn.fnameescape(path))
+end
+
+local function mp_launch_app(exe, mac_app, path)
+    if is_macos and vim.fn.executable(exe) == 0 and mac_app then
+        vim.fn.jobstart({ "open", "-a", mac_app, path }, { detach = true })
+    else
+        vim.fn.jobstart({ exe, path }, { detach = true })
+    end
+end
+
+-- NOTE: obsidian can only preview a file that's already inside a vault it
+-- has open, this is best-effort
+local function markdown_preview_picker()
+    if vim.bo.filetype ~= "markdown" then
+        echo_warn("Only support markdown")
+        return
+    end
+    local path = vim.fn.expand("%")
+    local candidates = {}
+
+    if vim.fn.executable("mlp") == 1 then
+        table.insert(candidates, { name = "mlp", launch = function() mp_launch_mlp(path) end })
+    end
+    if vim.fn.executable("glow") == 1 then
+        table.insert(candidates, { name = "glow", launch = function() mp_launch_glow(path) end })
+    end
+    if is_macos and mp_app_available("marktext", "MarkText") then
+        table.insert(candidates, { name = "marktext", launch = function() mp_launch_app("marktext", "MarkText", path) end })
+    end
+    if mp_app_available("typora", "Typora") then
+        table.insert(candidates, { name = "typora", launch = function() mp_launch_app("typora", "Typora", path) end })
+    end
+    if mp_app_available("obsidian", "Obsidian") then
+        table.insert(candidates, {
+            name = "obsidian (best-effort, needs an already-open vault)",
+            launch = function() mp_launch_app("obsidian", "Obsidian", path) end,
+        })
+    end
+    if vim.fn.executable("code") == 1 then
+        table.insert(candidates, { name = "vscode", launch = function() vim.fn.jobstart({ "code", path }, { detach = true }) end })
+    end
+
+    if #candidates == 0 then
+        echo_warn("No markdown preview tool found (mlp/glow/marktext/typora/obsidian/vscode)")
+        return
+    end
+
+    local names = {}
+    for _, c in ipairs(candidates) do
+        table.insert(names, c.name)
+    end
+
+    vim.ui.select(names, { prompt = "Markdown preview with:" }, function(_, idx)
+        if idx then
+            candidates[idx].launch()
+        end
+    end)
+end
+
+vim.keymap.set("n", "<Leader>mp", markdown_preview_picker)
+
+-- /* vim-atomic colorscheme vars + keymaps (CycleModes() is undefined
+--    anywhere in the codebase -- ported faithfully per explicit instruction,
+--    will error at runtime if <Leader>cm is triggered) */
+vim.g.atomic_mode = 21
+vim.g.atomic_italic = 1
+vim.g.atomic_bold = 1
+vim.g.atomic_underline = 1
+vim.g.atomic_undercurl = 1
+vim.keymap.set("n", "<Leader>cm", "<cmd>call CycleModes()<CR><cmd>colorscheme atomic<CR>")
+vim.keymap.set("x", "<Leader>cm", ":<C-u>call CycleModes()<CR>:colorscheme atomic<CR>gv")
+
+-- /* GUI (Neovide) compatibility -- classic-Vim guioptions block and the
+--    Windows gvim delmenu.vim/menu.vim block intentionally not ported,
+--    neither has a Neovide equivalent */
+if vim.fn.has("gui_running") == 1 and not vim.g.vscode then
+    vim.o.lines = 77
+    vim.o.columns = 150
+    vim.o.winaltkeys = "no"
+    vim.o.langmenu = "en_US"
+    vim.env.LANG = "en_US.UTF-8"
+    vim.opt.list = false
+end
+
+-- /* load ~/.vimrc.local (replaces both the old vimrc-tail sourcing and the
+--    dead init.vim.local mechanism) */
+if vim.fn.filereadable(vim.fn.expand(my_vimrc_local_path)) == 1 then
+    vim.cmd("source " .. my_vimrc_local_path)
 end
 
 local function term_esc()
@@ -704,7 +1319,7 @@ local function try_require(mod)
     if ok then
         return imported
     end
-    vim.fn.EchoWarn("Failed to load " .. mod)
+    echo_warn("Failed to load " .. mod)
     return nil
 end
 
@@ -794,6 +1409,39 @@ else
     })
     vim.keymap.set("n", "<leader>n", "<cmd>NvimTreeToggle<CR>", mopts)
     vim.keymap.set("n", "<leader>N", "<cmd>NvimTreeFindFile<CR>", mopts)
+end
+
+-- /* Outline & vista.vim */
+-- NOTE: vimrc guards this with `if !exists("vscode")` -- a bare, unprefixed
+-- variable that never exists in either plain Vim or VSCode-Neovim (it should
+-- be `exists('g:vscode')`, as used correctly elsewhere in that file). That
+-- means today the VSCode outline-map keymap is dead code even inside real
+-- VSCode-Neovim. This port fixes that by using vim.g.vscode; .vimrc itself is
+-- left untouched since Vim never runs inside VSCode anyway.
+if not vim.g.vscode then
+    vim.g.vista_sidebar_width = 40
+    vim.g.vista_echo_cursor = 0
+    vim.g.vista_echo_cursor_strategy = "both"
+    vim.g.vista_executive_for = {
+        go = "nvim_lsp", yaml = "nvim_lsp", toml = "ctags", typescript = "nvim_lsp",
+    }
+
+    vim.keymap.set("n", "<Leader>V", "<cmd>Vista!!<CR>", mopts)
+    vim.keymap.set("n", "<Leader>fc", "<cmd>Vista finder<CR>", mopts)
+
+    local vista_grp = vim.api.nvim_create_augroup("vista_aug", { clear = true })
+    vim.api.nvim_create_autocmd("FileType", {
+        group = vista_grp,
+        pattern = { "vista", "vista_kind" },
+        callback = function()
+            vim.wo.number = true
+            vim.wo.relativenumber = true
+            vim.keymap.set("n", "K", "<cmd>call vista#cursor#TogglePreview()<CR>",
+                { buffer = true, silent = true, noremap = true })
+        end,
+    })
+else
+    vim.keymap.set("n", "<Leader>V", vscode_cmd("workbench.view.extension.outline-map"), mopts)
 end
 
 vim.diagnostic.config({
@@ -1079,7 +1727,7 @@ if load_lsp_plugins then
             settings = { powershell = { codeFormatting = { Preset = "OTBS" } } },
         })
     else
-        vim.fn.EchoWarn("Invalid ps_bundle_path")
+        echo_warn("Invalid ps_bundle_path")
     end
 
     require("lspsaga").setup({
@@ -1237,7 +1885,7 @@ if vim.g.colors_name == nil then
     if load_extra_colors then
         vim.g.boo_colorscheme_theme =
             rchoose({ "sunset_cloud", "radioactive_waste", "forest_stream", "crimson_moonlight" })
-        vim.fn.RandomSetColo({
+        random_set_colo({
             "nightfox",
             "zephyr",
             "cyberdream",
@@ -1287,7 +1935,7 @@ if vim.g.colors_name == nil then
             })
         end
     else
-        vim.fn.SetColorScheme("default")
+        set_color_scheme("default")
     end
 end
 
