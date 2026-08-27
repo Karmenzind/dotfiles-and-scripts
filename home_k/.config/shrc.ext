@@ -3,24 +3,15 @@ export __MYKEYBOARD=${__MYKEYBOARD:-common}
 
 export __LOADED_SHRC_EXT=true
 
-alias pacman='pacman --disable-download-timeout'
-
-alias py=python
-alias py3=python3
-alias py2=python2
-alias ipy=ipython
-alias ipy3=ipython3
-alias ipy2=ipython2
-alias bpy='python -m bpython'
-# alias bpy=bpython
-# alias bpy3=bpython3
-# alias bpy2=bpython2
-
 alias vi=vim
 alias nv=nvim
 alias mux=tmuxinator
 
-alias toboard='xclip -selection clipboard'
+if [[ "$(uname)" == "Darwin" ]]; then
+    alias toboard='pbcopy'
+else
+    alias toboard='xclip -selection clipboard'
+fi
 
 alias xy=proxychains4
 
@@ -42,10 +33,24 @@ done
 
 export RIPGREP_CONFIG_PATH=~/.config/ripgreprc
 
-# export CATALINA_HOME=/usr/share/tomcat8 # tomcat
-
 # # /* bat */
 # alias bat='bat --theme="GitHub" --style="auto"'
+
+#######################################################################
+#                              archlinux                              #
+#######################################################################
+
+if [[ -e /etc/arch-release ]]; then
+    alias pacman='pacman --disable-download-timeout'
+
+    export aurpref='https://aur.archlinux.org'
+
+    aurdl() {
+        local url=${aurpref}/${1}.git
+        echo "url: $url"
+        git clone $url ~/Downloads/aurdl/$1
+    }
+fi
 
 #######################################################################
 #                             appearance                              #
@@ -54,37 +59,9 @@ export RIPGREP_CONFIG_PATH=~/.config/ripgreprc
 export COLORTERM='truecolor'
 unset GREP_COLOR
 export GREP_COLORS="1;32"
-alias neofetch_local='neofetch --w3m ~/Pictures/LOCKSCREENS/kieslowski4-resize.png' # neofetch
-# alias grep='grep --color=auto'
+
 alias diff='diff --color=auto'
 alias sdcv='sdcv --color ' # stardict
-
-# /* prompt */
-# If not running interactively, don't do anything
-# PS1='
-# \u \t \033[31;1m>\033[0m \w
-# \$ '
-
-# colorful man
-# man() {
-#     LESS_TERMCAP_md=$'\e[01;31m' \
-#     LESS_TERMCAP_me=$'\e[0m' \
-#     LESS_TERMCAP_se=$'\e[0m' \
-#     LESS_TERMCAP_so=$'\e[01;44;33m' \
-#     LESS_TERMCAP_ue=$'\e[0m' \
-#     LESS_TERMCAP_us=$'\e[01;32m' \
-#     command man "$@"
-# }
-
-# /* less */
-# export LESS=-R
-# export LESS_TERMCAP_mb=$'\E[1;31m'     # begin bold
-# export LESS_TERMCAP_md=$'\E[1;36m'     # begin blink
-# export LESS_TERMCAP_me=$'\E[0m'        # reset bold/blink
-# export LESS_TERMCAP_so=$'\E[01;44;33m' # begin reverse video
-# export LESS_TERMCAP_se=$'\E[0m'        # reset reverse video
-# export LESS_TERMCAP_us=$'\E[1;32m'     # begin underline
-# export LESS_TERMCAP_ue=$'\E[0m'        # reset underline
 
 #######################################################################
 #                            custom funcs                             #
@@ -154,10 +131,6 @@ fssh() {
         echo "[$cmd]"
         eval $cmd
     fi
-}
-
-fworkon() {
-    workon $(workon | fzf)
 }
 
 # Run command/application and choose paths/files with fzf.
@@ -235,40 +208,13 @@ f() {
 }
 
 #######################################################################
-#                                tmux                                 #
-#######################################################################
-
-# [ -z "$TMUX" ] && export TERM="xterm-256color"
-
-# attach a default session (create it if not existed)
-# and detach other connections bound to it
-stmux() {
-    if [[ -z "$TMUX" ]]; then
-        local default_tmux_sname=k
-        tmuxinator $default_tmux_sname
-        # tmux new -s $default_tmux_sname -d
-        tmux choose-tree -t $default_tmux_sname -Zs
-        tmux attach-session -t $default_tmux_sname -d
-    else
-        tmux choose-tree -Zs
-    fi
-}
-
-#######################################################################
-#                               for aur                               #
-#######################################################################
-
-export aurpref='https://aur.archlinux.org'
-
-aurdl() {
-    local url=${aurpref}/${1}.git
-    echo "url: $url"
-    git clone $url ~/Downloads/aurdl/$1
-}
-
-#######################################################################
 #                             for python                              #
 #######################################################################
+
+alias py=python
+alias py3=python3
+alias py2=python2
+alias bpy='python -m bpython'
 
 export VIRTUAL_ENV_DISABLE_PROMPT=
 
@@ -313,19 +259,6 @@ if command -v dotnet >/dev/null; then
 fi
 
 #######################################################################
-#                                pyenv                                #
-#######################################################################
-
-if [[ -d "$HOME/.pyenv" ]]; then
-    export PYENV_ROOT="$HOME/.pyenv"
-    export PATH="$PATH:$PYENV_ROOT/bin"
-    # eval "$(pyenv init -)"
-    # eval "$(pyenv virtualenv-init -)"
-fi
-
-export PYTHON_CONFIGURE_OPTS="--enable-shared"
-
-#######################################################################
 #                                ruby                                 #
 #######################################################################
 
@@ -358,41 +291,14 @@ fi
 #                                 svn                                 #
 #######################################################################
 
-svna() {
-    while read _f; do
-        [[ -n "$_f" ]] && svn add $_f
-    done <<<$(svn status | grep '?' | awk '{print $2}')
-    while read _f; do
-        [[ -n "$_f" ]] && svn delete $_f
-    done <<<$(svn st | grep '^!' | awk '{print $2}')
-}
-
-#######################################################################
-#                                axel                                 #
-#######################################################################
-
-keep_axel() {
-    [[ -z "$1" ]] && echo 'Invalid parameter.' && return
-    while true; do
-        axel "$1" -o "$2" && break
-        date
-        sleep 1
-    done
-}
-
-#######################################################################
-#                                task                                 #
-#######################################################################
-
-rt() {
-    while true; do
-        clear
-        date
-        echo "--------------------------------------------"
-        task
-        sleep 7
-    done
-}
+# svna() {
+#     while read _f; do
+#         [[ -n "$_f" ]] && svn add $_f
+#     done <<<$(svn status | grep '?' | awk '{print $2}')
+#     while read _f; do
+#         [[ -n "$_f" ]] && svn delete $_f
+#     done <<<$(svn st | grep '^!' | awk '{print $2}')
+# }
 
 #######################################################################
 #                               others                                #
@@ -439,19 +345,12 @@ emoji-fzf() {
 #                                POST                                 #
 #######################################################################
 
-# __fix_path() {
-#     local line
-#     while read line; do
-#     done
-# }
-
 export PATH="$HOME/.local/bin:$PATH"
 export PATH="$(perl -e 'print join(":", grep { not $seen{$_}++ } split(/:/, $ENV{PATH}))')"
 
 #######################################################################
 #                    Version Managers                                 #
 #######################################################################
-
 
 __can_load_fnm() {
     if command -v fnm >/dev/null; then
@@ -537,9 +436,9 @@ function y() {
 #######################################################################
 #                               Wayland                               #
 #######################################################################
+
 export XMODIFIERS="@im=fcitx"
 export QT_IM_MODULE=fcitx
-
 
 #######################################################################
 #                                Macos                                #
@@ -556,7 +455,6 @@ fi
 #######################################################################
 
 export TERMINFO=/usr/share/terminfo
-
 
 #THIS MUST BE AT THE END OF THE FILE FOR SDKMAN TO WORK!!!
 export SDKMAN_DIR="$HOME/.sdkman"
