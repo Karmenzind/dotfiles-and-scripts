@@ -1,0 +1,23 @@
+# Orchestration
+
+When delegating work:
+
+- use the Executor requested by the task;
+- verify the actual Executor and Model before dispatch;
+- do not replace Codex with Claude, Cursor with Codex, or any other Executor without an explicit execution-metadata revision;
+- if the selected Executor cannot be invoked, stop and report the constraint;
+- Executor completion does not imply task acceptance;
+- review and verification remain the Orchestrator's responsibility.
+
+## Model selection
+
+- Default to the **non-fast** variant of a model. `fast` is an explicit
+  downgrade: choose it only when the user asks for it, or when the task is
+  genuinely inconsequential. Do not choose it merely because it appears first in
+  a list.
+
+## Pre-dispatch checks
+
+- Confirm the executor actually runs **in the write mode the task needs**, not
+  merely that `--version` responds. A version banner is not evidence that the
+  executor can write files in the intended mode.

@@ -8,6 +8,13 @@
 - Ask before adding new production dependencies.
 - Persist non-obvious compatibility findings, risks, rejected approaches, and verified workarounds before finishing a task so a fresh agent does not repeat the same investigation. Keep durable rules in `AGENTS.md`; put version-specific symptoms, causes, limitations, test evidence, and upgrade/revisit plans in a focused document linked from `AGENTS.md`.
 - Update or remove persisted guidance when the corresponding implementation or upstream behavior changes. Do not leave stale workarounds documented as current facts.
+- Write agent rules in English by default. This covers `home_k/.config/agent-rules/`, `home_k/.claude/CLAUDE.md`, `home_k/.codex/AGENTS.md`, and this file.
+
+## Agent rules
+
+- `home_k/.config/agent-rules/` holds the shared, agent-agnostic personal rule set, symlinked to `~/.config/agent-rules/`. It is listed in `SYMLINK_AS_DIR` so the whole directory is linked as one unit.
+- `home_k/.claude/CLAUDE.md` and `home_k/.codex/AGENTS.md` are entry points only. They point at the shared rules and carry nothing but genuinely agent-specific mechanics; anything applying to more than one agent belongs in `agent-rules/`.
+- Keep the rule files listed explicitly in `symlink.py`'s common `TO_SYNC`. Only the Linux branch walks the whole `home_k` tree; Windows and macOS sync an explicit set, so an unlisted file is silently skipped there.
 
 ## Windows setup
 
@@ -33,6 +40,10 @@
 - Keep `home_k/.config/shrc.ext` project environment activation tied to every successful directory change; `pj` changes directories internally, so a one-shot shell-initialization guard prevents project environment activation. Track Python, SDKMAN, fnm, and rbenv state separately so unchanged configurations are not reapplied and manually selected environments are not cleared as though the hook owned them. See `docs/unix-project-environments.md`.
 - Keep zsh-only plugin initialization, options, and completion functions in `home_k/.zshrc`; repository-owned logic in `home_k/.config/shrc.ext` must remain directly sourceable by bash without parsing zsh integration code. See `docs/unix-shell-config.md`.
 - Expose Unix GVM through a lazy `gvm` wrapper that loads the real implementation only when invoked from a directory directly containing `go.mod`; do not source GVM globally or from directory-change hooks because its `cd` wrapper is captured incompletely by Claude Code shell snapshots. See `docs/unix-project-environments.md`.
+- Keep fish configuration in `home_k/.config/fish/`. Track only `config.fish`, `fish_plugins`, and `conf.d/kz_*.fish`; leave `functions/`, `completions/`, and `themes/` to fisher. `fisher update` copies plugin files into those directories and follows symlinked destinations, so any tracked file sharing a plugin's filename would be overwritten inside the repository. See `docs/unix-fish.md`.
+- Do not make `home_k/.config/fish` a directory symlink in `symlink.py`, and do not source `home_k/.config/shrc.ext` from fish. fish re-implements the shared layer; only `~/.config/shrc.ext.local` is shared, through `edc/bass`.
+- Do not enable SDKMAN's global `sdkman_auto_env`. It is a single switch that also registers a `chpwd` hook in zsh, which would run alongside `__sync_sdkman_env`. fish implements its own equivalent hook instead. See `docs/unix-project-environments.md`.
+- Prefer fish-native features and maintained fisher plugins over hand-written fish script. The Python `.venv` hook, the SDKMAN hook, and `pj` are the only deliberate exceptions. fish 4.x is required; `fzf.fish` and `pure` have both dropped fish 3.x.
 
 ## PowerShell profile
 
@@ -61,7 +72,7 @@
 
 - Treat configuration files shared by macOS, Linux, and Windows as cross-platform by default, including `home_k/.tmux.conf`. Consider compatibility with all three platforms whenever changing shared configuration.
 - Keep the unresolved Windows `fzf.vim`/ripgrep investigation version-scoped and compare environments before adding a workaround. See `docs/windows-nvim-fzf.md`.
-- Keep the shared Codex global instructions in `home_k/.codex/AGENTS.md` and list that file explicitly in `symlink.py`; generic directory traversal excludes Markdown files.
+- Keep the shared agent instructions in `home_k/.codex/AGENTS.md` and `home_k/.claude/CLAUDE.md`, and list both explicitly in `symlink.py`. See the "Agent rules" section above.
 - Keep shared settings in one common file when platform differences are small, and isolate platform-specific behavior with guarded sections or included/imported macOS, Linux, and Windows fragments when the configuration format supports it.
 - Split out a platform- or tool-specific configuration when its behavior differs substantially or compatibility conditionals would make the shared configuration hard to understand or unreliable.
 - `home_k/.rmux.conf` is the standalone cross-platform RMUX configuration. Keep behavior aligned with `home_k/.tmux.conf`, but do not force syntax-level sharing when RMUX compatibility is unreliable.
