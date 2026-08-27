@@ -18,6 +18,7 @@ _brew_formulae=(
 	curl
 	fd
 	ffmpeg
+	fish
 	fnm
 	fzf
 	gh
@@ -499,11 +500,16 @@ install_apt_recommandations() {
 
 	# basic
 	! [[ -e /etc/apt/sources.list.d/neovim-ppa-ubuntu-unstable-jammy.list ]] && sudo add-apt-repository ppa:neovim-ppa/unstable
-	apti git python3 vim neovim tmux command-not-found wget curl unzip
+	# Ubuntu ships fish 3.x; fzf.fish and pure both require fish 4.x now.
+	! compgen -G '/etc/apt/sources.list.d/fish-shell-ubuntu-release-4-*' >/dev/null &&
+		sudo add-apt-repository -y ppa:fish-shell/release-4
+	apti git python3 vim neovim tmux command-not-found wget curl unzip fish
 	# apti golang
 
 	# tools
 	apti ripgrep fzf axel universal-ctags jq httpie
+	# toboard falls back pbcopy -> wl-copy -> xclip -> xsel
+	apti xsel wl-clipboard
 	! is_wsl && apti docker
 }
 
@@ -523,10 +529,6 @@ install_brew_recommendations() {
 
 install_dnf_recommentations() {
 	echo_warn "WIP"
-}
-
-setup_fish() {
-	cmd_not_found fish && do_install fish && chsh $(which fish)
 }
 
 # --------------------------------------------
@@ -553,6 +555,7 @@ install_ranger_and_plugins
 setup_node_pnpm
 install_python_tools
 install_zsh_stuff
+source "$(dirname "${BASH_SOURCE[0]}")/setup_fish.sh"
 setup_pwsh
 
 setup_bluetooth

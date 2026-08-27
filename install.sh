@@ -14,8 +14,9 @@ cat <<EOF
 1)   install recommended apps and dev toolchains
 2)   setup Vim/Neovim and configuration files
 3)   symlink all configuration files
+4)   setup fish shell and configuration files
 EOF
-check_input 123
+check_input 1234
 case $ans in
     1)
         source ./scripts/install_apps.sh
@@ -23,6 +24,7 @@ case $ans in
         ;;
     2) source ./scripts/setup_vim.sh ;;
     3) python3 symlink.py ;;
+    4) source ./scripts/setup_fish.sh ;;
     *) echo "No action." ;;
 esac
 

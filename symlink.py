@@ -61,8 +61,10 @@ YNI = ("y", "n", "i")
 LINE = "\n" + "-" * 44 + "\n"
 
 TO_SYNC: Set[Path] = {
-    # Keep this explicit: directory traversal excludes Markdown files by default.
+    # Keep these explicit: only the Linux branch walks the whole home_k tree, so
+    # on Windows and macOS an unlisted file is silently skipped.
     SRC_HOME / ".codex/AGENTS.md",
+    SRC_HOME / ".claude/CLAUDE.md",
     SRC_HOME / ".vim",
     SRC_HOME / ".vimrc",
     SRC_HOME / ".rmux.conf",
@@ -157,9 +159,12 @@ else:  # linux like
 
 
 # dirs
+# Never add SRC_HOME / ".config/fish" here. fisher writes plugin files into
+# ~/.config/fish/{conf.d,functions,completions}; a directory symlink would make
+# `fisher install/update` write those files straight into this repository.
 SYMLINK_AS_DIR = [
     SRC_HOME / ".vim/mysnippets",
-    SRC_HOME / ".vim/mysnippets",
+    SRC_HOME / ".config/agent-rules",
 ]
 
 EXCLUDED = [
@@ -221,7 +226,7 @@ def validate(src: Path) -> bool:
     ret = True
     src_str = str(src)
 
-    for suffix in [".md", ".swp"]:
+    for suffix in [".swp"]:
         if src_str.endswith(suffix):
             return False
 
@@ -405,6 +410,9 @@ if __name__ == "__main__":
     )
     parser.add_argument("--nogui", action="store_true", help="only for terminal apps")
     parser.add_argument("--vimonly", action="store_true", help="only for vim related")
+    parser.add_argument(
+        "--fishonly", action="store_true", help="only for fish shell related"
+    )
     args = parser.parse_args()
     fake = args.fake
 
@@ -414,6 +422,11 @@ if __name__ == "__main__":
             SRC_HOME / ".vimrc",
             SRC_HOME / ".config/nvim/init.lua",
             # linters/fixers?
+        }
+
+    if args.fishonly:
+        TO_SYNC = {
+            SRC_HOME / ".config/fish",
         }
 
     main()
