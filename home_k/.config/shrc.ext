@@ -7,11 +7,23 @@ alias vi=vim
 alias nv=nvim
 alias mux=tmuxinator
 
-if [[ "$(uname)" == "Darwin" ]]; then
-    alias toboard='pbcopy'
-else
-    alias toboard='xclip -selection clipboard'
-fi
+# Probe at runtime rather than hard-coding xclip: this has to work on Wayland
+# and on machines where only xsel is installed. Kept in sync with the fish
+# implementation in home_k/.config/fish/conf.d/kz_aliases.fish.
+toboard() {
+    if command -v pbcopy >/dev/null; then
+        pbcopy "$@"
+    elif [[ -n $WAYLAND_DISPLAY ]] && command -v wl-copy >/dev/null; then
+        wl-copy "$@"
+    elif command -v xclip >/dev/null; then
+        xclip -selection clipboard "$@"
+    elif command -v xsel >/dev/null; then
+        xsel --clipboard --input "$@"
+    else
+        echo "toboard: no clipboard tool found (pbcopy/wl-copy/xclip/xsel)." >&2
+        return 1
+    fi
+}
 
 alias xy=proxychains4
 
