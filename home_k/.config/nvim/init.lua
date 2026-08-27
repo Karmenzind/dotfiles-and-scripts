@@ -200,6 +200,18 @@ require("lazy").setup({
         },
         { "windwp/nvim-autopairs" },
 
+        -- Modern vim.ui.select / vim.ui.input (patches early; keep other snacks off)
+        {
+            "folke/snacks.nvim",
+            priority = 1000,
+            lazy = false,
+            cond = not vim.g.vscode,
+            opts = {
+                picker = { enabled = true, ui_select = true },
+                input = { enabled = true },
+            },
+        },
+
         -- AI Tools
 
         {
@@ -267,7 +279,6 @@ require("lazy").setup({
         { "honza/vim-snippets" },
         { "Shougo/context_filetype.vim" },
         { "liuchengxu/vista.vim" },
-        -- { "w0rp/ale" },
         { "mg979/vim-visual-multi", branch = "master", cond = load_lsp_plugins },
         {
             "stevearc/conform.nvim",
@@ -735,17 +746,29 @@ local coc_settings_json_path = is_win and vim.fn.glob("~/vimfiles/coc-settings.j
 local init_lua_path = vim.fn.stdpath("config") .. "/init.lua"
 
 local function edit_rc_files_v2()
-    local files = { init_lua_path, my_vimrc_local_path, my_vimrc_path, coc_settings_json_path }
-    local n = vim.fn.confirm("To edit:", "&1init.lua\n&2vimrc.local\n&3vimrc\n&4coc.json")
-    if n == 0 then
-        return
+    local choices = {
+        { name = "init.lua", path = init_lua_path },
+        { name = "vimrc.local", path = my_vimrc_local_path },
+        { name = "vimrc", path = my_vimrc_path },
+        { name = "coc.json", path = coc_settings_json_path },
+    }
+    local names = {}
+    for _, c in ipairs(choices) do
+        table.insert(names, c.name)
     end
-    local ft = vim.bo.filetype
-    if vim.fn.winnr() == 1 and (ft == "alpha" or ft == "startify") then
-        vim.cmd("silent e " .. files[n])
-    else
-        vim.cmd("silent vsplit " .. files[n])
-    end
+
+    vim.ui.select(names, { prompt = "To edit:" }, function(_, idx)
+        if not idx then
+            return
+        end
+        local ft = vim.bo.filetype
+        local path = choices[idx].path
+        if vim.fn.winnr() == 1 and (ft == "alpha" or ft == "startify") then
+            vim.cmd("silent e " .. path)
+        else
+            vim.cmd("silent vsplit " .. path)
+        end
+    end)
 end
 
 -- /* quickfix toggle */
@@ -1344,7 +1367,7 @@ vim.cmd([[tnoremap <expr> <C-R> '<C-\><C-N>"'.nr2char(getchar()).'pi']])
 
 local kache = { tree_resized = false }
 local function toggle_nvim_tree_resize()
-    vim.cmd(kache.tree_resized and "NvimTreeResize -50" or "NvimTreeResize +50")
+    vim.cmd(kache.tree_resized and "NvimTreeResize -40" or "NvimTreeResize +40")
     kache.tree_resized = not kache.tree_resized
 end
 
