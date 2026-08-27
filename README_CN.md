@@ -26,7 +26,7 @@
     <tr>
       <td align="center">Terminal</td>
       <td align="center">
-        <a href="https://github.com/alacritty/alacritty">Alacritty</a> + Tmux + Zsh
+        <a href="https://github.com/alacritty/alacritty">Alacritty</a> + Tmux + Zsh / Fish
       </td align="center">
       <td align="center">WindowsTerminal + pwsh(<a href="ohmyposh.dev">OMPosh</a>)</td>
     </tr>
@@ -113,10 +113,14 @@ RMUX 在 Linux、macOS 和 Windows 上共用一份原生配置。安装与跨平
 [docs/rmux.md](./docs/rmux.md)，Windows 特有的版本兼容说明见
 [docs/windows-rmux.md](./docs/windows-rmux.md)。
 
+Fish 作为次要 shell 配置，基于 `fisher` 插件。目录归属规则、插件版本要求和验证
+步骤见 [docs/unix-fish.md](./docs/unix-fish.md)。
+
 支持参数：
 - -i 文件逐个提示交互
 - --nogui 排除桌面程序
 - --vimonly 只要(Neo)Vim相关
+- --fishonly 只要fish相关
 
 ### (Neo)Vim配置和相关应用
 
@@ -137,6 +141,25 @@ python symlink.py --vimonly
 然后启动Vim/Neovim，会自动开始安装和初始化
 
 > 使用**root用户**同步Vim配置可能会出问题。我不喜欢给root创建配置，一般是在`/root`目录下创建`.vimrc`和`.vim`的软链接，与普通用户共用一套文件，供参考
+
+### fish 配置与安装
+
+登录 shell 仍然是 zsh + oh-my-zsh。fish 侧的目标是获得基本一致的体验，采用 fish
+原生能力和 fisher 插件（`pure`、`fzf.fish`、`bass`、`sdkman-for-fish`），而不是
+把 `.zshrc` 直译过去。
+
+```bash
+bash scripts/setup_fish.sh
+```
+
+这个脚本会安装 fish（4.x，插件要求）、引导 `fisher`、创建软链接，并安装
+`home_k/.config/fish/fish_plugins` 里列出的插件。它**不会**修改你的登录 shell。
+
+只需要配置文件的话：
+
+```bash
+python symlink.py --fishonly
+```
 
 
 部分插件可能会依赖外部工具（比如`fzf`、`ctags`、`rg`等）才能正常工作，执行`bash scripts/setup_vim.sh`进行安装

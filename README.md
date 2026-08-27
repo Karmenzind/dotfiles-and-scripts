@@ -28,7 +28,7 @@
     <tr>
       <td align="center">Terminal</td>
       <td align="center">
-        <a href="https://github.com/alacritty/alacritty">Alacritty</a> + Tmux + Zsh
+        <a href="https://github.com/alacritty/alacritty">Alacritty</a> + Tmux + Zsh / Fish
       </td align="center">
       <td align="center">WindowsTerminal + pwsh(<a href="ohmyposh.dev">OMPosh</a>)</td>
     </tr>
@@ -116,12 +116,17 @@ cross-platform verification are documented in [docs/rmux.md](./docs/rmux.md);
 Windows-specific compatibility notes remain in
 [docs/windows-rmux.md](./docs/windows-rmux.md).
 
+Fish is configured as a secondary shell with `fisher` plugins. Layout rules,
+plugin requirements, and verification steps are documented in
+[docs/unix-fish.md](./docs/unix-fish.md).
+
 script parameters：
 -  -h                 show this help message and exit
 -  -i, --interactive  Let me determine each file
 -  -d, --delete       remove all symlink files
 -  --nogui            only for terminal apps
 -  --vimonly          only for vim related apps
+-  --fishonly         only for fish shell related
 
 ### (Neo)Vim configuration and setup
 
@@ -147,6 +152,26 @@ python symlink.py --vimonly
 ```
 
 Launch Vim/Neovim and the plugin setup will start automatically.
+
+### fish shell configuration and setup
+
+zsh with oh-my-zsh remains the login shell. Fish is set up for a broadly
+equivalent experience using fish-native features and fisher plugins (`pure`,
+`fzf.fish`, `bass`, `sdkman-for-fish`) rather than a translation of `.zshrc`.
+
+```bash
+bash scripts/setup_fish.sh
+```
+
+This installs fish (4.x, which the plugins require), bootstraps `fisher`,
+creates the symlinks, and installs the plugins listed in
+`home_k/.config/fish/fish_plugins`. It does **not** change your login shell.
+
+Or if you only need the configuration files:
+
+```bash
+python symlink.py --fishonly
+```
 
 > Syncing Vim configurations directory under **root** might run into issues. I prefer not to create unique configuration for root user. FYI, I will create symlinks for .vimrc and .vim unser /root, sharing the same files with normal user.
 

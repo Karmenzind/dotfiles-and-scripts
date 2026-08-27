@@ -25,6 +25,38 @@ uses the nearest supported configuration.
   inherited `PATH`; the executable cannot apply version changes to its parent
   shell and must not bypass the wrapper.
 
+## fish
+
+fish does not use `__active_envs`. Each tool supplies its own
+`--on-variable PWD` handler, plus two repository-owned handlers in
+`home_k/.config/fish/conf.d/kz_projenv.fish`:
+
+- Python: `__kz_sync_python_venv`, with the same semantics as
+  `__sync_python_venv` — nearest `.venv` upward, deactivating only what the hook
+  activated. It sources `.venv/bin/activate.fish`, which both `venv` and `uv`
+  generate, and returns early inside a command substitution.
+- SDKMAN: `__kz_sync_sdkman_env`, with upward search, checksum caching, and
+  ownership tracking. SDKMAN's own `sdkman_auto_env` is deliberately **not**
+  enabled. It is a single global switch in `$SDKMAN_DIR/etc/config`, and
+  `sdkman-init.sh` also appends `sdkman_auto_env` to zsh's `chpwd_functions`
+  when it is on, which would run alongside `__sync_sdkman_env`. SDKMAN's
+  implementation is weaker anyway: it only checks `.sdkmanrc` in the current
+  directory, and tears down with an unanchored `$PWD =~ ^$SDKMAN_ENV` regex that
+  treats `/proj2` as inside `/proj`. Because `sdk env` reads only the current
+  directory, the fish hook changes into the config directory to run it and
+  blocks re-entry with `__kz_hook_busy`; fish has no `cd -q`.
+- fnm: `fnm env --use-on-cd --version-file-strategy recursive --shell fish`. The
+  strategy flag is load-bearing. With the default `local`, fnm 1.39.0 emits a
+  hook guarded by `test -f .node-version -o -f .nvmrc -o -f package.json`, which
+  is current-directory-only and never fires in a project subdirectory. With
+  `recursive` the guard is dropped and `fnm use` resolves upward, matching
+  `__sync_fnm_env`. The rule against combining `--use-on-cd` with
+  `__active_envs` still holds: fish has no `__active_envs`.
+- rbenv: not supported. rbenv is not installed on any current machine.
+- GVM: a stub function that points at bash/zsh. GVM ships bash/zsh scripts only
+  and installs a `cd` wrapper; bass transfers environment variables, not
+  functions.
+
 Python tracks its automatically activated environment. The version managers
 cache their configuration path and checksum. Moving inside the same project
 does not repeat activation, while editing a version file and then changing

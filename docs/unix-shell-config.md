@@ -4,6 +4,10 @@
 functions, common environment variables, version-manager initialization, and
 project environment synchronization there.
 
+`home_k/.config/fish/` is a third, independent implementation. fish cannot
+source `shrc.ext`, so its aliases, environment variables, and custom functions
+are re-implemented rather than shared. See [unix-fish.md](./unix-fish.md).
+
 Put configuration that depends on zsh syntax, oh-my-zsh, or a zsh plugin in
 `home_k/.zshrc`. This includes:
 
@@ -33,10 +37,15 @@ Before the split, bash sourced `fzf --zsh` from `shrc.ext` and reported a
 syntax error near an anonymous zsh function. `bash -n` did not catch the problem
 because the invalid code was generated and sourced only at runtime.
 
+The same `FZF_TMUX` rule applies to fish, and so does the same
+single-initialization rule: `PatrickF1/fzf.fish` is the only fzf integration
+there, and `fzf --fish` must not also be evaluated.
+
 `~/.config/shrc.ext.local` remains a shared local override by explicit choice.
 Its contents must be kept bash-compatible if it is expected to load cleanly in
 bash; repository checks cannot guarantee compatibility of that machine-local
-file.
+file. fish also loads it, through `bass source`, so it must stay a plain list of
+`export` statements.
 
 ## Verification
 
