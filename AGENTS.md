@@ -2,7 +2,7 @@
 
 ## Working agreements
 
-- Use `pwsh -NoProfile` for scripts and commands.
+- Prefer the host shell for agent commands: `bash` (or the user's login shell) on Linux/macOS; `pwsh -NoProfile` on Windows or when running PowerShell scripts (`.ps1`). Do not wrap simple Unix commands in `pwsh`.
 - Prefer `rg`/`rg --files` for repository searches.
 - Prefer `pnpm` for Node.js package management.
 - Ask before adding new production dependencies.

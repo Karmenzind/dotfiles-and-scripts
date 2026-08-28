@@ -253,6 +253,43 @@ require("lazy").setup({
                 local lint = require("lint")
                 lint.linters_by_ft = { python = { "mypy" } }
 
+                -- Prefer project/venv mypy so imports resolve; fall back to PATH (system/mason).
+                local function resolve_mypy_cmd()
+                    local function venv_mypy(venv_dir)
+                        if not venv_dir or venv_dir == "" then
+                            return nil
+                        end
+                        local candidate = is_win and (venv_dir .. "\\Scripts\\mypy.exe")
+                            or (venv_dir .. "/bin/mypy")
+                        if vim.fn.executable(candidate) == 1 then
+                            return candidate
+                        end
+                        return nil
+                    end
+
+                    local from_env = venv_mypy(vim.env.VIRTUAL_ENV)
+                    if from_env then
+                        return from_env
+                    end
+
+                    local start = vim.api.nvim_buf_get_name(0)
+                    start = start ~= "" and vim.fs.dirname(start) or vim.fn.getcwd()
+                    local found = vim.fs.find(".venv", {
+                        upward = true,
+                        path = start,
+                        type = "directory",
+                    })[1]
+                    if found then
+                        local from_project = venv_mypy(found)
+                        if from_project then
+                            return from_project
+                        end
+                    end
+
+                    return "mypy"
+                end
+                lint.linters.mypy.cmd = resolve_mypy_cmd
+
                 -- lint.linters.mypy.args = {
                 --     "--disable-error-code=import-untyped",
                 --     -- "--show-error-codes",
