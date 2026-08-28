@@ -21,8 +21,8 @@ Capability discovery and calibration evidence are separate concerns.
 Use the command that returns the executor's complete model list, not whichever
 subcommand is shortest.
 
-For `cursor-agent`, always use `cursor-agent --list-models`. Do not use
-`cursor-agent models`: it prints a **truncated short list** that omits many
+For `cursor-agent`, always use `agent --list-models`. Do not use
+`agent models`: it prints a **truncated short list** that omits many
 models. The difference is measured, not assumed — in the short list the
 `cursor-` prefix retains only a single fast model, while `--list-models` also
 returns the low / medium / high / xhigh tiers of the same family and their
