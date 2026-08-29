@@ -11,10 +11,11 @@ When delegating work:
 
 ## Model selection
 
-- Default to the **non-fast** variant of a model. `fast` is an explicit
-  downgrade: choose it only when the user asks for it, or when the task is
-  genuinely inconsequential. Do not choose it merely because it appears first in
-  a list.
+- Use the **non-fast** variant of a model. `-fast` serving variants are **more
+  expensive**; the only permitted exception is the user explicitly asking for
+  one. Do not choose a fast variant merely because it appears first in a list.
+  (Corrected 2026-08-29: an earlier draft claimed a second exception for
+  "inconsequential tasks" — the user never authorized it.)
 
 ## Pre-dispatch checks
 

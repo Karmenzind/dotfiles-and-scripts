@@ -2,15 +2,21 @@
 
 Current executor capabilities are stored outside this rule repository as runtime state.
 
-Preferred cache:
-
-`~/.config/agent-runtime/executors.json`
+Cache: `~/.config/agent-runtime/executors.json`, written by
+`~/.config/agent-runtime/refresh-executors.sh`. Refresh policy: **at most one
+fetch per calendar day, performed lazily by the agent that needs it** — no
+cron/scheduled job (developer instruction, 2026-08-29).
 
 Before planning work that may delegate to another Executor:
 
-1. read the capability cache;
-2. refresh it when stale or missing;
-3. refresh immediately when actual behavior contradicts cached metadata.
+1. read the capability cache and check `refreshed_at`;
+2. same calendar day → use as-is; older or missing → run the refresh script once;
+3. refresh immediately when actual behavior contradicts cached metadata,
+   regardless of the date.
+
+The full procedure, per-executor commands, and failure catalogue live in
+`ijooz-engineering-playbook/skills/executor-model-discovery.md`; follow that
+skill when dispatching.
 
 Do not hard-code current model lists into this file.
 
