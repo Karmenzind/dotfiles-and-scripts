@@ -11,12 +11,14 @@ but cannot run consistently on every platform.
 
 ## Platform boundaries
 
-- Leave `default-shell` unset. RMUX 0.10.0 selected `/usr/bin/zsh` from
-  `$SHELL` on Linux, and selects its native default on macOS and Windows.
-- Use `source-file -F "#{config_files}"` for the reload binding so it reloads
-  the actual file selected by RMUX instead of assuming `$HOME` or
-  `%USERPROFILE%` syntax. The `-F` is required: without it, RMUX 0.10.0 treats
-  the format as a literal filename.
+- Leave `default-shell` unset on Unix so RMUX uses `$SHELL`. On native Windows,
+  set it to `pwsh.exe` behind the `USERPROFILE` runtime guard; otherwise RMUX
+  can create split panes with `cmd.exe` even when the original pane is pwsh.
+- Use `source-file ~/.rmux.conf` for the reload binding. `#{config_files}` is a
+  comma-separated list of every loaded configuration file; passing it as the
+  single `source-file` argument makes RMUX look for a literal path such as
+  `foo.conf,bar.conf` when more than one file was loaded. The repository owns
+  only the user-level `.rmux.conf`, so reload that file directly.
 - Keep `default-terminal` at `xterm-256color`, which is available across the
   supported native backends and avoids requiring tmux-specific terminfo.
 - Use `-c "#{pane_current_path}"` for all pane and window creation bindings.
@@ -48,9 +50,9 @@ rmux -S "$socket" list-keys | grep 'source-file'
 rmux -S "$socket" kill-server
 ```
 
-Verify that the default shell is the user's native shell, the pane starts in
-the requested directory, the reload binding targets `#{config_files}` with
-`source-file -F`, and an unprefixed `C-d` binding is absent on Unix. Also test
+Verify that the default shell is the user's native shell on Unix, the pane
+starts in the requested directory, the reload binding targets `~/.rmux.conf`,
+and an unprefixed `C-d` binding is absent on Unix. Also test
 horizontal and vertical splits from a changed directory and run
 `git diff --check`.
 

@@ -14,10 +14,10 @@ They are version-scoped; use a fresh isolated server after every upgrade.
   but `home_k/.tmux.conf` still contains Unix-only TPM plugins, shell jobs,
   clipboard commands, and terminal assumptions.
 - The live `~/.rmux.conf` should remain a symlink into this repository.
-- Do not set `default-shell` in the shared file. RMUX 0.10 chooses the native
-  platform default; a stale Windows server that retained the former
-  `pwsh.exe` value must clear it with `rmux set-option -gu default-shell` or be
-  restarted.
+- Set `default-shell` to `pwsh.exe` only inside the native Windows
+  `USERPROFILE` runtime guard. Without the explicit setting, RMUX can create a
+  split pane with `cmd.exe` even when the original pane is pwsh. Existing
+  servers must reload the configuration before the setting affects new panes.
 - Keep the explicit `-c "#{pane_current_path}"` on pane/window creation.
   PowerShell emits OSC 7 on prompt redraw so RMUX can track a ConPTY pane's
   current directory; a control test using `cmd.exe` without OSC 7 remained at
@@ -56,10 +56,11 @@ pipeline would replace a working OSC 52 path without benefit. Keep
 
 ### Retired 0.8 workarounds
 
-RMUX 0.9.0 now starts interactive PowerShell as `pwsh.exe -NoLogo -NoExit`
-without `-NoProfile`. An isolated initial pane, CLI-created window, and split
-all loaded the linked profile and reported `pwsh.exe` as the current command.
-`default-command` is also applied consistently across creation paths.
+RMUX 0.9.0 starts an explicitly selected interactive PowerShell as
+`pwsh.exe -NoLogo -NoExit` without `-NoProfile`. An isolated initial pane,
+CLI-created window, and split all loaded the linked profile and reported
+`pwsh.exe` as the current command. Keep the Windows-only `default-shell`
+setting so those creation paths select PowerShell instead of `cmd.exe`.
 
 Consequently, the configuration no longer starts a second child PowerShell and
 no longer repeats that wrapper in every binding. This avoids nested shells,

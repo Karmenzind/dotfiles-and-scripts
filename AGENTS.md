@@ -64,8 +64,15 @@
 - Read `docs/rmux.md` and `docs/windows-rmux.md` before changing RMUX, tmux, PowerShell prompt integration, or Windows pane creation behavior.
 - Keep `home_k/.rmux.conf` portable across native Linux, macOS, and Windows. Match the shared tmux key bindings and user-visible behavior wherever RMUX supports them.
 - Keep `home_k/.rmux.conf` standalone. Do not source the full `home_k/.tmux.conf`: even when RMUX parses its syntax, that file contains Unix-only TPM plugins, shell jobs, clipboard commands, and terminal assumptions.
-- Let RMUX select the native default shell. Keep platform-specific workarounds narrowly guarded; use runtime `if-shell -F '#{USERPROFILE}'` only as the native Windows config condition, not as a portable home path. RMUX 0.10.0 evaluates parse-time `%if` before importing that environment value.
-- Keep the reload binding on `source-file -F "#{config_files}"`; RMUX 0.10.0 requires `-F` to expand that format instead of treating it as a literal path.
+- Let RMUX select the native default shell on Unix. Set `default-shell` to
+  `pwsh.exe` only within runtime `if-shell -F '#{USERPROFILE}'` on Windows so
+  split panes do not fall back to `cmd.exe`. Use `USERPROFILE` only as the
+  native Windows condition, not as a portable home path; RMUX 0.10.0 evaluates
+  parse-time `%if` before importing that environment value.
+- Keep the reload binding on `source-file ~/.rmux.conf`. Do not pass
+  `#{config_files}` to one `source-file` command: it expands to a comma-separated
+  list and RMUX treats the whole list as one literal path when multiple config
+  files were loaded.
 - Treat RMUX workarounds as version-scoped. Re-test them against a fresh isolated RMUX server after upgrades before removing or simplifying them.
 
 ## Cross-platform configuration
