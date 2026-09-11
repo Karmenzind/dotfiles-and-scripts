@@ -222,8 +222,15 @@ require("lazy").setup({
                     replace_keycodes = false,
                 })
                 vim.g.copilot_no_tab_map = true
-                vim.g.copilot_idle_delay = 500
-                vim.g.copilot_trigger_on_idle = 1
+                -- Debounce before a suggestion is requested. copilot.vim's own
+                -- default is 45ms, which fires while still typing; this is
+                -- deliberately much slower so suggestions only appear on a real
+                -- pause. Raise it further if they still feel eager.
+                vim.g.copilot_idle_delay = 1000
+                -- NOTE: g:copilot_trigger_on_idle was set here but copilot.vim
+                -- never reads it (verified against 1.59.0 -- the name appears
+                -- nowhere in the plugin). Idle triggering is unconditional and
+                -- controlled purely by copilot_idle_delay above.
             end,
         },
         -- { "zbirenbaum/copilot.lua",  dependencies = { "copilotlsp-nvim/copilot-lsp" } },

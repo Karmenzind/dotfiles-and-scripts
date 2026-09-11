@@ -42,6 +42,6 @@ See:
 - `runtime.md` — running services and discovered runtime state
 - `browser.md` — browser verification capability
 - `planning.md` — planning-phase behavior and what counts as verified
-- `git.md` — commit messages, pushing, branching
+- `git.md` — commit messages, commit scope, pushing, branching
 - `tooling.md` — tool resolution, Node.js and Python conventions
 - `config-scope.md` — scoping configuration changes and their guards

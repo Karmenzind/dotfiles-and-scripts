@@ -6,6 +6,28 @@
   any other signature, trailer, or marker indicating that a commit was generated
   by an AI. A commit message describes the change itself and nothing else.
 
+## Commit scope
+
+When creating a commit, inspect the full working tree: staged, unstaged, and
+untracked files.
+
+Prefer fewer commits. Combine changes that share a nearby scope or serve the
+same function into one commit. Do not split a related set of edits into several
+commits unless the user asks for that split, or the changes are clearly
+unrelated.
+
+If extra changes are present that this agent did not make for the current task
+(other sessions, other agents, leftover local edits, or unrelated files):
+
+- Stop before staging or committing.
+- Name those extra paths and ask whether they should be included in this
+  commit's scope.
+- Do not omit them on your own initiative, and do not include them on your
+  own initiative. Wait for an explicit answer.
+
+This does not override the rule against committing secrets. If an extra path
+looks like a secret, warn and keep it out.
+
 ## Publishing to a remote
 
 - **Never push to a remote on your own initiative.** Push only when the user has
@@ -20,6 +42,3 @@
 
 - Do not create a branch for the work unless asked. Default to committing on the
   current branch.
-- Uncommitted changes already present in the working tree belong to the current
-  piece of work unless the user says otherwise; do not split them out on your own
-  initiative.

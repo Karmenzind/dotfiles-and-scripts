@@ -7,6 +7,8 @@ alias vi=vim
 alias nv=nvim
 alias mux=tmuxinator
 
+alias usql-legacy='GODEBUG=tls11server=1 usql'
+
 # Probe at runtime rather than hard-coding xclip: this has to work on Wayland
 # and on machines where only xsel is installed. Kept in sync with the fish
 # implementation in home_k/.config/fish/conf.d/kz_aliases.fish.
@@ -410,6 +412,19 @@ __load_gvm_for_project() {
     if ! source "$gvm_script"; then
         return 1
     fi
+
+    # GVM installs a cd() wrapper that depends on _encode/_decode. Claude Code
+    # shell snapshots keep cd/setValueForKeyFakeAssocArray but drop
+    # underscore-prefixed helpers, so every later cd prints
+    # "command not found: _encode". Explicit `gvm use` still works without the
+    # cd hook; directory changes must never require those helpers.
+    if typeset -f cd >/dev/null 2>&1; then
+        unset -f cd
+    fi
+    if typeset -f __gvm_oldcd >/dev/null 2>&1; then
+        unset -f __gvm_oldcd
+    fi
+
     echo "[gvm] loaded for Go project"
 }
 

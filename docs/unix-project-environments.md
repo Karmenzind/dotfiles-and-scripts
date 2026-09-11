@@ -85,14 +85,19 @@ does not duplicate activation or lose ownership needed for cleanup.
   `sdk env clear`. Deleting that file before leaving can prevent SDKMAN from
   restoring its defaults; this is an upstream command limitation.
 - GVM defines a global `cd` wrapper that calls `setValueForKeyFakeAssocArray`.
-  Claude Code 2.1.226 shell snapshots retained that wrapper and its public
-  callers but omitted GVM's `_encode` and `_decode` helpers. Every snapshot cwd
-  reset then printed `command not found` warnings. Keep GVM out of shell startup
-  and directory-change hooks; the lazy wrapper lets Claude snapshots retain a
-  self-contained loader instead. If Claude explicitly runs `gvm` in a direct
-  `go.mod` directory, GVM exists only in that tool shell. Existing Claude
-  sessions must be restarted after changing this behavior because their broken
-  snapshot is already cached.
+  Claude Code shell snapshots retain that wrapper and its public callers but omit
+  underscore-prefixed helpers such as `_encode` / `_decode`. Every snapshot cwd
+  reset then prints `command not found` warnings.
+- Keep GVM out of shell startup and directory-change hooks. In particular, do
+  not leave `source ~/.gvm/scripts/gvm` in `~/.bashrc` (the upstream installer
+  adds that line; bash then poisons any tool that starts an interactive bash).
+- The lazy `gvm` wrapper still sources the real implementation on explicit use
+  inside a direct `go.mod` directory, but immediately removes GVM's `cd` /
+  `__gvm_oldcd` overrides afterward. Explicit `gvm use` keeps working;
+  directory changes never depend on snapshot-dropped helpers.
+- Existing Claude sessions must be restarted after changing this behavior, and
+  stale files under `~/.claude/shell-snapshots/` that still define GVM's `cd`
+  should be deleted so a fresh snapshot is captured.
 
 Re-test the generated fnm hook and SDKMAN `sdk env clear` behavior after major
 version-manager upgrades. The behavior above was verified with fnm 1.39.0 and
@@ -126,3 +131,12 @@ On 2026-08-13, Claude Code 2.1.226's saved snapshot was sourced in an isolated
 zsh and reproduced the `_encode` / `_decode` warnings on `cd`. The lazy wrapper
 was then verified in zsh and bash for rejection outside a Go project, no loading
 on directory changes, one-time loading on explicit use, and argument forwarding.
+
+On 2026-09-03, Claude Code still printed
+`setValueForKeyFakeAssocArray:...: command not found: _encode` during Bash-tool
+`cd`. Remaining causes: `~/.bashrc` still sourced GVM globally, and an explicit
+`gvm` load reinstalled GVM's `cd` wrapper (Claude snapshots drop `_encode` /
+`_decode`). Fix verified: interactive bash no longer sets `GVM_ROOT` or wraps
+`cd`; after `gvm version` in a `go.mod` directory, `cd` stays a builtin; with
+`_encode` removed to simulate a snapshot, `cd` no longer errors. The one stale
+snapshot that still defined GVM's `cd` was deleted.
