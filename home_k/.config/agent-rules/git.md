@@ -2,6 +2,11 @@
 
 ## Commit messages
 
+- Record the final behavior change and any design reasons needed to understand
+  it. Do not record review rounds, implementation process, trial-and-error
+  history, test-pass counts, or agent workflow. Do not record a specific
+  verification process unless it is a lasting constraint on understanding the
+  code.
 - Do not add `Co-Authored-By:` trailers naming an AI assistant, and do not add
   any other signature, trailer, or marker indicating that a commit was generated
   by an AI. A commit message describes the change itself and nothing else.

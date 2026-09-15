@@ -441,7 +441,26 @@ fi
 #                                 kd                                  #
 #######################################################################
 
+
 # if [[ -n $TMUX ]]; then
+#     # XXX (k): <2026-09-14 11:47> 一直crash
+#     # __kdwithtmuxpopup() {
+#     #     local width height x y popup_command popup_less
+#     #     width=$(($(tput cols) * 80 / 100))
+#     #     height=$(($(tput lines) * 70 / 100))
+#     #     x=$(( ($(tput cols) - width) / 2 ))
+#     #     y=$(( ($(tput lines) - height) / 2 ))
+#     #     case ${LESS-} in
+#     #     *X*) popup_less=$LESS ;;
+#     #     *) popup_less=${LESS-}X ;;
+#     #     esac
+#     #     printf -v popup_command '%q ' kd "$@"
+#     #     printf -v popup_less '%q' "$popup_less"
+#     #     popup_command="LESS=$popup_less $popup_command; printf '\n按 Enter 关闭'; IFS= read -r _"
+#     #
+#     #     tmux display-popup -h "$height" -w "$width" -x "$x" -y "$y" \
+#     #         -E "$popup_command"
+#     # }
 #     __kdwithtmuxpopup() {
 #         tmux display-popup "kd $@"
 #     }
