@@ -65,6 +65,7 @@ TO_SYNC: Set[Path] = {
     # on Windows and macOS an unlisted file is silently skipped.
     SRC_HOME / ".codex/AGENTS.md",
     SRC_HOME / ".claude/CLAUDE.md",
+    SRC_HOME / ".config/agent-rules",
     SRC_HOME / ".vim",
     SRC_HOME / ".vimrc",
     SRC_HOME / ".rmux.conf",

@@ -58,29 +58,53 @@ end
 local plugged_dir = my_vimroot .. "/plugged"
 local nvimpid = vim.fn.getpid()
 
+local function is_executable(path)
+    return type(path) == "string" and path ~= "" and vim.fn.executable(path) == 1
+end
+
 local function find_pybin()
-    local preset = vim.fn.getenv("MY_VIM_PYTHON_PATH")
-    if preset ~= vim.NIL and preset ~= "" then
-        return preset
+    local preset = vim.env.MY_VIM_PYTHON_PATH
+    if preset and preset ~= "" then
+        if is_executable(preset) then
+            return preset
+        end
+        error("MY_VIM_PYTHON_PATH is not executable: " .. preset)
     end
+
+    local candidates = {}
     if is_win then
-        for _, pat in ipairs({
+        table.insert(candidates, vim.fn.stdpath("config") .. "/pynvim-venv/Scripts/python.exe")
+        table.insert(candidates, vim.fn.exepath("python"))
+        table.insert(candidates, vim.fn.exepath("python3"))
+    else
+        table.insert(candidates, vim.fn.exepath("python3"))
+        table.insert(candidates, vim.fn.exepath("python"))
+    end
+
+    for _, candidate in ipairs(candidates) do
+        if is_executable(candidate) then
+            return candidate
+        end
+    end
+
+    if is_win then
+        for _, pattern in ipairs({
             [[C:\Program Files\Python3*\python.exe]],
             [[~\AppData\Local\Programs\Python\Python*\python.exe]],
         }) do
-            local expanded = vim.fn.glob(pat, false, true)
-            if #expanded ~= 0 then
-                return expanded[#expanded]
+            local expanded = vim.fn.glob(pattern, false, true)
+            for i = #expanded, 1, -1 do
+                if is_executable(expanded[i]) then
+                    return expanded[i]
+                end
             end
         end
-    else
-        return "/usr/bin/python3"
     end
+
+    error("Failed to locate a Python executable for the Neovim provider")
 end
+
 local py3bin = find_pybin()
-if py3bin == nil or not vim.fn.executable(py3bin) then
-    error("Failed to locate python executable")
-end
 
 -- Bootstrap lazy.nvim
 -- local lazypath = vim.fn.stdpath("data") .. "/lazy/lazy.nvim"
