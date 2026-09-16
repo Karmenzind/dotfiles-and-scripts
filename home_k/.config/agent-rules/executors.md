@@ -15,8 +15,8 @@ Before planning work that may delegate to another Executor:
    regardless of the date.
 
 The full procedure, per-executor commands, and failure catalogue live in
-`ijooz-engineering-playbook/skills/executor-model-discovery.md`; follow that
-skill when dispatching.
+the engineering playbook repository, in
+`skills/executor-model-discovery.md`; follow that skill when dispatching.
 
 Do not hard-code current model lists into this file.
 

@@ -11,7 +11,7 @@
 #   * `-x` would leak pure_* into every child process for no reason.
 # pure_symbol_ssh_prefix is a *symbol* printed immediately before user@host in
 # SSH sessions; pure's own default is "". A system-wide /etc/fish/config.fish
-# sets it to $USER on at least one machine, which renders as "qk qk@host" --
+# sets it to $USER on at least one machine, which renders as "user user@host" --
 # the username twice. Pin it back to the default here.
 set -g pure_symbol_ssh_prefix ""
 

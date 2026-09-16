@@ -121,7 +121,7 @@ The conda and nvm parts contradict `AGENTS.md`, and the unconditional
 
 It also sets `pure_symbol_ssh_prefix` to `$USER`. That variable is a *symbol*
 printed immediately before `user@host` in SSH sessions and defaults to `""`, so
-the prompt rendered as `qk qk@host` — the username twice. `kz_prompt.fish` pins
+the prompt rendered as `user user@host` — the username twice. `kz_prompt.fish` pins
 it back to the default.
 
 Section 5 of `config.fish` re-sources `kz_env`, `kz_fzf`, `kz_prompt`, and

@@ -573,7 +573,7 @@ function __setupProxy {
     # [system.net.webrequest]::DefaultWebProxy.BypassProxyOnLocal = $true
 
     # Invoke-Expression (&starship init powershell)
-    # pwsh -ExecutionPolicy Bypass -NoLogo -NoProfile -NoExit -Command "Invoke-Expression 'Import-Module ''%ConEmuDir%\..\profile.ps1''; Import-Module ''C:\Users\qike\Documents\WindowsPowerShell\Microsoft.PowerShell_profile.ps1'''"
+    # pwsh -ExecutionPolicy Bypass -NoLogo -NoProfile -NoExit -Command "Invoke-Expression 'Import-Module ''%ConEmuDir%\..\profile.ps1''; Import-Module ''C:\Users\<you>\Documents\WindowsPowerShell\Microsoft.PowerShell_profile.ps1'''"
 }
 
 

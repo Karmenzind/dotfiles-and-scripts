@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-download_dir=/home/qk/Downloads/aria2
+download_dir="$HOME/Downloads/aria2"
 gid=$1
 filenum=$2
 filepath=$3
