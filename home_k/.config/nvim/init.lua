@@ -656,8 +656,17 @@ require("lazy").setup({
             "mason-org/mason-lspconfig.nvim",
             cond = load_lsp_plugins,
             config = function()
+                local go_version = vim.fn.system({ "go", "version" })
+                local go_minor = tonumber(go_version:match("go1%.(%d+)"))
+                local mason_lsps = vim.tbl_filter(function(server)
+                    -- Go 1.20 cannot parse the go directive used by current
+                    -- gopls releases. The legacy project installs its pinned
+                    -- gopls lazily when that LSP config is selected.
+                    return server ~= "gopls" or (go_minor ~= nil and go_minor >= 21)
+                end, my_lsps)
+
                 require("mason-lspconfig").setup({
-                    ensure_installed = my_lsps,
+                    ensure_installed = mason_lsps,
                     automatic_enable = false,
                 })
             end,
@@ -1709,8 +1718,135 @@ if load_lsp_plugins then
         end,
     })
 
-    vim.lsp.enable(my_lsps)
     vim.lsp.config("*", { capabilities = lsp_cap })
+
+    local gopls_settings = {
+        gopls = {
+            experimentalPostfixCompletions = true,
+            analyses = { unusedparams = true, shadow = true },
+            staticcheck = true,
+            gofumpt = true,
+        },
+    }
+
+    local legacy_gopls_version = "v0.15.3"
+    local legacy_gopls_project = vim.fs.normalize("D:/Workspace/oj/ipc-client")
+    local legacy_gopls_dir = vim.fs.joinpath(vim.fn.stdpath("data"), "tools", "gopls-" .. legacy_gopls_version)
+    local legacy_gopls_bin = vim.fs.joinpath(legacy_gopls_dir, is_win and "gopls.exe" or "gopls")
+    local legacy_gopls_installing = false
+    local legacy_gopls_waiters = {}
+
+    local function normalize_path(path)
+        local normalized = vim.fs.normalize(path)
+        return is_win and normalized:lower() or normalized
+    end
+
+    legacy_gopls_project = normalize_path(legacy_gopls_project)
+
+    local function is_legacy_gopls_project(root_dir)
+        if not root_dir then
+            return false
+        end
+
+        local root = normalize_path(root_dir)
+        return root == legacy_gopls_project or vim.startswith(root, legacy_gopls_project .. "/")
+    end
+
+    local function finish_legacy_gopls_install(success)
+        legacy_gopls_installing = false
+        local waiters = legacy_gopls_waiters
+        legacy_gopls_waiters = {}
+        for _, waiter in ipairs(waiters) do
+            waiter(success)
+        end
+    end
+
+    local function ensure_legacy_gopls(callback)
+        if vim.fn.executable(legacy_gopls_bin) == 1 then
+            callback(true)
+            return
+        end
+
+        table.insert(legacy_gopls_waiters, callback)
+        if legacy_gopls_installing then
+            return
+        end
+        legacy_gopls_installing = true
+
+        if vim.fn.executable("go") ~= 1 then
+            vim.notify("Cannot install legacy gopls: go is not executable", vim.log.levels.ERROR)
+            finish_legacy_gopls_install(false)
+            return
+        end
+
+        vim.fn.mkdir(legacy_gopls_dir, "p")
+        vim.notify("Installing gopls " .. legacy_gopls_version .. " for ipc-client...")
+
+        local ok, err = pcall(vim.system, {
+            "go",
+            "install",
+            "golang.org/x/tools/gopls@" .. legacy_gopls_version,
+        }, {
+            env = { GOBIN = legacy_gopls_dir },
+            text = true,
+        }, function(result)
+            vim.schedule(function()
+                local installed = result.code == 0 and vim.fn.executable(legacy_gopls_bin) == 1
+                if installed then
+                    vim.notify("Installed gopls " .. legacy_gopls_version .. " for ipc-client")
+                else
+                    local detail = vim.trim(result.stderr or result.stdout or "unknown error")
+                    vim.notify("Failed to install legacy gopls:\n" .. detail, vim.log.levels.ERROR)
+                end
+                finish_legacy_gopls_install(installed)
+            end)
+        end)
+
+        if not ok then
+            vim.notify("Failed to start legacy gopls installer:\n" .. tostring(err), vim.log.levels.ERROR)
+            finish_legacy_gopls_install(false)
+        end
+    end
+
+    local function find_go_root(bufnr)
+        return vim.fs.root(bufnr, { "go.work", "go.mod", ".git" })
+    end
+
+    vim.lsp.config("gopls", {
+        cmd = { "gopls" },
+        root_dir = function(bufnr, on_dir)
+            local root = find_go_root(bufnr)
+            if root and not is_legacy_gopls_project(root) then
+                on_dir(root)
+            end
+        end,
+        settings = gopls_settings,
+        init_options = { usePlaceholders = false },
+    })
+
+    vim.lsp.config("gopls_legacy", {
+        cmd = { legacy_gopls_bin },
+        filetypes = { "go", "gomod", "gowork", "gotmpl" },
+        root_dir = function(bufnr, on_dir)
+            local root = find_go_root(bufnr)
+            if not is_legacy_gopls_project(root) then
+                return
+            end
+
+            -- Installation is intentionally deferred until this config is
+            -- selected for the legacy project.
+            ensure_legacy_gopls(function(installed)
+                if installed and vim.api.nvim_buf_is_valid(bufnr) then
+                    on_dir(root)
+                end
+            end)
+        end,
+        settings = gopls_settings,
+        init_options = { usePlaceholders = false },
+    })
+
+    vim.lsp.enable("gopls_legacy")
+    vim.lsp.enable(my_lsps)
 
     vim.lsp.config("taplo", { settings = { evenBetterToml = { schema = { enabled = false } } } })
 
@@ -1746,19 +1882,6 @@ if load_lsp_plugins then
             suggest = { fromRuntimepath = true, fromVimruntime = true },
             vimruntime = "",
         },
-    })
-
-    vim.lsp.config("gopls", {
-        cmd = { "gopls" },
-        settings = {
-            gopls = {
-                experimentalPostfixCompletions = true,
-                analyses = { unusedparams = true, shadow = true },
-                staticcheck = true,
-                gofumpt = true,
-            },
-        },
-        init_options = { usePlaceholders = false },
     })
 
     vim.lsp.config("lua_ls", {
