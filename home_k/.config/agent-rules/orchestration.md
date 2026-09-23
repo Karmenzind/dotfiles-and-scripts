@@ -17,8 +17,51 @@ When delegating work:
   (Corrected 2026-08-29: an earlier draft claimed a second exception for
   "inconsequential tasks" — the user never authorized it.)
 
+## Keep going; stop only for decisions that are mine
+
+**Once orchestration has started, run it to completion. Do not stop to wait for
+me unless a genuine decision is blocked on my input.** Dispatch the next
+runnable task as soon as its dependencies are met, review it, verify it, commit
+it, and move on. Reporting progress is not a reason to pause: report *and*
+continue in the same turn.
+
+Things that are **not** reasons to stop:
+
+- a task finished and the next one is ready — dispatch it;
+- an executor stopped on a frozen-artifact conflict whose correct resolution is
+  already determined by the frozen documents — rule on it, record the ruling,
+  send it back;
+- a write-scope or capability gap the orchestrator itself created — fix the
+  dispatch and re-send;
+- verification the executor could not perform — do it yourself, that is already
+  the orchestrator's job;
+- a defect found outside the current contract's scope — record it as a
+  follow-up and keep going;
+- the harness or environment needs repair — repair it.
+
+Things that **are** reasons to stop and ask:
+
+- a change to frozen Plan scope, Contract semantics, or acceptance criteria that
+  the frozen documents do not already settle;
+- an execution-metadata revision (Executor, Model, Reasoning, Execution Mode) —
+  these need explicit approval and must be recorded before dispatch;
+- anything destructive or outward-facing: pushing, deleting, touching a shared
+  database or a production system;
+- a trade-off where two defensible answers lead to materially different work,
+  and the frozen documents do not choose between them.
+
+When in doubt, prefer acting and reporting the judgment over stalling. A
+recorded judgment I can overturn costs less than an idle orchestrator.
+
 ## Pre-dispatch checks
 
 - Confirm the executor actually runs **in the write mode the task needs**, not
   merely that `--version` responds. A version banner is not evidence that the
   executor can write files in the intended mode.
+- When a task declares a required capability (browser, container runtime,
+  network), **probe that capability itself**, not just executor reachability.
+  Reaching an executor proves nothing about what it is allowed to do inside its
+  sandbox. Known example: `codex exec` cannot start Docker
+  (`operation not permitted`) and cannot call Playwright MCP
+  (`approval policy is never`), so it must not take a task whose acceptance
+  needs a browser — dispatching one costs a full round of rework.
