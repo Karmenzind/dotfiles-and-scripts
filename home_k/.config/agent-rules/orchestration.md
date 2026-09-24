@@ -65,3 +65,36 @@ recorded judgment I can overturn costs less than an idle orchestrator.
   (`operation not permitted`) and cannot call Playwright MCP
   (`approval policy is never`), so it must not take a task whose acceptance
   needs a browser — dispatching one costs a full round of rework.
+
+## Supervisor for every orchestration run
+
+Every orchestration run gets a **supervisor**: a dedicated watcher, started
+when the first task is dispatched, whose only job is to notice executors that
+have hung. Dispatching a task is not delivering it; a long silence can be
+normal work, a deadlock, a sandbox refusal, or an executor waiting for input
+nobody will give, and nothing distinguishes them unless someone looks.
+
+- **Scope.** The supervisor watches every dispatched task, whatever the
+  executor or adapter.
+- **Cadence.** Once a task has been running for more than **15 minutes**, the
+  supervisor checks its status **every 5 minutes** until it finishes. Tasks
+  under 15 minutes are not polled.
+- **What a check looks at.** Whether the executor is still alive, whether its
+  output or working tree is changing, whether it is consuming CPU, and whether
+  it is waiting on input, authentication, permissions, or quota. Report how
+  long the task has been running, not merely "still running". Several
+  executors write their output only at the end, so empty output alone is not
+  evidence of a hang; unchanged output *and* no CPU progress is.
+- **How completion is detected.** Prefer the executor's own completion signal
+  over process lookups. A watcher that matches processes by command-line text
+  can match itself, and a PID captured right after dispatch is often a
+  short-lived intermediate process; both have produced false "still running"
+  and false "finished" readings.
+- **Read-only.** Checks never modify the task's working tree, compete with the
+  executor, or interrupt it for being slow. A suspected hang is reported to the
+  orchestrator, which acts on it under the long-running-executor rules of the
+  engineering playbook (investigate, correct the invocation, redispatch to the
+  same executor, or report) — never by silently taking over the task.
+- **Exit.** The supervisor stops when orchestration ends, which is when every
+  task in the Tasks document is completed. It does not stop merely because the
+  currently running tasks have finished while others remain.
