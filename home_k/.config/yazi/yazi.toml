@@ -1,5 +1,4 @@
 # yazi.toml
-"$schema" = "https://yazi-rs.github.io/schemas/yazi.json"
 
 [mgr]
 show_hidden = true

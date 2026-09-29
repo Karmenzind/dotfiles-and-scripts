@@ -1334,44 +1334,76 @@ local function markdown_preview_picker()
         return
     end
     local path = vim.fn.expand("%")
-    local candidates = {}
 
-    if vim.fn.executable("mlp") == 1 then
-        table.insert(candidates, { name = "mlp", launch = function() mp_launch_mlp(path) end })
-    end
-    if vim.fn.executable("glow") == 1 then
-        table.insert(candidates, { name = "glow", launch = function() mp_launch_glow(path) end })
-    end
-    if is_macos and mp_app_available("marktext", "MarkText") then
-        table.insert(candidates, { name = "marktext", launch = function() mp_launch_app("marktext", "MarkText", path) end })
-    end
-    if mp_app_available("typora", "Typora") then
-        table.insert(candidates, { name = "typora", launch = function() mp_launch_app("typora", "Typora", path) end })
-    end
-    if mp_app_available("obsidian", "Obsidian") then
-        table.insert(candidates, {
-            name = "obsidian (best-effort, needs an already-open vault)",
+    -- every supported tool is always listed; `available` decides whether it can
+    -- actually be launched, so the list also documents what is supported here
+    local candidates = {
+        {
+            name = "mlp",
+            available = function() return vim.fn.executable("mlp") == 1 end,
+            launch = function() mp_launch_mlp(path) end,
+        },
+        {
+            name = "glow",
+            available = function() return vim.fn.executable("glow") == 1 end,
+            launch = function() mp_launch_glow(path) end,
+        },
+        {
+            name = "marktext",
+            available = function() return mp_app_available("marktext", "MarkText") end,
+            launch = function() mp_launch_app("marktext", "MarkText", path) end,
+        },
+        {
+            name = "typora",
+            available = function() return mp_app_available("typora", "Typora") end,
+            launch = function() mp_launch_app("typora", "Typora", path) end,
+        },
+        {
+            name = "obsidian",
+            note = "best-effort, needs an already-open vault",
+            available = function() return mp_app_available("obsidian", "Obsidian") end,
             launch = function() mp_launch_app("obsidian", "Obsidian", path) end,
-        })
-    end
-    if vim.fn.executable("code") == 1 then
-        table.insert(candidates, { name = "vscode", launch = function() vim.fn.jobstart({ "code", path }, { detach = true }) end })
-    end
+        },
+        {
+            name = "vscode",
+            available = function() return vim.fn.executable("code") == 1 end,
+            launch = function() vim.fn.jobstart({ "code", path }, { detach = true }) end,
+        },
+    }
 
-    if #candidates == 0 then
-        echo_warn("No markdown preview tool found (mlp/glow/marktext/typora/obsidian/vscode)")
-        return
-    end
-
-    local names = {}
+    local labels = {}
+    local any_available = false
     for _, c in ipairs(candidates) do
-        table.insert(names, c.name)
+        c.installed = c.available()
+        any_available = any_available or c.installed
+        local marks = {}
+        if not c.installed then
+            table.insert(marks, "not installed")
+        end
+        if c.note then
+            table.insert(marks, c.note)
+        end
+        local label = c.name
+        if #marks > 0 then
+            label = label .. " (" .. table.concat(marks, "; ") .. ")"
+        end
+        table.insert(labels, label)
     end
 
-    vim.ui.select(names, { prompt = "Markdown preview with:" }, function(_, idx)
-        if idx then
-            candidates[idx].launch()
+    if not any_available then
+        echo_warn("No markdown preview tool installed; every entry below is unavailable")
+    end
+
+    vim.ui.select(labels, { prompt = "Markdown preview with:" }, function(_, idx)
+        if not idx then
+            return
         end
+        local c = candidates[idx]
+        if not c.installed then
+            echo_warn(c.name .. " is not installed, cannot preview with it")
+            return
+        end
+        c.launch()
     end)
 end
 
