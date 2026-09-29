@@ -1277,7 +1277,7 @@ vim.api.nvim_create_autocmd("FileType", { group = mdft_grp, pattern = "markdown"
 -- /* markdown preview: multi-tool picker (redesigned, not a straight port) */
 local function mp_term_execute(cmd)
     if vim.env.TMUX then
-        vim.fn.system(string.format('tmux split-window "%s"', cmd))
+        vim.fn.system({ "tmux", "split-window", cmd })
     else
         vim.cmd("split")
         vim.cmd("terminal " .. cmd)
@@ -1315,7 +1315,8 @@ local function mp_launch_mlp(path)
 end
 
 local function mp_launch_glow(path)
-    mp_term_execute("glow " .. vim.fn.fnameescape(path))
+    -- Keep the dedicated pane open in glow's pager until the user quits it.
+    mp_term_execute("glow -p " .. vim.fn.shellescape(path))
 end
 
 local function mp_launch_app(exe, mac_app, path)
