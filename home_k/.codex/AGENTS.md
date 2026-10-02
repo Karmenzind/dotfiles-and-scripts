@@ -29,3 +29,31 @@ Only Codex-specific mechanics belong in this file.
 - Treat the repair as release-scoped, because `standalone/current` may change
   after a Codex update. On recurrence, re-identify the active release and repeat
   the checks instead of assuming the previous copy remains effective.
+
+## External agents launched from Codex
+
+- An external Claude or Cursor process inherits Codex's outer filesystem and
+  network restrictions. Its own permission mode cannot grant access denied by
+  that outer sandbox. A linked repository's real path may be outside Codex's
+  writable roots even when its workspace link is readable.
+- Separate startup failures (session/cache directories or API connectivity)
+  from child-agent file-tool and shell-tool denials. A working version banner
+  or successful file edit does not prove that shell commands or Git metadata
+  writes are permitted.
+- If an authorized invocation fails because of the outer sandbox, request a
+  targeted `require_escalated` rerun through Codex's approval mechanism. Keep
+  the child's write scope and permission checks narrow; do not silently use
+  `--force`, skip permissions, disable sandboxes, or change global settings.
+- For Codex-launched noninteractive probes, Claude `acceptEdits` plus an exact
+  Bash-command allowlist and Cursor `--auto-review` have worked after the outer
+  restriction was addressed. These are observed invocation options, not blanket
+  approval or a requirement to override the user's existing configuration.
+  Recheck installed CLI support and report any subsequent review rejection.
+- Before assigning repository work, test the required file and shell operations
+  in the actual checkout with isolated temporary files. Independently verify
+  their contents, clean only those files, and preserve existing changes. Probe
+  Git metadata writes separately when a task requires commits.
+
+For dated versions, failures, successful invocations, and limitations, see
+[the dotfiles evidence note](../../docs/codex-external-agent-permissions.md).
+Resolve this file's symlink target when locating the companion document.
