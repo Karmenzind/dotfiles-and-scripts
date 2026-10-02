@@ -159,7 +159,6 @@ function! SetupVimPlug()
   Plug 'godlygeek/tabular'
   Plug 'mzlogin/vim-markdown-toc'
   Plug 'plasticboy/vim-markdown'
-  Plug 'iamcco/markdown-preview.nvim', { 'do': { -> mkdp#util#install() }, 'for': ['markdown', 'vim-plug']}
   Plug 'nelstrom/vim-markdown-folding', { 'for': 'markdown' }
   Plug 'mklabs/vim-markdown-helpfile'
   Plug 'Traap/vim-helptags'
@@ -847,35 +846,6 @@ let g:vim_markdown_conceal = 0
 let g:vim_markdown_conceal_code_blocks = 0
 let g:tex_conceal = "" | let g:vim_markdown_math = 1
 
-" markdown-preview
-" let g:mkdp_browserfunc = 'MKDP_browserfunc_default'
-" let g:mkdp_browser = 'chromium-browser'
-let g:mkdp_open_to_the_world = 1
-let g:mkdp_open_ip = '0.0.0.0'
-let g:mkdp_port = '13333'
-
-let g:mkdp_auto_start = 0
-let g:mkdp_auto_open = 0
-let g:mkdp_auto_close = 1
-let g:mkdp_refresh_slow = 0
-let g:mkdp_command_for_global = 0
-let g:mkdp_echo_preview_url = 1
-let g:mkdp_preview_options = {
-      \ 'mkit': {},
-      \ 'katex': {},
-      \ 'uml': {},
-      \ 'maid': {},
-      \ 'disable_sync_scroll': 1,
-      \ 'sync_scroll_type': 'middle',
-      \ 'hide_yaml_meta': 1,
-      \ 'sequence_diagrams': {},
-      \ 'flowchart_diagrams': {},
-      \ 'content_editable': v:false,
-      \ 'disable_filename': 0,
-      \ 'toc': {}
-      \ }
-let g:mkdp_browser = 'chromium'
-
 " tmux pane or terminal
 function! s:TermExecute(cmd)
   if has_key(environ(), "TMUX")
@@ -1456,4 +1426,3 @@ endif
 let &t_SI .= "\<Esc>[6 q"
 let &t_SR .= "\<Esc>[3 q"
 let &t_EI .= "\<Esc>[2 q"
-

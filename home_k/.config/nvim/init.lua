@@ -722,11 +722,27 @@ require("lazy").setup({
         { "mzlogin/vim-markdown-toc" },
         { "plasticboy/vim-markdown" },
         {
-            "iamcco/markdown-preview.nvim",
-            build = function()
-                vim.fn["mkdp#util#install"]()
+            "selimacerbas/markdown-preview.nvim",
+            -- Keep the install path distinct from any stale iamcco checkout;
+            -- `:Lazy clean` can then remove the old plugin independently.
+            name = "selimacerbas-markdown-preview.nvim",
+            dependencies = { "selimacerbas/live-server.nvim" },
+            ft = "markdown",
+            config = function()
+                require("markdown_preview").setup({
+                    host = "0.0.0.0",
+                    port = 13333,
+                    default_theme = "light",
+                    hooks = {
+                        on_start = function(url)
+                            vim.notify("Markdown Preview started:\n" .. url, vim.log.levels.INFO)
+                        end,
+                        on_stop = function()
+                            vim.notify("Markdown Preview stopped", vim.log.levels.INFO)
+                        end,
+                    },
+                })
             end,
-            ft = { "markdown", "vim-plug" },
         },
         { "nelstrom/vim-markdown-folding", ft = "markdown" },
         { "mklabs/vim-markdown-helpfile" },
@@ -1243,24 +1259,6 @@ vim.g.vim_markdown_conceal_code_blocks = 0
 vim.g.tex_conceal = ""
 vim.g.vim_markdown_math = 1
 
--- /* markdown-preview.nvim */
-vim.g.mkdp_open_to_the_world = 1
-vim.g.mkdp_open_ip = "0.0.0.0"
-vim.g.mkdp_port = "13333"
-vim.g.mkdp_auto_start = 0
-vim.g.mkdp_auto_open = 0
-vim.g.mkdp_auto_close = 1
-vim.g.mkdp_refresh_slow = 0
-vim.g.mkdp_command_for_global = 0
-vim.g.mkdp_echo_preview_url = 1
-vim.g.mkdp_preview_options = {
-    mkit = {}, katex = {}, uml = {}, maid = {},
-    disable_sync_scroll = 1, sync_scroll_type = "middle", hide_yaml_meta = 1,
-    sequence_diagrams = {}, flowchart_diagrams = {},
-    content_editable = false, disable_filename = 0, toc = {},
-}
-vim.g.mkdp_browser = "chromium"
-
 -- /* misc filetype augroups */
 local jsfold_grp = vim.api.nvim_create_augroup("javascript_folding", { clear = true })
 vim.api.nvim_create_autocmd("FileType", { group = jsfold_grp, pattern = "javascript", command = "setlocal foldmethod=syntax" })
@@ -1339,6 +1337,11 @@ local function markdown_preview_picker()
     -- every supported tool is always listed; `available` decides whether it can
     -- actually be launched, so the list also documents what is supported here
     local candidates = {
+        {
+            name = "markdown-preview.nvim (selimacerbas)",
+            available = function() return pcall(require, "markdown_preview") end,
+            launch = function() require("markdown_preview").start() end,
+        },
         {
             name = "mlp",
             available = function() return vim.fn.executable("mlp") == 1 end,
