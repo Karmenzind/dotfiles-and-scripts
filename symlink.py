@@ -110,6 +110,7 @@ if osname == "win":
         [
             SRC_HOME / ".tmux.conf",
             SRC_HOME / ".config/alacritty/win.toml",
+            Path("others/neovide/config.toml"),
             Path("others/powershell/profile.ps1"),
         ]
     )
@@ -123,6 +124,7 @@ if osname == "win":
         / "AppData\\Roaming\\alacritty\\alacritty.toml",
         SRC_HOME / ".config/alacritty/win.toml": HOME_DIR / ".alacritty_extra.toml",
         SRC_HOME / ".config/yazi/yazi.toml": APPDATA / "yazi\\config\\yazi.toml",
+        Path("others/neovide/config.toml"): APPDATA / "neovide" / "config.toml",
         Path("others/powershell/profile.ps1"): get_ps_profile_path(),
     }
 elif osname == "mac":

@@ -13,6 +13,10 @@ vim.opt.completeopt = "menu,menuone,noselect"
 local is_win = vim.fn.has("win32") == 1
 local is_macos = vim.fn.has("mac") == 1
 
+if is_win and vim.g.neovide then
+    vim.g.neovide_remember_window_size = false
+end
+
 if is_win and vim.env.TERM_PROGRAM == "rmux" then
     vim.opt.guicursor =
         "n-v-c-sm:block,i-ci-ve:ver25-blinkwait300-blinkon200-blinkoff150,r-cr-o:hor20,t:block-blinkon500-blinkoff500-TermCursor"
@@ -1425,8 +1429,12 @@ vim.keymap.set("x", "<Leader>cm", ":<C-u>call CycleModes()<CR>:colorscheme atomi
 --    Windows gvim delmenu.vim/menu.vim block intentionally not ported,
 --    neither has a Neovide equivalent */
 if vim.fn.has("gui_running") == 1 and not vim.g.vscode then
-    vim.o.lines = 77
-    vim.o.columns = 150
+    -- Windows Neovide gets its exact pixel geometry from config.toml; changing
+    -- the grid here would resize the window after startup.
+    if not (is_win and vim.g.neovide) then
+        vim.o.lines = 77
+        vim.o.columns = 150
+    end
     vim.o.winaltkeys = "no"
     vim.o.langmenu = "en_US"
     vim.env.LANG = "en_US.UTF-8"
