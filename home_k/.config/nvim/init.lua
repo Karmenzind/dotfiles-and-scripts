@@ -722,14 +722,11 @@ require("lazy").setup({
         { "mzlogin/vim-markdown-toc" },
         { "plasticboy/vim-markdown" },
         {
-            "selimacerbas/markdown-preview.nvim",
-            -- Keep the install path distinct from any stale iamcco checkout;
-            -- `:Lazy clean` can then remove the old plugin independently.
-            name = "selimacerbas-markdown-preview.nvim",
-            dependencies = { "selimacerbas/live-server.nvim" },
+            "selimacerbas/mdkite.nvim",
+            dependencies = { "selimacerbas/kitehost.nvim" },
             ft = "markdown",
             config = function()
-                require("markdown_preview").setup({
+                require("mdkite").setup({
                     host = "0.0.0.0",
                     port = 13333,
                     default_theme = "light",
@@ -1338,9 +1335,9 @@ local function markdown_preview_picker()
     -- actually be launched, so the list also documents what is supported here
     local candidates = {
         {
-            name = "markdown-preview.nvim (selimacerbas)",
-            available = function() return pcall(require, "markdown_preview") end,
-            launch = function() require("markdown_preview").start() end,
+            name = "mdkite.nvim",
+            available = function() return pcall(require, "mdkite") end,
+            launch = function() require("mdkite").start() end,
         },
         {
             name = "mlp",
