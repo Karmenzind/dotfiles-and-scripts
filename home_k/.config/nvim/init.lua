@@ -1296,6 +1296,32 @@ local function mp_get_browser()
     return nil
 end
 
+local function mp_stop_mdkite()
+    local ok, mdkite = pcall(require, "mdkite")
+    if ok and (mdkite._server_instance or mdkite._is_primary ~= nil) then
+        mdkite.stop()
+    end
+end
+
+local function mp_stop_tmux_mlp()
+    if not vim.env.TMUX then
+        return
+    end
+    local panes = vim.fn.systemlist({ "tmux", "list-panes", "-a", "-F", "#{pane_id}\t#{pane_start_command}" })
+    if vim.v.shell_error ~= 0 then
+        return
+    end
+    for _, line in ipairs(panes) do
+        local pane, command = line:match("^(%%[%d]+)\t(.*)$")
+        local is_mlp_preview = command
+            and command:match("%f[%w]mlp%f[%W]")
+            and (command .. " "):match("%-p%s+13333%s")
+        if pane and is_mlp_preview then
+            vim.fn.system({ "tmux", "kill-pane", "-t", pane })
+        end
+    end
+end
+
 local function mp_app_available(exe, mac_app)
     if is_macos and mac_app and vim.fn.isdirectory("/Applications/" .. mac_app .. ".app") == 1 then
         return true
@@ -1304,12 +1330,26 @@ local function mp_app_available(exe, mac_app)
 end
 
 local function mp_launch_mlp(path)
-    mp_term_execute(string.format("mlp --no-browser -p 13333 -o %s", vim.fn.fnameescape(path)))
+    -- mdkite serves from inside Neovim, so free the shared preview port via
+    -- its API instead of killing whichever process owns port 13333.
+    mp_stop_mdkite()
+    -- A previous mlp launched by this picker lives in its own tmux pane.
+    -- Stop only panes whose start command identifies this preview and port.
+    mp_stop_tmux_mlp()
+    mp_term_execute(string.format("mlp --no-browser -p 13333 -o %s", vim.fn.shellescape(path)))
     local browser = mp_get_browser()
     if not browser then
         echo_warn("Available browser not found.")
     else
-        mp_term_execute(browser .. " http://localhost:13333")
+        -- A browser command normally returns as soon as it hands the URL to an
+        -- existing instance. Running it in a tmux pane therefore looks like a
+        -- crashing preview pane; launch it detached from Neovim instead.
+        vim.defer_fn(function()
+            local job = vim.fn.jobstart({ browser, "http://localhost:13333" }, { detach = true })
+            if job <= 0 then
+                echo_warn("Failed to open browser for markdown preview.")
+            end
+        end, 300)
     end
 end
 
@@ -1341,7 +1381,10 @@ local function markdown_preview_picker()
         {
             name = "mdkite.nvim",
             available = function() return pcall(require, "mdkite") end,
-            launch = function() require("mdkite").start() end,
+            launch = function()
+                mp_stop_tmux_mlp()
+                require("mdkite").start()
+            end,
         },
         {
             name = "mlp",
