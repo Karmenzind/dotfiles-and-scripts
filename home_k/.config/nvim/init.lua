@@ -66,6 +66,36 @@ local function is_executable(path)
     return type(path) == "string" and path ~= "" and vim.fn.executable(path) == 1
 end
 
+-- Preview servers bind to every interface, but browsers and notifications need
+-- an address that another device on the LAN can actually reach.
+local function markdown_preview_lan_ip()
+    local uv = vim.uv or vim.loop
+    local udp = uv.new_udp()
+    if not udp then
+        return nil
+    end
+    local connected = pcall(function() udp:connect("8.8.8.8", 80) end)
+    local addr = connected and udp:getsockname() or nil
+    pcall(function() udp:close() end)
+    if addr and addr.ip and not addr.ip:match("^127%.") and addr.ip ~= "0.0.0.0" then
+        return addr.ip
+    end
+    return nil
+end
+
+local function markdown_preview_lan_url(url)
+    local scheme, host, rest = url:match("^(https?://)([^/:]+)(.*)$")
+    if not scheme or (host ~= "localhost" and host ~= "0.0.0.0" and not host:match("^127%.")) then
+        return url
+    end
+    local ip = markdown_preview_lan_ip()
+    if not ip then
+        vim.notify("Markdown Preview: unable to determine the LAN IP; URL left unchanged", vim.log.levels.WARN)
+        return url
+    end
+    return scheme .. ip .. rest
+end
+
 local function find_pybin()
     local preset = vim.env.MY_VIM_PYTHON_PATH
     if preset and preset ~= "" then
@@ -736,7 +766,10 @@ require("lazy").setup({
                     default_theme = "light",
                     hooks = {
                         on_start = function(url)
-                            vim.notify("Markdown Preview started:\n" .. url, vim.log.levels.INFO)
+                            vim.notify(
+                                "Markdown Preview started:\n" .. markdown_preview_lan_url(url),
+                                vim.log.levels.INFO
+                            )
                         end,
                         on_stop = function()
                             vim.notify("Markdown Preview stopped", vim.log.levels.INFO)
@@ -1337,6 +1370,8 @@ local function mp_launch_mlp(path)
     -- Stop only panes whose start command identifies this preview and port.
     mp_stop_tmux_mlp()
     mp_term_execute(string.format("mlp --no-browser -p 13333 -o %s", vim.fn.shellescape(path)))
+    local url = markdown_preview_lan_url("http://0.0.0.0:13333")
+    vim.notify("Markdown Preview started:\n" .. url, vim.log.levels.INFO)
     local browser = mp_get_browser()
     if not browser then
         echo_warn("Available browser not found.")
@@ -1345,7 +1380,7 @@ local function mp_launch_mlp(path)
         -- existing instance. Running it in a tmux pane therefore looks like a
         -- crashing preview pane; launch it detached from Neovim instead.
         vim.defer_fn(function()
-            local job = vim.fn.jobstart({ browser, "http://localhost:13333" }, { detach = true })
+            local job = vim.fn.jobstart({ browser, url }, { detach = true })
             if job <= 0 then
                 echo_warn("Failed to open browser for markdown preview.")
             end
