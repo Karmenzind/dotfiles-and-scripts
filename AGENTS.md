@@ -45,6 +45,14 @@
 - Do not enable SDKMAN's global `sdkman_auto_env`. It is a single switch that also registers a `chpwd` hook in zsh, which would run alongside `__sync_sdkman_env`. fish implements its own equivalent hook instead. See `docs/unix-project-environments.md`.
 - Prefer fish-native features and maintained fisher plugins over hand-written fish script. The Python `.venv` hook, the SDKMAN hook, and `pj` are the only deliberate exceptions. fish 4.x is required; `fzf.fish` and `pure` have both dropped fish 3.x.
 
+## macOS maintenance
+
+- Read `docs/macos-custom-cleanup.md` before changing the periodic custom macOS
+  cleanup or its LaunchAgent. Keep rules that Mole and general macOS maintenance
+  cannot cover in the shared script, with narrowly bounded roots. Xcode archives
+  use filesystem creation time; iOS DeviceSupport directories use filesystem
+  access time, which depends on the data volume continuing to track atime.
+
 ## PowerShell profile
 
 - `others/powershell/profile.ps1` should contain pwsh runtime behavior only.
