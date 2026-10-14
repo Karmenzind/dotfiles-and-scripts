@@ -763,6 +763,7 @@ require("lazy").setup({
                 require("mdkite").setup({
                     host = "0.0.0.0",
                     port = 13333,
+                    instance_mode = "multi",
                     default_theme = "light",
                     hooks = {
                         on_start = function(url)
@@ -1355,6 +1356,11 @@ local function mp_stop_tmux_mlp()
     end
 end
 
+local function mp_stop_active_preview()
+    mp_stop_mdkite()
+    mp_stop_tmux_mlp()
+end
+
 local function mp_app_available(exe, mac_app)
     if is_macos and mac_app and vim.fn.isdirectory("/Applications/" .. mac_app .. ".app") == 1 then
         return true
@@ -1363,12 +1369,6 @@ local function mp_app_available(exe, mac_app)
 end
 
 local function mp_launch_mlp(path)
-    -- mdkite serves from inside Neovim, so free the shared preview port via
-    -- its API instead of killing whichever process owns port 13333.
-    mp_stop_mdkite()
-    -- A previous mlp launched by this picker lives in its own tmux pane.
-    -- Stop only panes whose start command identifies this preview and port.
-    mp_stop_tmux_mlp()
     mp_term_execute(string.format("mlp --no-browser -p 13333 -o %s", vim.fn.shellescape(path)))
     local url = markdown_preview_lan_url("http://0.0.0.0:13333")
     vim.notify("Markdown Preview started:\n" .. url, vim.log.levels.INFO)
@@ -1416,10 +1416,7 @@ local function markdown_preview_picker()
         {
             name = "mdkite.nvim",
             available = function() return pcall(require, "mdkite") end,
-            launch = function()
-                mp_stop_tmux_mlp()
-                require("mdkite").start()
-            end,
+            launch = function() require("mdkite").start() end,
         },
         {
             name = "mlp",
@@ -1486,6 +1483,9 @@ local function markdown_preview_picker()
             echo_warn(c.name .. " is not installed, cannot preview with it")
             return
         end
+        -- Never retarget or reuse the previous web preview. Starting from a
+        -- stopped server avoids stale content when switching Markdown files.
+        mp_stop_active_preview()
         c.launch()
     end)
 end

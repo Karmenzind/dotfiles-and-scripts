@@ -86,7 +86,7 @@
 ## Cross-platform configuration
 
 - Treat configuration files shared by macOS, Linux, and Windows as cross-platform by default, including `home_k/.tmux.conf`. Consider compatibility with all three platforms whenever changing shared configuration.
-- Keep Neovim Markdown preview servers listening on `0.0.0.0`, and keep every user-facing or browser-opened preview URL on the detected LAN IP. Do not change those URLs to `localhost`, `127.0.0.1`, or `0.0.0.0`, including mdkite takeover flows and mlp launches. See `docs/nvim-markdown-preview.md`.
+- Keep Neovim Markdown preview servers listening on `0.0.0.0`, and keep every user-facing or browser-opened preview URL on the detected LAN IP. Do not change those URLs to `localhost`, `127.0.0.1`, or `0.0.0.0`. Every picker launch must stop the managed active preview and start a new one; do not re-enable mdkite takeover or reuse an existing server. See `docs/nvim-markdown-preview.md`.
 - Keep the unresolved Windows `fzf.vim`/ripgrep investigation version-scoped and compare environments before adding a workaround. See `docs/windows-nvim-fzf.md`.
 - For Windows Neovim gopls installation failures, compare the effective Go executable and GOROOT before changing version selection. See `docs/windows-nvim-gopls.md` for the verified stale-GOROOT failure.
 - Keep the shared agent instructions in `home_k/.codex/AGENTS.md` and `home_k/.claude/CLAUDE.md`, and list both explicitly in `symlink.py`. See the "Agent rules" section above.
