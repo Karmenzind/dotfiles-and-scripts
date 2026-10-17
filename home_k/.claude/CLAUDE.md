@@ -15,6 +15,16 @@ scoping. Only Claude-specific mechanics belong in this file.
   for approval to start, unless the user has asked to begin.** Finishing the
   plan file and saying so is the end of the turn.
 
+## 无界面远程环境里的浏览器验收
+
+只适用于通过 SSH 连接、没有图形界面的远程命令行环境，判断条件是 `SSH_CONNECTION` 有值，
+且 `DISPLAY`、`WAYLAND_DISPLAY` 都没有值。普通的本地桌面开发环境不受这一节约束，照常
+使用 Playwright MCP 或 Claude in Chrome。
+
+在这种远程环境里，Claude in Chrome 扩展用不了（2026-10-17 确认），不要建议安装，也不要
+因为它不可用就跳过浏览器验收：按共享规则 `browser.md` 的「Headless remote sessions
+only」一节，用无界面浏览器做。
+
 ## Remote 会话的文件可达性
 
 我经常通过手机或浏览器 remote 连接会话，看不到本地编辑器。因此：
