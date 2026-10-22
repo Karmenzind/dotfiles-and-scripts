@@ -36,7 +36,7 @@ agent-specific file.
 
 See:
 
-- `communication.md` — language and style for output addressed to the user
+- `communication.md` — language and style for user-facing output and messages sent through the user's account
 - `executors.md` — enumerating executors and their models
 - `orchestration.md` — delegation, model selection, pre-dispatch checks
 - `runtime.md` — running services and discovered runtime state
