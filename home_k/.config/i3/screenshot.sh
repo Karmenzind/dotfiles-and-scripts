@@ -8,8 +8,8 @@ screenshot_png=${pic_dir}/SCREENSHOT.png
 flameshot_dir=${pic_dir}
 flameshot_png=${pic_dir}/SCREENSHOT_FLAME.png
 
-mkdir -p $pic_dir
-mkdir -p $flameshot_dir
+mkdir -p "$pic_dir"
+mkdir -p "$flameshot_dir"
 
 after() {
     xclip -selection clipboard -t image/png -i "$screenshot_png" && prompt
@@ -22,7 +22,7 @@ flameshot_before() {
 }
 
 do_scrot() {
-    scrot $1 $screenshot_png
+    scrot ${1:+"$1"} "$screenshot_png"
 }
 
 flameshot_area() {

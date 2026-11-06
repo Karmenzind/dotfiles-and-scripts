@@ -5,37 +5,10 @@
 # apps
 # -----------------------------------------------------------------------------
 set $i3_config_dir $HOME/.config/i3
-# start apps with wm
-# exec --no-startup-id i3-msg "exec i3-sensible-terminal --title 'my-init-terminal' -e tmux new -As t" &
-
-# /* system tools */
-# notifier
-# exec_always --no-startup-id "command -v deadd-notification-center && deadd-notification-center & || dunst &"
-exec_always --no-startup-id "killall -9 dunst; dunst &"
-bindsym $mod+m exec dunstctl close
-
-exec_always --no-startup-id killall -9 pcmanfm; pcmanfm -d &
-exec_always --no-startup-id killall -9 udiskie; udiskie --tray &
-exec_always --no-startup-id pamac-tray &
-
-# screenshot
-exec --no-startup-id flameshot &
-# popup input box for authentication
-exec --no-startup-id /usr/lib/polkit-gnome/polkit-gnome-authentication-agent-1 & eval $(gnome-keyring-daemon -s --components=pkcs11,secrets,ssh,gpg) &
-# xflux
-exec_always --no-startup-id killall -9 xflux; xflux -l '30.2443314184' -g '120.1665687561' &
-# arrange monitors
-# exec_always xrandr --output HDMI3 --off --output HDMI2 --off --output HDMI1 --mode 1920x1080 --pos 1920x0 --rotate normal --output VIRTUAL1 --off --output DP1 --primary --mode 1920x1080 --pos 0x0 --rotate normal
-exec_always test -f $HOME/.screenlayout/default.sh && bash $HOME/.screenlayout/default.sh
-
-# a cat chasing the mouse
-exec_always --no-startup-id bash $HOME/.config/i3/run_oneko.sh &
-
-# /* with tray icons */
-exec --no-startup-id volumeicon &
-exec --no-startup-id fcitx5 &
-
-exec_always --no-startup-id bash $HOME/.config/polybar/launch.sh
+# Session startup is ordered and runs only on initial WM startup.
+# X11-only services are guarded inside the script for Sway.
+exec --no-startup-id bash $HOME/.config/i3/post_start.sh
+bindsym $mod+m exec --no-startup-id dunstctl close
 
 # start program launcher
 # bindsym $mod+d exec --no-startup-id dmenu_recency
@@ -217,10 +190,5 @@ client.focused #586e75 #586e75 #fdf6e3 #268bd2
 client.focused_inactive #073642 #073642 #93a1a1 #002b36
 client.unfocused #002b36 #002b36 #586e75 #002b36
 client.urgent #dc322f #dc322f #fdf6e3 #dc322f
-
-# scripts
-exec_always --no-startup-id bash $HOME/.config/i3/post_start.sh &
-
-exec_always --no-startup-id "notify-send 'Loaded common config'"
 
 include ~/.config/i3/local.conf

@@ -77,6 +77,7 @@ module-margin-left = 1
 module-margin-right = 2
 
 wm-restack = i3
+enable-ipc = true
 
 ;override-redirect = true
 
@@ -398,7 +399,6 @@ ramp-free-7 = █
 [module/wlan]
 type = internal/network
 interface-type = wireless
-interface = ${env:POLY_IW}
 interval = 5
 
 format-connected = <ramp-signal> <label-connected>
@@ -427,7 +427,7 @@ ramp-signal-5 = 😈
 
 [module/eth]
 type = internal/network
-interface = ${env:POLY_ETH}
+interface-type = wired
 interval = 3.0
 
 format-connected = <label-connected>
@@ -793,10 +793,6 @@ format-foreground =
 format-background = 
 format-underline =
 format-overline =
-format-spacing =
-format-padding =
-format-margin =
-format-offset =
 
 ; Enables pseudo-transparency for the bar
 ; If set to true the bar can be transparent without a compositor.

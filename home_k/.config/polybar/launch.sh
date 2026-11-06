@@ -1,77 +1,54 @@
 #!/usr/bin/env bash
+# Serialize launches, including manual relaunches after monitor changes.
+command -v polybar >/dev/null || exit 0
+runtime_dir=${XDG_RUNTIME_DIR:-$HOME/.cache}
+mkdir -p "$runtime_dir" "$HOME/Logs"
+exec 9>"$runtime_dir/polybar-launch.lock"
+flock -n 9 || exit 0
 
-ENV_TAG=${K_ENV_TAG}
-
-noti_aggr=
-
-battery_vals=($(ls -1 /sys/class/power_supply/))
-if ((${#battery_vals[@]}>=2)) ; then
-    export POLY_BATTERY_ADAPTER=${battery_vals[0]}
-    export POLY_BATTERY=${battery_vals[1]}
-fi
-export POLY_ETH=$(ip -o link show | grep '^2' | awk -F': ' '{print $2}')
-export POLY_IW=$(ip -o link show | grep '^3' | awk -F': ' '{print $2}')
-
-if [[ -z "$1" ]]; then
-	if [ "$(pgrep -f i3bar)" != "" ]; then
-		notify-send "Detected i3bar is running. Polybar will not run."
-		exit 0
-	fi
+if [[ -z ${1:-} ]] && pgrep -u "$UID" -x i3bar >/dev/null; then
+    exit 0
 fi
 
-# Terminate already running bar instances
-killall -q polybar
-sleep 1
-# If all your bars have ipc enabled, you can also use
-# polybar-msg cmd quit
+# Identify power supplies by type, never by directory ordering.
+unset POLY_BATTERY_ADAPTER POLY_BATTERY
+for supply in "${POWER_SUPPLY_DIR:-/sys/class/power_supply}"/*; do
+    [[ -r "$supply/type" ]] || continue
+    IFS= read -r supply_type < "$supply/type"
+    case "$supply_type" in
+        Battery) [[ -n ${POLY_BATTERY:-} ]] || export POLY_BATTERY=${supply##*/} ;;
+        Mains) [[ -n ${POLY_BATTERY_ADAPTER:-} ]] || export POLY_BATTERY_ADAPTER=${supply##*/} ;;
+    esac
+done
+# Empty values let Polybar disable the battery module cleanly on desktops.
+export POLY_BATTERY=${POLY_BATTERY:-}
+export POLY_BATTERY_ADAPTER=${POLY_BATTERY_ADAPTER:-}
 
-logfile=~/Logs/polybar.log
+# Gracefully stop only this user's bars, and wait for their windows to disappear.
+pkill -u "$UID" -x polybar || true
+for ((attempt=0; attempt<30; attempt++)); do
+    pgrep -u "$UID" -x polybar >/dev/null || break
+    sleep 0.1
+done
+if pgrep -u "$UID" -x polybar >/dev/null; then
+    printf 'Polybar did not stop; refusing to start duplicate bars.\n' >&2
+    exit 1
+fi
 
-# $1: bar name
+# RandR coordinates are nonnegative. Sort by x then y, rather than output name.
+mapfile -t monitors < <(polybar --list-monitors | sort -t+ -k2,2n -k3,3n | cut -d: -f1)
+((${#monitors[@]})) || exit 0
+logfile=$HOME/Logs/polybar.log
+config_file=$(dirname "$(readlink -f "${BASH_SOURCE[0]}")")/config
 runbar() {
-	echo "---" | tee -a $logfile
-	polybar -l error -r $1 2>&1 | tee -a $logfile &
-	disown
+    MONITOR=$1 polybar --config="$config_file" -l error -r "$2" >>"$logfile" 2>&1 9>&- &
 }
-
-monitors=($(polybar --list-monitors | cut -d":" -f1))
 case ${#monitors[@]} in
-1)
-	runbar single
-	;;
-2)
-	MONITOR=${monitors[0]} runbar dualleft
-	MONITOR=${monitors[1]} runbar dualright
-	;;
-3)
-	MONITOR=${monitors[0]} runbar trileft
-	MONITOR=${monitors[1]} runbar tricenter
-	MONITOR=${monitors[3]} runbar triright
-	;;
-*)
-	for m in "${monitors[@]}"; do
-		MONITOR=$m runbar single &
-	done
-	;;
+    1) runbar "${monitors[0]}" single ;;
+    2) runbar "${monitors[0]}" dualleft
+       runbar "${monitors[1]}" dualright ;;
+    3) runbar "${monitors[0]}" trileft
+       runbar "${monitors[1]}" tricenter
+       runbar "${monitors[2]}" triright ;;
+    *) for monitor in "${monitors[@]}"; do runbar "$monitor" single; done ;;
 esac
-
-# case ${ENV_TAG} in
-# home)
-# 	bars=('homeleft homeright')
-# 	# bars=('homesingle')
-# 	;;
-# *)
-# 	bars=('left main right')
-# 	;;
-
-# esac
-
-# echo "bars are:" $bars
-
-# for bar in ${bars[@]}; do
-# 	echo ">>> running bar ${bar}"
-# 	runbar $bar
-# done
-
-notify-send "[polybar]" "Bars launched..."
-# Launch example bar

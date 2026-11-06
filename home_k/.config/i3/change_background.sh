@@ -1,41 +1,21 @@
 #!/usr/bin/env bash
-tmpbgfile=/tmp/__current_bg_filename
-[[ -e $tmpbgfile ]] && curbg=$(cat $tmpbgfile)
-# notify-send "Curbg: $curbg"
-if ! command -v feh; then
-    nodify-send "feh is not installed"
-    exit 1
+command -v feh >/dev/null || { notify-send 'feh is not installed'; exit 1; }
+wallpaper_dir=${WALLPAPER_DIR:-$HOME/Pictures/LOCKSCREENS}
+state_dir=${XDG_CACHE_HOME:-$HOME/.cache}/i3
+mkdir -p "$state_dir"
+state_file=$state_dir/current-background
+curbg=
+[[ ! -r "$state_file" ]] || IFS= read -r curbg < "$state_file"
+
+# NUL-delimited paths support spaces; use the same symlink policy for all files.
+mapfile -d '' -t pictures < <(find -L "$wallpaper_dir" -type f \( -iname '*.png' -o -iname '*.jpg' -o -iname '*.jpeg' -o -iname '*.webp' \) -readable -print0)
+((${#pictures[@]})) || { notify-send 'No wallpapers found' "$wallpaper_dir"; exit 1; }
+candidates=()
+for picture in "${pictures[@]}"; do
+    [[ "$picture" == "$curbg" && ${#pictures[@]} -gt 1 ]] || candidates+=("$picture")
+done
+IFS= read -r -d '' chosen < <(printf '%s\0' "${candidates[@]}" | shuf -z -n 1)
+if feh --bg-max "$chosen"; then
+    printf '%s\n' "$chosen" >"$state_file"
+    notify-send '[background]' "Using $(basename "$chosen")"
 fi
-
-wallpaper_dir=$(realpath ~/Pictures/LOCKSCREENS)
-if ! [[ -d $wallpaper_dir ]]; then
-	notify-send "Invalid wallpaper_dir: $wallpaper_dir"
-	exit 1
-fi
-
-num=$(find -L $wallpaper_dir -type f | wc -l)
-
-if (($num <= 1)); then
-	notify-send "Canceled. Pic num <= 1."
-	exit
-fi
-
-random_bg() {
-	find $wallpaper_dir -type f | sort -R | head -1
-}
-
-if [[ -n $curbg ]]; then
-	while true; do
-		choosed=$(random_bg)
-		# notify-send "Compare: $choosed \n $curbg"
-		[[ $choosed != $curbg ]] && break
-	done
-else
-	choosed=$(random_bg)
-fi
-
-echo $choosed >$tmpbgfile
-notify-send "[background]" "Using $(basename $choosed)"
-feh --bg-max $choosed
-
-# feh --bg-max $([[ -d $wallpaper_dir ]] && (find $wallpaper_dir -type f | sort -R | head -1) || echo $wallpaper_png) &

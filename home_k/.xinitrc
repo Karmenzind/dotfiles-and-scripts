@@ -78,8 +78,8 @@ EOF
 		else
 			echo 'set $mod Mod4' >>$i3config
 		fi
+		echo 'include ~/.config/i3/config' >>$i3config
 	fi
-	echo 'include ~/.config/i3/config' >>$i3config
 	exec i3 -c $i3config -V >>$log_file 2>&1
 }
 

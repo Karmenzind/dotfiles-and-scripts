@@ -45,6 +45,13 @@
 - Do not enable SDKMAN's global `sdkman_auto_env`. It is a single switch that also registers a `chpwd` hook in zsh, which would run alongside `__sync_sdkman_env`. fish implements its own equivalent hook instead. See `docs/unix-project-environments.md`.
 - Prefer fish-native features and maintained fisher plugins over hand-written fish script. The Python `.venv` hook, the SDKMAN hook, and `pj` are the only deliberate exceptions. fish 4.x is required; `fzf.fish` and `pure` have both dropped fish 3.x.
 
+- Keep i3 startup ordered through `post_start.sh`, and preserve shared Sway
+  services outside X11-only guards. See `docs/unix-i3-session.md` for include
+  scoping, service lifecycle, lock fallback, and Polybar verification.
+- For Lazy Git object permission errors on Linux, inspect the actual plugin
+  root and child ownership before changing Neovim configuration. See
+  `docs/nvim-plugin-permissions.md` for the verified root-owned plugin incident.
+
 ## macOS maintenance
 
 - Read `docs/macos-custom-cleanup.md` before changing the periodic custom macOS
@@ -85,6 +92,16 @@
 
 ## Cross-platform configuration
 
+- Before judging whether a repository configuration or script is used, inspect
+  `symlink.py`'s apply logic for the relevant platform: `TO_SYNC`, `PATH_MAP`,
+  `SYMLINK_AS_DIR`, exclusions, and direct-file versus directory-walk behavior.
+  A source may be deployed under a different link name or location. Trace the
+  actual destination and its include/import chain, resolve live symlinks, and
+  check effective runtime settings when available. Do not infer that a file is
+  unused from its repository name or a missing same-named reference, and do not
+  assume that a declared mapping is honored by every apply branch.
+  See `docs/alacritty-config-review.md` for the verified Alacritty example and
+  version-scoped review findings.
 - Treat configuration files shared by macOS, Linux, and Windows as cross-platform by default, including `home_k/.tmux.conf`. Consider compatibility with all three platforms whenever changing shared configuration.
 - Keep Neovim Markdown preview servers listening on `0.0.0.0`, and keep every user-facing or browser-opened preview URL on the detected LAN IP. Do not change those URLs to `localhost`, `127.0.0.1`, or `0.0.0.0`. Every picker launch must stop the managed active preview and start a new one; do not re-enable mdkite takeover or reuse an existing server. See `docs/nvim-markdown-preview.md`.
 - Keep the unresolved Windows `fzf.vim`/ripgrep investigation version-scoped and compare environments before adding a workaround. See `docs/windows-nvim-fzf.md`.
