@@ -16,8 +16,11 @@ They are version-scoped; use a fresh isolated server after every upgrade.
 - The live `~/.rmux.conf` should remain a symlink into this repository.
 - Set `default-shell` to `pwsh.exe` only inside the native Windows
   `USERPROFILE` runtime guard. Without the explicit setting, RMUX can create a
-  split pane with `cmd.exe` even when the original pane is pwsh. Existing
-  servers must reload the configuration before the setting affects new panes.
+  split pane with `cmd.exe` even when the original pane is pwsh. The PowerShell
+  profile also makes the real `$PSHOME\pwsh.exe` discoverable to RMUX 0.10.0
+  when PowerShell was installed as an MSIX package. Existing servers must be
+  restarted so the daemon inherits that PATH; reloading the configuration is
+  insufficient.
 - Keep the explicit `-c "#{pane_current_path}"` on pane/window creation.
   PowerShell emits OSC 7 on prompt redraw so RMUX can track a ConPTY pane's
   current directory; a control test using `cmd.exe` without OSC 7 remained at
@@ -45,6 +48,37 @@ the `title` client feature, but it still does not auto-detect `cstyle`. Keep the
 version-scoped cursor workaround described below. `set-titles` remains off to
 match the shared tmux configuration; the new capability is not a reason to
 change terminal-tab titles implicitly.
+
+### PowerShell MSIX shell resolution
+
+PowerShell 7.6.9 installed through MSIX exposes `pwsh.exe` on the normal user
+PATH through `%LOCALAPPDATA%\Microsoft\WindowsApps`. RMUX 0.10.0 deliberately
+rejects executables in that per-user alias directory as ConPTY shell
+candidates. It accepts the real packaged executable below
+`%ProgramFiles%\WindowsApps`, but that directory is versioned and is not on
+PATH by default.
+
+Consequently, `show-options -gv default-shell` can report `pwsh.exe` while the
+setting is unusable. On the verified host, the first pane inherited
+`powershell.exe`; later splits and windows fell back to `COMSPEC` and launched
+`cmd.exe`. This is distinct from a missing configuration or a false
+`USERPROFILE` guard.
+
+The Windows profile's `rmux` wrapper handles only RMUX 0.10.0. It temporarily
+prepends the running PowerShell's `$PSHOME` to PATH while the RMUX client is
+attached, so the daemon inherits a direct path to the current `pwsh.exe`.
+`$PSHOME` is resolved at runtime, which avoids persisting a username, package
+version, installation channel, or machine-specific path. The outer shell's
+PATH is restored after RMUX exits. A non-MSIX installation already present on
+PATH remains valid, and Windows PowerShell 5.1 has no `$PSHOME\pwsh.exe`, so it
+keeps the original fallback behavior.
+
+An isolated RMUX 0.10.0 server verified that the initial pane, `split-window`,
+and `new-window` all reported `pwsh.exe` after the wrapper exposed `$PSHOME`.
+Without it, the same three paths reported `powershell.exe`, `cmd.exe`, and
+`cmd.exe`. After an RMUX upgrade, repeat this comparison with and without the
+PATH adjustment. Remove the version guard only if the new release accepts the
+MSIX alias directly or provides another stable, non-versioned resolution path.
 
 The bundled human-friendly configuration now documents a UTF-8-safe Windows
 `copy-command` for `copy-pipe`. This configuration already uses

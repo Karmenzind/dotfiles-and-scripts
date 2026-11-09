@@ -37,18 +37,40 @@ function Update-RmuxWorkingDirectory {
 # versions so pane cursor changes reach the outer terminal.
 if ($IsWindows -and (Get-Command rmux.exe -CommandType Application -ErrorAction SilentlyContinue)) {
     $script:RmuxNeedsCursorStyleWorkaround = $null
+    $script:RmuxNeedsPowerShellPathWorkaround = $null
 
     function global:rmux {
         $rmuxExecutable = (Get-Command rmux.exe -CommandType Application -ErrorAction Stop).Source
         if ($null -eq $script:RmuxNeedsCursorStyleWorkaround) {
             $rmuxVersion = (& $rmuxExecutable -V 2>$null | Select-Object -First 1)
             $script:RmuxNeedsCursorStyleWorkaround = $rmuxVersion -match '^rmux (?:0\.9\.1|0\.10\.0)(?:\s|$)'
+            $script:RmuxNeedsPowerShellPathWorkaround = $rmuxVersion -match '^rmux 0\.10\.0(?:\s|$)'
         }
 
-        if ($script:RmuxNeedsCursorStyleWorkaround) {
-            & $rmuxExecutable -T cstyle @args
+        $rmuxArguments = if ($script:RmuxNeedsCursorStyleWorkaround) {
+            @('-T', 'cstyle') + $args
         } else {
-            & $rmuxExecutable @args
+            $args
+        }
+
+        # RMUX 0.10.0 rejects the per-user Microsoft\WindowsApps pwsh.exe
+        # execution alias as a ConPTY shell. Make the real executable from the
+        # current PowerShell installation discoverable only to RMUX and its
+        # daemon; the versioned MSIX package path must not be persisted.
+        $pwshExecutable = Join-Path $PSHOME 'pwsh.exe'
+        $shouldExposePowerShellHome = $script:RmuxNeedsPowerShellPathWorkaround `
+            -and (Test-Path -LiteralPath $pwshExecutable -PathType Leaf) `
+            -and -not (($env:PATH -split [IO.Path]::PathSeparator) -contains $PSHOME)
+        $originalPath = $env:PATH
+        try {
+            if ($shouldExposePowerShellHome) {
+                $env:PATH = $PSHOME + [IO.Path]::PathSeparator + $originalPath
+            }
+            & $rmuxExecutable @rmuxArguments
+        } finally {
+            if ($shouldExposePowerShellHome) {
+                $env:PATH = $originalPath
+            }
         }
     }
 }

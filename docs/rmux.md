@@ -14,6 +14,9 @@ but cannot run consistently on every platform.
 - Leave `default-shell` unset on Unix so RMUX uses `$SHELL`. On native Windows,
   set it to `pwsh.exe` behind the `USERPROFILE` runtime guard; otherwise RMUX
   can create split panes with `cmd.exe` even when the original pane is pwsh.
+  RMUX 0.10.0 cannot launch the per-user Microsoft Store app-execution alias;
+  the Windows PowerShell profile exposes the current installation's real
+  `$PSHOME` to the RMUX process only. See [windows-rmux.md](./windows-rmux.md).
 - Use `source-file ~/.rmux.conf` for the reload binding. `#{config_files}` is a
   comma-separated list of every loaded configuration file; passing it as the
   single `source-file` argument makes RMUX look for a literal path such as
