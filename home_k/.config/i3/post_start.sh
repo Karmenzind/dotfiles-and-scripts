@@ -53,7 +53,7 @@ if [[ ${ENABLE_ONEKO:-0} == 1 ]]; then
 fi
 
 # Use the same fail-safe locker as the manual shortcut; no blurlock dependency.
-start_once xautolock xautolock -time 15 -locker "bash \"$config_dir/lock.sh\""
+start_once xautolock xautolock -time 45 -locker "bash \"$config_dir/lock.sh\""
 
 # A restart must not create another scratchpad terminal.
 if command -v i3-msg >/dev/null && command -v python3 >/dev/null; then

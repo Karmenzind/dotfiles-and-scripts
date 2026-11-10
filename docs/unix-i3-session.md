@@ -60,7 +60,7 @@ for the existing `my-init-terminal` window.
 
 ## Locking and wallpaper
 
-Manual locking and xautolock's 15-minute timeout both use `lock.sh`.
+Manual locking and xautolock's 45-minute timeout both use `lock.sh`.
 `blurlock` was not installed on the verified host; it is no longer required.
 The script selects a readable PNG using NUL-delimited paths, tries
 `~/Pictures/LOCKSCREEN.png` as a fallback, and falls back to a solid black lock
