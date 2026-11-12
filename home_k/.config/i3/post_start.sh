@@ -53,7 +53,10 @@ if [[ ${ENABLE_ONEKO:-0} == 1 ]]; then
 fi
 
 # Use the same fail-safe locker as the manual shortcut; no blurlock dependency.
-start_once xautolock xautolock -time 45 -locker "bash \"$config_dir/lock.sh\""
+start_once xautolock xautolock -time 45 \
+    -notify 300 \
+    -notifier "notify-send -u normal -t 15000 'Automatic screen lock' 'The screen will lock in 5 minutes. Move the mouse or press a key to reset the idle timer.'" \
+    -locker "bash \"$config_dir/lock.sh\""
 
 # A restart must not create another scratchpad terminal.
 if command -v i3-msg >/dev/null && command -v python3 >/dev/null; then
