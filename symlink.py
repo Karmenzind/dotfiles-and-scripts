@@ -86,6 +86,7 @@ TO_SYNC: Set[Path] = {
     SRC_HOME / ".config/gitui/key_bindings.ron",
     SRC_HOME / ".config/sqlfluff",
     SRC_HOME / ".config/alacritty/alacritty.toml",
+    SRC_HOME / ".config/ghostty/config.ghostty",
     SRC_HOME / ".ipython/profile_default/ipython_config.py",
     Path("others/powershell/profile.ps1"),
 }
@@ -123,6 +124,11 @@ if osname == "win":
         SRC_HOME / ".config/alacritty/alacritty.toml": HOME_DIR
         / "AppData\\Roaming\\alacritty\\alacritty.toml",
         SRC_HOME / ".config/alacritty/win.toml": HOME_DIR / ".alacritty_extra.toml",
+        SRC_HOME / ".config/ghostty/config.ghostty": Path(
+            os.getenv("XDG_CONFIG_HOME")
+            or os.getenv("LOCALAPPDATA")
+            or HOME_DIR / "AppData" / "Local"
+        ) / "ghostty" / "config.ghostty",
         SRC_HOME / ".config/yazi/yazi.toml": APPDATA / "yazi\\config\\yazi.toml",
         Path("others/neovide/config.toml"): APPDATA / "neovide" / "config.toml",
         Path("others/powershell/profile.ps1"): get_ps_profile_path(),
@@ -142,6 +148,8 @@ elif osname == "mac":
         / ".config/powershell/profile.ps1",
         SRC_HOME / ".config/alacritty/mac.toml": HOME_DIR
         / ".config/alacritty/extra.toml",
+        SRC_HOME / ".config/ghostty/config.ghostty": HOME_DIR
+        / "Library/Application Support/com.mitchellh.ghostty/config.ghostty",
     }
 else:  # linux like
     TO_SYNC.update(
