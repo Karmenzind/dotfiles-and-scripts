@@ -824,7 +824,33 @@ require("lazy").setup({
     -- colorscheme that will be used when installing plugins.
     install = { colorscheme = { "habamax" } },
     -- automatically check for plugin updates
-    checker = { enabled = true, frequency = my_fuzzy_tool == "light" and 86400 * 7 or 86400 * 3 },
+    checker = { enabled = true, notify = false, frequency = my_fuzzy_tool == "light" and 86400 * 7 or 86400 * 3 },
+})
+
+-- Apply discovered updates in the background, including cached startup checks.
+-- Keep headless scripts from unexpectedly updating plugins.
+local lazy_update_running = false
+local lazy_update_group = vim.api.nvim_create_augroup("AutoUpdateLazyPlugins", { clear = true })
+vim.api.nvim_create_autocmd("User", {
+    group = lazy_update_group,
+    pattern = "LazyUpdatePre",
+    callback = function() lazy_update_running = true end,
+})
+vim.api.nvim_create_autocmd("User", {
+    group = lazy_update_group,
+    pattern = "LazyUpdate",
+    callback = function() lazy_update_running = false end,
+})
+vim.api.nvim_create_autocmd("User", {
+    group = lazy_update_group,
+    pattern = { "LazyCheck", "LazyLog" },
+    callback = function()
+        vim.schedule(function()
+            if #vim.api.nvim_list_uis() > 0 and not lazy_update_running and require("lazy.status").has_updates() then
+                require("lazy").update({ show = false })
+            end
+        end)
+    end,
 })
 
 vim.cmd(string.format("let g:my_fuzzy_tool = '%s'", my_fuzzy_tool))
