@@ -19,8 +19,8 @@ readonly legacy_plist="$HOME/Library/LaunchAgents/$legacy_label.plist"
 readonly legacy_executable="$HOME/.local/bin/cleanup-xcode"
 
 mkdir -p -- "$(dirname "$executable_target")" "$(dirname "$plist_target")"
-install -m 0755 "$executable_source" "$executable_target"
-install -m 0644 "$plist_source" "$plist_target"
+ln -sfn "$executable_source" "$executable_target"
+ln -sfn "$plist_source" "$plist_target"
 
 # Migrate installations made before this became the shared custom cleanup.
 launchctl bootout "$launch_domain/$legacy_label" 2>/dev/null || true

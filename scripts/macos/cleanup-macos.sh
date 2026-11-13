@@ -5,6 +5,7 @@ set -euo pipefail
 readonly DEFAULT_RETENTION_DAYS=14
 readonly XCODE_ARCHIVES_DIR="${XCODE_ARCHIVES_ROOT:-$HOME/Library/Developer/Xcode/Archives}"
 readonly XCODE_DEVICE_SUPPORT_DIR="${XCODE_DEVICE_SUPPORT_ROOT:-$HOME/Library/Developer/Xcode/iOS DeviceSupport}"
+readonly ZAPPY_DIR="$HOME/Pictures/Zappy"
 readonly LOG_FILE="${MACOS_CLEANUP_LOG_FILE:-$HOME/Library/Logs/com.karmenzind.macos-cleanup.log}"
 
 retention_days=$DEFAULT_RETENTION_DAYS
@@ -18,7 +19,9 @@ Usage: cleanup-macos [--dry-run] [--retention-days DAYS] [--no-log]
 Run custom macOS cleanup rules that are not covered by Mole or general macOS
 maintenance. The current Xcode rules remove archives created before the
 retention window and iOS DeviceSupport directories that have not been accessed
-during that window. The default retention period is 14 days.
+during that window. The default Xcode retention period is 14 days.
+Zappy files last modified more than 3 days ago are also removed; this fixed
+period is independent of --retention-days. Directories and symlinks are kept.
 EOF
 }
 
@@ -130,9 +133,27 @@ cleanup_xcode_device_support() {
 	done < <(find "$XCODE_DEVICE_SUPPORT_DIR" -mindepth 1 -maxdepth 1 -type d -print0)
 }
 
+cleanup_zappy_files() {
+	local file modified_epoch
+	local zappy_cutoff_epoch=$(($(date +%s) - 3 * 86400))
+
+	if [[ ! -d $ZAPPY_DIR ]]; then
+		log "Zappy directory does not exist; skipping: $ZAPPY_DIR"
+		return
+	fi
+
+	while IFS= read -r -d '' file; do
+		modified_epoch=$(stat -f '%m' -- "$file" 2>/dev/null || printf '0')
+		if [[ $modified_epoch =~ ^[0-9]+$ ]] && ((modified_epoch > 0 && modified_epoch < zappy_cutoff_epoch)); then
+			remove_candidate "Zappy file" "$file"
+		fi
+	done < <(find "$ZAPPY_DIR" -type f -print0)
+}
+
 run_cleanup_rules() {
 	cleanup_xcode_archives
 	cleanup_xcode_device_support
+	cleanup_zappy_files
 }
 
 log "Starting custom macOS cleanup (retention: $retention_days days, dry run: $dry_run)"
