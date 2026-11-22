@@ -1,6 +1,3 @@
-shell = "pwsh"
-working_directory = "C:/Users"
-
 [window]
 decorations = "full"
 dynamic_title = true
@@ -10,3 +7,9 @@ blur = true
 [window.dimensions]
 columns = 120
 lines = 30
+
+[general]
+working_directory = "C:/Users"
+
+[terminal]
+shell = "pwsh"
