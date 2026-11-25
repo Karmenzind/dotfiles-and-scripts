@@ -193,6 +193,13 @@ bash scripts/install_apps.sh
 ./dotfiles-and-scripts/install.ps1
 ```
 
+Development setup on Windows, Linux, and macOS includes Codex CLI, Cursor Agent
+CLI, Claude Code CLI, and usql. The AI CLIs use their official standalone
+installers; rerun development setup to invoke those installers again. The Codex
+GUI stays on the official Microsoft Store source. See
+[CLI installation details](./docs/development-cli-installers.md) for platform
+package sources and verification.
+
 ## :toolbox: toolbox scripts
 
 > the description about some scripts that are no longer maintained can [be found here](./scripts/deprecated/README.md)

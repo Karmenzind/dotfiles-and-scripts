@@ -184,6 +184,11 @@ bash scripts/install_apps.sh
 ./dotfiles-and-scripts/install.ps1
 ```
 
+Windows、Linux 和 macOS 的开发环境安装均包含 Codex CLI、Cursor Agent CLI、
+Claude Code CLI 和 usql。三个 AI 命令行工具使用各自的官方独立安装脚本，
+重新执行开发环境安装会再次调用这些脚本。Codex GUI 继续使用官方 Microsoft Store
+来源。各平台的包来源和验证方式见[命令行工具安装说明](./docs/development-cli-installers.md)。
+
 ## :toolbox: 工具脚本
 
 > 此处仅列出在用脚本，部分不再使用/维护的脚本说明，见[脚本目录的README](./scripts/deprecated/README.md)

@@ -24,15 +24,25 @@
 - Prefer `winget` for software installation, and use Chocolatey only as a fallback for packages that are unavailable or unreliable in `winget`.
 - Manage Node.js with `fnm`; do not install Node.js through Chocolatey, winget Node packages, npm, or nvm.
 - Enable pnpm through `corepack`; do not install pnpm as a standalone package.
-- Manage Codex CLI only with `https://chatgpt.com/codex/install.sh`; do not
-  install it with pnpm, npm, or Homebrew. Manage the Codex GUI app with
-  `winget`/Microsoft Store.
+- Manage Codex CLI installation and updates on Windows with the official
+  `https://chatgpt.com/codex/install.ps1` script and `CODEX_NON_INTERACTIVE=1`.
+  Run official CLI installers in a child PowerShell process so their `exit`
+  statements and environment changes do not affect the parent installer.
+  Keep the Codex GUI app on `winget`/Microsoft Store ID `9PLM9XGG6VKS`.
+- Include Codex CLI, Cursor Agent CLI, Claude Code CLI, and usql in development
+  setup. Use the vendors' native installers for the AI CLIs, not npm/pnpm.
+- Install usql through the upstream Homebrew tap on macOS, `usql-bin` on Arch,
+  and the verified upstream release helper elsewhere. See
+  `docs/development-cli-installers.md` for package availability and verification.
 - Manage Python CLI tools with `uv tool`; do not add `pip install` or conda-based setup paths.
 
 ## Unix shell setup
 
 - `install.sh` is the Unix-like setup entrypoint and delegates package installs to `scripts/install_apps.sh` and Vim setup to `scripts/setup_vim.sh`.
 - Keep macOS support on Homebrew (`brew`) for formulae and casks.
+- Install Codex CLI, Cursor Agent CLI, and Claude Code CLI with their official
+  standalone shell installers. Keep Codex on `https://chatgpt.com/codex/install.sh`;
+  do not install it with npm, pnpm, or Homebrew.
 - Keep Node.js setup on `fnm`, then enable pnpm through `corepack`.
 - Use `pnpm` for JavaScript CLI tools such as prettier, eslint, sqlint, and pg-formatter.
 - Use `uv tool` for Python CLI tools such as black, isort, autoflake, ruff, pgcli, and markdown-live-preview.

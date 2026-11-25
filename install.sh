@@ -2,7 +2,7 @@
 # Github: https://github.com/Karmenzind/dotfiles-and-scripts
 # Last Modified: 2024-01-18 16:18:16
 
-cd $(dirname $0)
+cd "$(dirname "$0")" || exit 1
 repo_dir=$PWD
 
 source ./scripts/utils/commonrc
@@ -20,8 +20,8 @@ EOF
 check_input 12345
 case $ans in
     1)
-        source ./scripts/install_apps.sh
-        source ./scripts/setup_vim.sh
+        source "$repo_dir/scripts/install_apps.sh"
+        source "$repo_dir/scripts/setup_vim.sh"
         ;;
     2) source ./scripts/setup_vim.sh ;;
     3) python3 symlink.py ;;

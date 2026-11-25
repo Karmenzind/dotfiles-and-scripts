@@ -227,6 +227,72 @@ function Ensure-PnpmGlobalPackage {
     Write-Ok "$Package installed."
 }
 
+function Update-ProcessPath {
+    # Newly installed tools may have updated the registry, but not this process.
+    foreach ($scope in @("Machine", "User")) {
+        $configuredPath = [Environment]::GetEnvironmentVariable("Path", $scope)
+        foreach ($entry in ($configuredPath -split ";")) {
+            if ([string]::IsNullOrWhiteSpace($entry)) { continue }
+            $expanded = [Environment]::ExpandEnvironmentVariables($entry)
+            if ($expanded -notin ($env:Path -split ";")) {
+                $env:Path = (@($env:Path, $expanded) | Where-Object { $_ }) -join ";"
+            }
+        }
+    }
+}
+
+function Install-AiClis {
+    $installers = @(
+        @{
+            Name = "Codex CLI"
+            Command = '$env:CODEX_NON_INTERACTIVE = ''1''; Invoke-RestMethod -Uri ''https://chatgpt.com/codex/install.ps1'' | Invoke-Expression'
+        },
+        @{
+            Name = "Cursor Agent CLI"
+            Command = 'Invoke-RestMethod -Uri ''https://cursor.com/install?win32=true'' | Invoke-Expression'
+        },
+        @{
+            Name = "Claude Code CLI"
+            Command = 'Invoke-RestMethod -Uri ''https://claude.ai/install.ps1'' | Invoke-Expression'
+        }
+    )
+
+    foreach ($installer in $installers) {
+        # Isolate installer exit statements and environment changes from this script.
+        $command = '$ErrorActionPreference = ''Stop''; ' + $installer.Command
+        Invoke-LoggedCommand -FilePath "powershell.exe" -ArgumentList @(
+            "-NoProfile", "-ExecutionPolicy", "Bypass", "-Command", $command
+        ) -Label "Installing/updating $($installer.Name) with its official installer..."
+    }
+}
+
+function Ensure-Usql {
+    if (Test-Command usql) {
+        Write-Ok "usql is already available."
+        return
+    }
+
+    if (-not (Test-Command uv)) {
+        throw "uv is not available. Open a new shell and rerun development setup to install usql."
+    }
+
+    $installer = Join-Path $script:RepoRoot "scripts\install_usql.py"
+    Invoke-LoggedCommand -FilePath "uv" -ArgumentList @(
+        "run", "--no-project", "--no-config", "--python", "3", $installer
+    ) -Label "Installing usql from its official GitHub release..."
+
+    $binDir = Join-Path $env:USERPROFILE ".local\bin"
+    $userPath = [Environment]::GetEnvironmentVariable("Path", "User")
+    if ($binDir -notin ($userPath -split ";")) {
+        $newPath = (@($userPath, $binDir) | Where-Object { $_ }) -join ";"
+        [Environment]::SetEnvironmentVariable("Path", $newPath, "User")
+    }
+    if ($binDir -notin ($env:Path -split ";")) {
+        $env:Path += ";$binDir"
+    }
+    Write-Ok "usql installed."
+}
+
 function Ensure-FnmNodeLts {
     Ensure-WingetPackage -Name "Fast Node Manager" -Id "Schniz.fnm" | Out-Null
 
@@ -458,6 +524,7 @@ $script:CommonPackages = @(
     @{ Name = "Yazi"; Id = "sxyazi.yazi" },
     @{ Name = "RMUX"; Id = "Helvesec.RMUX" },
     @{ Name = "Git"; Id = "Git.Git" },
+    # Official GUI distribution: https://learn.chatgpt.com/docs/enterprise/windows-deployment
     @{ Name = "Codex GUI app"; Id = "9PLM9XGG6VKS"; Source = "msstore" }
 )
 
@@ -515,6 +582,11 @@ function Install-DevelopmentEnvironment {
 
     Write-Title "Development environment"
     Install-PackageSet -Packages $script:DevPackages
+
+    Update-ProcessPath
+    Install-AiClis
+    Update-ProcessPath
+    Ensure-Usql
 
     Ensure-FnmNodeLts
     Enable-CorepackPnpm

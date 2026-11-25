@@ -4,9 +4,10 @@
 # Mainly for ArchLinux
 # Partially support Debian-based system
 
+_install_apps_dir=$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd) || exit 1
+
 if [[ -z $__loaded_commonrc ]]; then
-	cd $(dirname $0)
-	source $PWD/utils/commonrc
+	source "$_install_apps_dir/utils/commonrc"
 fi
 
 # --------------------------------------------
@@ -35,6 +36,7 @@ _brew_formulae=(
 	stylua
 	tmux
 	universal-ctags
+	xo/xo/usql
 	uv
 	vim
 	wget
@@ -159,6 +161,7 @@ _aur=(
 	# teamviewer
 	emojify
 	sqlint
+	usql-bin
 	acroread
 	acroread-fonts
 
@@ -342,6 +345,40 @@ install_uv() {
 		export PATH="$HOME/.local/bin:$PATH"
 	fi
 }
+
+install_usql() {
+	if command -v usql >/dev/null; then
+		echo_ok "usql is already installed"
+		return 0
+	fi
+
+	echo_run "Installing usql..."
+	if is_macos; then
+		do_install xo/xo/usql || return 1
+	elif [[ $distro == arch ]]; then
+		install_yay && yay -S --needed --noconfirm usql-bin || return 1
+	else
+		if ! command -v python3 >/dev/null; then
+			echo_error "Python 3 is required to install the official usql release."
+			return 1
+		fi
+		python3 "$_install_apps_dir/install_usql.py" || return 1
+		export PATH="$HOME/.local/bin:$PATH"
+	fi
+	echo_ok "usql installed."
+	return 0
+}
+
+install_ai_clis() (
+	# A failed download must not look like a successful empty shell script.
+	set -o pipefail
+	echo_run "Installing/updating Codex CLI with its official installer..."
+	curl -fsSL https://chatgpt.com/codex/install.sh | CODEX_NON_INTERACTIVE=1 sh || return 1
+	echo_run "Installing/updating Cursor Agent CLI with its official installer..."
+	curl -fsSL https://cursor.com/install | bash || return 1
+	echo_run "Installing/updating Claude Code CLI with its official installer..."
+	curl -fsSL https://claude.ai/install.sh | bash || return 1
+)
 
 install_python_tools() {
 	echo_run "Install Python CLI tools with uv tool? (Y/n)"
@@ -551,11 +588,13 @@ fi
 
 # --------------------------------------------
 
+install_usql || exit 1
+install_ai_clis || exit 1
 install_ranger_and_plugins
 setup_node_pnpm
 install_python_tools
 install_zsh_stuff
-source "$(dirname "${BASH_SOURCE[0]}")/setup_fish.sh"
+source "$_install_apps_dir/setup_fish.sh"
 setup_pwsh
 
 setup_bluetooth
