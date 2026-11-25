@@ -61,6 +61,10 @@ for the existing `my-init-terminal` window.
 ## Locking and wallpaper
 
 Manual locking and xautolock's 45-minute timeout both use `lock.sh`.
+Xautolock sends a desktop notification through `notify-send` 300 seconds
+before locking (after 40 minutes of inactivity). Keyboard or mouse activity
+resets the idle countdown. The reminder requests a 15-second display duration;
+the notification daemon controls its actual presentation.
 `blurlock` was not installed on the verified host; it is no longer required.
 The script selects a readable PNG using NUL-delimited paths, tries
 `~/Pictures/LOCKSCREEN.png` as a fallback, and falls back to a solid black lock

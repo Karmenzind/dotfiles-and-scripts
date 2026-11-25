@@ -43,5 +43,5 @@ See:
 - `browser.md` — browser verification capability
 - `planning.md` — planning-phase behavior and what counts as verified
 - `git.md` — commit messages, commit scope, pushing, branching
-- `tooling.md` — tool resolution, Node.js and Python conventions
+- `tooling.md` — tool resolution, Node.js (fnm + pnpm) and Python conventions
 - `config-scope.md` — scoping configuration changes and their guards

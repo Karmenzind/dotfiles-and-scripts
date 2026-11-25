@@ -88,6 +88,28 @@ pipeline would replace a working OSC 52 path without benefit. Keep
 `copy-command` empty unless the copy binding is deliberately changed to
 `copy-pipe`.
 
+### PATH changes in a running session
+
+On Windows, a new process normally inherits its parent's environment block.
+In RMUX 0.10.0 an isolated server started without `C:\Program Files\7-Zip`
+continued to omit it in new panes even after `set-environment` changed the
+global and session PATH. An explicit `new-window -e PATH=...` reached that
+window, but did not affect normal pane creation or shells already running.
+
+The shared PowerShell profile refreshes PATH from the Windows machine and
+user settings when an interactive RMUX shell starts and when its prompt
+redraws. If the first shell has a stale PATH and no previous registry snapshot,
+it starts from the registered PATH plus its current `$PSHOME`. The snapshot is
+then inherited by child shells, so subsequent refreshes replace the previous
+registered entries while retaining pane-local additions and Python venv's
+saved deactivation PATH. A pane already open when the profile changes can
+load it with `. $PROFILE` or start a new interactive `pwsh`.
+
+After an RMUX upgrade, retest fresh and split panes using an isolated server
+started with a stale PATH. Other shell types and direct launches from the
+daemon still inherit the daemon environment. Restarting the daemon from a
+fresh terminal refreshes that environment too.
+
 ### Retired 0.8 workarounds
 
 RMUX 0.9.0 starts an explicitly selected interactive PowerShell as

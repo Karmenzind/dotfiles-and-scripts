@@ -5,19 +5,40 @@
 
 ## Node.js tooling
 
-- For nearly all Node.js work on this machine, use the `pnpm` managed by `fnm` as
-  the default package manager and package runner.
+Assume every machine in this environment manages Node.js with
+[`fnm`](https://github.com/Schniz/fnm) (Fast Node Manager), and uses `pnpm` as
+the package manager, unless the project says otherwise.
+
+### Node.js versions come from fnm
+
+- Do not assume a system-wide Node.js install, and do not install Node.js
+  through a system package manager, an OS installer, or `nvm`. If a Node.js
+  version is missing, use `fnm install` / `fnm use`.
+- Respect a project's `.node-version` or `.nvmrc`; that file is the version
+  contract fnm reads.
+- `node`, `npm`, `pnpm`, and other Node CLIs resolve through the fnm shim
+  directory of the current shell, so they exist on PATH only after fnm is
+  activated in that shell. Check with `command -v node` before concluding a
+  tool is missing.
+- Never hard-code a shim path. fnm's per-shell directory is ephemeral and
+  platform-specific (for example `/run/user/*/fnm_multishells/*` on Linux and
+  `%LOCALAPPDATA%\fnm_multishells\*` on Windows); it changes on every new
+  shell. Invoke tools by name, or go through `fnm exec`.
+
+### pnpm is the default package manager
+
 - Whenever both npm and pnpm are viable, choose pnpm. Prefer `pnpm install`,
   `pnpm add`, `pnpm run`, and `pnpm dlx` over the corresponding npm or npx
   commands.
+- For a new project, scaffold with pnpm and record it in `packageManager`.
 - Use npm or npx only when official documentation explicitly does not support or
   recommends against pnpm, when the affected project's package-manager contract
   requires npm, or when the user explicitly asks for npm or npx.
-- Before declaring `pnpm` unavailable, check `command -v pnpm`. Do not hard-code
-  transient paths under `/run/user/*/fnm_multishells/`.
+- Before declaring `pnpm` unavailable, check `command -v pnpm`.
 - Preserve a project's existing package-manager contract when its
   `packageManager` field, lockfile, or repository instructions require a
-  different tool.
+  different tool. Do not convert a repository between package managers, or
+  delete and regenerate a lockfile, without being asked.
 
 ## Python projects
 

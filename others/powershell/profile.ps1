@@ -31,6 +31,52 @@ function Update-RmuxWorkingDirectory {
     }
 }
 
+function Merge-RmuxRegisteredPath($CurrentPath, $PreviousPath, $RegisteredPath) {
+    # Match whole entries so a similarly named directory is never replaced.
+    $current = ";$CurrentPath;"
+    $updated = $current.Replace(";$PreviousPath;", ";$RegisteredPath;", [StringComparison]::OrdinalIgnoreCase)
+    if ($updated -cne $current) {
+        return $updated.Substring(1, $updated.Length - 2)
+    }
+
+    # A project environment can also remove individual entries from the base.
+    $previousEntries = $PreviousPath -split ';'
+    $localEntries = @($CurrentPath -split ';' | Where-Object { $_ -and $_ -notin $previousEntries })
+    return ($localEntries + $RegisteredPath) -join ';'
+}
+
+function Update-RmuxPath {
+    $machinePath = [Environment]::GetEnvironmentVariable('Path', 'Machine')
+    $userPath = [Environment]::GetEnvironmentVariable('Path', 'User')
+    $registeredPath = (@($machinePath, $userPath) | Where-Object { $_ }) -join ';'
+    $previousPath = $env:DOTFILES_RMUX_REGISTERED_PATH
+    if (!$registeredPath -or $registeredPath -ceq $previousPath) {
+        return
+    }
+
+    $virtualEnvPath = Get-Variable -Name _OLD_VIRTUAL_PATH -Scope Global -ErrorAction Ignore
+    if ($previousPath) {
+        $env:PATH = Merge-RmuxRegisteredPath $env:PATH $previousPath $registeredPath
+        if ($virtualEnvPath -and $virtualEnvPath.Value) {
+            $virtualEnvPath.Value = Merge-RmuxRegisteredPath $virtualEnvPath.Value $previousPath $registeredPath
+        }
+    } elseif (-not ";$env:PATH;".Contains(";$registeredPath;", [StringComparison]::OrdinalIgnoreCase)) {
+        # The daemon may predate this profile or the latest registry edit.
+        $freshPath = "$PSHOME;$registeredPath"
+        if ($virtualEnvPath -and $virtualEnvPath.Value) {
+            $env:PATH = Merge-RmuxRegisteredPath $env:PATH $virtualEnvPath.Value $freshPath
+            $virtualEnvPath.Value = $freshPath
+        } else {
+            $env:PATH = $freshPath
+        }
+    }
+    $env:DOTFILES_RMUX_REGISTERED_PATH = $registeredPath
+}
+
+if ($IsWindows -and $env:TERM_PROGRAM -eq "rmux") {
+    Update-RmuxPath
+}
+
 # RMUX 0.9.1 and 0.10.0 auto-detect several Windows terminal features but
 # omit cstyle. Their outer TERM is also empty, so server-side terminal-features
 # patterns are skipped. Advertise DECSCUSR support only for the affected
@@ -766,6 +812,7 @@ __setupOhmyposh
 if ($IsWindows -and $env:TERM_PROGRAM -eq "rmux") {
     $script:RmuxBasePrompt = $function:prompt
     function global:prompt {
+        Update-RmuxPath
         Update-RmuxWorkingDirectory
         & $script:RmuxBasePrompt
     }

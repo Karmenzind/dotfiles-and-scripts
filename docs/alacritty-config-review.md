@@ -1,6 +1,21 @@
 # Alacritty configuration review
 
-## Scope and evidence (2026-11-05)
+## Windows migration (2026-11-22)
+
+Alacritty 0.17.0 dry runs identified two field moves in the Windows overlay.
+`win.toml` now uses `general.working_directory` and `terminal.shell`.
+The common config and the macOS and Linux overlays had no migration changes.
+
+In 0.17.0, `alacritty migrate` persists a temporary file over each TOML path
+it migrates. If that path is a symlink, the replacement is a regular file.
+Use `alacritty migrate --dry-run --config-file <path>` and apply the relevant
+changes to the repository source files. The 0.17.0 TOML dry run can print
+imported files before the requested file even with `--skip-imports`. Match
+each output block to the path in its `Start TOML` marker.
+
+See the [0.17.0 migration implementation](https://github.com/alacritty/alacritty/blob/v0.17.0/alacritty/src/migrate/mod.rs).
+
+## Original review (2026-11-05)
 
 Installed version: Alacritty 0.17.0 (`94e7c887`). This is a review, not an
 implemented migration. Alacritty configuration and `symlink.py` were not
@@ -38,15 +53,10 @@ Neither fix was applied during the review.
 
 ### Proposed configuration work
 
-1. Move Windows top-level `shell` to `[terminal].shell` and
-   `working_directory` to `[general].working_directory`. The installed
-   `alacritty migrate --dry-run --skip-imports` produces these changes.
-   Compatibility handling still exists; do not describe the old fields as
-   already nonfunctional. Common, Linux and macOS configs already use the
-   relevant modern sections. In 0.17.0, the legacy top-level working directory
-   takes precedence over `general.working_directory` in `pty_config()`.
-   Migrating the Windows field also allows a canonical local override to work
-   instead of losing to the legacy `C:/Users` value.
+1. The Windows field migration was applied on 2026-11-22. In 0.17.0,
+   the legacy top-level working directory takes precedence over
+   `general.working_directory` in `pty_config()`. With the Windows overlay
+   migrated, a later import can override the canonical working directory.
 2. Audit the common config's 105 keyboard bindings, including 93 literal
    `chars` mappings. Many reproduce historical standard-key encoding without
    Vi/search restrictions. Prefer removing redundant mappings so the built-in
