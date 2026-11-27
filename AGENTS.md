@@ -86,6 +86,10 @@
 
 ## RMUX
 
+- Whenever changing tmux-related configuration, scripts, or integrations,
+  evaluate RMUX compatibility as well; apply the same check to tmux when
+  changing RMUX-related behavior. Verify equivalent behavior on both where
+  supported, and document any intentional differences or unsupported features.
 - Read `docs/rmux.md` and `docs/windows-rmux.md` before changing RMUX, tmux, PowerShell prompt integration, or Windows pane creation behavior.
 - Keep `home_k/.rmux.conf` portable across native Linux, macOS, and Windows. Match the shared tmux key bindings and user-visible behavior wherever RMUX supports them.
 - Keep `home_k/.rmux.conf` standalone. Do not source the full `home_k/.tmux.conf`: even when RMUX parses its syntax, that file contains Unix-only TPM plugins, shell jobs, clipboard commands, and terminal assumptions.
@@ -115,6 +119,12 @@
 - Treat configuration files shared by macOS, Linux, and Windows as cross-platform by default, including `home_k/.tmux.conf`. Consider compatibility with all three platforms whenever changing shared configuration.
 - Keep Neovim Markdown preview servers listening on `0.0.0.0`, and keep every user-facing or browser-opened preview URL on the detected LAN IP. Do not change those URLs to `localhost`, `127.0.0.1`, or `0.0.0.0`. Every picker launch must stop the managed active preview and start a new one; do not re-enable mdkite takeover or reuse an existing server. See `docs/nvim-markdown-preview.md`.
 - Keep the unresolved Windows `fzf.vim`/ripgrep investigation version-scoped and compare environments before adding a workaround. See `docs/windows-nvim-fzf.md`.
+- Neovim fzf tmux popups require a live matching pane, not just an inherited
+  `TMUX` variable or a working `tmux -V`. Fall back to the editor float when the
+  pane is unavailable. See `docs/nvim-fzf.md` for the verified stale-socket case.
+- Keep Neovim startup theme selection on the native seeded `rand()` generator;
+  unseeded LuaJIT `math.random()` repeats across fresh processes. Preserve
+  explicit theme overrides. See `docs/nvim-colors.md` for the verified finding.
 - For Windows Neovim gopls installation failures, compare the effective Go executable and GOROOT before changing version selection. See `docs/windows-nvim-gopls.md` for the verified stale-GOROOT failure.
 - Keep the shared agent instructions in `home_k/.codex/AGENTS.md` and `home_k/.claude/CLAUDE.md`, and list both explicitly in `symlink.py`. See the "Agent rules" section above.
 - Keep shared settings in one common file when platform differences are small, and isolate platform-specific behavior with guarded sections or included/imported macOS, Linux, and Windows fragments when the configuration format supports it.

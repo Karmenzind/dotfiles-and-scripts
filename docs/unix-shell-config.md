@@ -15,6 +15,30 @@ Put configuration that depends on zsh syntax, oh-my-zsh, or a zsh plugin in
 - zsh-autosuggestions styling;
 - FZF zsh options, `_fzf_comprun`, and `pj` completion.
 
+## Browser selection on macOS
+
+On macOS, `shrc.ext` and fish's `conf.d/kz_env.fish` export
+`BROWSER="$HOME/.local/bin/open-browser"`. The Vim and Neovim Markdown browser
+selectors use the same launcher. `symlink.py` installs it from
+`scripts/macos/open-browser.sh` on macOS only. It tries **Chrome, Safari,
+Chromium, Firefox**, in that order, using `open -b` with bundle identifiers.
+This explicit preference overrides the system default for these CLI/editor
+launches and also finds apps installed outside `/Applications`. If a browser
+cannot open the URL, the launcher tries the next one; failure of all four
+returns a nonzero status. Linux keeps its existing executable lookup order;
+Windows retains its Chrome selection.
+
+On 2026-11-24 the system HTTP/HTTPS handler was Chrome, but shell startup found
+no `chromium` or `chrome` command and selected Homebrew's `firefox` wrapper.
+That exported `BROWSER` overrode the system default in tools such as `gh`.
+Chrome's macOS app bundle does not need to provide a `chrome` command.
+
+Already-running shells keep their inherited environment. Start a new shell or
+run `export BROWSER="$HOME/.local/bin/open-browser"` (fish:
+`set -gx BROWSER "$HOME/.local/bin/open-browser"`).
+Explicit `GH_BROWSER`, gh's `browser` configuration, and machine-local overrides
+can still take precedence; check those separately when diagnosing recurrence.
+
 ## FZF compatibility
 
 The oh-my-zsh `fzf` plugin initializes the zsh integration with `fzf --zsh`.

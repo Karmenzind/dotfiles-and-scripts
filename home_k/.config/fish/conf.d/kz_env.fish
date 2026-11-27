@@ -20,10 +20,15 @@ for _t in alacritty xfce4-terminal urxvt
         break
     end
 end
-for _b in chromium chrome firefox elinks
-    if type -q $_b
-        set -gx BROWSER (command -v $_b)
-        break
+if test (uname -s) = Darwin
+    # Match bash/zsh: Chrome, Safari, Chromium, Firefox.
+    set -gx BROWSER "$HOME/.local/bin/open-browser"
+else
+    for _b in chromium chrome firefox elinks
+        if type -q $_b
+            set -gx BROWSER (command -v $_b)
+            break
+        end
     end
 end
 set -e _t

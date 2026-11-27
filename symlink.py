@@ -137,6 +137,7 @@ elif osname == "mac":
     TO_SYNC.update(
         [
             Path("scripts/macos/cleanup-macos.sh"),
+            Path("scripts/macos/open-browser.sh"),
             Path("scripts/macos/com.karmenzind.macos-cleanup.plist"),
             SRC_HOME / ".config/fish",
             # SRC_HOME / ".config/ranger",
@@ -147,6 +148,7 @@ elif osname == "mac":
     PATH_MAP = {
         SRC_HOME: HOME_DIR,
         Path("scripts/macos/cleanup-macos.sh"): HOME_DIR / ".local/bin/cleanup-macos",
+        Path("scripts/macos/open-browser.sh"): HOME_DIR / ".local/bin/open-browser",
         Path("scripts/macos/com.karmenzind.macos-cleanup.plist"): HOME_DIR
         / "Library/LaunchAgents/com.karmenzind.macos-cleanup.plist",
         Path("others/powershell/profile.ps1"): HOME_DIR

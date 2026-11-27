@@ -860,6 +860,8 @@ function! GetBrowser() abort
   if s:is_win
     let p = 'C:\Program Files\Google\Chrome\Application\chrome.exe'
     return glob(p)
+  elseif has('macunix')
+    return expand('~/.local/bin/open-browser')
   else
     for p in ['google-chrome', 'google-chrome-stable', 'chroimium', 'fire']
       if executable(p) | return p | endif

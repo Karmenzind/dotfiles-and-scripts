@@ -544,6 +544,72 @@ require("lazy").setup({
                 }
             end,
             config = function(_, opts)
+                -- Fixed Dark+-style colors, isolated to Telescope preview windows.
+                local preview_ns = vim.api.nvim_create_namespace("TelescopeReadablePreview")
+                local function style_telescope_preview()
+                    local colors = {
+                        Normal = { fg = "#d4d4d4", bg = "#1e1e1e", ctermfg = 252, ctermbg = 234 },
+                        Comment = { fg = "#a0a0a0", ctermfg = 248, italic = false },
+                        String = { fg = "#ce9178", ctermfg = 173 },
+                        Number = { fg = "#b5cea8", ctermfg = 151 },
+                        Constant = { fg = "#4fc1ff", ctermfg = 81 },
+                        Identifier = { fg = "#9cdcfe", ctermfg = 153 },
+                        Function = { fg = "#dcdcaa", ctermfg = 187 },
+                        Keyword = { fg = "#c586c0", ctermfg = 176 },
+                        Type = { fg = "#4ec9b0", ctermfg = 79 },
+                        PreProc = { fg = "#c586c0", ctermfg = 176 },
+                        Special = { fg = "#d7ba7d", ctermfg = 180 },
+                        Delimiter = { fg = "#d4d4d4", ctermfg = 252 },
+                        Error = { fg = "#f48771", ctermfg = 210, underline = true },
+                        Todo = { fg = "#ffffff", bg = "#3a3d41", ctermfg = 15, ctermbg = 237, bold = true },
+                        CursorLine = { bg = "#30343b", ctermbg = 236 },
+                        LineNr = { fg = "#a0a0a0", bg = "#1e1e1e", ctermfg = 248, ctermbg = 234 },
+                        Search = { fg = "#ffffff", bg = "#614e00", ctermfg = 15, ctermbg = 58 },
+                        Visual = { bg = "#264f78", ctermbg = 24 },
+                    }
+                    local links = {
+                        NormalFloat = "Normal", TelescopePreviewNormal = "Normal", EndOfBuffer = "Normal",
+                        TelescopePreviewLine = "CursorLine", TelescopePreviewMatch = "Search", NonText = "LineNr",
+                        Character = "String", Boolean = "Constant", Float = "Number", SpecialChar = "Special",
+                        Statement = "Keyword", Conditional = "Keyword", Repeat = "Keyword", Exception = "Keyword",
+                        StorageClass = "Type", Structure = "Type", Typedef = "Type", Tag = "Type",
+                        Include = "PreProc", Define = "PreProc", Macro = "PreProc", PreCondit = "PreProc",
+                        Label = "Keyword", Title = "Function", Underlined = "Identifier", SpecialComment = "Comment",
+                    }
+                    for name, color in pairs(colors) do vim.api.nvim_set_hl(preview_ns, name, color) end
+                    for name, target in pairs(links) do vim.api.nvim_set_hl(preview_ns, name, colors[target]) end
+                    local captures = {
+                        variable = "Identifier", property = "Identifier", constant = "Constant", module = "Include",
+                        namespace = "Include", string = "String", character = "Character", boolean = "Boolean",
+                        number = "Number", float = "Float", type = "Type", attribute = "PreProc",
+                        ["function"] = "Function", constructor = "Function", operator = "Delimiter",
+                        keyword = "Keyword", punctuation = "Delimiter", comment = "Comment",
+                        markup = "Special", text = "Normal", tag = "Tag", label = "Label",
+                    }
+                    -- Override language-specific captures too, so a random global
+                    -- theme cannot leave low-contrast syntax in the fixed preview.
+                    for name in pairs(vim.api.nvim_get_hl(0, {})) do
+                        local root = name:match("^@([%w_]+)")
+                        if captures[root] then
+                            local target = captures[root]
+                            vim.api.nvim_set_hl(preview_ns, name, colors[target] or colors[links[target]])
+                        end
+                    end
+                    for _, win in ipairs(vim.api.nvim_list_wins()) do
+                        if vim.wo[win].winhighlight:find("Normal:TelescopePreviewNormal", 1, true) then
+                            vim.api.nvim_win_set_hl_ns(win, preview_ns)
+                        end
+                    end
+                end
+                local preview_group = vim.api.nvim_create_augroup("TelescopeReadablePreview", { clear = true })
+                vim.api.nvim_create_autocmd("User", {
+                    group = preview_group, pattern = "TelescopePreviewerLoaded", callback = style_telescope_preview,
+                })
+                vim.api.nvim_create_autocmd("ColorScheme", {
+                    group = preview_group, callback = style_telescope_preview,
+                })
+                style_telescope_preview()
+
                 local telescope = require("telescope")
                 telescope.setup(opts)
                 -- 2026 实践：显式加载已安装的扩展
@@ -1011,8 +1077,14 @@ local function set_color_scheme(cname)
     vim.cmd("colorscheme " .. chosen)
 end
 
+local function rchoose(items)
+    -- LuaJIT's unseeded math.random repeats across fresh Neovim processes.
+    -- Use Neovim's seeded generator without resetting plugin Lua PRNG state.
+    return items[vim.fn.rand() % #items + 1]
+end
+
 local function random_set_colo(themes)
-    set_color_scheme(themes[math.random(1, #themes)])
+    set_color_scheme(rchoose(themes))
 end
 
 local fit_cs_grp = vim.api.nvim_create_augroup("fit_colorscheme", { clear = true })
@@ -1249,10 +1321,18 @@ if my_fuzzy_tool == "fzf" then
     end
 
     local use_tmux = false
-    if not is_win and not vim.g.vscode and vim.env.TMUX ~= nil then
-        local ver_str = vim.fn.system("tmux -V"):match("[%d%.]+")
-        if ver_str and tonumber(ver_str) and tonumber(ver_str) >= 3.2 then
-            use_tmux = true
+    -- A GUI or long-lived shell can inherit TMUX after its server has gone.
+    -- Version detection alone succeeds even when no popup can be displayed.
+    if not is_win and not vim.g.vscode and not vim.g.neovide
+        and vim.env.TMUX and vim.env.TMUX ~= ""
+        and vim.env.TMUX_PANE and vim.env.TMUX_PANE ~= ""
+        and vim.fn.executable("tmux") == 1 then
+        local version = vim.fn.system({ "tmux", "-V" })
+        local version_ok = vim.v.shell_error == 0
+        local major, minor = version:match("(%d+)%.(%d+)")
+        if version_ok and major and (tonumber(major) > 3 or tonumber(major) == 3 and tonumber(minor) >= 2) then
+            local pane = vim.fn.system({ "tmux", "display-message", "-p", "-t", vim.env.TMUX_PANE, "#{pane_id}" })
+            use_tmux = vim.v.shell_error == 0 and vim.trim(pane) == vim.env.TMUX_PANE
         end
     end
 
@@ -1347,6 +1427,8 @@ local function mp_get_browser()
     if is_win then
         local p = [[C:\Program Files\Google\Chrome\Application\chrome.exe]]
         return vim.fn.glob(p) ~= "" and p or nil
+    elseif is_macos then
+        return vim.fn.expand("~/.local/bin/open-browser")
     end
     for _, p in ipairs({ "google-chrome", "google-chrome-stable", "chromium", "firefox" }) do
         if vim.fn.executable(p) == 1 then
@@ -2235,10 +2317,6 @@ end
 
 -- FIXME (k): <2024-05-02 22:24>
 -- require("ufo").setup({ close_fold_kinds_for_ft = { "imports", "comment" }, fold_virt_text_handler = ufo_handler })
-
-local function rchoose(l)
-    return l[math.random(1, #l)]
-end
 
 if vim.g.colors_name == nil then
     if load_extra_colors then

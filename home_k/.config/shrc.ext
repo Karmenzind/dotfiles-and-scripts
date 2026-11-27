@@ -40,10 +40,16 @@ for _tmp_terminal in alacritty xfce4-terminal urxvt; do
     [[ -n $TERMINAL ]] && unset _tmp_terminal && break
 done
 
-for _tmp_browser in chromium chrome firefox elinks; do
-    export BROWSER=$(command -v $_tmp_browser)
-    [[ -n $BROWSER ]] && unset _tmp_browser && break
-done
+# macOS apps need not expose a matching CLI name. Share one explicit preference
+# order with editor previews: Chrome, Safari, Chromium, Firefox.
+if [[ "$(uname -s)" == "Darwin" ]]; then
+    export BROWSER="$HOME/.local/bin/open-browser"
+else
+    for _tmp_browser in chromium chrome firefox elinks; do
+        export BROWSER=$(command -v $_tmp_browser)
+        [[ -n $BROWSER ]] && unset _tmp_browser && break
+    done
+fi
 
 export RIPGREP_CONFIG_PATH=~/.config/ripgreprc
 
