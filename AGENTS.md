@@ -117,7 +117,7 @@
   See `docs/alacritty-config-review.md` for the verified Alacritty example and
   version-scoped review findings.
 - Treat configuration files shared by macOS, Linux, and Windows as cross-platform by default, including `home_k/.tmux.conf`. Consider compatibility with all three platforms whenever changing shared configuration.
-- Keep Neovim Markdown preview servers listening on `0.0.0.0`, and keep every user-facing or browser-opened preview URL on the detected LAN IP. Do not change those URLs to `localhost`, `127.0.0.1`, or `0.0.0.0`. Every picker launch must stop the managed active preview and start a new one; do not re-enable mdkite takeover or reuse an existing server. See `docs/nvim-markdown-preview.md`.
+- Keep Neovim Markdown preview servers listening on `0.0.0.0`, and keep every user-facing or browser-opened preview URL on the detected LAN IP. Do not change those URLs to `localhost`, `127.0.0.1`, or `0.0.0.0`. If a preview is running, the picker must ask for y/n before stopping it; declining preserves it and cancels the new launch. After confirmation, start a fresh preview; do not re-enable mdkite takeover or reuse an existing server. Stop remote mdkite through its Neovim RPC API, never by killing the editor. See `docs/nvim-markdown-preview.md`.
 - Keep the unresolved Windows `fzf.vim`/ripgrep investigation version-scoped and compare environments before adding a workaround. See `docs/windows-nvim-fzf.md`.
 - Neovim fzf tmux popups require a live matching pane, not just an inherited
   `TMUX` variable or a working `tmux -V`. Fall back to the editor float when the

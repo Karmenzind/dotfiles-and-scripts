@@ -1438,35 +1438,126 @@ local function mp_get_browser()
     return nil
 end
 
-local function mp_stop_mdkite()
-    local ok, mdkite = pcall(require, "mdkite")
-    if ok and (mdkite._server_instance or mdkite._is_primary ~= nil) then
-        mdkite.stop()
-    end
-end
-
-local function mp_stop_tmux_mlp()
+local function mp_mlp_panes()
+    local result = {}
     if not vim.env.TMUX then
-        return
+        return result
     end
     local panes = vim.fn.systemlist({ "tmux", "list-panes", "-a", "-F", "#{pane_id}\t#{pane_start_command}" })
     if vim.v.shell_error ~= 0 then
-        return
+        return result
     end
     for _, line in ipairs(panes) do
         local pane, command = line:match("^(%%[%d]+)\t(.*)$")
         local is_mlp_preview = command
-            and command:match("%f[%w]mlp%f[%W]")
-            and (command .. " "):match("%-p%s+13333%s")
+            and command:match("^mlp %-%-no%-browser %-p 13333 %-o ")
         if pane and is_mlp_preview then
-            vim.fn.system({ "tmux", "kill-pane", "-t", pane })
+            table.insert(result, pane)
         end
     end
+    return result
 end
 
-local function mp_stop_active_preview()
-    mp_stop_mdkite()
-    mp_stop_tmux_mlp()
+-- Use a separate bounded RPC client: an unresponsive editor must not hang the
+-- picker, and stopping a preview must never terminate its hosting editor.
+local function mp_remote_preview(address, stop)
+    local code = 'local m=package.loaded["mdkite"]; local s=m and m._server_instance; '
+        .. 'if not s or s.port~=13333 then return "absent" end; '
+        .. (stop and 'm.stop(); ' or '') .. 'return "preview"'
+    local expr = "luaeval('(function() " .. code .. " end)()')"
+    local ok, result = pcall(function()
+        return vim.system({ vim.v.progpath, "--server", address, "--remote-expr", expr }, { text = true }):wait(1000)
+    end)
+    return ok and result.code == 0 and vim.trim(result.stdout or "") == "preview"
+end
+
+local function mp_remote_previews()
+    local addresses, found = {}, {}
+    local patterns = {
+        vim.fn.stdpath("run") .. "/nvim.*",
+        vim.fn.stdpath("run") .. "/nvim.*/0",
+        vim.fn.stdpath("run") .. "/nvim.*/*",
+        vim.fn.fnamemodify(vim.v.servername, ":h") .. "/nvim.*",
+        (vim.env.TMPDIR or "/tmp") .. "/nvim.*/nvim.*/*",
+    }
+    if is_win then
+        patterns = { [[\\.\pipe\nvim.*]] }
+    end
+    for _, pattern in ipairs(patterns) do
+        for _, address in ipairs(vim.fn.glob(pattern, false, true)) do
+            if address ~= vim.v.servername and not addresses[address] then
+                addresses[address] = true
+                if mp_remote_preview(address, false) then
+                    table.insert(found, address)
+                end
+            end
+        end
+    end
+    return found
+end
+
+local function mp_port_free()
+    local tcp = (vim.uv or vim.loop).new_tcp()
+    if not tcp then return false end
+    local bound = tcp:bind("0.0.0.0", 13333)
+    local listening = bound and tcp:listen(1, function() end)
+    tcp:close()
+    return not not listening
+end
+
+local function mp_prepare_preview(launch)
+    local mdkite = package.loaded["mdkite"]
+    local local_active = mdkite and mdkite._server_instance ~= nil
+    local panes = mp_mlp_panes()
+    local jobs = {}
+    for _, buf in ipairs(vim.api.nvim_list_bufs()) do
+        if vim.api.nvim_buf_is_loaded(buf)
+            and vim.api.nvim_buf_get_name(buf):match(":mlp %-%-no%-browser %-p 13333 %-o ") then
+            local job = vim.b[buf].terminal_job_id
+            if job and vim.fn.jobwait({ job }, 0)[1] == -1 then
+                table.insert(jobs, job)
+            end
+        end
+    end
+    local occupied = not mp_port_free()
+    local remote = occupied and not local_active and #panes == 0 and #jobs == 0 and mp_remote_previews() or {}
+    if not local_active and #panes == 0 and #jobs == 0 and not occupied then
+        launch()
+        return
+    end
+    if not local_active and #panes == 0 and #jobs == 0 and #remote == 0 then
+        echo_warn("Port 13333 is occupied, but its preview owner could not be identified. Stop it in its original editor.")
+        return
+    end
+    -- Use the native command line, not vim.ui.input's plugin-provided popup.
+    vim.fn.inputsave()
+    local ok, answer = pcall(vim.fn.input, {
+        prompt = "An existing Markdown preview is running. Stop it and start this file? [y/N]: ",
+        cancelreturn = "n",
+    })
+    vim.fn.inputrestore()
+    vim.cmd("redraw")
+    if not ok or vim.trim(answer):lower() ~= "y" then return end
+    if local_active then mdkite.stop() end
+    for _, job in ipairs(jobs) do vim.fn.jobstop(job) end
+    for _, address in ipairs(remote) do
+        if not mp_remote_preview(address, true) then
+            echo_warn("Could not stop the preview in " .. address)
+            return
+        end
+    end
+    for _, pane in ipairs(panes) do
+        vim.fn.system({ "tmux", "kill-pane", "-t", pane })
+        if vim.v.shell_error ~= 0 then
+            echo_warn("Could not stop preview pane " .. pane)
+            return
+        end
+    end
+    if not vim.wait(1500, mp_port_free, 50) then
+        echo_warn("Port 13333 is still occupied; the new preview was not started.")
+        return
+    end
+    launch()
 end
 
 local function mp_app_available(exe, mac_app)
@@ -1516,7 +1607,8 @@ local function markdown_preview_picker()
         echo_warn("Only support markdown")
         return
     end
-    local path = vim.fn.expand("%")
+    local bufnr = vim.api.nvim_get_current_buf()
+    local path = vim.fn.expand("%:p")
 
     -- every supported tool is always listed; `available` decides whether it can
     -- actually be launched, so the list also documents what is supported here
@@ -1593,8 +1685,11 @@ local function markdown_preview_picker()
         end
         -- Never retarget or reuse the previous web preview. Starting from a
         -- stopped server avoids stale content when switching Markdown files.
-        mp_stop_active_preview()
-        c.launch()
+        mp_prepare_preview(function()
+            if vim.api.nvim_buf_is_valid(bufnr) then
+                vim.api.nvim_buf_call(bufnr, c.launch)
+            end
+        end)
     end)
 end
 
