@@ -59,6 +59,86 @@ looks like a secret, warn and keep it out.
   `git push` (and its `--force`, `--set-upstream`, and tag-pushing forms),
   `gh pr create`, and `gh pr merge`.
 
+### After a push: fast-forward the local branch
+
+Pushing from a worktree or another branch (`git push origin HEAD:dev`) moves
+only the remote branch; the main checkout's local branch of the same name stays
+behind, and the user later finds `Your branch is behind 'origin/dev'`.
+
+- In the same turn as the push, fast-forward the local branch of the same name
+  in the repository's main checkout: `git merge --ff-only origin/<branch>` when
+  that branch is checked out there, otherwise `git fetch origin <branch>:<branch>`.
+- Only ever fast-forward. If the local branch has commits of its own, or the
+  checkout has uncommitted changes on that branch, leave it and tell the user.
+- Mention it in one line of the report. It is local, cannot lose work, and needs
+  no confirmation; asking about it is the wrong call (2026-11-13).
+
+## The five steps of publishing a shared branch
+
+When the user asks to push work that sits on a branch shared through the remote
+(typically `dev`), first do the check in step 0, then these five steps in
+this order. (Developer decision,
+2026-11-27.)
+
+0. **Check for work that is not this session's.** Before anything else, look
+   at both the working tree and the branch's unpushed commits
+   (`git log origin/<branch>..<branch>`). If either holds something this
+   session did not make (uncommitted changes, or unpushed commits from the
+   user's other sessions), stop and ask the developer whether it goes out
+   together with this push. Name the paths and the commits.
+   - Do not publish only part of the branch to work around it.
+   - Do not publish all of it on your own judgement either.
+   - Proceed only after an explicit answer; the answer covers this push only.
+   (Developer decision, 2026-11-28: on 2026-11-28 the agent pushed another
+   session's unpushed commit in oj-bridge and two in the workspace along with
+   its own, on the reading that the squash scope below already allowed it.)
+1. **Commit.** Inspect the full working tree and commit only this task's files,
+   as "Commit scope" above requires. Stop and ask about anything else.
+2. **Squash.** Fold the commits that are not on the remote yet, so the branch
+   publishes a readable history.
+   - Only unpushed commits. Never rewrite a commit the remote already has.
+   - The scope is every unpushed commit that goes out with this push: this
+     session's own, plus other sessions' commits the developer agreed to
+     include in step 0.
+   - Fold neighbours whose intent already overlaps (fixups, follow-ups to the
+     same document or feature). Do not redraw commit boundaries, and keep the
+     surviving commit's message.
+   - Content must not change: compare the tree before and after
+     (`git rev-parse HEAD^{tree}`), and they must be equal.
+3. **Pull with rebase.** `git fetch`, then `git pull --rebase`, so local commits
+   sit on top of the remote's latest and no merge commit is created. Squash
+   comes before this step on purpose: a conflict is then resolved once, not once
+   per small commit. On a conflict, stop and report; do not choose between the
+   user's and someone else's changes yourself.
+4. **Verify.** In a code repository, run the tests again after the rebase: that
+   combination of code exists for the first time. A documentation-only
+   repository may skip this.
+5. **Push.** Push from the local branch of the same name, then confirm local and
+   remote are equal.
+
+Limits:
+
+- **This describes what a push consists of; it does not authorize one.** A push
+  still needs the user's request in the current exchange ("Publishing to a
+  remote" above). Do not run steps 2–5 because step 1 happened.
+- **It applies to a branch that is pushed directly.** Work on a worktree or
+  feature branch is first merged into the local shared branch, which is a
+  separate step with its own request; the five steps start after that.
+- Steps the user names explicitly override this order for that request.
+
+## Merging one branch into another
+
+- "Merge dev into master" (or main, or any branch into another) means the whole
+  source branch: every commit on it, including other people's and unrelated
+  work. Do not narrow it to the feature currently being discussed, and do not
+  stop to list unrelated commits or offer a cherry-pick alternative.
+- Merge only part of a branch (selected files, features, or commits) when the
+  user says so explicitly, e.g. "只合并 xxx 部分".
+- This defines the scope only. The push still follows "Publishing to a remote".
+  Prefer a fast-forward when the target is an ancestor of the source.
+  (2026-11-24: the agent stopped a requested dev→master merge to ask about
+  unrelated commits; the user wanted the whole branch.)
+
 ## Branching
 
 - Do not create a branch for the work unless asked. Default to committing on the

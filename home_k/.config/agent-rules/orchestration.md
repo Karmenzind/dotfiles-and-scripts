@@ -4,7 +4,7 @@ When delegating work:
 
 - use the Executor requested by the task;
 - verify the actual Executor and Model before dispatch;
-- do not replace Codex with Claude, Cursor with Codex, or any other Executor without an explicit execution-metadata revision;
+- do not replace Codex with Claude, Cursor with Codex, or any other Executor without an explicit execution-metadata revision; the one standing exception is an exhausted usage quota, under the conditions in "Executor quota runs out mid-run" below;
 - if the selected Executor cannot be invoked, stop and report the constraint;
 - Executor completion does not imply task acceptance;
 - review and verification remain the Orchestrator's responsibility.
@@ -16,6 +16,45 @@ When delegating work:
   one. Do not choose a fast variant merely because it appears first in a list.
   (Corrected 2026-08-29: an earlier draft claimed a second exception for
   "inconsequential tasks" — the user never authorized it.)
+
+### Cursor's Composer models: choose with caution, and conservatively
+
+Developer instruction, 2026-11-28. Treat a Composer model (`composer-*`) as the
+last choice among the available executors, not as the default for frontend
+work.
+
+- **Before choosing it, ask whether another executor or model can take the
+  task.** Prefer one that can; pick Composer only when the task is small, its
+  write scope is a few files that only this task touches, and a wrong result
+  would be obvious and cheap to undo. Say why it was chosen in the capability
+  assessment.
+- **Do not give it a task that edits files shared across the application**:
+  locale catalogues, lockfiles, generated code, snapshots, route or menu
+  registries, shared styles or configuration. If the task needs such an edit,
+  either assign the whole task to a stronger model, or split that edit out to
+  one.
+- **Do not give it broad rewrites** (a page rework across many components, a
+  refactor) or anything touching money, permissions, data writes or
+  migrations.
+- **When it is used, the prompt spells out every constraint that a stronger
+  model would be trusted to infer**: which files may change and how, what must
+  not be regenerated, sorted or bulk-copied, what counts as unfinished. "Follow
+  the repository's existing practice" is not a constraint for this model.
+- **Review its work as untrusted**: start from `git status` and
+  `git diff --stat` and check the size and spread of the change against the
+  task before reading any line, and do not rely on its tests passing. Its
+  report understates what it did.
+
+Why: on 2026-11-28 `composer-2.5`, asked to rework one page of
+`oj-next-frontend` and add about fifty locale keys, rewrote `zh.json` and
+`jp.json` in full (about 5,700 changed lines each, keys re-sorted) and replaced
+existing Chinese and Japanese translations with English so that a parity test
+would pass. The type check and every unit test passed, and its report
+mentioned it in one soft line. The orchestrator noticed only because of the
+diff size; had it been pushed, shipped screens would have turned English. The
+general rule this produced is in the engineering playbook,
+`workspaces/agent-execution.md`, "Read the shape of the diff before accepting a
+report".
 
 ## Keep going; stop only for decisions that are mine
 
@@ -44,7 +83,8 @@ Things that **are** reasons to stop and ask:
 - a change to frozen Plan scope, Contract semantics, or acceptance criteria that
   the frozen documents do not already settle;
 - an execution-metadata revision (Executor, Model, Reasoning, Execution Mode) —
-  these need explicit approval and must be recorded before dispatch;
+  these need explicit approval and must be recorded before dispatch, except
+  the quota fallback below, which I have approved in advance;
 - anything destructive or outward-facing: pushing, deleting, touching a shared
   database or a production system;
 - a trade-off where two defensible answers lead to materially different work,
@@ -52,6 +92,38 @@ Things that **are** reasons to stop and ask:
 
 When in doubt, prefer acting and reporting the judgment over stalling. A
 recorded judgment I can overturn costs less than an idle orchestrator.
+
+## Executor quota runs out mid-run
+
+Added 2026-10-29, after Cursor hit its team usage limit halfway through a
+frozen run and two tasks sat blocked waiting for me.
+
+**When it applies:** Plan, Contract and Tasks are frozen, orchestration has
+started, and a task cannot run because its assigned executor reports an
+exhausted usage quota or rate-limit window (for example `usage limit`,
+`ActionRequiredError`, a stated reset time). It does not apply to any other
+kind of unavailability — not installed, authentication failure, sandbox
+refusal, wrong invocation — and not to unfrozen work; those still stop and
+report.
+
+1. **Report at once.** Name the blocked tasks, quote the error, give the
+   reset time if known, propose the replacement Executor and Model, and state
+   the deadline: one hour after the report. Keep dispatching every other
+   runnable task meanwhile.
+2. **If I answer within the hour, follow my answer.**
+3. **If I have not answered within the hour, switch** to another executor whose
+   quota is available. This is a standing, pre-approved execution-metadata
+   revision; do not wait any longer.
+   - Pick an executor that can actually do the task (check required
+     capabilities such as browser or network); prefer one already working in
+     this run. Smoke-test it before the real dispatch if it is new to the run.
+   - Keep the task's Reasoning; never switch to a fast variant.
+   - If the quota resets within that same hour, waiting for the reset is also
+     acceptable — say which you chose.
+4. **Record it; never substitute silently.** In the Tasks document's dispatch
+   record write: Requested and Actual executor, the quota error, the report
+   time, the switch time, and "no reply within one hour". Revise the task's
+   execution metadata the same way any developer revision is recorded.
 
 ## Pre-dispatch checks
 

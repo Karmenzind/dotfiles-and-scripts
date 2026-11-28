@@ -52,3 +52,16 @@ the package manager, unless the project says otherwise.
   available on PATH.
 - Be aware that `uv run` may resolve dependencies, access the network, or touch
   `uv.lock`.
+
+## Command-line database clients
+
+- When querying a database from the command line, try `usql` first. Use
+  `mycli`, `pgcli`, `sqlcmd`, or another engine-specific client only when
+  `usql` is unavailable, cannot connect to that engine, or lacks a feature
+  the task needs.
+- Look up named connections in `~/.config/usql/config.yaml` before asking for
+  connection details. A name the user gives may be a `usql` connection even
+  when they mention a different client; for example, `mycli` cannot open a
+  PostgreSQL connection.
+- Repository rules that prescribe a specific tool or code path for validating
+  queries or migrations take precedence.

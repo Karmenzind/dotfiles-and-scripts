@@ -15,6 +15,16 @@ scoping. Only Claude-specific mechanics belong in this file.
   for approval to start, unless the user has asked to begin.** Finishing the
   plan file and saying so is the end of the turn.
 
+## Executor 额度用尽时的一小时等待（2026-10-29）
+
+规则本身在共享规则 `orchestration.md`「Executor quota runs out mid-run」。在 Claude Code 里这样落地：
+
+- 报告额度用尽时，用普通文字提问，**不要用 `AskUserQuestion`**：它会一直等我回答，一小时到了也切不过去。
+- 报告的同一轮里起一个后台计时：Bash `run_in_background` 跑 `sleep 3600`，完成通知就是截止信号。
+  其他可以跑的任务照常派发，不因为等我而停。
+- 计时结束时，先看报告之后我有没有发过消息。有，就按我说的办；没有，就按共享规则切换执行器，
+  在 Tasks 文档记下切换，并在回复里告诉我切到了谁、为什么。
+
 ## 无界面远程环境里的浏览器验收
 
 只适用于通过 SSH 连接、没有图形界面的远程命令行环境，判断条件是 `SSH_CONNECTION` 有值，
@@ -62,3 +72,7 @@ only」一节，用无界面浏览器做。
   分好几轮一层层往回改，每轮改一点。
 - **不要每条回复末尾都问「要我……吗」。** 授权范围内的事直接做；需要我定的，
   一次只给一个明确的选择，说清选每一边的代价。
+
+## 本机专用规则
+
+@~/.claude/CLAUDE.local.md
