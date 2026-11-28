@@ -170,15 +170,20 @@ function! SetupVimPlug()
   Plug 'SilverofLight/kd_translate.nvim'
   Plug 'dahu/vim-lotr'
 
-  "Plug 'utubo/vim-registers-lite.nvim'
-  "Plug 'karmenzind/registers.vim', {'branch': 'dev', 'frozen': 1}
+  " Plug 'karmenzind/registers.vim', {'branch': 'dev', 'frozen': 1}
 
-  Plug 'karmenzind/vim-tmuxlike', {'branch': 'dev', 'frozen': 1}
   if isdirectory(expand('~/Localworks/vim-tmuxlike'))
     Plug expand('~/Localworks/vim-tmuxlike')
   else
     Plug 'karmenzind/vim-tmuxlike'
   endif
+
+  if isdirectory(expand('~/Localworks/registers.vim'))
+    Plug expand('~/Localworks/registers.vim')
+  else
+    Plug 'karmenzind/registers.vim'
+  endif
+
   Plug 'skywind3000/vim-quickui'
   Plug 'skywind3000/asyncrun.vim'
 
